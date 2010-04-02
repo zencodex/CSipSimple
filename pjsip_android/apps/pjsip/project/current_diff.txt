@@ -1,0 +1,260 @@
+Index: pjsip/include/pjsua-lib/pjsua_internal.h
+===================================================================
+--- pjsip/include/pjsua-lib/pjsua_internal.h	(révision 3064)
++++ pjsip/include/pjsua-lib/pjsua_internal.h	(copie de travail)
+@@ -146,6 +146,8 @@
+ 
+     pjsip_evsub	    *mwi_sub;	    /**< MWI client subscription	*/
+     pjsip_dialog    *mwi_dlg;	    /**< Dialog for MWI sub.		*/
++
++    pj_bool_t		 has_pending_nat_unregistration; /**< If has a pending unregistration due to ip changed dectection */
+ } pjsua_acc;
+ 
+ 
+Index: pjsip/src/pjsua-lib/pjsua_acc.c
+===================================================================
+--- pjsip/src/pjsua-lib/pjsua_acc.c	(révision 3064)
++++ pjsip/src/pjsua-lib/pjsua_acc.c	(copie de travail)
+@@ -713,8 +713,8 @@
+     /* Unregister current contact */
+     pjsua_acc_set_registration(acc->index, PJ_FALSE);
+     if (acc->regc != NULL) {
+-	pjsip_regc_destroy(acc->regc);
+-	acc->regc = NULL;
++	//pjsip_regc_destroy(acc->regc);
++	//acc->regc = NULL;
+ 	acc->contact.slen = 0;
+     }
+ 
+@@ -761,13 +761,27 @@
+     tp->local_name.port = rport;
+ 
+     /* Perform new registration */
+-    pjsua_acc_set_registration(acc->index, PJ_TRUE);
++    acc->has_pending_nat_unregistration = PJ_TRUE;
++    //pjsua_acc_set_registration(acc->index, PJ_TRUE);
+ 
+     pj_pool_release(pool);
+ 
+     return PJ_TRUE;
+ }
+ 
++static pj_bool_t acc_finalize_nat_addr(pjsua_acc *acc,
++				    struct pjsip_regc_cbparam *param)
++{
++	acc->has_pending_nat_unregistration = PJ_FALSE;
++	if (acc->regc != NULL) {
++		pjsip_regc_destroy(acc->regc);
++		acc->regc = NULL;
++		//acc->contact.slen = 0;
++	}
++	pjsua_acc_set_registration(acc->index, PJ_TRUE);
++	return PJ_TRUE;
++}
++
+ /* Check and update Service-Route header */
+ void update_service_route(pjsua_acc *acc, pjsip_rx_data *rdata)
+ {
+@@ -1041,6 +1055,13 @@
+ 
+ 	    PJ_LOG(3,(THIS_FILE, "%s: unregistration success",
+ 		      pjsua_var.acc[acc->index].cfg.id.ptr));
++	    if(pjsua_var.acc[acc->index].has_pending_nat_unregistration == PJ_TRUE){
++	    	 PJ_LOG(3, (THIS_FILE, "Treat pending nat re-registartion"));
++	    	acc_finalize_nat_addr(acc, param);
++	    	/* Update address, don't notify application yet */
++	    	PJSUA_UNLOCK();
++	    	return;
++	    }
+ 	} else {
+ 	    /* Check NAT bound address */
+ 	    if (acc_check_nat_addr(acc, param)) {
+Index: pjmedia/src/pjmedia-audiodev/audiodev.c
+===================================================================
+--- pjmedia/src/pjmedia-audiodev/audiodev.c	(révision 3064)
++++ pjmedia/src/pjmedia-audiodev/audiodev.c	(copie de travail)
+@@ -86,6 +86,12 @@
+ pjmedia_aud_dev_factory* pjmedia_symb_mda_factory(pj_pool_factory *pf);
+ #endif
+ 
++#if PJMEDIA_AUDIO_DEV_HAS_ANDROID
++pjmedia_aud_dev_factory* pjmedia_android_factory(pj_pool_factory *pf);
++#endif
++
++
++
+ #define MAX_DRIVERS	16
+ #define MAX_DEVS	64
+ 
+@@ -224,6 +230,7 @@
+     unsigned cap_size;
+     pj_status_t status;
+ 
++PJ_LOG(2,(THIS_FILE, "get cap...."));
+     status = get_cap_pointer(param, cap, &cap_ptr, &cap_size);
+     if (status != PJ_SUCCESS)
+ 	return status;
+@@ -245,6 +252,9 @@
+     unsigned i, dev_cnt;
+     pj_status_t status;
+ 
++	PJ_LOG(2,(THIS_FILE, "init driver %d", drv_idx));
++
++
+     /* Create the factory */
+     f = (*drv->create)(aud_subsys.pf);
+     if (!f)
+@@ -366,6 +376,7 @@
+     aud_subsys.pf = pf;
+     aud_subsys.drv_cnt = 0;
+     aud_subsys.dev_cnt = 0;
++PJ_LOG(3, (THIS_FILE, "INIT AUDIO DRIVERS"));
+ 
+     /* Register creation functions */
+ #if PJMEDIA_AUDIO_DEV_HAS_PORTAUDIO
+@@ -383,7 +394,13 @@
+ #if PJMEDIA_AUDIO_DEV_HAS_SYMB_MDA
+     aud_subsys.drv[aud_subsys.drv_cnt++].create = &pjmedia_symb_mda_factory;
+ #endif
++#if PJMEDIA_AUDIO_DEV_HAS_ANDROID
++    aud_subsys.drv[aud_subsys.drv_cnt++].create = &pjmedia_android_factory;
++#endif
+ 
++
++
++
+     /* Initialize each factory and build the device ID list */
+     for (i=0; i<aud_subsys.drv_cnt; ++i) {
+ 	status = init_driver(i);
+@@ -463,6 +480,7 @@
+ 
+ 	for (i=0; i<aud_subsys.drv_cnt; ++i) {
+ 	    struct driver *drv = &aud_subsys.drv[i];
++PJ_LOG(3, (THIS_FILE, "For driver %d : dev_idx: %d ", i, drv->dev_idx));
+ 	    if (drv->dev_idx >= 0) {
+ 		id = drv->dev_idx;
+ 		make_global_index(i, &id);
+@@ -648,7 +666,7 @@
+     PJ_ASSERT_RETURN((param.dir != PJMEDIA_DIR_CAPTURE_PLAYBACK) || 
+ 		     (rec_f == play_f),
+ 		     PJMEDIA_EAUD_INVDEV);
+-
++PJ_LOG(3, (THIS_FILE, "Create the stream via op->create stream"));
+     /* Create the stream */
+     status = f->op->create_stream(f, &param, rec_cb, play_cb,
+ 				  user_data, p_aud_strm);
+@@ -657,6 +675,7 @@
+ 
+     /* Assign factory id to the stream */
+     (*p_aud_strm)->sys.drv_idx = f->sys.drv_idx;
++PJ_LOG(3, (THIS_FILE, "Leave stream creation"));
+     return PJ_SUCCESS;
+ }
+ 
+@@ -699,6 +718,9 @@
+ /* API: Start the stream. */
+ PJ_DEF(pj_status_t) pjmedia_aud_stream_start(pjmedia_aud_stream *strm)
+ {
++PJ_LOG(3, (THIS_FILE, "Ask driver to start stream"));
++PJ_LOG(3, (THIS_FILE, "Ask driver to start stream %x", strm->op));
++PJ_LOG(3, (THIS_FILE, "Ask driver to start stream %x", strm->op->start));
+     return strm->op->start(strm);
+ }
+ 
+Index: third_party/srtp/crypto/hash/sha1.c
+===================================================================
+--- third_party/srtp/crypto/hash/sha1.c	(révision 3064)
++++ third_party/srtp/crypto/hash/sha1.c	(copie de travail)
+@@ -44,9 +44,9 @@
+  *
+  */
+ 
++//TODO: add android switch (in fact its a makefile problem, but quickest method used)
++#include "sha1k.h"
+ 
+-#include "sha1.h"
+-
+ debug_module_t mod_sha1 = {
+   0,                 /* debugging is off by default */
+   "sha-1"            /* printable module name       */
+Index: third_party/srtp/crypto/include/sha1.h
+===================================================================
+--- third_party/srtp/crypto/include/sha1.h	(révision 3064)
++++ third_party/srtp/crypto/include/sha1.h	(copie de travail)
+@@ -46,8 +46,8 @@
+ 
+ #ifndef SHA1_H
+ #define SHA1_H
+-
+-#include "err.h"
++//TODO: android switch
++#include "errk.h"
+ #include "datatypes.h"
+ 
+ typedef struct {
+Index: third_party/srtp/crypto/cipher/aes.c
+===================================================================
+--- third_party/srtp/crypto/cipher/aes.c	(révision 3064)
++++ third_party/srtp/crypto/cipher/aes.c	(copie de travail)
+@@ -45,7 +45,8 @@
+ 
+ 
+ #include "aes.h"
+-#include "err.h"
++//TODO : add android precompil swith here with err.h
++#include "errk.h"
+ 
+ /* 
+  * we use the tables T0, T1, T2, T3, and T4 to compute AES, and 
+Index: third_party/srtp/pjlib/srtp_err.c
+===================================================================
+--- third_party/srtp/pjlib/srtp_err.c	(révision 3064)
++++ third_party/srtp/pjlib/srtp_err.c	(copie de travail)
+@@ -16,7 +16,8 @@
+  * along with this program; if not, write to the Free Software
+  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA 
+  */
+-#include "err.h"
++//TODO :android switch
++#include "errk.h"
+ #include <pj/log.h>
+ 
+ /* Redirect libsrtp error to PJ_LOG */
+Index: pjlib/include/pj/sock.h
+===================================================================
+--- pjlib/include/pj/sock.h	(révision 3064)
++++ pjlib/include/pj/sock.h	(copie de travail)
+@@ -503,7 +503,12 @@
+ #endif
+     pj_uint16_t	sin_port;	/**< Transport layer port number.   */
+     pj_in_addr	sin_addr;	/**< IP address.		    */
+-    char	sin_zero[8];	/**< Padding.			    */
++
++#if defined(PJ_SOCKADDR_HAS_PAD) && PJ_SOCKADDR_HAS_PAD!=0
++    char	   __pad[8];	/**< Padding.			    */
++#else
++     char	sin_zero[8];	/**< Padding.			    */
++#endif
+ };
+ 
+ 
+Index: pjlib/include/pj/config.h
+===================================================================
+--- pjlib/include/pj/config.h	(révision 3064)
++++ pjlib/include/pj/config.h	(copie de travail)
+@@ -93,7 +93,15 @@
+ #   undef PJ_LINUX
+ #   define PJ_LINUX	    1
+ #   include <pj/compat/os_linux.h>
++#elif defined(PJ_ANDROID) && PJ_ANDROID!=0
++    /*
++     * Android
++     */
++#   undef PJ_ANDROID
++#   define PJ_ANDROID   1
++#   include <pj/compat/os_android.h>
+ 
++
+ #elif defined(PJ_PALMOS) && PJ_PALMOS!=0
+     /*
+      * Palm
