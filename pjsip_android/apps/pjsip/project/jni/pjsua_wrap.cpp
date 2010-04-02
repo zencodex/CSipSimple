@@ -242,8 +242,6 @@ static void SWIGUNUSED SWIG_JavaThrowException(JNIEnv *jenv, SWIG_JavaExceptionC
 
 
 /* Contract support */
-#include <pj/os.h>
-
 #define SWIG_contract_assert(nullreturn, expr, msg) if (!(expr)) {SWIG_JavaThrowException(jenv, SWIG_JavaIllegalArgumentException, msg); return nullreturn; } else
 
 /* -----------------------------------------------------------------------------
@@ -364,28 +362,31 @@ namespace Swig {
     class JNIEnvWrapper {
       const Director *director_;
       JNIEnv *jenv_;
-      int attach_status;
+      int env_status;
+      JNIEnv *g_env;
     public:
       JNIEnvWrapper(const Director *director) : director_(director), jenv_(0) {
+
+    	  env_status = director_->swig_jvm_->GetEnv((void **)&g_env, JNI_VERSION_1_6);
 #if defined(SWIG_JAVA_ATTACH_CURRENT_THREAD_AS_DAEMON)
         // Attach a daemon thread to the JVM. Useful when the JVM should not wait for 
         // the thread to exit upon shutdown. Only for jdk-1.4 and later.
-    	attach_status = director_->swig_jvm_->AttachCurrentThreadAsDaemon( &jenv_, NULL);
+    	director_->swig_jvm_->AttachCurrentThreadAsDaemon( &jenv_, NULL);
 #else
-    	attach_status = director_->swig_jvm_->AttachCurrentThread( &jenv_, NULL);
+    	director_->swig_jvm_->AttachCurrentThread( &jenv_, NULL);
 #endif
-    	LOGV(">>> Attach status is now %d", attach_status);
       }
       ~JNIEnvWrapper() {
 #if !defined(SWIG_JAVA_NO_DETACH_CURRENT_THREAD)
         // Some JVMs, eg jdk-1.4.2 and lower on Solaris have a bug and crash with the DetachCurrentThread call.
         // However, without this call, the JVM hangs on exit when the thread was not created by the JVM and creates a memory leak.
 
-    	 if( pj_thread_is_registered() == PJ_TRUE ){
+    	 if( env_status == JNI_EDETACHED ){
+    		 LOGV(">>> Detaching thread");
 			  director_->swig_jvm_->DetachCurrentThread();
-			  LOGV(">>> Detaching thread");
+
     	 }else{
-    		 LOGV(">>> This is a JNI thread, do nothing with it");
+    		 LOGV(">>> This thread was previously attached to the jvm, so do not detach it");
     	 }
 
 #endif
