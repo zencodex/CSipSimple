@@ -1,4 +1,4 @@
-/* $Id: pjsua_internal.h 3119 2010-03-10 13:33:25Z bennylp $ */
+/* $Id: pjsua_internal.h 3128 2010-03-30 11:13:59Z nanang $ */
 /* 
  * Copyright (C) 2008-2009 Teluu Inc. (http://www.teluu.com)
  * Copyright (C) 2003-2008 Benny Prijono <benny@prijono.org>
@@ -127,6 +127,13 @@ typedef struct pjsua_acc
     pjsip_regc	    *regc;	    /**< Client registration session.   */
     pj_status_t	     reg_last_err;  /**< Last registration error.	*/
     int		     reg_last_code; /**< Last status last register.	*/
+
+    struct {
+	pj_bool_t	 active;    /**< Flag of reregister status.	*/
+	pj_timer_entry   timer;	    /**< Timer for reregistration.	*/
+	void		*reg_tp;    /**< Transport for registration.	*/
+	unsigned	 attempt_cnt; /**< Attempt counter.		*/
+    } auto_rereg;		    /**< Reregister/reconnect data.	*/
 
     pj_timer_entry   ka_timer;	    /**< Keep-alive timer for UDP.	*/
     pjsip_transport *ka_transport;  /**< Transport for keep-alive.	*/
