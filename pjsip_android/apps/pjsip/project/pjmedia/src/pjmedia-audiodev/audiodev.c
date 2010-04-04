@@ -257,7 +257,6 @@ static pj_status_t init_driver(unsigned drv_idx)
     unsigned i, dev_cnt;
     pj_status_t status;
 
-
     /* Create the factory */
     f = (*drv->create)(aud_subsys.pf);
     if (!f)
@@ -405,7 +404,6 @@ PJ_DEF(pj_status_t) pjmedia_aud_subsys_init(pj_pool_factory *pf)
 #if PJMEDIA_AUDIO_DEV_HAS_NULL_AUDIO
     aud_subsys.drv[aud_subsys.drv_cnt++].create = &pjmedia_null_audio_factory;
 #endif
-
 
     /* Initialize each factory and build the device ID list */
     for (i=0; i<aud_subsys.drv_cnt; ++i) {
@@ -671,6 +669,7 @@ PJ_DEF(pj_status_t) pjmedia_aud_stream_create(const pjmedia_aud_param *prm,
     PJ_ASSERT_RETURN((param.dir != PJMEDIA_DIR_CAPTURE_PLAYBACK) || 
 		     (rec_f == play_f),
 		     PJMEDIA_EAUD_INVDEV);
+
     /* Create the stream */
     status = f->op->create_stream(f, &param, rec_cb, play_cb,
 				  user_data, p_aud_strm);

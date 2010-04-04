@@ -1,4 +1,4 @@
-/* $Id: sip_regc.h 2855 2009-08-05 18:41:23Z nanang $ */
+/* $Id: sip_regc.h 3128 2010-03-30 11:13:59Z nanang $ */
 /* 
  * Copyright (C) 2008-2009 Teluu Inc. (http://www.teluu.com)
  * Copyright (C) 2003-2008 Benny Prijono <benny@prijono.org>
@@ -94,6 +94,7 @@ struct pjsip_regc_info
     pj_bool_t	auto_reg;   /**< Will register automatically?		    */
     int		interval;   /**< Registration interval (seconds).	    */
     int		next_reg;   /**< Time until next registration (seconds).    */
+    pjsip_transport *transport; /**< Last transport used.		    */
 };
 
 /**
