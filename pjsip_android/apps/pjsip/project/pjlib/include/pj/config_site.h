@@ -366,9 +366,9 @@
     /* Select codecs to disable */
     #define PJMEDIA_HAS_L16_CODEC               0
     #define PJMEDIA_HAS_ILBC_CODEC              0
-    #define PJMEDIA_HAS_G722_CODEC              0
-    #define PJMEDIA_HAS_SPEEX_CODEC             0
-    #define PJMEDIA_HAS_GSM_CODEC              0
+    #define PJMEDIA_HAS_G722_CODEC              1
+    #define PJMEDIA_HAS_SPEEX_CODEC             1
+    #define PJMEDIA_HAS_GSM_CODEC              1
 
     /* Fine tune Speex's default settings for best performance/quality */
     #define PJMEDIA_CODEC_SPEEX_DEFAULT_QUALITY 5
@@ -385,8 +385,8 @@
      * using small filter. For example PJSUA_DEFAULT_CODEC_QUALITY must
      * be set to 3 or 4 so pjsua-lib will apply small filter resampling.
      */
-    #define PJMEDIA_RESAMPLE_IMP              PJMEDIA_RESAMPLE_NONE
-    //#define PJMEDIA_RESAMPLE_IMP                PJMEDIA_RESAMPLE_LIBRESAMPLE
+    //#define PJMEDIA_RESAMPLE_IMP              PJMEDIA_RESAMPLE_NONE
+    #define PJMEDIA_RESAMPLE_IMP                PJMEDIA_RESAMPLE_LIBRESAMPLE
 
     /* Use the lighter WSOLA implementation */
     #define PJMEDIA_WSOLA_IMP                   PJMEDIA_WSOLA_IMP_WSOLA_LITE
