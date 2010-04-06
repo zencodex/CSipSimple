@@ -158,9 +158,10 @@ LOCAL_SRC_FILES := $(PJLIB_SRC_DIR)/alaw_ulaw.c $(PJLIB_SRC_DIR)/alaw_ulaw_table
 	$(PJLIB_SRC_DIR)/wsola.c \
 	$(PJMEDIADEV_SRC_DIR)/audiodev.c $(PJMEDIADEV_SRC_DIR)/audiotest.c $(PJMEDIADEV_SRC_DIR)/errno.c \
     $(PJMEDIADEV_SRC_DIR)/android_dev.cpp \
-    $(PJMEDIACODEC_SRC_DIR)/speex_codec.c
-#	$(PJMEDIACODEC_SRC_DIR)/g722.c $(PJMEDIACODEC_SRC_DIR)/g722/g722_enc.c $(PJMEDIACODEC_SRC_DIR)/g722/g722_dec.c \
-#	$(PJMEDIACODEC_SRC_DIR)/ipp_codecs.c $(PJMEDIACODEC_SRC_DIR)/l16.c $(PJMEDIACODEC_SRC_DIR)/gsm.c $(PJMEDIACODEC_SRC_DIR)/ilbc.c 
+    $(PJMEDIACODEC_SRC_DIR)/speex_codec.c \
+	$(PJMEDIACODEC_SRC_DIR)/g722.c $(PJMEDIACODEC_SRC_DIR)/g722/g722_enc.c $(PJMEDIACODEC_SRC_DIR)/g722/g722_dec.c \
+	$(PJMEDIACODEC_SRC_DIR)/gsm.c
+#	$(PJMEDIACODEC_SRC_DIR)/ipp_codecs.c $(PJMEDIACODEC_SRC_DIR)/l16.c $(PJMEDIACODEC_SRC_DIR)/ilbc.c 
 
 
 include $(BUILD_STATIC_LIBRARY)
@@ -252,7 +253,7 @@ LOCAL_SRC_FILES := $(PJLIB_SRC_DIR)/bits.c $(PJLIB_SRC_DIR)/cb_search.c $(PJLIB_
 			$(PJLIB_SRC_DIR)/speex.c $(PJLIB_SRC_DIR)/speex_callbacks.c $(PJLIB_SRC_DIR)/speex_header.c \
 			$(PJLIB_SRC_DIR)/stereo.c $(PJLIB_SRC_DIR)/vbr.c $(PJLIB_SRC_DIR)/vq.c $(PJLIB_SRC_DIR)/window.c
 
-#include $(BUILD_STATIC_LIBRARY)
+include $(BUILD_STATIC_LIBRARY)
 
 
 
@@ -299,7 +300,7 @@ LOCAL_SRC_FILES := $(PJLIB_SRC_DIR)/add.c $(PJLIB_SRC_DIR)/code.c $(PJLIB_SRC_DI
                 	$(PJLIB_SRC_DIR)/lpc.c $(PJLIB_SRC_DIR)/preprocess.c $(PJLIB_SRC_DIR)/rpe.c $(PJLIB_SRC_DIR)/short_term.c \
                 	$(PJLIB_SRC_DIR)/table.c
 
-#include $(BUILD_STATIC_LIBRARY)
+include $(BUILD_STATIC_LIBRARY)
 
 
 ########
@@ -351,7 +352,7 @@ LOCAL_CFLAGS := -DPJ_ANDROID=1
 LOCAL_SRC_FILES := pjsua_wrap.cpp
 
 LOCAL_LDLIBS := -llog -lmedia -lcutils -lutils
-LOCAL_STATIC_LIBRARIES := pjsip pjmedia pjnath pjlib-util pjlib resample srtp 
+LOCAL_STATIC_LIBRARIES := pjsip pjmedia pjnath pjlib-util pjlib resample srtp speex gsm
 
 include $(BUILD_SHARED_LIBRARY)
 
