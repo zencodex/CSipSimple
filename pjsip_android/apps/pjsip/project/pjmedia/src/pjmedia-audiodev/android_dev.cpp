@@ -202,6 +202,7 @@ static void AndroidRecorderCallback(int event, void* userData, void* info)
 				&stream->rec_thread);
 		stream->rec_thread_initialized = 1;
 		PJ_LOG(3,(THIS_FILE, "Recorder thread started"));
+		//TODO: Ensure android give the thread the highest priority
 	}
 
 
@@ -309,6 +310,7 @@ static void AndroidPlayerCallback( int event, void* userData, void* info)
 				&stream->play_thread);
 		stream->play_thread_initialized = 1;
 		PJ_LOG(3,(THIS_FILE, "Player thread started"));
+		//TODO: Ensure android give the thread the highest priority
 	}
 
 	// Check if any buffered samples
@@ -654,7 +656,7 @@ static pj_status_t android_create_stream(pjmedia_aud_dev_factory *f,
 #endif
 
 		//TODO : choose a better stream type
-		stream->play_strm->set(android::AudioSystem::VOICE_CALL,
+		stream->play_strm->set(android::AudioSystem::MUSIC,
 				param->clock_rate, //this is sample rate in Hz (16000 Hz for example)
 				sampleFormat,
 				channel_count, //For now this is mono (we expect 1)
