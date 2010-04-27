@@ -23,7 +23,7 @@
 # revisions of the NDK.
 #
 
-TOOLCHAIN_NAME   := arm-eabi-4.4.0
+TOOLCHAIN_NAME   := arm-v4t-4.4.0
 TOOLCHAIN_PREFIX := $(HOST_PREBUILT)/$(TOOLCHAIN_NAME)/bin/arm-eabi-
 
 TARGET_CFLAGS.common := \
@@ -34,11 +34,10 @@ TARGET_CFLAGS.common := \
     -funwind-tables \
     -fstack-protector \
     -fno-short-enums \
-    -D__ARM_ARCH_5__ -D__ARM_ARCH_5T__ \
-    -D__ARM_ARCH_5E__ -D__ARM_ARCH_5TE__ \
+    -D__ARM_ARCH_4T__
 
-TARGET_ARCH_CFLAGS := -march=armv5te \
-                        -mtune=xscale \
+TARGET_ARCH_CFLAGS := -march=armv4t \
+					  -mtune=arm920t \
                         -msoft-float
 TARGET_ARCH_LDFLAGS :=
 
@@ -48,20 +47,14 @@ TARGET_arm_release_CFLAGS :=  -O2 \
                               -funswitch-loops     \
                               -finline-limit=300
 
-TARGET_thumb_release_CFLAGS := -mthumb \
-                               -Os \
-                               -fomit-frame-pointer \
-                               -fno-strict-aliasing \
-                               -finline-limit=64
+TARGET_thumb_release_CFLAGS :=  $(TARGET_arm_release_CFLAGS)
 
 # When building for debug, compile everything as arm.
 TARGET_arm_debug_CFLAGS := $(TARGET_arm_release_CFLAGS) \
                            -fno-omit-frame-pointer \
                            -fno-strict-aliasing
 
-TARGET_thumb_debug_CFLAGS := $(TARGET_thumb_release_CFLAGS) \
-                             -marm \
-                             -fno-omit-frame-pointer
+TARGET_thumb_debug_CFLAGS := $(TARGET_arm_debug_CFLAGS)
 
 # This function will be called to determine the target CFLAGS used to build
 # a C or Assembler source file, based on its tags.

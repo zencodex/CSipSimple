@@ -1,4 +1,4 @@
-/* $Id: sip_auth.h 2394 2008-12-23 17:27:53Z bennylp $ */
+/* $Id: sip_auth.h 3144 2010-04-20 14:36:38Z nanang $ */
 /* 
  * Copyright (C) 2008-2009 Teluu Inc. (http://www.teluu.com)
  * Copyright (C) 2003-2008 Benny Prijono <benny@prijono.org>
@@ -232,6 +232,18 @@ typedef struct pjsip_auth_clt_sess
 PJ_DECL(void) pjsip_cred_info_dup(pj_pool_t *pool,
 				  pjsip_cred_info *dst,
 				  const pjsip_cred_info *src);
+
+/**
+ * Compare two credential infos.
+ *
+ * @param cred1	    The credential info to compare.
+ * @param cred2	    The credential info to compare.
+ *
+ * @return	    0 if both credentials are equal.
+ */
+PJ_DECL(int) pjsip_cred_info_cmp(const pjsip_cred_info *cred1,
+				 const pjsip_cred_info *cred2);
+
 
 /**
  * Type of function to lookup credential for the specified name.

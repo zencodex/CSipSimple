@@ -1,4 +1,4 @@
-/* $Id: sip_transaction.h 3071 2010-01-25 13:42:56Z bennylp $ */
+/* $Id: sip_transaction.h 3138 2010-04-14 06:57:35Z nanang $ */
 /* 
  * Copyright (C) 2008-2009 Teluu Inc. (http://www.teluu.com)
  * Copyright (C) 2003-2008 Benny Prijono <benny@prijono.org>
@@ -124,6 +124,8 @@ struct pjsip_transaction
     pjsip_tx_data	       *pending_tx;	/**< Tdata which caused
 						     pending transport flag
 						     to be set on tsx.	    */
+    pjsip_tp_state_listener_key *tp_st_key;     /**< Transport state listener
+						     key.		    */
 
     /*
      * Messages and timer.

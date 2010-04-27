@@ -6,13 +6,14 @@ usage() {
 
 MAKE_FLAGS=""
 VERSION="undefined"
+ACTION=""
 
-
-while getopts dhv: arg
+while getopts dhcv: arg
 do	case "$arg" in
 	d)	MAKE_FLAGS="NDK_LOG=true V=1";;
 	h)	usage
-		exit 1;;
+		exit 0;;
+	c)	ACTION="clean";;
 	v)  VERSION="$OPTARG";;
 	[?])	usage	
 		exit 1;;
@@ -26,7 +27,7 @@ for target_path in build/platforms/*; do
 	
 	#Build the stack
 	echo "Make for $TARGET_PLATEFORM"
-	make APP=pjsip APP_PLATFORM=$TARGET_PLATEFORM $MAKE_FLAGS
+	make APP=pjsip APP_PLATFORM=$TARGET_PLATEFORM $MAKE_FLAGS $ACTION
 	
 	#create bundle and md5 for publish
 	OUT_NAME=${TARGET_PLATEFORM}_libpjsipjni-${VERSION}.so.gz

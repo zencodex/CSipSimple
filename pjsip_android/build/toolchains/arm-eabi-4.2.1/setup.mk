@@ -94,7 +94,7 @@ TARGET_CXX      := $(TOOLCHAIN_PREFIX)g++
 TARGET_CXXFLAGS := $(TARGET_CFLAGS.common) -fno-exceptions -fno-rtti
 
 TARGET_LD      := $(TOOLCHAIN_PREFIX)ld
-TARGET_LDFLAGS :=
+TARGET_LDFLAGS := -rdynamic
 
 TARGET_AR      := $(TOOLCHAIN_PREFIX)ar
 TARGET_ARFLAGS := crs

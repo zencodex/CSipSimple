@@ -22,7 +22,7 @@
  * Copyright (C) 2003-2008 Benny Prijono <benny@prijono.org>
  */
 
-//This file is a port for android devices (cupcake and donut).
+//This file is a port for android devices
 // It's deeply inspired from port audio
 
 #include <pjmedia-audiodev/audiodev_imp.h>
@@ -30,6 +30,7 @@
 #include <pj/log.h>
 #include <pj/os.h>
 #include <pj/string.h>
+//#include <dlfcn.h>
 
 #if PJMEDIA_AUDIO_DEV_HAS_ANDROID
 
@@ -37,8 +38,12 @@
 #include <media/AudioSystem.h>
 #include <media/AudioTrack.h>
 
-#if ANDROID_APP_PLATFORM==android-7
-//#include <media/mediarecorder.h>
+#if ANDROID_APP_PLATFORM==android-3 || ANDROID_APP_PLATFORM==android-4 \
+	|| ANDROID_APP_PLATFORM==android_archos-4 || ANDROID_APP_PLATFORM==android_i7500-4 \
+	|| ANDROID_APP_PLATFORM==android_robot-3
+#define ANDROID_VERSION 3
+#else
+#define ANDROID_VERSION 5
 #endif
 
 #define THIS_FILE	"android_dev.cpp"
@@ -50,11 +55,6 @@ struct android_aud_factory
 	pj_pool_factory *pf;
 	pj_pool_t *pool;
 };
-
-
-
-
-
 
 
 /*
@@ -118,6 +118,9 @@ struct android_aud_stream
 
 	int saved_audio_mode;
 	unsigned saved_audio_routing;
+
+	//Handle on the android libmedia
+	//void* libhandle;
 };
 
 /* Factory prototypes */
@@ -546,17 +549,6 @@ static pj_status_t android_create_stream(pjmedia_aud_dev_factory *f,
 	// Only supports for mono channel for now
 	PJ_ASSERT_RETURN(param->channel_count == 1, PJ_EINVAL);
 
-	PJ_LOG(4,(THIS_FILE, "All assert are ok"));
-
-	if (param->bits_per_sample == 8) {
-		sampleFormat = android::AudioSystem::PCM_8_BIT;
-	} else if (param->bits_per_sample == 16) {
-		sampleFormat = android::AudioSystem::PCM_16_BIT;
-	} else {
-		return PJMEDIA_EAUD_SAMPFORMAT;
-	}
-
-	PJ_LOG(4,(THIS_FILE, "Bits per sample also"));
 
 	pool = pj_pool_create(pa->pf, "sndstream", 1024, 1024, NULL);
 	if (!pool) {
@@ -584,6 +576,25 @@ static pj_status_t android_create_stream(pjmedia_aud_dev_factory *f,
 			stream->samples_per_frame * stream->bytes_per_sample);
 	stream->play_buf_count = 0;
 
+	//create the lib handle
+	/*
+	stream->libhandle = dlopen("libmedia.so", RTLD_GLOBAL);
+	if (stream->libhandle == NULL){
+		PJ_LOG(1, (THIS_FILE, "Fail to load media lib %s", dlerror()));
+		pj_pool_release(pool);
+		return PJ_ENOMEM;
+	}
+	*/
+
+
+	if (param->bits_per_sample == 8) {
+		sampleFormat = android::AudioSystem::PCM_8_BIT;
+	} else if (param->bits_per_sample == 16) {
+		sampleFormat = android::AudioSystem::PCM_16_BIT;
+	} else {
+		return PJMEDIA_EAUD_SAMPFORMAT;
+	}
+
 	//Compute buffer size
 	size_t inputBuffSize = 0;
 	android::AudioSystem::getInputBufferSize(param->clock_rate,
@@ -607,9 +618,9 @@ static pj_status_t android_create_stream(pjmedia_aud_dev_factory *f,
 	//	android::AudioSystem::muteMicrophone(false);
 
 		int inputSource;
-#if ANDROID_APP_PLATFORM==android-3 || ANDROID_APP_PLATFORM==android-4 || ANDROID_APP_PLATFORM==android_archos-4
+#if ANDROID_VERSION==3
 		inputSource = android::AudioRecord::MIC_INPUT;
-#elif ANDROID_APP_PLATFORM==android-5 || ANDROID_APP_PLATFORM==android-6 || ANDROID_APP_PLATFORM==android-7
+#elif ANDROID_VERSION==5
 		//inputSource = android::AUDIO_SOURCE_MIC;
 		inputSource = 0;
 		//channel_count = android::AudioSystem::popCount(android::AudioSystem::CHANNEL_IN_MONO);
@@ -648,9 +659,9 @@ static pj_status_t android_create_stream(pjmedia_aud_dev_factory *f,
 			pj_pool_release(pool);
 			return PJ_ENOMEM;
 		}
-#if ANDROID_APP_PLATFORM==android-3 || ANDROID_APP_PLATFORM==android-4 || ANDROID_APP_PLATFORM==android_archos-4
+#if ANDROID_VERSION==3
 //		android::AudioSystem::speakerphone(true);
-#elif ANDROID_APP_PLATFORM==android-5 || ANDROID_APP_PLATFORM==android-6 || ANDROID_APP_PLATFORM==android-7
+#elif ANDROID_VERSION==5
 //		android::AudioSystem::setMasterMute(false);
 		channel_count = android::AudioSystem::CHANNEL_IN_MONO;
 #endif
@@ -842,6 +853,7 @@ static pj_status_t strm_destroy(pjmedia_aud_stream *s)
 	}
 
 	pj_pool_release(stream->pool);
+	//dlclose(stream->libhandle);
 
 	return PJ_SUCCESS;
 }
