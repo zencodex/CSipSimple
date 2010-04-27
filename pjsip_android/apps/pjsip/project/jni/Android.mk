@@ -350,6 +350,7 @@ LOCAL_C_INCLUDES += $(LOCAL_PATH)/../pjsip/include $(LOCAL_PATH)/../pjlib-util/i
 LOCAL_CFLAGS := -DPJ_ANDROID=1
 
 LOCAL_SRC_FILES := pjsua_wrap.cpp
+#LOCAL_ARM_MODE := arm
 
 LOCAL_LDLIBS := -llog -lmedia -lcutils -lutils
 LOCAL_STATIC_LIBRARIES := pjsip pjmedia pjnath pjlib-util pjlib resample srtp speex gsm

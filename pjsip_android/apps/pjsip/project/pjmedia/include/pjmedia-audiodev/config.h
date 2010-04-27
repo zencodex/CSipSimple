@@ -1,4 +1,4 @@
-/* $Id: config.h 3102 2010-02-19 09:57:48Z ming $ */
+/* $Id: config.h 3135 2010-04-07 13:21:31Z nanang $ */
 /* 
  * Copyright (C) 2008-2009 Teluu Inc. (http://www.teluu.com)
  * Copyright (C) 2003-2008 Benny Prijono <benny@prijono.org>
@@ -87,6 +87,25 @@ PJ_BEGIN_DECL
  */
 #ifndef PJMEDIA_AUDIO_DEV_HAS_SYMB_APS
 #   define PJMEDIA_AUDIO_DEV_HAS_SYMB_APS	0
+#endif
+
+
+/**
+ * This setting controls whether Symbian APS should perform codec
+ * detection in its factory initalization. Note that codec detection 
+ * may take few seconds and detecting more codecs will take more time.
+ * Possible values are:
+ * - 0: no codec detection, all APS codec (AMR-NB, G.711, G.729, and
+ *      iLBC) will be assumed as supported.
+ * - 1: minimal codec detection, i.e: only detect for AMR-NB and G.711,
+ *      (G.729 and iLBC are considered to be supported/unsupported when
+ *      G.711 is supported/unsupported).
+ * - 2: full codec detection, i.e: detect AMR-NB, G.711, G.729, and iLBC.
+ * 
+ * Default: 1 (minimal codec detection)
+ */
+#ifndef PJMEDIA_AUDIO_DEV_SYMB_APS_DETECTS_CODEC
+#   define PJMEDIA_AUDIO_DEV_SYMB_APS_DETECTS_CODEC 1
 #endif
 
 

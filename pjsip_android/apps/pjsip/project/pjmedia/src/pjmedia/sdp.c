@@ -1,4 +1,4 @@
-/* $Id: sdp.c 3086 2010-02-03 14:43:25Z nanang $ */
+/* $Id: sdp.c 3140 2010-04-20 09:39:14Z bennylp $ */
 /* 
  * Copyright (C) 2008-2009 Teluu Inc. (http://www.teluu.com)
  * Copyright (C) 2003-2008 Benny Prijono <benny@prijono.org>
@@ -1235,7 +1235,8 @@ PJ_DEF(pj_status_t) pjmedia_sdp_parse( pj_pool_t *pool,
 
     pj_scan_fini(&scanner);
 
-    apply_media_direction(session);
+    if (session)
+	apply_media_direction(session);
 
     *p_sdp = session;
     return ctx.last_error;

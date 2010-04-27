@@ -1,4 +1,4 @@
-/* $Id: pjsua_core.c 3128 2010-03-30 11:13:59Z nanang $ */
+/* $Id: pjsua_core.c 3138 2010-04-14 06:57:35Z nanang $ */
 /* 
  * Copyright (C) 2008-2009 Teluu Inc. (http://www.teluu.com)
  * Copyright (C) 2003-2008 Benny Prijono <benny@prijono.org>
@@ -1889,11 +1889,11 @@ PJ_DEF(pj_status_t) pjsua_transport_create( pjsip_transport_type_e type,
 	pjsip_tpmgr *tpmgr;
 
 	tpmgr = pjsip_endpt_get_tpmgr(pjsua_var.endpt);
-	tpcb = pjsip_tpmgr_get_status_cb(tpmgr);
+	tpcb = pjsip_tpmgr_get_state_cb(tpmgr);
 
 	if (tpcb != &on_tp_state_callback) {
 	    pjsua_var.old_tp_cb = tpcb;
-	    pjsip_tpmgr_set_status_cb(tpmgr, &on_tp_state_callback);
+	    pjsip_tpmgr_set_state_cb(tpmgr, &on_tp_state_callback);
 	}
     }
 
