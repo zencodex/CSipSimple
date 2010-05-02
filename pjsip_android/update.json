@@ -4,28 +4,6 @@
 {
 	"sip_core" : [
 		{
-			"id": "android_archos-4",
-			"filters" : {
-				"android.os.Build": {
-					"BRAND" : "archos"
-				},
-				"android.os.Build$VERSION" : {
-					"SDK_INT" : "^4$"
-				}
-			},
-			"versions":[
-				{
-					"version" : "0.00-04",
-					"download_url" : "http://csipsimple.googlecode.com/files/android_archos-4_libpjsipjni-0.00-04.so.gz",
-					"changelog" : "Fetedusip initial release"
-					
-				}
-			],
-			"label" : "CSipSimple build",
-			"description" : "PjSip for android archos 1.6",
-			"autoconf" : {}
-		},
-		{
 			"id": "android-4",
 			"filters" : {
 				"android.os.Build$VERSION" : {
@@ -34,8 +12,8 @@
 			},
 			"versions":[
 				{
-					"version" : "0.00-04",
-					"download_url" : "http://csipsimple.googlecode.com/files/android-4_libpjsipjni-0.00-04.so.gz",
+					"version" : "0.00-05",
+					"download_url" : "http://csipsimple.googlecode.com/files/android-4_libpjsipjni-0.00-05.so.gz",
 					"changelog" : "Fetedusip initial release"
 					
 				}
@@ -53,36 +31,14 @@
 			},
 			"versions":[
 				{
-					"version" : "0.00-04",
-					"download_url" : "http://csipsimple.googlecode.com/files/android-5_libpjsipjni-0.00-04.so.gz",
+					"version" : "0.00-05",
+					"download_url" : "http://csipsimple.googlecode.com/files/android-5_libpjsipjni-0.00-05.so.gz",
 					"changelog" : "Fetedusip initial release"
 					
 				}
 			],
 			"label" : "CSipSimple build",
 			"description" : "PjSip for android 2.0(.1)",
-			"autoconf" : {}
-		},
-		{
-			"id": "android_i5700-7",
-			"filters" : {
-				"android.os.Build": {
-					"DEVICE" : "GT-I5700"
-				},
-				"android.os.Build$VERSION" : {
-					"SDK_INT" : "^7$"
-				}
-			},
-			"versions":[
-				{
-					"version" : "0.00-04",
-					"download_url" : "http://csipsimple.googlecode.com/files/android_i5700-7_libpjsipjni-0.00-04.so.gz",
-					"changelog" : "Fetedusip initial release"
-					
-				}
-			],
-			"label" : "CSipSimple build",
-			"description" : "PjSip for android 2.1",
 			"autoconf" : {}
 		},
 		{
@@ -94,8 +50,8 @@
 			},
 			"versions":[
 				{
-					"version" : "0.00-04",
-					"download_url" : "http://csipsimple.googlecode.com/files/android-7_libpjsipjni-0.00-04.so.gz",
+					"version" : "0.00-05",
+					"download_url" : "http://csipsimple.googlecode.com/files/android-7_libpjsipjni-0.00-05.so.gz",
 					"changelog" : "Fetedusip initial release"
 					
 				}
@@ -113,8 +69,8 @@
 			},
 			"versions":[
 				{
-					"version" : "0.00-04",
-					"download_url" : "http://csipsimple.googlecode.com/files/android-3_libpjsipjni-0.00-04.so.gz",
+					"version" : "0.00-05",
+					"download_url" : "http://csipsimple.googlecode.com/files/android-3_libpjsipjni-0.00-05.so.gz",
 					"changelog" : "Fetedusip initial release"
 					
 				}
