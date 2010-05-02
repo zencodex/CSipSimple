@@ -667,7 +667,7 @@ static pj_status_t android_create_stream(pjmedia_aud_dev_factory *f,
 #endif
 
 		//TODO : choose a better stream type
-		stream->play_strm->set(android::AudioSystem::MUSIC,
+		stream->play_strm->set(android::AudioSystem::VOICE_CALL,
 				param->clock_rate, //this is sample rate in Hz (16000 Hz for example)
 				sampleFormat,
 				channel_count, //For now this is mono (we expect 1)
