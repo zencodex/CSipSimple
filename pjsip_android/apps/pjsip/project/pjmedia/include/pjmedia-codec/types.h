@@ -1,4 +1,4 @@
-/* $Id: types.h 2875 2009-08-13 15:57:26Z bennylp $ */
+/* $Id: types.h 3146 2010-04-26 13:57:28Z nanang $ */
 /* 
  * Copyright (C) 2008-2009 Teluu Inc. (http://www.teluu.com)
  * Copyright (C) 2003-2008 Benny Prijono <benny@prijono.org>
@@ -63,17 +63,17 @@ enum
     PJMEDIA_RTP_PT_L16_16KHZ_STEREO,		/**< L16 @ 16KHz, stereo    */
     //PJMEDIA_RTP_PT_L16_22KHZ_MONO,		/**< L16 @ 22KHz, mono	    */
     //PJMEDIA_RTP_PT_L16_22KHZ_STEREO,		/**< L16 @ 22KHz, stereo    */
-    PJMEDIA_RTP_PT_L16_32KHZ_MONO,		/**< L16 @ 32KHz, mono	    */
-    PJMEDIA_RTP_PT_L16_32KHZ_STEREO,		/**< L16 @ 32KHz, stereo    */
-    PJMEDIA_RTP_PT_L16_48KHZ_MONO,		/**< L16 @ 48KHz, mono	    */
-    PJMEDIA_RTP_PT_L16_48KHZ_STEREO,		/**< L16 @ 48KHz, stereo    */
+    //PJMEDIA_RTP_PT_L16_32KHZ_MONO,		/**< L16 @ 32KHz, mono	    */
+    //PJMEDIA_RTP_PT_L16_32KHZ_STEREO,		/**< L16 @ 32KHz, stereo    */
+    //PJMEDIA_RTP_PT_L16_48KHZ_MONO,		/**< L16 @ 48KHz, mono	    */
+    //PJMEDIA_RTP_PT_L16_48KHZ_STEREO,		/**< L16 @ 48KHz, stereo    */
     PJMEDIA_RTP_PT_ILBC,			/**< iLBC (13.3/15.2Kbps)   */
     PJMEDIA_RTP_PT_AMR,				/**< AMR (4.75 - 12.2Kbps)  */
     PJMEDIA_RTP_PT_AMRWB,			/**< AMRWB (6.6 - 23.85Kbps)*/
     PJMEDIA_RTP_PT_AMRWBE,			/**< AMRWBE		    */
     PJMEDIA_RTP_PT_G726_16,			/**< G726 @ 16Kbps	    */
     PJMEDIA_RTP_PT_G726_24,			/**< G726 @ 24Kbps	    */
-    /* PJMEDIA_RTP_PT_G726_32,*/		/**< G726 @ 32Kbps, static? */
+    PJMEDIA_RTP_PT_G726_32,			/**< G726 @ 32Kbps	    */
     PJMEDIA_RTP_PT_G726_40,			/**< G726 @ 40Kbps	    */
     PJMEDIA_RTP_PT_G722_1_16,			/**< G722.1 (16Kbps)	    */
     PJMEDIA_RTP_PT_G722_1_24,			/**< G722.1 (24Kbps)	    */

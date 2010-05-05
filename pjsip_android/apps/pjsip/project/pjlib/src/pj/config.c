@@ -1,4 +1,4 @@
-/* $Id: config.c 3056 2010-01-11 11:16:12Z ismangil $ */
+/* $Id: config.c 3157 2010-04-30 14:11:58Z bennylp $ */
 /* 
  * Copyright (C) 2008-2009 Teluu Inc. (http://www.teluu.com)
  * Copyright (C) 2003-2008 Benny Prijono <benny@prijono.org>
@@ -22,7 +22,7 @@
 #include <pj/ioqueue.h>
 
 static const char *id = "config.c";
-PJ_DEF_DATA(const char*) PJ_VERSION = "1.5.5-trunk";
+PJ_DEF_DATA(const char*) PJ_VERSION = "1.6-trunk";
 
 /*
  * Get PJLIB version string.

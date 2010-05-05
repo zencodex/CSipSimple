@@ -1,4 +1,4 @@
-/* $Id: audiodev.h 2506 2009-03-12 18:11:37Z bennylp $ */
+/* $Id: audiodev.h 3159 2010-05-05 04:23:27Z ming $ */
 /* 
  * Copyright (C) 2008-2009 Teluu Inc. (http://www.teluu.com)
  * Copyright (C) 2003-2008 Benny Prijono <benny@prijono.org>
@@ -39,7 +39,7 @@ PJ_BEGIN_DECL
  * @{
  */
 
-/** 
+/**
  * Type for device index.
  */
 typedef pj_int32_t pjmedia_aud_dev_index;
@@ -428,6 +428,11 @@ typedef struct pjmedia_aud_stream pjmedia_aud_stream;
 /** Forward declaration for audio device factory */
 typedef struct pjmedia_aud_dev_factory pjmedia_aud_dev_factory;
 
+/* typedef for factory creation function */
+typedef pjmedia_aud_dev_factory*
+(*pjmedia_aud_dev_factory_create_func_ptr)(pj_pool_factory*);
+
+
 /**
  * Get string info for the specified capability.
  *
@@ -507,6 +512,34 @@ PJ_DECL(pj_pool_factory*) pjmedia_aud_subsys_get_pool_factory(void);
  *			error code.
  */
 PJ_DECL(pj_status_t) pjmedia_aud_subsys_shutdown(void);
+
+
+/**
+ * Register a supported audio device factory to the audio subsystem. This
+ * function can only be called after calling #pjmedia_aud_subsys_init().
+ *
+ * @param adf		The audio device factory.
+ *
+ * @return		PJ_SUCCESS on successful operation or the appropriate
+ *			error code.
+ */
+PJ_DECL(pj_status_t)
+pjmedia_aud_register_factory(pjmedia_aud_dev_factory_create_func_ptr adf);
+
+
+/**
+ * Unregister an audio device factory from the audio subsystem. This
+ * function can only be called after calling #pjmedia_aud_subsys_init().
+ * Devices from this factory will be unlisted. If a device from this factory
+ * is currently in use, then the behavior is undefined.
+ *
+ * @param adf		The audio device factory.
+ *
+ * @return		PJ_SUCCESS on successful operation or the appropriate
+ *			error code.
+ */
+PJ_DECL(pj_status_t)
+pjmedia_aud_unregister_factory(pjmedia_aud_dev_factory_create_func_ptr adf);
 
 
 /**
