@@ -1,4 +1,4 @@
-/* $Id: pjsua_media.c 3078 2010-01-27 11:48:31Z nanang $ */
+/* $Id: pjsua_media.c 3153 2010-04-29 12:11:51Z bennylp $ */
 /* 
  * Copyright (C) 2008-2009 Teluu Inc. (http://www.teluu.com)
  * Copyright (C) 2003-2008 Benny Prijono <benny@prijono.org>
@@ -1475,6 +1475,11 @@ pj_status_t pjsua_media_channel_update(pjsua_call_id call_id,
     pjmedia_stream_info *si = NULL;
     pjmedia_port *media_port;
     pj_status_t status;
+
+    if (!pjsua_var.med_endpt) {
+	/* We're being shutdown */
+	return PJ_EBUSY;
+    }
 
     /* Destroy existing media session, if any. */
     prev_media_st = call->media_st;

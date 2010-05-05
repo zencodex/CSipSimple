@@ -1,4 +1,4 @@
-/* $Id: sip_transport_tls.c 3138 2010-04-14 06:57:35Z nanang $ */
+/* $Id: sip_transport_tls.c 3148 2010-04-28 07:52:57Z nanang $ */
 /* 
  * Copyright (C) 2009 Teluu Inc. (http://www.teluu.com)
  *
@@ -1470,7 +1470,7 @@ static pj_bool_t on_connect_complete(pj_ssl_sock_t *ssock,
     if (state_cb) {
 	pjsip_transport_state_info state_info;
 	pjsip_tls_state_info tls_info;
-	pj_uint32_t tp_state = 0;
+	pjsip_transport_state tp_state;
 
 	/* Init transport state info */
 	pj_bzero(&state_info, sizeof(state_info));

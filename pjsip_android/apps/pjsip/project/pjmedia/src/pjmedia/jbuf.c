@@ -1,4 +1,4 @@
-/* $Id: jbuf.c 3111 2010-02-25 12:07:29Z nanang $ */
+/* $Id: jbuf.c 3154 2010-04-30 10:22:05Z nanang $ */
 /* 
  * Copyright (C) 2008-2009 Teluu Inc. (http://www.teluu.com)
  * Copyright (C) 2003-2008 Benny Prijono <benny@prijono.org>
@@ -648,6 +648,10 @@ PJ_INLINE(void) jbuf_update(pjmedia_jbuf *jb, int oper)
 	     */
 	    if (++jb->jb_init_cycle_cnt >= INIT_CYCLE && oper == JB_OP_GET) {
 		jb->jb_status = JB_STATUS_PROCESSING;
+		/* To make sure the burst calculation will be done right after
+		 * this, adjust burst level if it exceeds max burst level.
+		 */
+		jb->jb_level = PJ_MIN(jb->jb_level, jb->jb_max_burst);
 	    } else {
 		jb->jb_level = 0;
 		return;
@@ -660,7 +664,7 @@ PJ_INLINE(void) jbuf_update(pjmedia_jbuf *jb, int oper)
 	 * the GET op may be idle, in this case, we better skip the jitter 
 	 * calculation.
 	 */
-	if (oper == JB_OP_GET && jb->jb_level < jb->jb_max_burst)
+	if (oper == JB_OP_GET && jb->jb_level <= jb->jb_max_burst)
 	    jbuf_calculate_jitter(jb);
 
 	jb->jb_level = 0;

@@ -1,4 +1,4 @@
-/* $Id: l16.c 2760 2009-06-13 15:28:37Z nanang $ */
+/* $Id: l16.c 3146 2010-04-26 13:57:28Z nanang $ */
 /* 
  * Copyright (C) 2008-2009 Teluu Inc. (http://www.teluu.com)
  * Copyright (C) 2003-2008 Benny Prijono <benny@prijono.org>
@@ -396,7 +396,6 @@ static pj_status_t l16_enum_codecs( pjmedia_codec_factory *factory,
 	codecs[count].channel_cnt = 2;
 	++count;
     }
-#endif
 
     if (count < *max_count) {
 	/* 32000 Hz mono */
@@ -437,6 +436,7 @@ static pj_status_t l16_enum_codecs( pjmedia_codec_factory *factory,
 	codecs[count].channel_cnt = 2;
 	++count;
     }
+#endif
 
 
     *max_count = count;

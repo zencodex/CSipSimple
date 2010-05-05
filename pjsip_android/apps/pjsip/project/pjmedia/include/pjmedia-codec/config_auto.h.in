@@ -1,4 +1,4 @@
-/* $Id: config_auto.h.in 3062 2010-01-14 14:46:54Z bennylp $ */
+/* $Id: config_auto.h.in 3158 2010-05-01 22:05:41Z bennylp $ */
 /*
  * Copyright (C) 2008-2009 Teluu Inc. (http://www.teluu.com)
  * Copyright (C) 2003-2008 Benny Prijono <benny@prijono.org>
@@ -43,6 +43,8 @@
 #endif
 
 #undef PJMEDIA_EXTERNAL_GSM_CODEC
+#undef PJMEDIA_EXTERNAL_GSM_GSM_H
+#undef PJMEDIA_EXTERNAL_GSM_H
 
 /* Speex codec */
 #ifndef PJMEDIA_HAS_SPEEX_CODEC
