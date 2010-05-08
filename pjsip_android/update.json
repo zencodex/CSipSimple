@@ -45,7 +45,7 @@
 			"id": "android-7",
 			"filters" : {
 				"android.os.Build$VERSION" : {
-					"SDK_INT" : "^7$"
+					"SDK_INT" : "^(7|8)$"
 				}
 			},
 			"versions":[
