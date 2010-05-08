@@ -12,8 +12,8 @@
 			},
 			"versions":[
 				{
-					"version" : "0.00-05",
-					"download_url" : "http://csipsimple.googlecode.com/files/android-4_libpjsipjni-0.00-05.so.gz",
+					"version" : "0.00-07",
+					"download_url" : "http://csipsimple.googlecode.com/files/android-4_libpjsipjni-0.00-07.so.gz",
 					"changelog" : "Fetedusip initial release"
 					
 				}
@@ -31,8 +31,8 @@
 			},
 			"versions":[
 				{
-					"version" : "0.00-05",
-					"download_url" : "http://csipsimple.googlecode.com/files/android-5_libpjsipjni-0.00-05.so.gz",
+					"version" : "0.00-07",
+					"download_url" : "http://csipsimple.googlecode.com/files/android-5_libpjsipjni-0.00-07.so.gz",
 					"changelog" : "Fetedusip initial release"
 					
 				}
@@ -50,8 +50,8 @@
 			},
 			"versions":[
 				{
-					"version" : "0.00-05",
-					"download_url" : "http://csipsimple.googlecode.com/files/android-7_libpjsipjni-0.00-05.so.gz",
+					"version" : "0.00-07",
+					"download_url" : "http://csipsimple.googlecode.com/files/android-7_libpjsipjni-0.00-07.so.gz",
 					"changelog" : "Fetedusip initial release"
 					
 				}
@@ -69,8 +69,8 @@
 			},
 			"versions":[
 				{
-					"version" : "0.00-05",
-					"download_url" : "http://csipsimple.googlecode.com/files/android-3_libpjsipjni-0.00-05.so.gz",
+					"version" : "0.00-07",
+					"download_url" : "http://csipsimple.googlecode.com/files/android-3_libpjsipjni-0.00-07.so.gz",
 					"changelog" : "Fetedusip initial release"
 					
 				}
