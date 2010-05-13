@@ -1,4 +1,4 @@
-/* $Id: ipp_codecs.c 3078 2010-01-27 11:48:31Z nanang $ */
+/* $Id: ipp_codecs.c 3165 2010-05-11 06:33:55Z nanang $ */
 /* 
  * Copyright (C) 2008-2009 Teluu Inc. (http://www.teluu.com)
  * Copyright (C) 2003-2008 Benny Prijono <benny@prijono.org>
@@ -495,7 +495,7 @@ static void predecode_amr( ipp_private_t *codec_data,
 static pj_status_t pack_amr(ipp_private_t *codec_data, void *pkt, 
 			    pj_size_t *pkt_size, pj_size_t max_pkt_size)
 {
-    enum {MAX_FRAMES_PER_PACKET = 16};
+    enum {MAX_FRAMES_PER_PACKET = PJMEDIA_MAX_FRAME_DURATION_MS / 20};
 
     pjmedia_frame frames[MAX_FRAMES_PER_PACKET];
     unsigned nframes = 0;

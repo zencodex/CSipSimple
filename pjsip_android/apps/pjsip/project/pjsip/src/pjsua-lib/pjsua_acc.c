@@ -1,4 +1,4 @@
-/* $Id: pjsua_acc.c 3144 2010-04-20 14:36:38Z nanang $ */
+/* $Id: pjsua_acc.c 3172 2010-05-13 05:22:51Z nanang $ */
 /* 
  * Copyright (C) 2008-2009 Teluu Inc. (http://www.teluu.com)
  * Copyright (C) 2003-2008 Benny Prijono <benny@prijono.org>
@@ -751,6 +751,7 @@ PJ_DEF(pj_status_t) pjsua_acc_modify( pjsua_acc_id acc_id,
 #if defined(PJMEDIA_HAS_SRTP) && (PJMEDIA_HAS_SRTP != 0)
     acc->cfg.use_srtp = cfg->use_srtp;
     acc->cfg.srtp_secure_signaling = cfg->srtp_secure_signaling;
+    acc->cfg.srtp_optional_dup_offer = cfg->srtp_optional_dup_offer;    
 #endif
 
     /* Global outbound proxy */

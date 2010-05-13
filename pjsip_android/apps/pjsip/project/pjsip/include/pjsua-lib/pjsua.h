@@ -1,4 +1,4 @@
-/* $Id: pjsua.h 3128 2010-03-30 11:13:59Z nanang $ */
+/* $Id: pjsua.h 3172 2010-05-13 05:22:51Z nanang $ */
 /* 
  * Copyright (C) 2008-2009 Teluu Inc. (http://www.teluu.com)
  * Copyright (C) 2003-2008 Benny Prijono <benny@prijono.org>
@@ -1083,6 +1083,16 @@ typedef struct pjsua_config
      * Default: #PJSUA_DEFAULT_SRTP_SECURE_SIGNALING
      */
     int		     srtp_secure_signaling;
+
+    /**
+     * Specify whether SRTP in PJMEDIA_SRTP_OPTIONAL mode should compose 
+     * duplicated media in SDP offer, i.e: unsecured and secured version.
+     * Otherwise, the SDP media will be composed as unsecured media but 
+     * with SDP "crypto" attribute.
+     *
+     * Default: PJ_FALSE
+     */
+    pj_bool_t	     srtp_optional_dup_offer;
 #endif
 
     /**
@@ -2126,6 +2136,16 @@ typedef struct pjsua_acc_config
      * Default: #PJSUA_DEFAULT_SRTP_SECURE_SIGNALING
      */
     int		     srtp_secure_signaling;
+
+    /**
+     * Specify whether SRTP in PJMEDIA_SRTP_OPTIONAL mode should compose 
+     * duplicated media in SDP offer, i.e: unsecured and secured version.
+     * Otherwise, the SDP media will be composed as unsecured media but 
+     * with SDP "crypto" attribute.
+     *
+     * Default: PJ_FALSE
+     */
+    pj_bool_t	     srtp_optional_dup_offer;
 #endif
 
     /**
