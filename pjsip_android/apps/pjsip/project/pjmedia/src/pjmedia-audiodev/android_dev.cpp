@@ -45,7 +45,7 @@
 #endif
 
 #if ANDROID_APP_PLATFORM==android-3
-#define RECORDER_HACK 1
+#define RECORDER_HACK 0
 #else
 #define RECORDER_HACK 0
 #endif
@@ -322,10 +322,11 @@ static int PJ_THREAD_FUNC AndroidRecorderThread(void *userData){
 		goto on_break;
 	}
 
-	while (!stream->quit_flag && status == PJ_SUCCESS) {
+	//We have to loop even if we quit
+	//If we quit, we want to eat all buffers from android
+	while (/*!stream->quit_flag &&*/ status == PJ_SUCCESS) {
+
 		pjmedia_frame frame;
-
-
 		frame.type = PJMEDIA_FRAME_TYPE_AUDIO;
 		frame.buf = (void*) input;
 		frame.size = stream->samples_per_frame * stream->bytes_per_sample;
@@ -337,7 +338,9 @@ static int PJ_THREAD_FUNC AndroidRecorderThread(void *userData){
 			break;
 		}
 
-		status = (*stream->rec_cb)(stream->user_data, &frame);
+		if(!stream->quit_flag){
+			status = (*stream->rec_cb)(stream->user_data, &frame);
+		}
 
 
 	};
@@ -614,17 +617,6 @@ static pj_status_t android_create_stream(pjmedia_aud_dev_factory *f,
 
 	PJ_ASSERT_RETURN(play_cb && rec_cb && p_aud_strm, PJ_EINVAL);
 
-	/* Supported clock rates:
-	 * - 8kHz
-	 */
-	//PJ_ASSERT_RETURN(param->clock_rate == 8000, PJ_EINVAL);
-
-	/*
-	PJ_ASSERT_RETURN((param->flags & PJMEDIA_AUD_DEV_CAP_EXT_FORMAT)==0 ||
-			param->ext_fmt.id == PJMEDIA_FORMAT_L16,
-			PJ_ENOTSUP);
-	*/
-
 
 	// Only supports for mono channel for now
 	PJ_ASSERT_RETURN(param->channel_count == 1, PJ_EINVAL);
@@ -656,16 +648,6 @@ static pj_status_t android_create_stream(pjmedia_aud_dev_factory *f,
 			stream->samples_per_frame * stream->bytes_per_sample);
 	stream->play_buf_count = 0;
 
-	//create the lib handle
-	/*
-	stream->libhandle = dlopen("libmedia.so", RTLD_GLOBAL);
-	if (stream->libhandle == NULL){
-		PJ_LOG(1, (THIS_FILE, "Fail to load media lib %s", dlerror()));
-		pj_pool_release(pool);
-		return PJ_ENOMEM;
-	}
-	*/
-
 
 	if (param->bits_per_sample == 8) {
 		sampleFormat = android::AudioSystem::PCM_8_BIT;
@@ -685,6 +667,10 @@ static pj_status_t android_create_stream(pjmedia_aud_dev_factory *f,
 
 
 	int channel_count = param->channel_count;
+#if ANDROID_VERSION==5
+		channel_count = android::AudioSystem::CHANNEL_IN_MONO;
+#endif
+
 
 	if (stream->dir & PJMEDIA_DIR_CAPTURE) {
 		stream->rec_strm = new android::AudioRecord();
@@ -694,8 +680,6 @@ static pj_status_t android_create_stream(pjmedia_aud_dev_factory *f,
 			return PJ_ENOMEM;
 		}
 
-	//FIXME : should be done here?
-	//	android::AudioSystem::muteMicrophone(false);
 
 		int inputSource;
 #if ANDROID_VERSION==3
@@ -703,8 +687,6 @@ static pj_status_t android_create_stream(pjmedia_aud_dev_factory *f,
 #elif ANDROID_VERSION==5
 		//inputSource = android::AUDIO_SOURCE_MIC;
 		inputSource = 0;
-		//channel_count = android::AudioSystem::popCount(android::AudioSystem::CHANNEL_IN_MONO);
-		channel_count = android::AudioSystem::CHANNEL_IN_MONO;
 		//PJ_LOG(3, (THIS_FILE, "Channel count is : %d", android::AudioSystem::isInputChannel(channel_count)));
 		//inputBuffSize = inputBuffSize / 2;
 #endif
@@ -739,12 +721,6 @@ static pj_status_t android_create_stream(pjmedia_aud_dev_factory *f,
 			pj_pool_release(pool);
 			return PJ_ENOMEM;
 		}
-#if ANDROID_VERSION==3
-//		android::AudioSystem::speakerphone(true);
-#elif ANDROID_VERSION==5
-//		android::AudioSystem::setMasterMute(false);
-		channel_count = android::AudioSystem::CHANNEL_IN_MONO;
-#endif
 
 		stream->play_strm->set(android::AudioSystem::VOICE_CALL,
 				param->clock_rate, //this is sample rate in Hz (16000 Hz for example)
