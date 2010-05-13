@@ -38,12 +38,16 @@
 #include <media/AudioSystem.h>
 #include <media/AudioTrack.h>
 
-#if ANDROID_APP_PLATFORM==android-3 || ANDROID_APP_PLATFORM==android-4 \
-	|| ANDROID_APP_PLATFORM==android_archos-4 || ANDROID_APP_PLATFORM==android_i7500-4 \
-	|| ANDROID_APP_PLATFORM==android_robot-3
+#if ANDROID_APP_PLATFORM==android-3 || ANDROID_APP_PLATFORM==android-4
 #define ANDROID_VERSION 3
 #else
 #define ANDROID_VERSION 5
+#endif
+
+#if ANDROID_APP_PLATFORM==android-3
+#define RECORDER_HACK 1
+#else
+#define RECORDER_HACK 0
 #endif
 
 #define THIS_FILE	"android_dev.cpp"
@@ -119,8 +123,11 @@ struct android_aud_stream
 	int saved_audio_mode;
 	unsigned saved_audio_routing;
 
-	//Handle on the android libmedia
-	//void* libhandle;
+#if RECORDER_HACK==1
+	pj_thread_t         *recorder_thread;
+#endif
+
+
 };
 
 /* Factory prototypes */
@@ -173,9 +180,17 @@ static pjmedia_aud_stream_op android_strm_op =
 	&strm_destroy
 };
 
+#if RECORDER_HACK==0
 static void AndroidRecorderCallback(int event, void* userData, void* info)
 {
-	if(!userData){
+
+
+	if(!userData || !info){
+		return;
+	}
+
+	if(event != android::AudioRecord::EVENT_MORE_DATA ){
+		PJ_LOG(3, (THIS_FILE, "Record event ignored : %d", event));
 		return;
 	}
 
@@ -185,8 +200,9 @@ static void AndroidRecorderCallback(int event, void* userData, void* info)
 	unsigned nsamples;
 	pj_int16_t *input;
 
-	if (stream->quit_flag)
-	goto on_break;
+	if (stream->quit_flag){
+		goto on_break;
+	}
 
 	input = (pj_int16_t *) uinfo->raw;
 
@@ -279,11 +295,75 @@ static void AndroidRecorderCallback(int event, void* userData, void* info)
 	stream->rec_thread_exited = 1;
 	return;
 }
+#else
+static void AndroidRecorderCallback(int event, void* userData, void* info)
+{
+	if (event == android::AudioRecord::EVENT_MORE_DATA) {
+	// set size to 0 to signal we're not using the callback to read more data
+		android::AudioRecord::Buffer* pBuff = (android::AudioRecord::Buffer*)info;
+		pBuff->size = 0;
+	}
+	//We have nothing to do with other events
+}
+
+
+static int PJ_THREAD_FUNC AndroidRecorderThread(void *userData){
+	struct android_aud_stream *stream = (struct android_aud_stream*) userData;
+
+
+
+	pj_status_t status = 0;
+	ssize_t bufferSize = stream->samples_per_frame * stream->bytes_per_sample;
+
+	pj_int16_t* input = new pj_int16_t[bufferSize]();
+
+
+	if (stream->quit_flag){
+		goto on_break;
+	}
+
+	while (!stream->quit_flag && status == PJ_SUCCESS) {
+		pjmedia_frame frame;
+
+
+		frame.type = PJMEDIA_FRAME_TYPE_AUDIO;
+		frame.buf = (void*) input;
+		frame.size = stream->samples_per_frame * stream->bytes_per_sample;
+		frame.timestamp.u64 = stream->rec_timestamp.u64;
+		frame.bit_info = 0;
+
+		ssize_t readSize = stream->rec_strm->read(input, frame.size);
+		if(readSize <= 0){
+			break;
+		}
+
+		status = (*stream->rec_cb)(stream->user_data, &frame);
+
+
+	};
+
+	delete input;
+
+
+	on_break:
+		PJ_LOG(3,(THIS_FILE, "Record thread stopped"));
+		stream->rec_thread_exited = 1;
+		return PJ_SUCCESS;
+}
+
+#endif
 
 static void AndroidPlayerCallback( int event, void* userData, void* info)
 {
 
-	if(!userData){
+
+
+	if(!userData || !info){
+		return;
+	}
+
+	if(event != android::AudioTrack::EVENT_MORE_DATA ){
+		PJ_LOG(3, (THIS_FILE, "Play event ignored : %d", event));
 		return;
 	}
 
@@ -666,7 +746,6 @@ static pj_status_t android_create_stream(pjmedia_aud_dev_factory *f,
 		channel_count = android::AudioSystem::CHANNEL_IN_MONO;
 #endif
 
-		//TODO : choose a better stream type
 		stream->play_strm->set(android::AudioSystem::VOICE_CALL,
 				param->clock_rate, //this is sample rate in Hz (16000 Hz for example)
 				sampleFormat,
@@ -684,15 +763,6 @@ static pj_status_t android_create_stream(pjmedia_aud_dev_factory *f,
 			return PJ_ENOMEM;
 		}
 	}
-
-	/* Save the current audio routing setting, then switch it to earpiece. */
-
-//	android::AudioSystem::getMode(&stream->saved_audio_mode);
-//	android::AudioSystem::getRouting(stream->saved_audio_mode, &stream->saved_audio_routing);
-//	android::AudioSystem::setRouting(stream->saved_audio_mode,
-//			android::AudioSystem::ROUTE_EARPIECE,
-//			android::AudioSystem::ROUTE_ALL);
-
 
 	//OK, done
 	*p_aud_strm = &stream->base;
@@ -770,6 +840,13 @@ static pj_status_t strm_start(pjmedia_aud_stream *s)
 		stream->rec_strm->start();
 		stream->rec_thread_exited = 0;
 	}
+#if RECORDER_HACK==1
+	pj_status_t status = pj_thread_create(stream->pool, "android_recorder", &AndroidRecorderThread, stream, 0, 0,  &stream->recorder_thread);
+	if (status != PJ_SUCCESS) {
+		strm_destroy(&stream->base);
+		return status;
+	}
+#endif
 
 	PJ_LOG(4,(THIS_FILE, "Starting done"));
 
@@ -847,13 +924,21 @@ static pj_status_t strm_destroy(pjmedia_aud_stream *s)
 
 	if (stream->rec_strm) {
 		stream->rec_strm->stop();
+#if RECORDER_HACK==1
+	    if (stream->recorder_thread){
+			pj_thread_join(stream->recorder_thread);
+			pj_thread_destroy(stream->recorder_thread);
+			stream->recorder_thread = NULL;
+	    }
+#endif
+
 		//FIXME this crash under 1.5 cupcake
 		delete stream->rec_strm;
 		stream->rec_strm = NULL;
 	}
 
 	pj_pool_release(stream->pool);
-	//dlclose(stream->libhandle);
+	PJ_LOG(3,(THIS_FILE, "Stream is destroyed"));
 
 	return PJ_SUCCESS;
 }

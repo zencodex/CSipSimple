@@ -1,4 +1,4 @@
-/* $Id: passthrough.c 3100 2010-02-17 17:31:19Z bennylp $ */
+/* $Id: passthrough.c 3165 2010-05-11 06:33:55Z nanang $ */
 /* 
  * Copyright (C) 2008-2009 Teluu Inc. (http://www.teluu.com)
  * Copyright (C) 2003-2008 Benny Prijono <benny@prijono.org>
@@ -234,7 +234,7 @@ static pj_status_t pack_amr ( codec_private_t *codec_data,
 			      unsigned output_buf_len, 
 			      struct pjmedia_frame *output)
 {
-    enum {MAX_FRAMES_PER_PACKET = 8};
+    enum {MAX_FRAMES_PER_PACKET = PJMEDIA_MAX_FRAME_DURATION_MS / 20};
 
     pjmedia_frame frames[MAX_FRAMES_PER_PACKET];
     amr_settings_t* setting = (amr_settings_t*)codec_data->codec_setting;

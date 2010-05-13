@@ -1,4 +1,4 @@
-/* $Id: sdp_neg.c 2926 2009-10-06 11:29:14Z nanang $ */
+/* $Id: sdp_neg.c 3160 2010-05-07 07:09:16Z nanang $ */
 /* 
  * Copyright (C) 2008-2009 Teluu Inc. (http://www.teluu.com)
  * Copyright (C) 2003-2008 Benny Prijono <benny@prijono.org>
@@ -911,6 +911,11 @@ static pj_status_t process_m_answer( pj_pool_t *pool,
 	    }
 	}
 
+	if (0 == offer->desc.fmt_count) {
+	    /* No common codec in the answer! */
+	    return PJMEDIA_SDPNEG_EANSNOMEDIA;
+	}
+
 	/* Arrange format in the offer so the order match the priority
 	 * in the answer
 	 */
@@ -923,6 +928,28 @@ static pj_status_t process_m_answer( pj_pool_t *pool,
 		    str_swap(&offer->desc.fmt[i], &offer->desc.fmt[j]);
 		    break;
 		}
+	    }
+
+	    /* If this answer format has no matching format, let's remove it
+	     * from the answer.
+	     */
+	    if (j >= offer->desc.fmt_count) {
+		pjmedia_sdp_attr *a;
+
+		/* Remove rtpmap associated with this format */
+		a = pjmedia_sdp_media_find_attr2(answer, "rtpmap", fmt);
+		if (a)
+		    pjmedia_sdp_media_remove_attr(answer, a);
+
+		/* Remove fmtp associated with this format */
+		a = pjmedia_sdp_media_find_attr2(answer, "fmtp", fmt);
+		if (a)
+		    pjmedia_sdp_media_remove_attr(answer, a);
+
+		/* Remove this format from answer's array */
+		pj_array_erase(answer->desc.fmt, sizeof(answer->desc.fmt[0]),
+			       answer->desc.fmt_count, i);
+		--answer->desc.fmt_count;
 	    }
 	}
     }

@@ -382,11 +382,11 @@ namespace Swig {
         // However, without this call, the JVM hangs on exit when the thread was not created by the JVM and creates a memory leak.
 
     	 if( env_status == JNI_EDETACHED ){
-    		 LOGV(">>> Detaching thread");
+    	//	 LOGV(">>> Detaching thread");
 			  director_->swig_jvm_->DetachCurrentThread();
 
     	 }else{
-    		 LOGV(">>> This thread was previously attached to the jvm, so do not detach it");
+    	//	 LOGV(">>> This thread was previously attached to the jvm, so do not detach it");
     	 }
 
 #endif
