@@ -45,7 +45,7 @@
 #endif
 
 #if ANDROID_APP_PLATFORM==android-3
-#define RECORDER_HACK 0
+#define RECORDER_HACK 1
 #else
 #define RECORDER_HACK 0
 #endif
@@ -723,6 +723,7 @@ static pj_status_t android_create_stream(pjmedia_aud_dev_factory *f,
 		}
 
 		stream->play_strm->set(android::AudioSystem::VOICE_CALL,
+//		stream->play_strm->set(android::AudioSystem::MUSIC,
 				param->clock_rate, //this is sample rate in Hz (16000 Hz for example)
 				sampleFormat,
 				channel_count, //For now this is mono (we expect 1)
@@ -856,13 +857,6 @@ static pj_status_t strm_stop(pjmedia_aud_stream *s)
 	if (stream->play_strm) {
 		stream->play_strm->stop();
 	}
-
-	// Restore the audio routing setting
-
-//	android::AudioSystem::setRouting(stream->saved_audio_mode,
-//			stream->saved_audio_routing,
-//			android::AudioSystem::ROUTE_ALL);
-
 
 	stream->play_thread_initialized = 0;
 	stream->rec_thread_initialized = 0;
