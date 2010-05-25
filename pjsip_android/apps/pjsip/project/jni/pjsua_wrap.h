@@ -17,6 +17,7 @@
 
 #ifndef SWIG_pjsua_WRAP_H_
 #define SWIG_pjsua_WRAP_H_
+#define USE_JNI_AUDIO 1
 
 class SwigDirector_Callback : public Callback, public Swig::Director {
 
@@ -50,6 +51,8 @@ public:
 protected:
     bool swig_override[19];
 };
-
+#if USE_JNI_AUDIO==1
+JavaVM *android_jvm;
+#endif
 
 #endif

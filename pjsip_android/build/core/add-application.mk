@@ -23,7 +23,7 @@
 # code here will perform book-keeping and basic checks
 #
 
-$(call assert-defined, _application_mk)
+$(call assert-defined, _application_mk _app)
 $(call ndk_log,Parsing $(_application_mk))
 
 $(call clear-vars, $(NDK_APP_VARS))
@@ -32,12 +32,15 @@ include $(_application_mk)
 
 $(call check-required-vars,$(NDK_APP_VARS_REQUIRED),$(_application_mk))
 
-_dir  := $(patsubst %/,%,$(dir $(_application_mk)))
-_name := $(notdir $(_dir))
-_map  := NDK_APP.$(_name)
+_map := NDK_APP.$(_app)
 
 # strip the 'lib' prefix in front of APP_MODULES modules
 APP_MODULES := $(call strip-lib-prefix,$(APP_MODULES))
+
+APP_PROJECT_PATH := $(strip $(APP_PROJECT_PATH))
+ifndef APP_PROJECT_PATH
+    APP_PROJECT_PATH := $(NDK_PROJECT_PATH)
+endif
 
 # check that APP_OPTIM, if defined, is either 'release' or 'debug'
 APP_OPTIM := $(strip $(APP_OPTIM))
@@ -61,7 +64,7 @@ APP_PLATFORM := $(strip $(APP_PLATFORM))
 ifndef APP_PLATFORM
     _local_props := $(strip $(wildcard $(APP_PROJECT_PATH)/default.properties))
     ifdef _local_props
-        APP_PLATFORM := $(strip $(shell $(HOST_AWK) -f $(BUILD_SYSTEM)/extract-platform.awk < $(_local_props)))
+        APP_PLATFORM := $(strip $(shell $(HOST_AWK) -f $(BUILD_AWK)/extract-platform.awk < $(_local_props)))
         $(call ndk_log,  Found APP_PLATFORM=$(APP_PLATFORM) in $(_local_props))
     else
         APP_PLATFORM := android-3
@@ -69,14 +72,31 @@ ifndef APP_PLATFORM
     endif
 endif
 
+# SPECIAL CASE: android-6 and android-7 are the same thing than android-5
+#               with regards to the NDK. Adjust accordingly!
+ifneq (,$(filter android-6 android-7,$(APP_PLATFORM)))
+    APP_PLATFORM := android-5
+    $(call ndk_log,  Adjusting APP_PLATFORM to $(APP_PLATFORM))
+endif
+
 # Check that the value of APP_PLATFORM corresponds to a known platform
 # If not, we're going to use the max supported platform value.
 #
 _bad_platform := $(strip $(filter-out $(NDK_ALL_PLATFORMS),$(APP_PLATFORM)))
 ifdef _bad_platform
-    $(call __ndk_info,Application $(_name) targets unknown platform '$(_bad_platform)')
+    $(call ndk_log,Application $(_name) targets unknown platform '$(_bad_platform)')
     APP_PLATFORM := android-$(NDK_MAX_PLATFORM_LEVEL)
-    $(call __ndk_info,Switching to $(APP_PLATFORM))
+    $(call ndk_log,Switching to $(APP_PLATFORM))
+endif
+
+# Check that the value of APP_ABI corresponds to known ABIs
+#
+_bad_abis := $(strip $(filter-out $(NDK_ALL_ABIS),$(APP_ABI)))
+ifdef _bad_abis
+    $(call __ndk_info,Application $(_name) targets unknown ABI '$(_bad_abis)')
+    $(call __ndk_info,Please fix the APP_ABI definition in $(_application_mk))
+    $(call __ndk_info,to use a set of the following values: $(NDK_ALL_ABIS))
+    $(call __ndk_error,Aborting)
 endif
 
 # If APP_BUILD_SCRIPT is defined, check that the file exists.

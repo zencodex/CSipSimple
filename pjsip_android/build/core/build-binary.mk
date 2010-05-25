@@ -63,7 +63,15 @@ endif
 # of a binary that uses undefined symbols.
 #
 ifneq ($(LOCAL_ALLOW_UNDEFINED_SYMBOLS),true)
-  LOCAL_LDFLAGS := $(LOCAL_LDFLAGS) $($(my)NO_UNDEFINED_LDFLAGS)
+  LOCAL_LDFLAGS += $(LOCAL_LDFLAGS) $($(my)NO_UNDEFINED_LDFLAGS)
+endif
+
+# If LOCAL_DISABLE_NO_EXECUTE is not true, we disable generated code from running from
+# the heap and stack by default.
+#
+ifndef ($(LOCAL_DISABLE_NO_EXECUTE),true)
+  LOCAL_CFLAGS += $($(my)NO_EXECUTE_CFLAGS)
+  LOCAL_LDFLAGS += $($(my)NO_EXECUTE_LDFLAGS)
 endif
 
 #
@@ -87,6 +95,10 @@ ifdef LOCAL_ARM_MODE
   )
 endif
 
+ifeq ($(TARGET_ARCH_ABI),armv4)
+LOCAL_ARM_MODE := arm
+endif
+
 # As a special case, the original Android build system
 # allows one to specify that certain source files can be
 # forced to build in ARM mode by using a '.arm' suffix
@@ -96,6 +108,40 @@ endif
 #
 # to build source file $(LOCAL_PATH)/foo.c as ARM
 #
+
+# As a special extension, the NDK also supports the .neon extension suffix
+# to indicate that a single file can be compiled with ARM NEON support
+# We must support both foo.c.neon and foo.c.arm.neon here
+#
+# Also, if LOCAL_ARM_NEON is set to 'true', force Neon mode for all source
+# files
+#
+
+neon_sources  := $(filter %.neon,$(LOCAL_SRC_FILES))
+neon_sources  := $(neon_sources:%.neon=%)
+
+LOCAL_ARM_NEON := $(strip $(LOCAL_ARM_NEON))
+ifdef LOCAL_ARM_NEON
+  $(if $(filter-out true false,$(LOCAL_ARM_NEON)),\
+    $(call __ndk_info,LOCAL_ARM_NEON must be defined either to 'true' or 'false' in $(LOCAL_MAKEFILE), not '$(LOCAL_ARM_NEON)')\
+    $(call __ndk_error,Aborting) \
+  )
+endif
+ifeq ($(LOCAL_ARM_NEON),true)
+  neon_sources += $(LOCAL_SRC_FILES:%.neon=%))
+endif
+
+neon_sources := $(strip $(neon_sources))
+ifdef neon_sources
+  ifneq ($(TARGET_ARCH_ABI),armeabi-v7a)
+    $(call __ndk_info,NEON support is only possible for armeabi-v7a ABI)
+    $(call __ndk_info,Please add checks afainst TARGET_ARCH_ABI in $(LOCAL_MAKEFILE))
+    $(call __ndk_error,Aborting)
+  endif
+  $(call tag-src-files,$(neon_sources:%.arm=%),neon)
+endif
+
+LOCAL_SRC_FILES := $(LOCAL_SRC_FILES:%.neon=%)
 
 # strip the .arm suffix from LOCAL_SRC_FILES
 # and tag the relevant sources with the 'arm' tag
@@ -124,7 +170,7 @@ $(call TARGET-process-src-files-tags)
 # Build the sources to object files
 #
 $(foreach src,$(filter %.c,$(LOCAL_SRC_FILES)), $(call compile-c-source,$(src)))
-$(foreach src,$(filter %.S,$(LOCAL_SRC_FILES)), $(call compile-s-source,$(src)))
+$(foreach src,$(filter %.S %.s,$(LOCAL_SRC_FILES)), $(call compile-s-source,$(src)))
 
 $(foreach src,$(filter %$(LOCAL_CPP_EXTENSION),$(LOCAL_SRC_FILES)),\
     $(call compile-cpp-source,$(src)))
@@ -144,6 +190,9 @@ LOCAL_SHARED_LIBRARIES := $(call strip-lib-prefix,$(LOCAL_SHARED_LIBRARIES))
 static_libraries := $(call map,static-library-path,$(LOCAL_STATIC_LIBRARIES))
 shared_libraries := $(call map,shared-library-path,$(LOCAL_SHARED_LIBRARIES)) \
                     $(TARGET_PREBUILT_SHARED_LIBRARIES)
+
+$(call module-add-static-depends,$(LOCAL_MODULE),$(LOCAL_STATIC_LIBRARIES))
+$(call module-add-shared-depends,$(LOCAL_MODULE),$(LOCAL_SHARED_LIBRARIES))
 
 $(LOCAL_BUILT_MODULE): $(static_libraries) $(shared_libraries)
 

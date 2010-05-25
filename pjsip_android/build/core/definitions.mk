@@ -16,28 +16,7 @@
 #
 
 # We use the GNU Make Standard Library
-include $(BUILD_SYSTEM)/../gmsl/gmsl
-
-# This is the Android NDK version number as a list of three items:
-# major, minor, revision
-#
-ndk_version := 1 0 0
-
-# Used to output warnings and error from the library, it's possible to
-# disable any warnings or errors by overriding these definitions
-# manually or by setting GMSL_NO_WARNINGS or GMSL_NO_ERRORS
-
-__ndk_name    := Android NDK
-__ndk_info     = $(info $(__ndk_name): $1 $2 $3 $4 $5)
-__ndk_warning  = $(warning $(__ndk_name): $1 $2 $3 $4 $5)
-__ndk_error    = $(error $(__ndk_name): $1 $2 $3 $4 $5)
-
-ifdef NDK_NO_WARNINGS
-__ndk_warning :=
-endif
-ifdef NDK_NO_ERRORS
-__ndk_error :=
-endif
+include $(NDK_ROOT)/build/gmsl/gmsl
 
 # If NDK_TRACE is enabled then calls to the library functions are
 # traced to stdout using warning messages with their arguments
@@ -51,19 +30,6 @@ __ndk_tr1 :=
 __ndk_tr2 :=
 __ndk_tr3 :=
 endif
-
-# -----------------------------------------------------------------------------
-# Function : ndk_log
-# Arguments: 1: text to print when NDK_LOG is defined
-# Returns  : None
-# Usage    : $(call ndk_log,<some text>)
-# -----------------------------------------------------------------------------
-ifdef NDK_LOG
-ndk_log = $(info $(__ndk_name): $1)
-else
-ndk_log :=
-endif
-
 
 # -----------------------------------------------------------------------------
 # Macro    : empty
@@ -149,6 +115,33 @@ check-required-vars = $(foreach __varname,$1,\
   )\
 )
 
+# =============================================================================
+#
+# Modules database
+#
+# The following declarations are used to manage the list of modules
+# defined in application's Android.mk files.
+#
+# Technical note:
+#    We use __ndk_modules to hold the list of all modules corresponding
+#    to a given application.
+#
+#    For each module 'foo', __ndk_modules.foo.<field> is used
+#    to store module-specific information.
+#
+#        android_mk   -> points to the Android.mk where the module is defined
+#        type         -> type of module (e.g. 'static', 'shared', ...)
+#        built        -> location of module built file (e.g. out/apps/<app>/<abi>/libfoo.so)
+#        installed    -> location of module installation (e.g. $PROJECT/libs/<abi>/libfoo.so)
+#        depends      -> list of other modules this module depends on
+#
+#    Note that some modules are never installed (e.g. static libraries).
+#
+# =============================================================================
+
+# the list of managed fields per module
+modules-fields = type android_mk built installed depends
+
 # -----------------------------------------------------------------------------
 # Function : modules-clear
 # Arguments: None
@@ -156,25 +149,158 @@ check-required-vars = $(foreach __varname,$1,\
 # Usage    : $(call modules-clear)
 # Rationale: clears the list of defined modules known by the build system
 # -----------------------------------------------------------------------------
-modules-clear = $(eval __ndk_modules := $(empty_set))
+modules-clear = \
+    $(foreach __mod,$(__ndk_modules),\
+        $(foreach __field,$(modules-fields),\
+            $(eval __ndk_modules.$(__mod).$(__field) := $(empty))\
+        )\
+    )\
+    $(eval __ndk_modules := $(empty_set))
+
+# -----------------------------------------------------------------------------
+# Function : modules-get-list
+# Arguments: None
+# Returns  : The list of all recorded modules
+# Usage    : $(call modules-get-list)
+# -----------------------------------------------------------------------------
+modules-get-list = $(__ndk_modules)
 
 # -----------------------------------------------------------------------------
 # Function : modules-add
 # Arguments: 1: module name
-#            2: path to Android.mk where the module is defined
+#            2: built module path
+#            3: path to Android.mk where the module is defined
+#            4: type of module (e.g. 'static')
 # Returns  : None
 # Usage    : $(call modules-add,<modulename>,<Android.mk path>)
 # Rationale: add a new module. If it is already defined, print an error message
 #            and abort.
 # -----------------------------------------------------------------------------
-modules-add = \
+module-add = \
   $(if $(call set_is_member,$(__ndk_modules),$1),\
-       $(call __ndk_info,Trying to define local module '$1' in $2.)\
-       $(call __ndk_info,But this module was already defined by $(__ndk_modules.$1).)\
+       $(call __ndk_info,Trying to define local module '$1' in $3.)\
+       $(call __ndk_info,But this module was already defined by $(__ndk_modules.$1.android_mk).)\
        $(call __ndk_error,Aborting.)\
   )\
   $(eval __ndk_modules := $(call set_insert,$(__ndk_modules),$1))\
-  $(eval __ndk_modules.$1 := $2)\
+  $(eval __ndk_modules.$1.android_mk := $3)\
+  $(eval __ndk_modules.$1.type       := $4)\
+  $(eval __ndk_modules.$1.built      := $2)\
+
+module-add-static-library = $(call module-add,$1,$2,$3,static)
+module-add-shared-library = $(call module-add,$1,$2,$3,shared)
+module-add-executable     = $(call module-add,$1,$2,$3,executable)
+
+# Returns $(true) iff module $1 is of type $2
+module-is-type = $(call seq,$(__ndk_modules.$1.type),$2)
+
+# Retrieve built location of module $1
+module-get-built = $(__ndk_modules.$1.built)
+
+# Returns $(true) is module $1 is of a given type
+module-is-static-library = $(call module-is-type,$1,static)
+module-is-shared-library = $(call module-is-type,$1,shared)
+module-is-exectuable     = $(call module-is-type,$1,executable)
+module-is-installable    = $(call or,$(call module-is-type,$1,shared),$(call module-is-type,$1,executable))
+
+# Dump all module information. Only use this for debugging
+modules-dump-database = \
+    $(info Modules: $(__ndk_modules)) \
+    $(foreach __mod,$(__ndk_modules),\
+        $(info $(space)$(space)$(__mod):)\
+        $(foreach __field,$(modules-fields),\
+            $(info $(space)$(space)$(space)$(space)$(__field): $(__ndk_modules.$(__mod).$(__field)))\
+        )\
+    )\
+    $(info --- end of list)
+
+
+# -----------------------------------------------------------------------------
+# Function : module-add-static-depends
+# Arguments: 1: module name
+#            2: list/set of static library modules this module depends on.
+# Returns  : None
+# Usage    : $(call module-add-static-depends,<modulename>,<list of module names>)
+# Rationale: Record that a module depends on a set of static libraries.
+#            Use module-get-static-dependencies to retrieve final list.
+# -----------------------------------------------------------------------------
+module-add-static-depends = \
+    $(call modules-add-depends-any,$1,$2,depends) \
+
+# -----------------------------------------------------------------------------
+# Function : module-add-shared-depends
+# Arguments: 1: module name
+#            2: list/set of shared library modules this module depends on.
+# Returns  : None
+# Usage    : $(call module-add-shared-depends,<modulename>,<list of module names>)
+# Rationale: Record that a module depends on a set of shared libraries.
+#            Use modulge-get-shared-dependencies to retrieve final list.
+# -----------------------------------------------------------------------------
+module-add-shared-depends = \
+    $(call modules-add-depends-any,$1,$2,depends) \
+
+# Used internally by module-add-static-depends and module-add-shared-depends
+# NOTE: this function must not modify the existing dependency order when new depends are added.
+#
+modules-add-depends-any = \
+    $(eval __ndk_modules.$1.$3 += $(filter-out $(__ndk_modules.$1.$3),$(call strip-lib-prefix,$2)))
+
+# -----------------------------------------------------------------------------
+# Function : module-set-installed
+# Arguments: 1: module name
+#            2: installation path for the module
+# Returns  : None
+# Usage    : $(call module-set-installed,<module>,<installed>)
+# Rationale: Records the installed path of a given module. Can later be retrieved
+#            with module-get-installed.
+# -----------------------------------------------------------------------------
+module-set-installed = \
+    $(eval __ndk_modules.$1.installed := $2)
+
+# -----------------------------------------------------------------------------
+# Function : module-get-installed
+# Arguments: 1: module name
+# Returns  : Path of installed locaiton
+# Usage    : $(call module-get-installed,<module>)
+# -----------------------------------------------------------------------------
+module-get-installed = $(__ndk_modules.$1.installed)
+
+# -----------------------------------------------------------------------------
+# Function : modules-get-all-dependencies
+# Arguments: 1: list of module names
+# Returns  : List of all the modules $1 depends on transitively.
+# Usage    : $(call modules-all-get-dependencies,<list of module names>)
+# Rationale: This computes the closure of all module dependencies starting from $1
+# -----------------------------------------------------------------------------
+module-get-all-dependencies = \
+    $(strip $(call modules-get-closure,$1,depends))
+
+modules-get-closure = \
+    $(eval __closure_deps  := $(strip $1)) \
+    $(eval __closure_wq    := $(__closure_deps)) \
+    $(eval __closure_field := $(strip $2)) \
+    $(call modules-closure)\
+    $(__closure_deps)
+
+# Used internally by modules-get-dependencies
+# Note the tricky use of conditional recursion to work around the fact that
+# the GNU Make language does not have any conditional looping construct
+# like 'while'.
+#
+modules-closure = \
+    $(eval __closure_mod := $(call first,$(__closure_wq))) \
+    $(eval __closure_wq  := $(call rest,$(__closure_wq))) \
+    $(eval __closure_new := $(filter-out $(__closure_deps),$(__ndk_modules.$(__closure_mod).$(__closure_field))))\
+    $(eval __closure_deps += $(__closure_new)) \
+    $(eval __closure_wq   := $(strip $(__closure_wq) $(__closure_new)))\
+    $(if $(__closure_wq),$(call modules-closure)) \
+
+
+# =============================================================================
+#
+# Utility functions
+#
+# =============================================================================
 
 # -----------------------------------------------------------------------------
 # Function : check-user-define
@@ -224,8 +350,7 @@ strip-lib-prefix = $(1:lib%=%)
 # Usage    : $(call check-LOCAL_MODULE,$(LOCAL_MAKEFILE))
 # -----------------------------------------------------------------------------
 check-LOCAL_MODULE = \
-  $(eval LOCAL_MODULE := $$(call strip-lib-prefix,$$(LOCAL_MODULE)))\
-  $(call modules-add,$(LOCAL_MODULE),$1)
+  $(eval LOCAL_MODULE := $$(call strip-lib-prefix,$$(LOCAL_MODULE)))
 
 # -----------------------------------------------------------------------------
 # Macro    : my-dir
@@ -260,7 +385,9 @@ all-subdir-makefiles = $(call all-makefiles-under,$(call my-dir))
 #
 # For example, the 'debug' tag is used to sources that must be built
 # in debug mode, the 'arm' tag is used for sources that must be built
-# using the 32-bit instruction set on ARM platforms.
+# using the 32-bit instruction set on ARM platforms, and 'neon' is used
+# for sources that must be built with ARM Advanced SIMD (a.k.a. NEON)
+# support.
 #
 # More tags might be introduced in the future.
 #
@@ -406,11 +533,12 @@ $(foreach __src,$(LOCAL_SRC_FILES),$(info LOCAL_SRC_FILES_TEXT.$(__src) = $(LOCA
 # =============================================================================
 
 # the list of variables that *must* be defined in Application.mk files
-NDK_APP_VARS_REQUIRED := APP_MODULES APP_PROJECT_PATH
+NDK_APP_VARS_REQUIRED :=
 
 # the list of variables that *may* be defined in Application.mk files
 NDK_APP_VARS_OPTIONAL := APP_OPTIM APP_CPPFLAGS APP_CFLAGS APP_CXXFLAGS \
-                         APP_PLATFORM APP_BUILD_SCRIPT APP_ABI
+                         APP_PLATFORM APP_BUILD_SCRIPT APP_ABI APP_MODULES \
+                         APP_PROJECT_PATH
 
 # the list of all variables that may appear in an Application.mk file
 NDK_APP_VARS := $(NDK_APP_VARS_REQUIRED) $(NDK_APP_VARS_OPTIONAL)
@@ -527,10 +655,9 @@ $$(_OBJ): $$(_SRC) $$(LOCAL_MAKEFILE) $$(NDK_APP_APPLICATION_MK)
 	@mkdir -p $$(dir $$(PRIVATE_OBJ))
 	@echo "Compile $$(PRIVATE_ARM_TEXT)  : $$(PRIVATE_MODULE) <= $$(PRIVATE_SRC)"
 	$(hide) $$(PRIVATE_CC) $$(PRIVATE_CFLAGS) -c \
-	-MMD -MP -MF $$(PRIVATE_OBJ).d.tmp \
+	-MMD -MP -MF $$(PRIVATE_OBJ).d \
 	$$(PRIVATE_SRC) \
 	-o $$(PRIVATE_OBJ)
-	$$(call cmd-process-deps,$$(PRIVATE_OBJ))
 
 LOCAL_OBJECTS         += $$(_OBJ)
 LOCAL_DEPENDENCY_DIRS += $$(dir $$(_OBJ))
@@ -589,10 +716,9 @@ $$(_OBJ): $$(_SRC) $$(LOCAL_MAKEFILE) $$(NDK_APP_APPLICATION_MK)
 	@mkdir -p $$(dir $$(PRIVATE_OBJ))
 	@echo "Compile++ $$(PRIVATE_ARM_TEXT): $$(PRIVATE_MODULE) <= $$(PRIVATE_SRC)"
 	$(hide) $$(PRIVATE_CXX) $$(PRIVATE_CXXFLAGS) -c \
-	-MMD -MP -MF $$(PRIVATE_OBJ).d.tmp \
+	-MMD -MP -MF $$(PRIVATE_OBJ).d \
 	$$(PRIVATE_SRC) \
 	-o $$(PRIVATE_OBJ)
-	$$(call cmd-process-deps,$$(PRIVATE_OBJ))
 
 LOCAL_OBJECTS         += $$(_OBJ)
 LOCAL_DEPENDENCY_DIRS += $$(dir $$(_OBJ))
@@ -606,18 +732,6 @@ endef
 # Rationale : Setup everything required to build a single C++ source file
 # -----------------------------------------------------------------------------
 compile-cpp-source = $(eval $(call ev-compile-cpp-source,$1,$(1:%$(LOCAL_CPP_EXTENSION)=%.o)))
-
-# -----------------------------------------------------------------------------
-# Command   : cmd-process-deps
-# Arguments : 1: object file path
-# Returns   : None
-# Usage     : $(call cmd-process-deps,<objectfile>)
-# Rationale : To be used as a Make build command to process the dependencies
-#             generated by the compiler (in <obj>.d.tmp) into ones suited
-#             for our build system. See the comments in build/core/mkdeps.sh
-#             for more details.
-# -----------------------------------------------------------------------------
-cmd-process-deps = $(hide) $(BUILD_SYSTEM)/mkdeps.sh $(1) $(1).d.tmp $(1).d
 
 # -----------------------------------------------------------------------------
 # Command   : cmd-install-file

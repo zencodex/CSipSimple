@@ -26,6 +26,16 @@
 TOOLCHAIN_NAME   := arm-eabi-4.4.0
 TOOLCHAIN_PREFIX := $(HOST_PREBUILT)/$(TOOLCHAIN_NAME)/bin/arm-eabi-
 
+ifeq ($(TARGET_ARCH_ABI),armv4)
+TARGET_CFLAGS.common := \
+    -I$(SYSROOT)/usr/include \
+    -fpic \
+    -ffunction-sections \
+    -funwind-tables \
+    -fstack-protector \
+    -fno-short-enums \
+    -D__ARM_ARCH_4T__
+else
 TARGET_CFLAGS.common := \
     -I$(SYSROOT)/usr/include \
     -fpic \
@@ -35,12 +45,38 @@ TARGET_CFLAGS.common := \
     -fstack-protector \
     -fno-short-enums \
     -D__ARM_ARCH_5__ -D__ARM_ARCH_5T__ \
-    -D__ARM_ARCH_5E__ -D__ARM_ARCH_5TE__ \
+    -D__ARM_ARCH_5E__ -D__ARM_ARCH_5TE__ 
+endif
+# This is to avoid the dreaded warning compiler message:
+#   note: the mangling of 'va_list' has changed in GCC 4.4
+#
+# The fact that the mangling changed does not affect the NDK ABI
+# very fortunately (since none of the exposed APIs used va_list
+# in their exported C++ functions). Also, GCC 4.5 has already
+# removed the warning from the compiler.
+#
+TARGET_CFLAGS.common += -Wno-psabi
 
-TARGET_ARCH_CFLAGS := -march=armv5te \
-                        -mtune=xscale \
-                        -msoft-float
-TARGET_ARCH_LDFLAGS :=
+ifeq ($(TARGET_ARCH_ABI),armeabi-v7a)
+    TARGET_ARCH_CFLAGS := -march=armv7-a \
+                          -mfloat-abi=softfp \
+                          -mfpu=vfp
+    TARGET_ARCH_LDFLAGS := -Wl,--fix-cortex-a8
+else
+ifeq ($(TARGET_ARCH_ABI),armv4)
+    TARGET_ARCH_CFLAGS := -march=armv4 \
+                            -msoft-float
+    TARGET_ARCH_LDFLAGS :=
+else
+    TARGET_ARCH_CFLAGS := -march=armv5te \
+                            -mtune=xscale \
+                            -msoft-float
+    TARGET_ARCH_LDFLAGS :=
+endif
+endif
+
+TARGET_CFLAGS.neon := \
+    -mfpu=neon
 
 TARGET_arm_release_CFLAGS :=  -O2 \
                               -fomit-frame-pointer \
@@ -48,21 +84,28 @@ TARGET_arm_release_CFLAGS :=  -O2 \
                               -funswitch-loops     \
                               -finline-limit=300
 
+
 TARGET_thumb_release_CFLAGS := -mthumb \
                                -Os \
                                -fomit-frame-pointer \
                                -fno-strict-aliasing \
                                -finline-limit=64
 
+
 # When building for debug, compile everything as arm.
 TARGET_arm_debug_CFLAGS := $(TARGET_arm_release_CFLAGS) \
                            -fno-omit-frame-pointer \
                            -fno-strict-aliasing
-
+ifeq ($(TARGET_ARCH_ABI),armv4)
+#Force arm
+TARGET_thumb_debug_CFLAGS := $(TARGET_arm_release_CFLAGS) \
+                           -fno-omit-frame-pointer \
+                           -fno-strict-aliasing
+else
 TARGET_thumb_debug_CFLAGS := $(TARGET_thumb_release_CFLAGS) \
                              -marm \
                              -fno-omit-frame-pointer
-
+endif
 # This function will be called to determine the target CFLAGS used to build
 # a C or Assembler source file, based on its tags.
 #
@@ -86,6 +129,9 @@ $(call set-src-files-target-cflags,\
 $(call set-src-files-target-cflags,\
     $(call set_intersection,$(__thumb_sources),$(__debug_sources)),\
     $(TARGET_thumb_debug_CFLAGS)) \
+$(call add-src-files-target-cflags,\
+    $(call get-src-files-with-tag,neon),\
+    $(TARGET_CFLAGS.neon)) \
 $(call set-src-files-text,$(__arm_sources),arm$(space)$(space)) \
 $(call set-src-files-text,$(__thumb_sources),thumb)
 
@@ -102,12 +148,20 @@ TARGET_LDFLAGS := $(TARGET_ARCH_LDFLAGS) -rdynamic
 TARGET_AR      := $(TOOLCHAIN_PREFIX)ar
 TARGET_ARFLAGS := crs
 
+
 TARGET_LIBGCC := $(shell $(TARGET_CC) -mthumb-interwork -print-libgcc-file-name)
 TARGET_LDLIBS := -Wl,-rpath-link=$(SYSROOT)/usr/lib
 
 # These flags are used to ensure that a binary doesn't reference undefined
 # flags.
 TARGET_NO_UNDEFINED_LDFLAGS := -Wl,--no-undefined
+
+# These flags are used to enfore the NX (no execute) security feature in the
+# generated machine code. This adds a special section to the generated shared
+# libraries that instruct the Linux kernel to disable code execution from
+# the stack and the heap.
+TARGET_NO_EXECUTE_CFLAGS  := -Wa,--noexecstack
+TARGET_NO_EXECUTE_LDFLAGS := -Wl,-z,noexecstack
 
 # NOTE: Ensure that TARGET_LIBGCC is placed after all private objects
 #       and static libraries, but before any other library in the link
