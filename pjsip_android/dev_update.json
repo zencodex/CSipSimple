@@ -1,0 +1,26 @@
+/**
+ * Manifest for updates
+ */
+{
+	"sip_core" : [
+		{
+			"id": "android-armeabi",
+			"filters" : {
+				"android.os.Build$VERSION" : {
+					"SDK" : "^.*$"
+				}
+			},
+			"versions":[
+				{
+					"version" : "0.00-10",
+					"download_url" : "http://csipsimple.googlecode.com/files/android-armeabi_libpjsipjni-0.00-11.so.gz",
+					"changelog" : "Fetedusip release"
+					
+				}
+			],
+			"label" : "CSipSimple build",
+			"description" : "PjSip for android armeabi devices",
+			"autoconf" : {}
+		}
+	]
+}
