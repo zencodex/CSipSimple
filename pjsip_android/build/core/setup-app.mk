@@ -34,11 +34,13 @@ $(foreach __name,$(NDK_APP_VARS),\
   $(eval NDK_$(__name) := $(call get,$(_map),$(__name)))\
 )
 
-# set release/debug build flags
-#
 # which platform/abi/toolchain are we going to use?
 TARGET_PLATFORM := $(call get,$(_map),APP_PLATFORM)
 
+# set release/debug build flags. We always use the -g flag because
+# we generate symbol versions of the binaries that are later stripped
+# when they are copied to the final project's libs/<abi> directory.
+#
 ifeq ($(NDK_APP_OPTIM),debug)
   NDK_APP_CFLAGS := -O0 -g $(NDK_APP_CFLAGS) -DANDROID_APP_PLATFORM=$(TARGET_PLATFORM)
 else
@@ -51,13 +53,7 @@ ndk-app-$(_app): $(NDK_APP_MODULES)
 all: ndk-app-$(_app)
 
 
-# the location of generated files for this app
-HOST_OUT    := $(NDK_APP_OUT)/$(_app)/$(HOST_TAG)/$(TARGET_PLATFORM)
-HOST_OBJS   := $(HOST_OUT)/objs
-
-# the target to use
-TARGET_TOOLCHAIN := $(NDK_TARGET_TOOLCHAIN)
-
+# The ABI(s) to use
 APP_ABI := $(strip $(NDK_APP_ABI))
 ifndef APP_ABI
     # the default ABI for now is armeabi
@@ -72,19 +68,37 @@ ifneq ($(_bad_abis),)
     $(call __ndk_error,Aborting)
 endif
 
+# Extract the debuggable flag from the application's manifest
+# NOTE: To make unit-testing simpler, handle the case where there is no manifest.
+#
+NDK_APP_DEBUGGABLE := false
+NDK_APP_MANIFEST := $(strip $(wildcard $(NDK_APP_PROJECT_PATH)/AndroidManifest.xml))
+ifdef NDK_APP_MANIFEST
+    NDK_APP_DEBUGGABLE := $(shell $(HOST_AWK) -f $(BUILD_AWK)/extract-debuggable.awk $(NDK_APP_MANIFEST))
+endif
+
+ifdef NDK_LOG
+  ifeq ($(NDK_APP_DEBUGGABLE),true)
+    $(call ndk_log,Application '$(_app)' *is* debuggable)
+  else
+    $(call ndk_log,Application '$(_app)' is not debuggable)
+  endif
+endif
+
 # Clear all installed binaries for this application
 # This ensures that if the build fails, you're not going to mistakenly
 # package an obsolete version of it. Or if you change the ABIs you're targetting,
 # you're not going to leave a stale shared library for the old one.
 #
-ifeq ($($(_map).cleaned_binaries),)
-    $(_map).cleaned_binaries := true
-    clean-installed-binaries:
-	$(hide) rm -f $(NDK_ALL_ABIS:%=$(NDK_APP_PROJECT_PATH)/libs/%/$(APP_TARGET)/lib*.so)
+ifeq ($(NDK_APP.$(_app).cleaned_binaries),)
+    NDK_APP.$(_app).cleaned_binaries := true
+    clean-installed-binaries::
+	$(hide) rm -f $(NDK_ALL_ABIS:%=$(NDK_APP_PROJECT_PATH)/libs/%/lib*.so)
+	$(hide) rm -f $(NDK_ALL_ABIS:%=$(NDK_APP_PROJECT_PATH)/libs/%/gdbserver)
+	$(hide) rm -f $(NDK_ALL_ABIS:%=$(NDK_APP_PROJECT_PATH)/libs/%/gdb.setup)
 endif
 
 $(foreach _abi,$(APP_ABI),\
     $(eval TARGET_ARCH_ABI := $(_abi))\
     $(eval include $(BUILD_SYSTEM)/setup-abi.mk) \
 )
-

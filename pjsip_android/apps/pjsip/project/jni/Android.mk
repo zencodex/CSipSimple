@@ -131,7 +131,8 @@ LOCAL_C_INCLUDES += $(LOCAL_PATH)/../pjlib/include/ $(LOCAL_PATH)/../pjlib-util/
 $(LOCAL_PATH)/../pjnath/include/ $(LOCAL_PATH)/../pjmedia/include/ $(LOCAL_PATH)/../ \
 $(LOCAL_PATH)/../third_party/srtp/include $(LOCAL_PATH)/../third_party/srtp/include \
 $(LOCAL_PATH)/../third_party/srtp/crypto/include $(LOCAL_PATH)/../third_party/build/srtp/ \
- $(LOCAL_PATH)/../third_party/build/speex/  $(LOCAL_PATH)/../third_party/speex/include
+$(LOCAL_PATH)/../third_party/build/speex/  $(LOCAL_PATH)/../third_party/speex/include #\
+$(LOCAL_PATH)/../jni/
 
 LOCAL_CFLAGS := -DPJ_ANDROID=1
 PJLIB_SRC_DIR := ../pjmedia/src/pjmedia
@@ -157,7 +158,7 @@ LOCAL_SRC_FILES := $(PJLIB_SRC_DIR)/alaw_ulaw.c $(PJLIB_SRC_DIR)/alaw_ulaw_table
 	$(PJLIB_SRC_DIR)/wav_player.c $(PJLIB_SRC_DIR)/wav_playlist.c $(PJLIB_SRC_DIR)/wav_writer.c $(PJLIB_SRC_DIR)/wave.c \
 	$(PJLIB_SRC_DIR)/wsola.c \
 	$(PJMEDIADEV_SRC_DIR)/audiodev.c $(PJMEDIADEV_SRC_DIR)/audiotest.c $(PJMEDIADEV_SRC_DIR)/errno.c \
-    $(PJMEDIADEV_SRC_DIR)/android_dev.cpp \
+    $(PJMEDIADEV_SRC_DIR)/android_jni_dev.cpp \
     $(PJMEDIACODEC_SRC_DIR)/speex_codec.c \
 	$(PJMEDIACODEC_SRC_DIR)/g722.c $(PJMEDIACODEC_SRC_DIR)/g722/g722_enc.c $(PJMEDIACODEC_SRC_DIR)/g722/g722_dec.c \
 	$(PJMEDIACODEC_SRC_DIR)/gsm.c
@@ -352,7 +353,7 @@ LOCAL_CFLAGS := -DPJ_ANDROID=1
 LOCAL_SRC_FILES := pjsua_wrap.cpp
 #LOCAL_ARM_MODE := arm
 
-LOCAL_LDLIBS := -llog -lmedia -lcutils -lutils
+LOCAL_LDLIBS := -llog #-lmedia -lcutils -lutils
 LOCAL_STATIC_LIBRARIES := pjsip pjmedia pjnath pjlib-util pjlib resample srtp speex gsm
 
 include $(BUILD_SHARED_LIBRARY)

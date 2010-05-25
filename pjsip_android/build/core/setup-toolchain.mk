@@ -17,16 +17,35 @@
 # to setup the target toolchain for a given platform/abi combination.
 #
 
-$(call assert-defined,TARGET_TOOLCHAIN TARGET_PLATFORM TARGET_ARCH TARGET_ARCH_ABI)
+$(call assert-defined,TARGET_PLATFORM TARGET_ARCH TARGET_ARCH_ABI)
 $(call assert-defined,NDK_APPS)
 
-# Check that the toolchain supports the current ABI
-$(if $(filter-out $(NDK_TOOLCHAIN.$(NDK_TARGET_TOOLCHAIN).abis),$(TARGET_ARCH_ABI)),\
-    $(call __ndk_info,The $(NDK_TARGET_TOOLCHAIN) toolchain does not support the $(TARGET_ARCH_ABI) ABI.)\
-    $(call __ndk_info,Please modify the APP_ABI definition in $(NDK_APP_APPLICATION_MK) to fix this)\
-    $(call __ndk_info,Valid ABIs values for $(NDK_TARGET_TOOLCHAIN) are: $(NDK_TARGET_TOOLCHAIN.$(NDK_TOOLCHAIN).abis))\
-    $(call __ndk_error,Aborting)\
-,)
+# Check that we have a toolchain that supports the current ABI.
+# NOTE: If NDK_TOOLCHAIN is defined, we're going to use it.
+#
+ifndef NDK_TOOLCHAIN
+    TARGET_TOOLCHAIN_LIST := $(strip $(sort $(NDK_ABI.$(TARGET_ARCH_ABI).toolchains)))
+    ifndef TARGET_TOOLCHAIN_LIST
+        $(call __ndk_info,There is no toolchain that supports the $(TARGET_ARCH_ABI) ABI.)
+        $(call __ndk_info,Please modify the APP_ABI definition in $(NDK_APP_APPLICATION_MK) to use)
+        $(call __ndk_info,a set of the following values: $(NDK_ALL_ABIS))
+        $(call __ndk_error,Aborting)
+    endif
+    # Select the last toolchain from the sorted list.
+    # For now, this is enough to select armeabi-4.4.0 by default for ARM
+    TARGET_TOOLCHAIN := $(lastword $(TARGET_TOOLCHAIN_LIST))
+    $(call ndk_log,Using target toolchain '$(TARGET_TOOLCHAIN)' for '$(TARGET_ARCH_ABI)' ABI)
+else # NDK_TOOLCHAIN is not empty
+    TARGET_TOOLCHAIN_LIST := $(strip $(filter $(NDK_TOOLCHAIN),$(NDK_ABI.$(TARGET_ARCH_ABI).toolchains)))
+    ifndef TARGET_TOOLCHAIN_LIST
+        $(call __ndk_info,The selected toolchain ($(NDK_TOOLCHAIN)) does not support the $(TARGET_ARCH_ABI) ABI.)
+        $(call __ndk_info,Please modify the APP_ABI definition in $(NDK_APP_APPLICATION_MK) to use)
+        $(call __ndk_info,a set of the following values: $(NDK_TOOLCHAIN.$(NDK_TOOLCHAIN).abis))
+        $(call __ndk_info,Or change your NDK_TOOLCHAIN definition.)
+        $(call __ndk_error,Aborting)
+    endif
+    TARGET_TOOLCHAIN := $(NDK_TOOLCHAIN)
+endif # NDK_TOOLCHAIN is not empty
 
 TARGET_ABI := $(TARGET_PLATFORM)-$(TARGET_ARCH_ABI)
 
@@ -35,7 +54,7 @@ TARGET_ABI := $(TARGET_PLATFORM)-$(TARGET_ARCH_ABI)
 # some libraries and object files used for linking the generated
 # target files properly.
 #
-SYSROOT := build/platforms/$(TARGET_PLATFORM)/arch-$(TARGET_ARCH)
+SYSROOT := $(NDK_ROOT)/build/platforms/$(TARGET_PLATFORM)/arch-$(TARGET_ARCH)
 
 TARGET_CRTBEGIN_STATIC_O  := $(SYSROOT)/usr/lib/crtbegin_static.o
 TARGET_CRTBEGIN_DYNAMIC_O := $(SYSROOT)/usr/lib/crtbegin_dynamic.o
@@ -47,11 +66,62 @@ TARGET_PREBUILT_SHARED_LIBRARIES := $(TARGET_PREBUILT_SHARED_LIBRARIES:%=$(SYSRO
 # now call the toolchain-specific setup script
 include $(NDK_TOOLCHAIN.$(TARGET_TOOLCHAIN).setup)
 
-# compute NDK_APP_DEST as the destination directory for the generated files
-NDK_APP_DEST := $(NDK_APP_PROJECT_PATH)/libs/$(TARGET_ARCH_ABI)/$(TARGET_PLATFORM)
+# We expect the gdbserver binary for this toolchain to be located at the same
+# place than the target C compiler.
+TARGET_GDBSERVER := $(dir $(TARGET_CC))/gdbserver
+
+# compute NDK_APP_DST_DIR as the destination directory for the generated files
+NDK_APP_DST_DIR := $(NDK_APP_PROJECT_PATH)/libs/$(TARGET_ARCH_ABI)/$(TARGET_PLATFORM)
+
+# Ensure that for debuggable applications, gdbserver will be copied to
+# the proper location
+ifeq ($(NDK_APP_DEBUGGABLE),true)
+
+NDK_APP_GDBSERVER := $(NDK_APP_DST_DIR)/gdbserver
+
+installed_modules: $(NDK_APP_GDBSERVER)
+
+$(NDK_APP_GDBSERVER): PRIVATE_NAME    := $(TOOLCHAIN_NAME)
+$(NDK_APP_GDBSERVER): PRIVATE_SRC     := $(TARGET_GDBSERVER)
+$(NDK_APP_GDBSERVER): PRIVATE_DST_DIR := $(NDK_APP_DST_DIR)
+$(NDK_APP_GDBSERVER): PRIVATE_DST     := $(NDK_APP_GDBSERVER)
+
+$(NDK_APP_GDBSERVER): clean-installed-binaries
+	@ echo "Gdbserver      : [$(PRIVATE_NAME)] $(PRIVATE_DST)"
+	$(hide) mkdir -p $(PRIVATE_DST_DIR)
+	$(hide) install -p $(PRIVATE_SRC) $(PRIVATE_DST)
+
+NDK_APP_GDBSETUP := $(NDK_APP_DST_DIR)/gdb.setup
+installed_modules: $(NDK_APP_GDBSETUP)
+
+$(NDK_APP_GDBSETUP)::
+	@ echo "Gdbsetup       : $(PRIVATE_DST)"
+	$(hide) echo "set solib-search-path $(PRIVATE_SOLIB_PATH)" > $(PRIVATE_DST)
+	$(hide) echo "directory $(SYSROOT)/usr/include" >> $(PRIVATE_DST)
+
+$(NDK_APP_GDBSETUP):: PRIVATE_DST := $(NDK_APP_GDBSETUP)
+$(NDK_APP_GDBSETUP):: PRIVATE_SOLIB_PATH := $(TARGET_OUT)
+$(NDK_APP_GDBSETUP):: PRIVATE_SRC_DIRS := $(SYSROOT)/usr/include
+
+endif
+
+clean-installed-binaries::
 
 # free the dictionary of LOCAL_MODULE definitions
 $(call modules-clear)
 
 # now parse the Android.mk for the application
 include $(NDK_APP_BUILD_SCRIPT)
+
+# Now compute the closure of all module dependencies.
+#
+# If APP_MODULES is not defined in the Application.mk, we
+# will build all modules that were listed from the top-level Android.mk
+#
+ifeq ($(strip $(NDK_APP_MODULES)),)
+    WANTED_MODULES := $(call modules-get-list)
+else
+    WANTED_MODULES := $(call module-get-all-dependencies,$(NDK_APP_MODULES))
+endif
+
+WANTED_INSTALLED_MODULES += $(call map,module-get-installed,$(WANTED_MODULES))

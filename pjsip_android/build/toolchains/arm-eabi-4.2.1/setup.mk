@@ -63,6 +63,8 @@ TARGET_thumb_debug_CFLAGS := $(TARGET_thumb_release_CFLAGS) \
 # This function will be called to determine the target CFLAGS used to build
 # a C or Assembler source file, based on its tags.
 #
+# NOTE: ARM Advanced SIMD (a.k.a. NEON) is not supported with this toolchain.
+#
 TARGET-process-src-files-tags = \
 $(eval __arm_sources := $(call get-src-files-with-tag,arm)) \
 $(eval __thumb_sources := $(call get-src-files-without-tag,arm)) \
@@ -105,6 +107,13 @@ TARGET_LDLIBS := -Wl,-rpath-link=$(SYSROOT)/usr/lib
 # These flags are used to ensure that a binary doesn't reference undefined
 # flags.
 TARGET_NO_UNDEFINED_LDFLAGS := -Wl,--no-undefined
+
+# These flags are used to enfore the NX (no execute) security feature in the
+# generated machine code. This adds a special section to the generated shared
+# libraries that instruct the Linux kernel to disable code execution from
+# the stack and the heap.
+TARGET_NO_EXECUTE_CFLAGS  := -Wa,--noexecstack
+TARGET_NO_EXECUTE_LDFLAGS := -Wl,-z,noexecstack
 
 # The ABI-specific sub-directory that the SDK tools recognize for
 # this toolchain's generated binaries

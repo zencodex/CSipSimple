@@ -30,7 +30,9 @@
 #include <pj/log.h>
 #include <pj/os.h>
 #include <pj/string.h>
-//#include <dlfcn.h>
+
+#include <sys/resource.h>
+#include <utils/threads.h>
 
 #if PJMEDIA_AUDIO_DEV_HAS_ANDROID
 
@@ -127,7 +129,6 @@ struct android_aud_stream
 	pj_thread_t         *recorder_thread;
 #endif
 
-
 };
 
 /* Factory prototypes */
@@ -184,15 +185,22 @@ static pjmedia_aud_stream_op android_strm_op =
 static void AndroidRecorderCallback(int event, void* userData, void* info)
 {
 
+	if(event != android::AudioRecord::EVENT_MORE_DATA ){
+		if(event == android::AudioRecord::EVENT_OVERRUN){
+			PJ_LOG(3, (THIS_FILE, "We overrun..."));
+			//Should be handled by the caller except if android 3 => TODO
+			pj_thread_sleep(3000);
+		}
+		PJ_LOG(3, (THIS_FILE, "Record event ignored : %d", event));
+		return;
+	}
 
 	if(!userData || !info){
 		return;
 	}
 
-	if(event != android::AudioRecord::EVENT_MORE_DATA ){
-		PJ_LOG(3, (THIS_FILE, "Record event ignored : %d", event));
-		return;
-	}
+	//Simulate ultraspeed packet treatment
+	//return;
 
 	struct android_aud_stream *stream = (struct android_aud_stream*) userData;
 	android::AudioRecord::Buffer* uinfo = (android::AudioRecord::Buffer*) info;
@@ -201,6 +209,7 @@ static void AndroidRecorderCallback(int event, void* userData, void* info)
 	pj_int16_t *input;
 
 	if (stream->quit_flag){
+		uinfo->size = 0;
 		goto on_break;
 	}
 
@@ -215,13 +224,19 @@ static void AndroidRecorderCallback(int event, void* userData, void* info)
 	 *   session will leave TLS set, but release the TLS data address,
 	 *   so the second session must re-register the callback's thread.
 	 */
-	if (stream->rec_thread_initialized == 0 || !pj_thread_is_registered())
+
+	//if (stream->rec_thread_initialized == 0 || !pj_thread_is_registered())
+	if (stream->rec_thread_initialized == 0)
 	{
-		status = pj_thread_register("android_rec", stream->rec_thread_desc,
-				&stream->rec_thread);
+	//	status = pj_thread_register("android_rec", stream->rec_thread_desc,
+	//			&stream->rec_thread);
 		stream->rec_thread_initialized = 1;
 		PJ_LOG(3,(THIS_FILE, "Recorder thread started"));
-		//TODO: Ensure android give the thread the highest priority
+		//PJ_LOG(4,(THIS_FILE, "Current priority is %d", getpriority(PRIO_PROCESS, 0)));
+
+		// Ensure android give the thread with a lower priority than the HeapWorker one
+	//	setpriority(PRIO_PROCESS, 0, ANDROID_PRIORITY_NORMAL);
+
 	}
 
 
@@ -236,6 +251,7 @@ static void AndroidRecorderCallback(int event, void* userData, void* info)
 			unsigned chunk_count = 0;
 			pjmedia_frame frame;
 
+			//FIXME : This is not correct????? should be frame size instead of sample_per_frame????
 			chunk_count = stream->samples_per_frame - stream->rec_buf_count;
 			pjmedia_copy_samples(stream->rec_buf + stream->rec_buf_count,
 					(pj_int16_t*)input, chunk_count);
@@ -296,16 +312,6 @@ static void AndroidRecorderCallback(int event, void* userData, void* info)
 	return;
 }
 #else
-static void AndroidRecorderCallback(int event, void* userData, void* info)
-{
-	if (event == android::AudioRecord::EVENT_MORE_DATA) {
-	// set size to 0 to signal we're not using the callback to read more data
-		android::AudioRecord::Buffer* pBuff = (android::AudioRecord::Buffer*)info;
-		pBuff->size = 0;
-	}
-	//We have nothing to do with other events
-}
-
 
 static int PJ_THREAD_FUNC AndroidRecorderThread(void *userData){
 	struct android_aud_stream *stream = (struct android_aud_stream*) userData;
@@ -315,7 +321,6 @@ static int PJ_THREAD_FUNC AndroidRecorderThread(void *userData){
 	pj_status_t status = 0;
 	ssize_t bufferSize = stream->samples_per_frame * stream->bytes_per_sample;
 
-	pj_int16_t* input = new pj_int16_t[bufferSize]();
 
 
 	if (stream->quit_flag){
@@ -328,12 +333,12 @@ static int PJ_THREAD_FUNC AndroidRecorderThread(void *userData){
 
 		pjmedia_frame frame;
 		frame.type = PJMEDIA_FRAME_TYPE_AUDIO;
-		frame.buf = (void*) input;
+		frame.buf = (void*) stream->rec_buf;
 		frame.size = stream->samples_per_frame * stream->bytes_per_sample;
 		frame.timestamp.u64 = stream->rec_timestamp.u64;
 		frame.bit_info = 0;
 
-		ssize_t readSize = stream->rec_strm->read(input, frame.size);
+		ssize_t readSize = stream->rec_strm->read(stream->rec_buf, frame.size);
 		if(readSize <= 0){
 			break;
 		}
@@ -341,12 +346,7 @@ static int PJ_THREAD_FUNC AndroidRecorderThread(void *userData){
 		if(!stream->quit_flag){
 			status = (*stream->rec_cb)(stream->user_data, &frame);
 		}
-
-
 	};
-
-	delete input;
-
 
 	on_break:
 		PJ_LOG(3,(THIS_FILE, "Record thread stopped"));
@@ -359,16 +359,15 @@ static int PJ_THREAD_FUNC AndroidRecorderThread(void *userData){
 static void AndroidPlayerCallback( int event, void* userData, void* info)
 {
 
-
+	if(event != android::AudioTrack::EVENT_MORE_DATA ){
+		PJ_LOG(3, (THIS_FILE, "Play event ignored : %d", event));
+		return;
+	}
 
 	if(!userData || !info){
 		return;
 	}
 
-	if(event != android::AudioTrack::EVENT_MORE_DATA ){
-		PJ_LOG(3, (THIS_FILE, "Play event ignored : %d", event));
-		return;
-	}
 
 
 	struct android_aud_stream *stream = (struct android_aud_stream*) userData;
@@ -390,13 +389,15 @@ static void AndroidPlayerCallback( int event, void* userData, void* info)
 	 *   session will leave TLS set, but release the TLS data address,
 	 *   so the second session must re-register the callback's thread.
 	 */
-	if (stream->play_thread_initialized == 0 || !pj_thread_is_registered())
+	//if (stream->play_thread_initialized == 0 || !pj_thread_is_registered())
+	if (stream->play_thread_initialized == 0)
 	{
-		status = pj_thread_register("android", stream->play_thread_desc,
-				&stream->play_thread);
+	//	status = pj_thread_register("android", stream->play_thread_desc,
+	//			&stream->play_thread);
 		stream->play_thread_initialized = 1;
 		PJ_LOG(3,(THIS_FILE, "Player thread started"));
-		//TODO: Ensure android give the thread the highest priority
+		// Ensure android give the thread with a lower priority than the HeapWorker one
+	//	setpriority(PRIO_PROCESS, 0, ANDROID_PRIORITY_NORMAL);
 	}
 
 	// Check if any buffered samples
@@ -643,11 +644,12 @@ static pj_status_t android_create_stream(pjmedia_aud_dev_factory *f,
 	stream->rec_buf = (pj_int16_t*)pj_pool_alloc(pool,
 			stream->samples_per_frame * stream->bytes_per_sample);
 	stream->rec_buf_count = 0;
+	stream->rec_timestamp.u64 = 0;
 
 	stream->play_buf = (pj_int16_t*)pj_pool_alloc(pool,
 			stream->samples_per_frame * stream->bytes_per_sample);
 	stream->play_buf_count = 0;
-
+	stream->play_timestamp.u64 = 0;
 
 	if (param->bits_per_sample == 8) {
 		sampleFormat = android::AudioSystem::PCM_8_BIT;
@@ -672,7 +674,7 @@ static pj_status_t android_create_stream(pjmedia_aud_dev_factory *f,
 #endif
 
 
-	if (stream->dir & PJMEDIA_DIR_CAPTURE) {
+	if (stream->dir & PJMEDIA_DIR_CAPTURE ) {
 		stream->rec_strm = new android::AudioRecord();
 		if(!stream->rec_strm) {
 			PJ_LOG(2, (THIS_FILE, "fail to create audio record"));
@@ -690,22 +692,25 @@ static pj_status_t android_create_stream(pjmedia_aud_dev_factory *f,
 		//PJ_LOG(3, (THIS_FILE, "Channel count is : %d", android::AudioSystem::isInputChannel(channel_count)));
 		//inputBuffSize = inputBuffSize / 2;
 #endif
-
+		PJ_LOG(2, (THIS_FILE, "Create record stream input size : %d while frame size is %d", inputBuffSize, stream->samples_per_frame * stream->bytes_per_sample));
 		int create_result = stream->rec_strm->set(inputSource,
 				param->clock_rate,
 				sampleFormat,
 				channel_count,
 				inputBuffSize,
 				0, //flags
-				&AndroidRecorderCallback,
-				(void *) stream,
+#if RECORDER_HACK==1
 				0,
+#else
+				&AndroidRecorderCallback,
+#endif
+				(void *) stream,
+				10,
 				false);
 
 		if(create_result != android::NO_ERROR){
 			PJ_LOG(2, (THIS_FILE, "fail to check audio record : error code %d", create_result));
 		}
-
 
 		if(stream->rec_strm->initCheck() != android::NO_ERROR) {
 			PJ_LOG(2, (THIS_FILE, "fail to check audio record : buffer size is : %d, error code : %d", inputBuffSize, stream->rec_strm->initCheck() ));
@@ -715,7 +720,7 @@ static pj_status_t android_create_stream(pjmedia_aud_dev_factory *f,
 		}
 	}
 
-	if (stream->dir & PJMEDIA_DIR_PLAYBACK ) {
+	if (stream->dir & PJMEDIA_DIR_PLAYBACK) {
 		stream->play_strm = new android::AudioTrack();
 		if(!stream->play_strm) {
 			pj_pool_release(pool);
@@ -731,9 +736,10 @@ static pj_status_t android_create_stream(pjmedia_aud_dev_factory *f,
 				0, //flags
 				&AndroidPlayerCallback,
 				(void *) stream,
-				0,
+				10,
 				0,
 				false);
+
 
 		if(!stream->play_strm) {
 			pj_pool_release(pool);
@@ -808,22 +814,28 @@ static pj_status_t strm_start(pjmedia_aud_stream *s)
 	PJ_LOG(4,(THIS_FILE, "Starting %s stream..", stream->name.ptr));
 	stream->quit_flag = 0;
 
+
 	if (stream->play_strm) {
 		stream->play_strm->start();
 		stream->play_thread_exited = 0;
 	}
 
 	if (stream->rec_strm) {
-		stream->rec_strm->start();
+	//	stream->rec_strm->start();
 		stream->rec_thread_exited = 0;
-	}
+
 #if RECORDER_HACK==1
-	pj_status_t status = pj_thread_create(stream->pool, "android_recorder", &AndroidRecorderThread, stream, 0, 0,  &stream->recorder_thread);
+	pj_status_t status = pj_thread_create(stream->pool, "android_recorder", &AndroidRecorderThread, stream, 0, 0,  &stream->rec_thread);
 	if (status != PJ_SUCCESS) {
 		strm_destroy(&stream->base);
 		return status;
 	}
 #endif
+
+
+	}
+
+
 
 	PJ_LOG(4,(THIS_FILE, "Starting done"));
 
@@ -845,18 +857,19 @@ static pj_status_t strm_stop(pjmedia_aud_stream *s)
 		pj_thread_sleep(20);
 	}
 
-	//After all sleep for 0.1 seconds since android device can be slow
-	pj_thread_sleep(1);
+	//After all sleep for 0.2 seconds since android device can be slow
+	pj_thread_sleep(2);
 
 	PJ_LOG(3,(THIS_FILE, "Stopping stream.."));
+
+	if (stream->play_strm) {
+		stream->play_strm->stop();
+	}
 
 	if (stream->rec_strm) {
 		stream->rec_strm->stop();
 	}
 
-	if (stream->play_strm) {
-		stream->play_strm->stop();
-	}
 
 	stream->play_thread_initialized = 0;
 	stream->rec_thread_initialized = 0;
@@ -885,27 +898,32 @@ static pj_status_t strm_destroy(pjmedia_aud_stream *s)
 					(int)stream->name.slen,
 					stream->name.ptr));
 
-	if (stream->play_strm) {
-		stream->play_strm->stop();
-		delete stream->play_strm;
-		stream->play_strm = NULL;
-
-	}
-
 	if (stream->rec_strm) {
 		stream->rec_strm->stop();
-#if RECORDER_HACK==1
-	    if (stream->recorder_thread){
-			pj_thread_join(stream->recorder_thread);
-			pj_thread_destroy(stream->recorder_thread);
-			stream->recorder_thread = NULL;
+	    if (stream->rec_thread){
+			pj_thread_join(stream->rec_thread);
+			pj_thread_destroy(stream->rec_thread);
+			stream->rec_thread = NULL;
 	    }
-#endif
 
 		//FIXME this crash under 1.5 cupcake
 		delete stream->rec_strm;
 		stream->rec_strm = NULL;
 	}
+
+	if (stream->play_strm) {
+		stream->play_strm->stop();
+		if (stream->play_thread){
+			pj_thread_join(stream->play_thread);
+			pj_thread_destroy(stream->play_thread);
+			stream->play_thread = NULL;
+		}
+		delete stream->play_strm;
+		stream->play_strm = NULL;
+
+	}
+
+
 
 	pj_pool_release(stream->pool);
 	PJ_LOG(3,(THIS_FILE, "Stream is destroyed"));

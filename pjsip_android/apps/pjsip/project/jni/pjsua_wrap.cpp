@@ -1157,6 +1157,16 @@ void on_call_tsx_state_wrapper (pjsua_call_id call_id,
     
 void on_call_media_state_wrapper (pjsua_call_id call_id) {
 	registeredCallbackObject->on_call_media_state(call_id);
+	//We connect the conf here.... (do nothing in parent)
+	pjsua_call_info ci;
+	pjsua_call_get_info(call_id, &ci);
+
+	if (ci.media_status == PJSUA_CALL_MEDIA_ACTIVE) {
+		// When media is active, connect call to sound device.
+		pjsua_conf_connect(ci.conf_slot, 0);
+		pjsua_conf_connect(0, ci.conf_slot);
+	}
+
 }
  
 
@@ -14438,8 +14448,13 @@ JNIEXPORT jint JNI_OnLoad(JavaVM *vm, void *reserved) {
 	r = vm->GetEnv ((void **) &env, JNI_VERSION_1_4);
 	k = env->FindClass ("org/pjsip/pjsua/pjsuaJNI");
 
+#if USE_JNI_AUDIO==1
+	android_jvm = vm;
+#endif
 
-	#define NBR_JNI_METHODS 814
+
+	//#define NBR_JNI_METHODS 814
+	#define NBR_JNI_METHODS 804
 	JNINativeMethod methods[NBR_JNI_METHODS] = {
 			{"pj_str_copy", "(Ljava/lang/String;)J", (void*)& Java_org_pjsip_pjsua_pjsuaJNI_pj_1str_1copy},
 			{"get_snd_dev_info", "(JLorg/pjsip/pjsua/pjmedia_snd_dev_info;I)I", (void*)& Java_org_pjsip_pjsua_pjsuaJNI_get_1snd_1dev_1info},
@@ -14771,21 +14786,21 @@ JNIEXPORT jint JNI_OnLoad(JavaVM *vm, void *reserved) {
 			{"pjmedia_snd_set_latency", "(JJ)I", (void*)& Java_org_pjsip_pjsua_pjsuaJNI_pjmedia_1snd_1set_1latency},
 			{"pjmedia_tonegen_create2", "(JLorg/pjsip/pjsua/pj_pool_t;JLorg/pjsip/pjsua/pj_str_t;JJJJJLorg/pjsip/pjsua/pjmedia_port;)I", (void*)& Java_org_pjsip_pjsua_pjsuaJNI_pjmedia_1tonegen_1create2},
 			{"pjmedia_tonegen_play", "(JLorg/pjsip/pjsua/pjmedia_port;J[JJ)I", (void*)& Java_org_pjsip_pjsua_pjsuaJNI_pjmedia_1tonegen_1play},
-			{"pjmedia_tonegen_rewind", "(JLorg/pjsip/pjsua/pjmedia_port;)I", (void*)& Java_org_pjsip_pjsua_pjsuaJNI_pjmedia_1tonegen_1rewind},
+	//		{"pjmedia_tonegen_rewind", "(JLorg/pjsip/pjsua/pjmedia_port;)I", (void*)& Java_org_pjsip_pjsua_pjsuaJNI_pjmedia_1tonegen_1rewind},
 			{"PJSUA_INVALID_ID_get", "()I", (void*)& Java_org_pjsip_pjsua_pjsuaJNI_PJSUA_1INVALID_1ID_1get},
 			{"PJSUA_ACC_MAX_PROXIES_get", "()I", (void*)& Java_org_pjsip_pjsua_pjsuaJNI_PJSUA_1ACC_1MAX_1PROXIES_1get},
 			{"pjsua_logging_config_msg_logging_set", "(JLorg/pjsip/pjsua/pjsua_logging_config;I)V", (void*)& Java_org_pjsip_pjsua_pjsuaJNI_pjsua_1logging_1config_1msg_1logging_1set},
-			{"pjsua_logging_config_msg_logging_get", "(JLorg/pjsip/pjsua/pjsua_logging_config;)I", (void*)& Java_org_pjsip_pjsua_pjsuaJNI_pjsua_1logging_1config_1msg_1logging_1get},
+	//		{"pjsua_logging_config_msg_logging_get", "(JLorg/pjsip/pjsua/pjsua_logging_config;)I", (void*)& Java_org_pjsip_pjsua_pjsuaJNI_pjsua_1logging_1config_1msg_1logging_1get},
 			{"pjsua_logging_config_level_set", "(JLorg/pjsip/pjsua/pjsua_logging_config;J)V", (void*)& Java_org_pjsip_pjsua_pjsuaJNI_pjsua_1logging_1config_1level_1set},
-			{"pjsua_logging_config_level_get", "(JLorg/pjsip/pjsua/pjsua_logging_config;)J", (void*)& Java_org_pjsip_pjsua_pjsuaJNI_pjsua_1logging_1config_1level_1get},
+	//		{"pjsua_logging_config_level_get", "(JLorg/pjsip/pjsua/pjsua_logging_config;)J", (void*)& Java_org_pjsip_pjsua_pjsuaJNI_pjsua_1logging_1config_1level_1get},
 			{"pjsua_logging_config_console_level_set", "(JLorg/pjsip/pjsua/pjsua_logging_config;J)V", (void*)& Java_org_pjsip_pjsua_pjsuaJNI_pjsua_1logging_1config_1console_1level_1set},
-			{"pjsua_logging_config_console_level_get", "(JLorg/pjsip/pjsua/pjsua_logging_config;)J", (void*)& Java_org_pjsip_pjsua_pjsuaJNI_pjsua_1logging_1config_1console_1level_1get},
-			{"pjsua_logging_config_decor_set", "(JLorg/pjsip/pjsua/pjsua_logging_config;J)V", (void*)& Java_org_pjsip_pjsua_pjsuaJNI_pjsua_1logging_1config_1decor_1set},
-			{"pjsua_logging_config_decor_get", "(JLorg/pjsip/pjsua/pjsua_logging_config;)J", (void*)& Java_org_pjsip_pjsua_pjsuaJNI_pjsua_1logging_1config_1decor_1get},
-			{"pjsua_logging_config_log_filename_set", "(JLorg/pjsip/pjsua/pjsua_logging_config;JLorg/pjsip/pjsua/pj_str_t;)V", (void*)& Java_org_pjsip_pjsua_pjsuaJNI_pjsua_1logging_1config_1log_1filename_1set},
-			{"pjsua_logging_config_log_filename_get", "(JLorg/pjsip/pjsua/pjsua_logging_config;)J", (void*)& Java_org_pjsip_pjsua_pjsuaJNI_pjsua_1logging_1config_1log_1filename_1get},
-			{"pjsua_logging_config_cb_set", "(JLorg/pjsip/pjsua/pjsua_logging_config;J)V", (void*)& Java_org_pjsip_pjsua_pjsuaJNI_pjsua_1logging_1config_1cb_1set},
-			{"pjsua_logging_config_cb_get", "(JLorg/pjsip/pjsua/pjsua_logging_config;)J", (void*)& Java_org_pjsip_pjsua_pjsuaJNI_pjsua_1logging_1config_1cb_1get},
+	//		{"pjsua_logging_config_console_level_get", "(JLorg/pjsip/pjsua/pjsua_logging_config;)J", (void*)& Java_org_pjsip_pjsua_pjsuaJNI_pjsua_1logging_1config_1console_1level_1get},
+	//		{"pjsua_logging_config_decor_set", "(JLorg/pjsip/pjsua/pjsua_logging_config;J)V", (void*)& Java_org_pjsip_pjsua_pjsuaJNI_pjsua_1logging_1config_1decor_1set},
+	//		{"pjsua_logging_config_decor_get", "(JLorg/pjsip/pjsua/pjsua_logging_config;)J", (void*)& Java_org_pjsip_pjsua_pjsuaJNI_pjsua_1logging_1config_1decor_1get},
+	//		{"pjsua_logging_config_log_filename_set", "(JLorg/pjsip/pjsua/pjsua_logging_config;JLorg/pjsip/pjsua/pj_str_t;)V", (void*)& Java_org_pjsip_pjsua_pjsuaJNI_pjsua_1logging_1config_1log_1filename_1set},
+	//		{"pjsua_logging_config_log_filename_get", "(JLorg/pjsip/pjsua/pjsua_logging_config;)J", (void*)& Java_org_pjsip_pjsua_pjsuaJNI_pjsua_1logging_1config_1log_1filename_1get},
+	//		{"pjsua_logging_config_cb_set", "(JLorg/pjsip/pjsua/pjsua_logging_config;J)V", (void*)& Java_org_pjsip_pjsua_pjsuaJNI_pjsua_1logging_1config_1cb_1set},
+	//		{"pjsua_logging_config_cb_get", "(JLorg/pjsip/pjsua/pjsua_logging_config;)J", (void*)& Java_org_pjsip_pjsua_pjsuaJNI_pjsua_1logging_1config_1cb_1get},
 			{"new_pjsua_logging_config", "()J", (void*)& Java_org_pjsip_pjsua_pjsuaJNI_new_1pjsua_1logging_1config},
 			{"delete_pjsua_logging_config", "(J)V", (void*)& Java_org_pjsip_pjsua_pjsuaJNI_delete_1pjsua_1logging_1config},
 			{"logging_config_default", "(JLorg/pjsip/pjsua/pjsua_logging_config;)V", (void*)& Java_org_pjsip_pjsua_pjsuaJNI_logging_1config_1default},
