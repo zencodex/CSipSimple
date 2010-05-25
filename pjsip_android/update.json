@@ -4,79 +4,44 @@
 {
 	"sip_core" : [
 		{
-			"id": "android-4",
+			"id": "android-archos",
 			"filters" : {
 				"android.os.Build$VERSION" : {
-					"SDK_INT" : "^4$"
+					"SDK" : "^4$"
+				},
+				"android.os.Build" : {
+					"MANUFACTURER" : "^archos$"
 				}
 			},
 			"versions":[
 				{
-					"version" : "0.00-07",
-					"download_url" : "http://csipsimple.googlecode.com/files/android-4_libpjsipjni-0.00-07.so.gz",
-					"changelog" : "Fetedusip initial release"
+					"version" : "0.00-11",
+					"download_url" : "http://csipsimple.googlecode.com/files/android-4_libpjsipjni-0.00-10.so.gz",
+					"changelog" : "Fetedusip release"
 					
 				}
 			],
 			"label" : "CSipSimple build",
-			"description" : "PjSip for android 1.6",
+			"description" : "PjSip for android armeabi devices",
 			"autoconf" : {}
 		},
 		{
-			"id": "android-5",
+			"id": "android-armeabi",
 			"filters" : {
 				"android.os.Build$VERSION" : {
-					"SDK_INT" : "^(5|6)$"
+					"SDK" : "^.*$"
 				}
 			},
 			"versions":[
 				{
-					"version" : "0.00-07",
-					"download_url" : "http://csipsimple.googlecode.com/files/android-5_libpjsipjni-0.00-07.so.gz",
-					"changelog" : "Fetedusip initial release"
+					"version" : "0.00-11",
+					"download_url" : "http://csipsimple.googlecode.com/files/android-armeabi_libpjsipjni-0.00-11.so.gz",
+					"changelog" : "Fetedusip release"
 					
 				}
 			],
 			"label" : "CSipSimple build",
-			"description" : "PjSip for android 2.0(.1)",
-			"autoconf" : {}
-		},
-		{
-			"id": "android-7",
-			"filters" : {
-				"android.os.Build$VERSION" : {
-					"SDK_INT" : "^(7|8)$"
-				}
-			},
-			"versions":[
-				{
-					"version" : "0.00-07",
-					"download_url" : "http://csipsimple.googlecode.com/files/android-7_libpjsipjni-0.00-07.so.gz",
-					"changelog" : "Fetedusip initial release"
-					
-				}
-			],
-			"label" : "CSipSimple build",
-			"description" : "PjSip for android 2.1",
-			"autoconf" : {}
-		},
-		{
-			"id": "android-3",
-			"filters" : {
-				"android.os.Build$VERSION" : {
-					"SDK" : "^3$"
-				}
-			},
-			"versions":[
-				{
-					"version" : "0.00-07",
-					"download_url" : "http://csipsimple.googlecode.com/files/android-3_libpjsipjni-0.00-07.so.gz",
-					"changelog" : "Fetedusip initial release"
-					
-				}
-			],
-			"label" : "CSipSimple build",
-			"description" : "PjSip for android 1.5",
+			"description" : "PjSip for android armeabi devices",
 			"autoconf" : {}
 		}
 	]
