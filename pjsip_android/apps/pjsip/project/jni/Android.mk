@@ -161,8 +161,8 @@ LOCAL_SRC_FILES := $(PJLIB_SRC_DIR)/alaw_ulaw.c $(PJLIB_SRC_DIR)/alaw_ulaw_table
     $(PJMEDIADEV_SRC_DIR)/android_jni_dev.cpp \
     $(PJMEDIACODEC_SRC_DIR)/speex_codec.c \
 	$(PJMEDIACODEC_SRC_DIR)/g722.c $(PJMEDIACODEC_SRC_DIR)/g722/g722_enc.c $(PJMEDIACODEC_SRC_DIR)/g722/g722_dec.c \
-	$(PJMEDIACODEC_SRC_DIR)/gsm.c
-#	$(PJMEDIACODEC_SRC_DIR)/ipp_codecs.c $(PJMEDIACODEC_SRC_DIR)/l16.c $(PJMEDIACODEC_SRC_DIR)/ilbc.c 
+	$(PJMEDIACODEC_SRC_DIR)/gsm.c $(PJMEDIACODEC_SRC_DIR)/ilbc.c 
+#	$(PJMEDIACODEC_SRC_DIR)/ipp_codecs.c $(PJMEDIACODEC_SRC_DIR)/l16.c 
 
 
 include $(BUILD_STATIC_LIBRARY)
@@ -279,8 +279,7 @@ LOCAL_SRC_FILES := $(PJLIB_SRC_DIR)/FrameClassify.c $(PJLIB_SRC_DIR)/LPCdecode.c
 		   $(PJLIB_SRC_DIR)/iLBC_decode.c $(PJLIB_SRC_DIR)/iLBC_encode.c $(PJLIB_SRC_DIR)/lsf.c \
 		   $(PJLIB_SRC_DIR)/packing.c $(PJLIB_SRC_DIR)/syntFilter.c
 		   
-		   
-#include $(BUILD_STATIC_LIBRARY)
+include $(BUILD_STATIC_LIBRARY)
 
 #######
 # GSM #
@@ -354,7 +353,7 @@ LOCAL_SRC_FILES := pjsua_wrap.cpp
 #LOCAL_ARM_MODE := arm
 
 LOCAL_LDLIBS := -llog #-lmedia -lcutils -lutils
-LOCAL_STATIC_LIBRARIES := pjsip pjmedia pjnath pjlib-util pjlib resample srtp speex gsm
+LOCAL_STATIC_LIBRARIES := pjsip pjmedia pjnath pjlib-util pjlib resample srtp speex ilbc gsm
 
 include $(BUILD_SHARED_LIBRARY)
 

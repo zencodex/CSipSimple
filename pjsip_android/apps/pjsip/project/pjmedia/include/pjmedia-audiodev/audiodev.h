@@ -1,4 +1,4 @@
-/* $Id: audiodev.h 3159 2010-05-05 04:23:27Z ming $ */
+/* $Id: audiodev.h 3174 2010-05-17 12:51:06Z ming $ */
 /* 
  * Copyright (C) 2008-2009 Teluu Inc. (http://www.teluu.com)
  * Copyright (C) 2003-2008 Benny Prijono <benny@prijono.org>
@@ -201,7 +201,10 @@ typedef enum pjmedia_aud_dev_route
     PJMEDIA_AUD_DEV_ROUTE_LOUDSPEAKER = 1,
 
     /** Route to earpiece */
-    PJMEDIA_AUD_DEV_ROUTE_EARPIECE = 2
+    PJMEDIA_AUD_DEV_ROUTE_EARPIECE = 2,
+
+    /** Route to paired Bluetooth device */
+    PJMEDIA_AUD_DEV_ROUTE_BLUETOOTH = 4
 
 } pjmedia_aud_dev_route;
 

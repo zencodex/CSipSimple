@@ -1,4 +1,4 @@
-/* $Id: errno.h 2506 2009-03-12 18:11:37Z bennylp $ */
+/* $Id: errno.h 3174 2010-05-17 12:51:06Z ming $ */
 /* 
  * Copyright (C) 2008-2009 Teluu Inc. (http://www.teluu.com)
  *
@@ -89,6 +89,20 @@ PJ_BEGIN_DECL
 #define PJMEDIA_AUDIODEV_ERRNO_FROM_WMME_OUT(err) \
 	    ((int)PJMEDIA_AUDIODEV_WMME_OUT_ERROR_START+err)
 
+
+/**
+ * Mapping from CoreAudio error codes to pjmedia error space.
+ */
+#define PJMEDIA_AUDIODEV_COREAUDIO_ERRNO_START \
+	    (PJMEDIA_AUDIODEV_ERRNO_START+20000)
+#define PJMEDIA_AUDIODEV_COREAUDIO_ERRNO_END   \
+	    (PJMEDIA_AUDIODEV_COREAUDIO_ERRNO_START + 20000 -1)
+/**
+ * Convert CoreAudio error code to PJLIB error code.
+ * CoreAudio error code range: 0 >= err >= -10000
+ */
+#define PJMEDIA_AUDIODEV_ERRNO_FROM_COREAUDIO(err) \
+	    ((int)PJMEDIA_AUDIODEV_COREAUDIO_ERRNO_START-err)
 
 /************************************************************
  * Audio Device API error codes

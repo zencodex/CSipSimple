@@ -1,4 +1,4 @@
-/* $Id: transport_srtp.c 2891 2009-08-17 15:17:36Z bennylp $ */
+/* $Id: transport_srtp.c 3191 2010-06-02 09:32:42Z nanang $ */
 /* 
  * Copyright (C) 2008-2009 Teluu Inc. (http://www.teluu.com)
  * Copyright (C) 2003-2008 Benny Prijono <benny@prijono.org>
@@ -1054,9 +1054,13 @@ static pj_status_t parse_attr_crypto(pj_pool_t *pool,
 	return PJMEDIA_SDP_EINATTR;
     }
     tmp = pj_str(token);
-    crypto->key.ptr = (char*) pj_pool_zalloc(pool, MAX_KEY_LEN);
+    if (PJ_BASE64_TO_BASE256_LEN(tmp.slen) > MAX_KEY_LEN) {
+	PJ_LOG(4,(THIS_FILE, "Key too long"));
+	return PJMEDIA_SRTP_EINKEYLEN;
+    }
 
     /* Decode key */
+    crypto->key.ptr = (char*) pj_pool_zalloc(pool, MAX_KEY_LEN);
     itmp = MAX_KEY_LEN;
     status = pj_base64_decode(&tmp, (pj_uint8_t*)crypto->key.ptr, 
 			      &itmp);

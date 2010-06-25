@@ -1,4 +1,4 @@
-/* $Id: codec.h 3146 2010-04-26 13:57:28Z nanang $ */
+/* $Id: codec.h 3199 2010-06-07 05:23:56Z nanang $ */
 /* 
  * Copyright (C) 2008-2009 Teluu Inc. (http://www.teluu.com)
  * Copyright (C) 2003-2008 Benny Prijono <benny@prijono.org>
@@ -196,6 +196,7 @@ PJ_BEGIN_DECL
 enum pjmedia_rtp_pt
 {
     PJMEDIA_RTP_PT_PCMU = 0,	    /**< audio PCMU			    */
+    PJMEDIA_RTP_PT_G721 = 2,	    /**< audio G721 (old def for G726-32)   */
     PJMEDIA_RTP_PT_GSM  = 3,	    /**< audio GSM			    */
     PJMEDIA_RTP_PT_G723 = 4,	    /**< audio G723			    */
     PJMEDIA_RTP_PT_DVI4_8K = 5,	    /**< audio DVI4 8KHz		    */

@@ -1,4 +1,4 @@
-/* $Id: sip_inv.c 3094 2010-02-10 08:48:27Z bennylp $ */
+/* $Id: sip_inv.c 3190 2010-06-02 03:03:43Z bennylp $ */
 /* 
  * Copyright (C) 2008-2009 Teluu Inc. (http://www.teluu.com)
  * Copyright (C) 2003-2008 Benny Prijono <benny@prijono.org>
@@ -750,6 +750,7 @@ PJ_DEF(pj_status_t) pjsip_inv_verify_request2(pjsip_rx_data *rdata,
     pjsip_allow_hdr *allow;
     pjsip_supported_hdr *sup_hdr;
     pjsip_require_hdr *req_hdr;
+    pjsip_contact_hdr *c_hdr;
     int code = 200;
     unsigned rem_option = 0;
     pj_status_t status = PJ_SUCCESS;
@@ -783,6 +784,27 @@ PJ_DEF(pj_status_t) pjsip_inv_verify_request2(pjsip_rx_data *rdata,
 
     /* Init response header list */
     pj_list_init(&res_hdr_list);
+
+    /* Check the Contact header */
+    c_hdr = (pjsip_contact_hdr*)
+	    pjsip_msg_find_hdr(msg, PJSIP_H_CONTACT, NULL);
+    if (!c_hdr || !c_hdr->uri) {
+	/* Missing Contact header or Contact contains "*" */
+	pjsip_warning_hdr *w;
+	pj_str_t warn_text;
+
+	warn_text = pj_str("Bad/missing Contact header");
+	w = pjsip_warning_hdr_create(rdata->tp_info.pool, 399,
+				     pjsip_endpt_name(endpt),
+				     &warn_text);
+	if (w) {
+	    pj_list_push_back(&res_hdr_list, w);
+	}
+
+	code = PJSIP_SC_BAD_REQUEST;
+	status = PJSIP_ERRNO_FROM_SIP_STATUS(code);
+	goto on_return;
+    }
 
     /* Check the request body, see if it's something that we support,
      * only when the body hasn't been parsed before.

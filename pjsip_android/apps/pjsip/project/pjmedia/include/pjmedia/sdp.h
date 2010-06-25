@@ -1,4 +1,4 @@
-/* $Id: sdp.h 2995 2009-11-09 05:18:12Z bennylp $ */
+/* $Id: sdp.h 3198 2010-06-04 13:41:34Z nanang $ */
 /* 
  * Copyright (C) 2008-2009 Teluu Inc. (http://www.teluu.com)
  * Copyright (C) 2003-2008 Benny Prijono <benny@prijono.org>
@@ -529,6 +529,18 @@ PJ_DECL(pj_status_t) pjmedia_sdp_transport_cmp(const pj_str_t *t1,
  */
 PJ_DECL(pj_status_t) pjmedia_sdp_media_deactivate(pj_pool_t *pool,
 						  pjmedia_sdp_media *m);
+
+
+/**
+ * Clone SDP media description and deactivate the new SDP media.
+ *
+ * @param rhs	    The SDP media to clone.
+ *
+ * @return	    New media descrption with deactivated indication.
+ */
+PJ_DECL(pjmedia_sdp_media*) pjmedia_sdp_media_clone_deactivate(
+						pj_pool_t *pool,
+						const pjmedia_sdp_media *rhs);
 
 
 /* **************************************************************************

@@ -1,4 +1,4 @@
-/* $Id: audiodev.c 3159 2010-05-05 04:23:27Z ming $ */
+/* $Id: audiodev.c 3174 2010-05-17 12:51:06Z ming $ */
 /* 
  * Copyright (C) 2008-2009 Teluu Inc. (http://www.teluu.com)
  * Copyright (C) 2003-2008 Benny Prijono <benny@prijono.org>
@@ -68,6 +68,10 @@ static struct cap_info
 /* extern functions to create factories */
 #if PJMEDIA_AUDIO_DEV_HAS_PORTAUDIO
 pjmedia_aud_dev_factory* pjmedia_pa_factory(pj_pool_factory *pf);
+#endif
+
+#if PJMEDIA_AUDIO_DEV_HAS_COREAUDIO
+pjmedia_aud_dev_factory* pjmedia_coreaudio_factory(pj_pool_factory *pf);
 #endif
 
 #if PJMEDIA_AUDIO_DEV_HAS_ALSA
@@ -382,6 +386,9 @@ PJ_DEF(pj_status_t) pjmedia_aud_subsys_init(pj_pool_factory *pf)
     /* Register creation functions */
 #if PJMEDIA_AUDIO_DEV_HAS_ALSA
     aud_subsys.drv[aud_subsys.drv_cnt++].create = &pjmedia_alsa_factory;
+#endif
+#if PJMEDIA_AUDIO_DEV_HAS_COREAUDIO
+    aud_subsys.drv[aud_subsys.drv_cnt++].create = &pjmedia_coreaudio_factory;
 #endif
 #if PJMEDIA_AUDIO_DEV_HAS_PORTAUDIO
     aud_subsys.drv[aud_subsys.drv_cnt++].create = &pjmedia_pa_factory;

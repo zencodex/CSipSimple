@@ -1,4 +1,4 @@
-/* $Id: pjsua_acc.c 3172 2010-05-13 05:22:51Z nanang $ */
+/* $Id: pjsua_acc.c 3190 2010-06-02 03:03:43Z bennylp $ */
 /* 
  * Copyright (C) 2008-2009 Teluu Inc. (http://www.teluu.com)
  * Copyright (C) 2003-2008 Benny Prijono <benny@prijono.org>
@@ -1510,9 +1510,6 @@ static void regc_cb(struct pjsip_regc_cbparam *param)
     acc->reg_last_err = param->status;
     acc->reg_last_code = param->code;
 
-    if (pjsua_var.ua_cfg.cb.on_reg_state)
-	(*pjsua_var.ua_cfg.cb.on_reg_state)(acc->index);
-
     /* Check if we need to auto retry registration. Basically, registration
      * failure codes triggering auto-retry are those of temporal failures
      * considered to be recoverable in relatively short term.
@@ -1527,6 +1524,9 @@ static void regc_cb(struct pjsip_regc_cbparam *param)
     {
 	schedule_reregistration(acc);
     }
+
+    if (pjsua_var.ua_cfg.cb.on_reg_state)
+	(*pjsua_var.ua_cfg.cb.on_reg_state)(acc->index);
 
     PJSUA_UNLOCK();
 }
@@ -2148,7 +2148,7 @@ PJ_DEF(pj_status_t) pjsua_acc_create_uac_contact( pj_pool_t *pool,
 	tp_type = PJSIP_TRANSPORT_UDP;
     } else
 	tp_type = pjsip_transport_get_type_from_name(&sip_uri->transport_param);
-    
+
     if (tp_type == PJSIP_TRANSPORT_UNSPECIFIED)
 	return PJSIP_EUNSUPTRANSPORT;
 
@@ -2267,9 +2267,12 @@ PJ_DEF(pj_status_t) pjsua_acc_create_uas_contact( pj_pool_t *pool,
 			pjsip_msg_find_hdr(rdata->msg_info.msg, PJSIP_H_CONTACT,
 					   pos);
 	    if (h_contact) {
-		uri = (pjsip_uri*) pjsip_uri_get_uri(h_contact->uri);
-		if (!PJSIP_URI_SCHEME_IS_SIP(uri) && 
-		    !PJSIP_URI_SCHEME_IS_SIPS(uri))
+		if (h_contact->uri)
+		    uri = (pjsip_uri*) pjsip_uri_get_uri(h_contact->uri);
+		else
+		    uri = NULL;
+		if (!uri || (!PJSIP_URI_SCHEME_IS_SIP(uri) &&
+		             !PJSIP_URI_SCHEME_IS_SIPS(uri)))
 		{
 		    pos = (pjsip_hdr*)h_contact->next;
 		    if (pos == &rdata->msg_info.msg->hdr)
@@ -2398,8 +2401,15 @@ static void auto_rereg_timer_cb(pj_timer_heap_t *th, pj_timer_entry *te)
 
     PJSUA_LOCK();
 
-    if (!acc->valid || !acc->auto_rereg.active)
+    /* Check if the reregistration timer is still valid, e.g: while waiting
+     * timeout timer application might have deleted the account or disabled
+     * the auto-reregistration.
+     */
+    if (!acc->valid || !acc->auto_rereg.active || 
+	acc->cfg.reg_retry_interval == 0)
+    {
 	goto on_return;
+    }
 
     /* Start re-registration */
     acc->auto_rereg.attempt_cnt++;
@@ -2420,7 +2430,12 @@ static void schedule_reregistration(pjsua_acc *acc)
 {
     pj_time_val delay;
 
-    pj_assert(acc && acc->valid && acc->cfg.reg_retry_interval);
+    pj_assert(acc);
+
+    /* Validate the account and re-registration feature status */
+    if (!acc->valid || acc->cfg.reg_retry_interval == 0) {
+	return;
+    }
 
     /* If configured, disconnect calls of this account after the first
      * reregistration attempt failed.

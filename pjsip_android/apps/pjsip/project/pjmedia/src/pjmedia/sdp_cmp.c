@@ -1,4 +1,4 @@
-/* $Id: sdp_cmp.c 2394 2008-12-23 17:27:53Z bennylp $ */
+/* $Id: sdp_cmp.c 3198 2010-06-04 13:41:34Z nanang $ */
 /* 
  * Copyright (C) 2008-2009 Teluu Inc. (http://www.teluu.com)
  * Copyright (C) 2003-2008 Benny Prijono <benny@prijono.org>
@@ -182,6 +182,10 @@ PJ_DEF(pj_status_t) pjmedia_sdp_media_cmp( const pjmedia_sdp_media *sd1,
     /* Compare transports. */
     if (pj_strcmp(&sd1->desc.transport, &sd2->desc.transport) != 0)
 	return PJMEDIA_SDP_ETPORTNOTEQUAL;
+
+    /* For zeroed port media, stop comparing here */
+    if (sd1->desc.port == 0)
+	return PJ_SUCCESS;
 
     /* Compare number of formats. */
     if (sd1->desc.fmt_count != sd2->desc.fmt_count)

@@ -31,7 +31,7 @@
 
 
 static void on_log_msg(int level, const char *data, int len) {
-	if (level < 1) {
+	if (level <= 1) {
 		LOGE("%s", data);
 	} else if (level == 2) {
 		LOGW("%s", data);
@@ -45,1036 +45,116 @@ static void on_log_msg(int level, const char *data, int len) {
 }
 
 
-#ifdef __cplusplus
-template<typename T> class SwigValueWrapper {
-    T *tt;
-public:
-    SwigValueWrapper() : tt(0) { }
-    SwigValueWrapper(const SwigValueWrapper<T>& rhs) : tt(new T(*rhs.tt)) { }
-    SwigValueWrapper(const T& t) : tt(new T(t)) { }
-    ~SwigValueWrapper() { delete tt; } 
-    SwigValueWrapper& operator=(const T& t) { delete tt; tt = new T(t); return *this; }
-    operator T&() const { return *tt; }
-    T *operator&() { return tt; }
-private:
-    SwigValueWrapper& operator=(const SwigValueWrapper<T>& rhs);
-};
 
-template <typename T> T SwigValueInit() {
-  return T();
-}
-#endif
 
-/* -----------------------------------------------------------------------------
- *  This section contains generic SWIG labels for method/variable
- *  declarations/attributes, and other compiler dependent labels.
- * ----------------------------------------------------------------------------- */
-
-/* template workaround for compilers that cannot correctly implement the C++ standard */
-#ifndef SWIGTEMPLATEDISAMBIGUATOR
-# if defined(__SUNPRO_CC) && (__SUNPRO_CC <= 0x560)
-#  define SWIGTEMPLATEDISAMBIGUATOR template
-# elif defined(__HP_aCC)
-/* Needed even with `aCC -AA' when `aCC -V' reports HP ANSI C++ B3910B A.03.55 */
-/* If we find a maximum version that requires this, the test would be __HP_aCC <= 35500 for A.03.55 */
-#  define SWIGTEMPLATEDISAMBIGUATOR template
-# else
-#  define SWIGTEMPLATEDISAMBIGUATOR
-# endif
-#endif
-
-/* inline attribute */
-#ifndef SWIGINLINE
-# if defined(__cplusplus) || (defined(__GNUC__) && !defined(__STRICT_ANSI__))
-#   define SWIGINLINE inline
-# else
-#   define SWIGINLINE
-# endif
-#endif
-
-/* attribute recognised by some compilers to avoid 'unused' warnings */
-#ifndef SWIGUNUSED
-# if defined(__GNUC__)
-#   if !(defined(__cplusplus)) || (__GNUC__ > 3 || (__GNUC__ == 3 && __GNUC_MINOR__ >= 4))
-#     define SWIGUNUSED __attribute__ ((__unused__)) 
-#   else
-#     define SWIGUNUSED
-#   endif
-# elif defined(__ICC)
-#   define SWIGUNUSED __attribute__ ((__unused__)) 
-# else
-#   define SWIGUNUSED 
-# endif
-#endif
-
-#ifndef SWIG_MSC_UNSUPPRESS_4505
-# if defined(_MSC_VER)
-#   pragma warning(disable : 4505) /* unreferenced local function has been removed */
-# endif 
-#endif
-
-#ifndef SWIGUNUSEDPARM
-# ifdef __cplusplus
-#   define SWIGUNUSEDPARM(p)
-# else
-#   define SWIGUNUSEDPARM(p) p SWIGUNUSED 
-# endif
-#endif
-
-/* internal SWIG method */
-#ifndef SWIGINTERN
-# define SWIGINTERN static SWIGUNUSED
-#endif
-
-/* internal inline SWIG method */
-#ifndef SWIGINTERNINLINE
-# define SWIGINTERNINLINE SWIGINTERN SWIGINLINE
-#endif
-
-/* exporting methods */
-#if (__GNUC__ >= 4) || (__GNUC__ == 3 && __GNUC_MINOR__ >= 4)
-#  ifndef GCC_HASCLASSVISIBILITY
-#    define GCC_HASCLASSVISIBILITY
-#  endif
-#endif
-
-#ifndef SWIGEXPORT
-# if defined(_WIN32) || defined(__WIN32__) || defined(__CYGWIN__)
-#   if defined(STATIC_LINKED)
-#     define SWIGEXPORT
-#   else
-#     define SWIGEXPORT __declspec(dllexport)
-#   endif
-# else
-#   if defined(__GNUC__) && defined(GCC_HASCLASSVISIBILITY)
-#     define SWIGEXPORT __attribute__ ((visibility("default")))
-#   else
-#     define SWIGEXPORT
-#   endif
-# endif
-#endif
-
-/* calling conventions for Windows */
-#ifndef SWIGSTDCALL
-# if defined(_WIN32) || defined(__WIN32__) || defined(__CYGWIN__)
-#   define SWIGSTDCALL __stdcall
-# else
-#   define SWIGSTDCALL
-# endif 
-#endif
-
-/* Deal with Microsoft's attempt at deprecating C standard runtime functions */
-#if !defined(SWIG_NO_CRT_SECURE_NO_DEPRECATE) && defined(_MSC_VER) && !defined(_CRT_SECURE_NO_DEPRECATE)
-# define _CRT_SECURE_NO_DEPRECATE
-#endif
-
-/* Deal with Microsoft's attempt at deprecating methods in the standard C++ library */
-#if !defined(SWIG_NO_SCL_SECURE_NO_DEPRECATE) && defined(_MSC_VER) && !defined(_SCL_SECURE_NO_DEPRECATE)
-# define _SCL_SECURE_NO_DEPRECATE
-#endif
-
-
-
-/* Fix for jlong on some versions of gcc on Windows */
-#if defined(__GNUC__) && !defined(__INTELC__)
-  typedef long long __int64;
-#endif
-
-/* Fix for jlong on 64-bit x86 Solaris */
-#if defined(__x86_64)
-# ifdef _LP64
-#   undef _LP64
-# endif
-#endif
-
-#include <jni.h>
-// In jni_md.h: #define JNICALL __stdcall, which seems to mess us up
-// (adds some bit of name mangling). We want cdecl not stdcall... eh?
-// This must come after jni.h
-#undef JNICALL
-#define JNICALL
-#include <stdlib.h>
-#include <string.h>
-
-
-/* Support for throwing Java exceptions */
-typedef enum {
-  SWIG_JavaOutOfMemoryError = 1, 
-  SWIG_JavaIOException, 
-  SWIG_JavaRuntimeException, 
-  SWIG_JavaIndexOutOfBoundsException,
-  SWIG_JavaArithmeticException,
-  SWIG_JavaIllegalArgumentException,
-  SWIG_JavaNullPointerException,
-  SWIG_JavaDirectorPureVirtual,
-  SWIG_JavaUnknownError
-} SWIG_JavaExceptionCodes;
-
-typedef struct {
-  SWIG_JavaExceptionCodes code;
-  const char *java_exception;
-} SWIG_JavaExceptions_t;
-
-
-static void SWIGUNUSED SWIG_JavaThrowException(JNIEnv *jenv, SWIG_JavaExceptionCodes code, const char *msg) {
-  jclass excep;
-  static const SWIG_JavaExceptions_t java_exceptions[] = {
-    { SWIG_JavaOutOfMemoryError, "java/lang/OutOfMemoryError" },
-    { SWIG_JavaIOException, "java/io/IOException" },
-    { SWIG_JavaRuntimeException, "java/lang/RuntimeException" },
-    { SWIG_JavaIndexOutOfBoundsException, "java/lang/IndexOutOfBoundsException" },
-    { SWIG_JavaArithmeticException, "java/lang/ArithmeticException" },
-    { SWIG_JavaIllegalArgumentException, "java/lang/IllegalArgumentException" },
-    { SWIG_JavaNullPointerException, "java/lang/NullPointerException" },
-    { SWIG_JavaDirectorPureVirtual, "java/lang/RuntimeException" },
-    { SWIG_JavaUnknownError,  "java/lang/UnknownError" },
-    { (SWIG_JavaExceptionCodes)0,  "java/lang/UnknownError" } };
-  const SWIG_JavaExceptions_t *except_ptr = java_exceptions;
-
-  while (except_ptr->code != code && except_ptr->code)
-    except_ptr++;
-
-  jenv->ExceptionClear();
-  excep = jenv->FindClass(except_ptr->java_exception);
-  if (excep)
-    jenv->ThrowNew(excep, msg);
-}
-
-
-/* Contract support */
-#define SWIG_contract_assert(nullreturn, expr, msg) if (!(expr)) {SWIG_JavaThrowException(jenv, SWIG_JavaIllegalArgumentException, msg); return nullreturn; } else
-
-/* -----------------------------------------------------------------------------
- * See the LICENSE file for information on copyright, usage and redistribution
- * of SWIG, and the README file for authors - http://www.swig.org/release.html.
- *
- * director.swg
- *
- * This file contains support for director classes that proxy
- * method calls from C++ to Java extensions.
- * ----------------------------------------------------------------------------- */
-
-#ifdef __cplusplus
-
-#if defined(DEBUG_DIRECTOR_OWNED)
-#include <iostream>
-#endif
-
-
-namespace Swig {
-  /* Java object wrapper */
-  class JObjectWrapper {
-  public:
-    JObjectWrapper() : jthis_(NULL), weak_global_(true) {
-    }
-
-    ~JObjectWrapper() {
-      jthis_ = NULL;
-      weak_global_ = true;
-    }
-
-    bool set(JNIEnv *jenv, jobject jobj, bool mem_own, bool weak_global) {
-      if (!jthis_) {
-        weak_global_ = weak_global;
-        if (jobj)
-          jthis_ = ((weak_global_ || !mem_own) ? jenv->NewWeakGlobalRef(jobj) : jenv->NewGlobalRef(jobj));
-#if defined(DEBUG_DIRECTOR_OWNED)
-        std::cout << "JObjectWrapper::set(" << jobj << ", " << (weak_global ? "weak_global" : "global_ref") << ") -> " << jthis_ << std::endl;
-#endif
-        return true;
-      } else {
-#if defined(DEBUG_DIRECTOR_OWNED)
-        std::cout << "JObjectWrapper::set(" << jobj << ", " << (weak_global ? "weak_global" : "global_ref") << ") -> already set" << std::endl;
-#endif
-        return false;
-      }
-    }
-
-    jobject get(JNIEnv *jenv) const {
-#if defined(DEBUG_DIRECTOR_OWNED)
-      std::cout << "JObjectWrapper::get(";
-      if (jthis_)
-        std::cout << jthis_;
-      else
-        std::cout << "null";
-      std::cout << ") -> return new local ref" << std::endl;
-#endif
-      return (jthis_ ? jenv->NewLocalRef(jthis_) : jthis_);
-    }
-
-    void release(JNIEnv *jenv) {
-#if defined(DEBUG_DIRECTOR_OWNED)
-      std::cout << "JObjectWrapper::release(" << jthis_ << "): " << (weak_global_ ? "weak global ref" : "global ref") << std::endl;
-#endif
-      if (jthis_) {
-        if (weak_global_) {
-          if (jenv->IsSameObject(jthis_, NULL) == JNI_FALSE)
-            jenv->DeleteWeakGlobalRef((jweak)jthis_);
-        } else
-          jenv->DeleteGlobalRef(jthis_);
-      }
-
-      jthis_ = NULL;
-      weak_global_ = true;
-    }
-
-    jobject peek() {
-      return jthis_;
-    }
-
-    /* Java proxy releases ownership of C++ object, C++ object is now
-       responsible for destruction (creates NewGlobalRef to pin Java
-       proxy) */
-    void java_change_ownership(JNIEnv *jenv, jobject jself, bool take_or_release) {
-      if (take_or_release) {  /* Java takes ownership of C++ object's lifetime. */
-        if (!weak_global_) {
-          jenv->DeleteGlobalRef(jthis_);
-          jthis_ = jenv->NewWeakGlobalRef(jself);
-          weak_global_ = true;
-        }
-      } else { /* Java releases ownership of C++ object's lifetime */
-        if (weak_global_) {
-          jenv->DeleteWeakGlobalRef((jweak)jthis_);
-          jthis_ = jenv->NewGlobalRef(jself);
-          weak_global_ = false;
-        }
-      }
-    }
-
-  private:
-    /* pointer to Java object */
-    jobject jthis_;
-    /* Local or global reference flag */
-    bool weak_global_;
-  };
-
-  /* director base class */
-  class Director {
-    /* pointer to Java virtual machine */
-    JavaVM *swig_jvm_;
-
-  protected:
-#if defined (_MSC_VER) && (_MSC_VER<1300)
-    class JNIEnvWrapper;
-    friend class JNIEnvWrapper;
-#endif
-    /* Utility class for managing the JNI environment */
-    class JNIEnvWrapper {
-      const Director *director_;
-      JNIEnv *jenv_;
-      int env_status;
-      JNIEnv *g_env;
-    public:
-      JNIEnvWrapper(const Director *director) : director_(director), jenv_(0) {
-
-    	  env_status = director_->swig_jvm_->GetEnv((void **)&g_env, JNI_VERSION_1_6);
-#if defined(SWIG_JAVA_ATTACH_CURRENT_THREAD_AS_DAEMON)
-        // Attach a daemon thread to the JVM. Useful when the JVM should not wait for 
-        // the thread to exit upon shutdown. Only for jdk-1.4 and later.
-    	director_->swig_jvm_->AttachCurrentThreadAsDaemon( &jenv_, NULL);
-#else
-    	director_->swig_jvm_->AttachCurrentThread( &jenv_, NULL);
-#endif
-      }
-      ~JNIEnvWrapper() {
-#if !defined(SWIG_JAVA_NO_DETACH_CURRENT_THREAD)
-        // Some JVMs, eg jdk-1.4.2 and lower on Solaris have a bug and crash with the DetachCurrentThread call.
-        // However, without this call, the JVM hangs on exit when the thread was not created by the JVM and creates a memory leak.
-
-    	 if( env_status == JNI_EDETACHED ){
-    	//	 LOGV(">>> Detaching thread");
-			  director_->swig_jvm_->DetachCurrentThread();
-
-    	 }else{
-    	//	 LOGV(">>> This thread was previously attached to the jvm, so do not detach it");
-    	 }
-
-#endif
-      }
-      JNIEnv *getJNIEnv() const {
-        return jenv_;
-      }
-    };
-
-    /* Java object wrapper */
-    JObjectWrapper swig_self_;
-
-    /* Disconnect director from Java object */
-    void swig_disconnect_director_self(const char *disconn_method) {
-      JNIEnvWrapper jnienv(this) ;
-      JNIEnv *jenv = jnienv.getJNIEnv() ;
-      jobject jobj = swig_self_.peek();
-#if defined(DEBUG_DIRECTOR_OWNED)
-      std::cout << "Swig::Director::disconnect_director_self(" << jobj << ")" << std::endl;
-#endif
-      if (jobj && jenv->IsSameObject(jobj, NULL) == JNI_FALSE) {
-        jmethodID disconn_meth = jenv->GetMethodID(jenv->GetObjectClass(jobj), disconn_method, "()V");
-        if (disconn_meth) {
-#if defined(DEBUG_DIRECTOR_OWNED)
-          std::cout << "Swig::Director::disconnect_director_self upcall to " << disconn_method << std::endl;
-#endif
-          jenv->CallVoidMethod(jobj, disconn_meth);
-        }
-      }
-    }
-
-  public:
-    Director(JNIEnv *jenv) : swig_jvm_((JavaVM *) NULL), swig_self_() {
-      /* Acquire the Java VM pointer */
-      jenv->GetJavaVM(&swig_jvm_);
-    }
-
-    virtual ~Director() {
-      JNIEnvWrapper jnienv(this) ;
-      JNIEnv *jenv = jnienv.getJNIEnv() ;
-      swig_self_.release(jenv);
-    }
-
-    bool swig_set_self(JNIEnv *jenv, jobject jself, bool mem_own, bool weak_global) {
-      return swig_self_.set(jenv, jself, mem_own, weak_global);
-    }
-
-    jobject swig_get_self(JNIEnv *jenv) const {
-      return swig_self_.get(jenv);
-    }
-
-    // Change C++ object's ownership, relative to Java
-    void swig_java_change_ownership(JNIEnv *jenv, jobject jself, bool take_or_release) {
-      swig_self_.java_change_ownership(jenv, jself, take_or_release);
-    }
-  };
-}
-
-#endif /* __cplusplus */
-
-
-namespace Swig {
-  static jclass jclass_pjsuaJNI = NULL;
-  static jmethodID director_methids[19];
-}
-
-#if defined(SWIG_NOINCLUDE) || defined(SWIG_NOARRAYS)
-
-
-int SWIG_JavaArrayInBool (JNIEnv *jenv, jboolean **jarr, bool **carr, jbooleanArray input);
-void SWIG_JavaArrayArgoutBool (JNIEnv *jenv, jboolean *jarr, bool *carr, jbooleanArray input);
-jbooleanArray SWIG_JavaArrayOutBool (JNIEnv *jenv, bool *result, jsize sz);
-
-
-int SWIG_JavaArrayInSchar (JNIEnv *jenv, jbyte **jarr, signed char **carr, jbyteArray input);
-void SWIG_JavaArrayArgoutSchar (JNIEnv *jenv, jbyte *jarr, signed char *carr, jbyteArray input);
-jbyteArray SWIG_JavaArrayOutSchar (JNIEnv *jenv, signed char *result, jsize sz);
-
-
-int SWIG_JavaArrayInUchar (JNIEnv *jenv, jshort **jarr, unsigned char **carr, jshortArray input);
-void SWIG_JavaArrayArgoutUchar (JNIEnv *jenv, jshort *jarr, unsigned char *carr, jshortArray input);
-jshortArray SWIG_JavaArrayOutUchar (JNIEnv *jenv, unsigned char *result, jsize sz);
-
-
-int SWIG_JavaArrayInShort (JNIEnv *jenv, jshort **jarr, short **carr, jshortArray input);
-void SWIG_JavaArrayArgoutShort (JNIEnv *jenv, jshort *jarr, short *carr, jshortArray input);
-jshortArray SWIG_JavaArrayOutShort (JNIEnv *jenv, short *result, jsize sz);
-
-
-int SWIG_JavaArrayInUshort (JNIEnv *jenv, jint **jarr, unsigned short **carr, jintArray input);
-void SWIG_JavaArrayArgoutUshort (JNIEnv *jenv, jint *jarr, unsigned short *carr, jintArray input);
-jintArray SWIG_JavaArrayOutUshort (JNIEnv *jenv, unsigned short *result, jsize sz);
-
-
-int SWIG_JavaArrayInInt (JNIEnv *jenv, jint **jarr, int **carr, jintArray input);
-void SWIG_JavaArrayArgoutInt (JNIEnv *jenv, jint *jarr, int *carr, jintArray input);
-jintArray SWIG_JavaArrayOutInt (JNIEnv *jenv, int *result, jsize sz);
-
-
-int SWIG_JavaArrayInUint (JNIEnv *jenv, jlong **jarr, unsigned int **carr, jlongArray input);
-void SWIG_JavaArrayArgoutUint (JNIEnv *jenv, jlong *jarr, unsigned int *carr, jlongArray input);
-jlongArray SWIG_JavaArrayOutUint (JNIEnv *jenv, unsigned int *result, jsize sz);
-
-
-int SWIG_JavaArrayInLong (JNIEnv *jenv, jint **jarr, long **carr, jintArray input);
-void SWIG_JavaArrayArgoutLong (JNIEnv *jenv, jint *jarr, long *carr, jintArray input);
-jintArray SWIG_JavaArrayOutLong (JNIEnv *jenv, long *result, jsize sz);
-
-
-int SWIG_JavaArrayInUlong (JNIEnv *jenv, jlong **jarr, unsigned long **carr, jlongArray input);
-void SWIG_JavaArrayArgoutUlong (JNIEnv *jenv, jlong *jarr, unsigned long *carr, jlongArray input);
-jlongArray SWIG_JavaArrayOutUlong (JNIEnv *jenv, unsigned long *result, jsize sz);
-
-
-int SWIG_JavaArrayInLonglong (JNIEnv *jenv, jlong **jarr, jlong **carr, jlongArray input);
-void SWIG_JavaArrayArgoutLonglong (JNIEnv *jenv, jlong *jarr, jlong *carr, jlongArray input);
-jlongArray SWIG_JavaArrayOutLonglong (JNIEnv *jenv, jlong *result, jsize sz);
-
-
-int SWIG_JavaArrayInFloat (JNIEnv *jenv, jfloat **jarr, float **carr, jfloatArray input);
-void SWIG_JavaArrayArgoutFloat (JNIEnv *jenv, jfloat *jarr, float *carr, jfloatArray input);
-jfloatArray SWIG_JavaArrayOutFloat (JNIEnv *jenv, float *result, jsize sz);
-
-
-int SWIG_JavaArrayInDouble (JNIEnv *jenv, jdouble **jarr, double **carr, jdoubleArray input);
-void SWIG_JavaArrayArgoutDouble (JNIEnv *jenv, jdouble *jarr, double *carr, jdoubleArray input);
-jdoubleArray SWIG_JavaArrayOutDouble (JNIEnv *jenv, double *result, jsize sz);
-
-
-#else
-
-
-/* bool[] support */
-int SWIG_JavaArrayInBool (JNIEnv *jenv, jboolean **jarr, bool **carr, jbooleanArray input) {
-  int i;
-  jsize sz;
-  if (!input) {
-    SWIG_JavaThrowException(jenv, SWIG_JavaNullPointerException, "null array");
-    return 0;
-  }
-  sz = jenv->GetArrayLength(input);
-  *jarr = jenv->GetBooleanArrayElements(input, 0);
-  if (!*jarr)
-    return 0; 
-  *carr = new bool[sz]; 
-  if (!*carr) {
-    SWIG_JavaThrowException(jenv, SWIG_JavaOutOfMemoryError, "array memory allocation failed");
-    return 0;
-  }
-  for (i=0; i<sz; i++)
-    (*carr)[i] = ((*jarr)[i] != 0);
-  return 1;
-}
-
-void SWIG_JavaArrayArgoutBool (JNIEnv *jenv, jboolean *jarr, bool *carr, jbooleanArray input) {
-  int i;
-  jsize sz = jenv->GetArrayLength(input);
-  for (i=0; i<sz; i++)
-    jarr[i] = (jboolean)carr[i];
-  jenv->ReleaseBooleanArrayElements(input, jarr, 0);
-}
-
-jbooleanArray SWIG_JavaArrayOutBool (JNIEnv *jenv, bool *result, jsize sz) {
-  jboolean *arr;
-  int i;
-  jbooleanArray jresult = jenv->NewBooleanArray(sz);
-  if (!jresult)
-    return NULL;
-  arr = jenv->GetBooleanArrayElements(jresult, 0);
-  if (!arr)
-    return NULL;
-  for (i=0; i<sz; i++)
-    arr[i] = (jboolean)result[i];
-  jenv->ReleaseBooleanArrayElements(jresult, arr, 0);
-  return jresult;
-}
-
-
-/* signed char[] support */
-int SWIG_JavaArrayInSchar (JNIEnv *jenv, jbyte **jarr, signed char **carr, jbyteArray input) {
-  int i;
-  jsize sz;
-  if (!input) {
-    SWIG_JavaThrowException(jenv, SWIG_JavaNullPointerException, "null array");
-    return 0;
-  }
-  sz = jenv->GetArrayLength(input);
-  *jarr = jenv->GetByteArrayElements(input, 0);
-  if (!*jarr)
-    return 0; 
-  *carr = new signed char[sz]; 
-  if (!*carr) {
-    SWIG_JavaThrowException(jenv, SWIG_JavaOutOfMemoryError, "array memory allocation failed");
-    return 0;
-  }
-  for (i=0; i<sz; i++)
-    (*carr)[i] = (signed char)(*jarr)[i];
-  return 1;
-}
-
-void SWIG_JavaArrayArgoutSchar (JNIEnv *jenv, jbyte *jarr, signed char *carr, jbyteArray input) {
-  int i;
-  jsize sz = jenv->GetArrayLength(input);
-  for (i=0; i<sz; i++)
-    jarr[i] = (jbyte)carr[i];
-  jenv->ReleaseByteArrayElements(input, jarr, 0);
-}
-
-jbyteArray SWIG_JavaArrayOutSchar (JNIEnv *jenv, signed char *result, jsize sz) {
-  jbyte *arr;
-  int i;
-  jbyteArray jresult = jenv->NewByteArray(sz);
-  if (!jresult)
-    return NULL;
-  arr = jenv->GetByteArrayElements(jresult, 0);
-  if (!arr)
-    return NULL;
-  for (i=0; i<sz; i++)
-    arr[i] = (jbyte)result[i];
-  jenv->ReleaseByteArrayElements(jresult, arr, 0);
-  return jresult;
-}
-
-
-/* unsigned char[] support */
-int SWIG_JavaArrayInUchar (JNIEnv *jenv, jshort **jarr, unsigned char **carr, jshortArray input) {
-  int i;
-  jsize sz;
-  if (!input) {
-    SWIG_JavaThrowException(jenv, SWIG_JavaNullPointerException, "null array");
-    return 0;
-  }
-  sz = jenv->GetArrayLength(input);
-  *jarr = jenv->GetShortArrayElements(input, 0);
-  if (!*jarr)
-    return 0; 
-  *carr = new unsigned char[sz]; 
-  if (!*carr) {
-    SWIG_JavaThrowException(jenv, SWIG_JavaOutOfMemoryError, "array memory allocation failed");
-    return 0;
-  }
-  for (i=0; i<sz; i++)
-    (*carr)[i] = (unsigned char)(*jarr)[i];
-  return 1;
-}
-
-void SWIG_JavaArrayArgoutUchar (JNIEnv *jenv, jshort *jarr, unsigned char *carr, jshortArray input) {
-  int i;
-  jsize sz = jenv->GetArrayLength(input);
-  for (i=0; i<sz; i++)
-    jarr[i] = (jshort)carr[i];
-  jenv->ReleaseShortArrayElements(input, jarr, 0);
-}
-
-jshortArray SWIG_JavaArrayOutUchar (JNIEnv *jenv, unsigned char *result, jsize sz) {
-  jshort *arr;
-  int i;
-  jshortArray jresult = jenv->NewShortArray(sz);
-  if (!jresult)
-    return NULL;
-  arr = jenv->GetShortArrayElements(jresult, 0);
-  if (!arr)
-    return NULL;
-  for (i=0; i<sz; i++)
-    arr[i] = (jshort)result[i];
-  jenv->ReleaseShortArrayElements(jresult, arr, 0);
-  return jresult;
-}
-
-
-/* short[] support */
-int SWIG_JavaArrayInShort (JNIEnv *jenv, jshort **jarr, short **carr, jshortArray input) {
-  int i;
-  jsize sz;
-  if (!input) {
-    SWIG_JavaThrowException(jenv, SWIG_JavaNullPointerException, "null array");
-    return 0;
-  }
-  sz = jenv->GetArrayLength(input);
-  *jarr = jenv->GetShortArrayElements(input, 0);
-  if (!*jarr)
-    return 0; 
-  *carr = new short[sz]; 
-  if (!*carr) {
-    SWIG_JavaThrowException(jenv, SWIG_JavaOutOfMemoryError, "array memory allocation failed");
-    return 0;
-  }
-  for (i=0; i<sz; i++)
-    (*carr)[i] = (short)(*jarr)[i];
-  return 1;
-}
-
-void SWIG_JavaArrayArgoutShort (JNIEnv *jenv, jshort *jarr, short *carr, jshortArray input) {
-  int i;
-  jsize sz = jenv->GetArrayLength(input);
-  for (i=0; i<sz; i++)
-    jarr[i] = (jshort)carr[i];
-  jenv->ReleaseShortArrayElements(input, jarr, 0);
-}
-
-jshortArray SWIG_JavaArrayOutShort (JNIEnv *jenv, short *result, jsize sz) {
-  jshort *arr;
-  int i;
-  jshortArray jresult = jenv->NewShortArray(sz);
-  if (!jresult)
-    return NULL;
-  arr = jenv->GetShortArrayElements(jresult, 0);
-  if (!arr)
-    return NULL;
-  for (i=0; i<sz; i++)
-    arr[i] = (jshort)result[i];
-  jenv->ReleaseShortArrayElements(jresult, arr, 0);
-  return jresult;
-}
-
-
-/* unsigned short[] support */
-int SWIG_JavaArrayInUshort (JNIEnv *jenv, jint **jarr, unsigned short **carr, jintArray input) {
-  int i;
-  jsize sz;
-  if (!input) {
-    SWIG_JavaThrowException(jenv, SWIG_JavaNullPointerException, "null array");
-    return 0;
-  }
-  sz = jenv->GetArrayLength(input);
-  *jarr = jenv->GetIntArrayElements(input, 0);
-  if (!*jarr)
-    return 0; 
-  *carr = new unsigned short[sz]; 
-  if (!*carr) {
-    SWIG_JavaThrowException(jenv, SWIG_JavaOutOfMemoryError, "array memory allocation failed");
-    return 0;
-  }
-  for (i=0; i<sz; i++)
-    (*carr)[i] = (unsigned short)(*jarr)[i];
-  return 1;
-}
-
-void SWIG_JavaArrayArgoutUshort (JNIEnv *jenv, jint *jarr, unsigned short *carr, jintArray input) {
-  int i;
-  jsize sz = jenv->GetArrayLength(input);
-  for (i=0; i<sz; i++)
-    jarr[i] = (jint)carr[i];
-  jenv->ReleaseIntArrayElements(input, jarr, 0);
-}
-
-jintArray SWIG_JavaArrayOutUshort (JNIEnv *jenv, unsigned short *result, jsize sz) {
-  jint *arr;
-  int i;
-  jintArray jresult = jenv->NewIntArray(sz);
-  if (!jresult)
-    return NULL;
-  arr = jenv->GetIntArrayElements(jresult, 0);
-  if (!arr)
-    return NULL;
-  for (i=0; i<sz; i++)
-    arr[i] = (jint)result[i];
-  jenv->ReleaseIntArrayElements(jresult, arr, 0);
-  return jresult;
-}
-
-
-/* int[] support */
-int SWIG_JavaArrayInInt (JNIEnv *jenv, jint **jarr, int **carr, jintArray input) {
-  int i;
-  jsize sz;
-  if (!input) {
-    SWIG_JavaThrowException(jenv, SWIG_JavaNullPointerException, "null array");
-    return 0;
-  }
-  sz = jenv->GetArrayLength(input);
-  *jarr = jenv->GetIntArrayElements(input, 0);
-  if (!*jarr)
-    return 0; 
-  *carr = new int[sz]; 
-  if (!*carr) {
-    SWIG_JavaThrowException(jenv, SWIG_JavaOutOfMemoryError, "array memory allocation failed");
-    return 0;
-  }
-  for (i=0; i<sz; i++)
-    (*carr)[i] = (int)(*jarr)[i];
-  return 1;
-}
-
-void SWIG_JavaArrayArgoutInt (JNIEnv *jenv, jint *jarr, int *carr, jintArray input) {
-  int i;
-  jsize sz = jenv->GetArrayLength(input);
-  for (i=0; i<sz; i++)
-    jarr[i] = (jint)carr[i];
-  jenv->ReleaseIntArrayElements(input, jarr, 0);
-}
-
-jintArray SWIG_JavaArrayOutInt (JNIEnv *jenv, int *result, jsize sz) {
-  jint *arr;
-  int i;
-  jintArray jresult = jenv->NewIntArray(sz);
-  if (!jresult)
-    return NULL;
-  arr = jenv->GetIntArrayElements(jresult, 0);
-  if (!arr)
-    return NULL;
-  for (i=0; i<sz; i++)
-    arr[i] = (jint)result[i];
-  jenv->ReleaseIntArrayElements(jresult, arr, 0);
-  return jresult;
-}
-
-
-/* unsigned int[] support */
-int SWIG_JavaArrayInUint (JNIEnv *jenv, jlong **jarr, unsigned int **carr, jlongArray input) {
-  int i;
-  jsize sz;
-  if (!input) {
-    SWIG_JavaThrowException(jenv, SWIG_JavaNullPointerException, "null array");
-    return 0;
-  }
-  sz = jenv->GetArrayLength(input);
-  *jarr = jenv->GetLongArrayElements(input, 0);
-  if (!*jarr)
-    return 0; 
-  *carr = new unsigned int[sz]; 
-  if (!*carr) {
-    SWIG_JavaThrowException(jenv, SWIG_JavaOutOfMemoryError, "array memory allocation failed");
-    return 0;
-  }
-  for (i=0; i<sz; i++)
-    (*carr)[i] = (unsigned int)(*jarr)[i];
-  return 1;
-}
-
-void SWIG_JavaArrayArgoutUint (JNIEnv *jenv, jlong *jarr, unsigned int *carr, jlongArray input) {
-  int i;
-  jsize sz = jenv->GetArrayLength(input);
-  for (i=0; i<sz; i++)
-    jarr[i] = (jlong)carr[i];
-  jenv->ReleaseLongArrayElements(input, jarr, 0);
-}
-
-jlongArray SWIG_JavaArrayOutUint (JNIEnv *jenv, unsigned int *result, jsize sz) {
-  jlong *arr;
-  int i;
-  jlongArray jresult = jenv->NewLongArray(sz);
-  if (!jresult)
-    return NULL;
-  arr = jenv->GetLongArrayElements(jresult, 0);
-  if (!arr)
-    return NULL;
-  for (i=0; i<sz; i++)
-    arr[i] = (jlong)result[i];
-  jenv->ReleaseLongArrayElements(jresult, arr, 0);
-  return jresult;
-}
-
-
-/* long[] support */
-int SWIG_JavaArrayInLong (JNIEnv *jenv, jint **jarr, long **carr, jintArray input) {
-  int i;
-  jsize sz;
-  if (!input) {
-    SWIG_JavaThrowException(jenv, SWIG_JavaNullPointerException, "null array");
-    return 0;
-  }
-  sz = jenv->GetArrayLength(input);
-  *jarr = jenv->GetIntArrayElements(input, 0);
-  if (!*jarr)
-    return 0; 
-  *carr = new long[sz]; 
-  if (!*carr) {
-    SWIG_JavaThrowException(jenv, SWIG_JavaOutOfMemoryError, "array memory allocation failed");
-    return 0;
-  }
-  for (i=0; i<sz; i++)
-    (*carr)[i] = (long)(*jarr)[i];
-  return 1;
-}
-
-void SWIG_JavaArrayArgoutLong (JNIEnv *jenv, jint *jarr, long *carr, jintArray input) {
-  int i;
-  jsize sz = jenv->GetArrayLength(input);
-  for (i=0; i<sz; i++)
-    jarr[i] = (jint)carr[i];
-  jenv->ReleaseIntArrayElements(input, jarr, 0);
-}
-
-jintArray SWIG_JavaArrayOutLong (JNIEnv *jenv, long *result, jsize sz) {
-  jint *arr;
-  int i;
-  jintArray jresult = jenv->NewIntArray(sz);
-  if (!jresult)
-    return NULL;
-  arr = jenv->GetIntArrayElements(jresult, 0);
-  if (!arr)
-    return NULL;
-  for (i=0; i<sz; i++)
-    arr[i] = (jint)result[i];
-  jenv->ReleaseIntArrayElements(jresult, arr, 0);
-  return jresult;
-}
-
-
-/* unsigned long[] support */
-int SWIG_JavaArrayInUlong (JNIEnv *jenv, jlong **jarr, unsigned long **carr, jlongArray input) {
-  int i;
-  jsize sz;
-  if (!input) {
-    SWIG_JavaThrowException(jenv, SWIG_JavaNullPointerException, "null array");
-    return 0;
-  }
-  sz = jenv->GetArrayLength(input);
-  *jarr = jenv->GetLongArrayElements(input, 0);
-  if (!*jarr)
-    return 0; 
-  *carr = new unsigned long[sz]; 
-  if (!*carr) {
-    SWIG_JavaThrowException(jenv, SWIG_JavaOutOfMemoryError, "array memory allocation failed");
-    return 0;
-  }
-  for (i=0; i<sz; i++)
-    (*carr)[i] = (unsigned long)(*jarr)[i];
-  return 1;
-}
-
-void SWIG_JavaArrayArgoutUlong (JNIEnv *jenv, jlong *jarr, unsigned long *carr, jlongArray input) {
-  int i;
-  jsize sz = jenv->GetArrayLength(input);
-  for (i=0; i<sz; i++)
-    jarr[i] = (jlong)carr[i];
-  jenv->ReleaseLongArrayElements(input, jarr, 0);
-}
-
-jlongArray SWIG_JavaArrayOutUlong (JNIEnv *jenv, unsigned long *result, jsize sz) {
-  jlong *arr;
-  int i;
-  jlongArray jresult = jenv->NewLongArray(sz);
-  if (!jresult)
-    return NULL;
-  arr = jenv->GetLongArrayElements(jresult, 0);
-  if (!arr)
-    return NULL;
-  for (i=0; i<sz; i++)
-    arr[i] = (jlong)result[i];
-  jenv->ReleaseLongArrayElements(jresult, arr, 0);
-  return jresult;
-}
-
-
-/* jlong[] support */
-int SWIG_JavaArrayInLonglong (JNIEnv *jenv, jlong **jarr, jlong **carr, jlongArray input) {
-  int i;
-  jsize sz;
-  if (!input) {
-    SWIG_JavaThrowException(jenv, SWIG_JavaNullPointerException, "null array");
-    return 0;
-  }
-  sz = jenv->GetArrayLength(input);
-  *jarr = jenv->GetLongArrayElements(input, 0);
-  if (!*jarr)
-    return 0; 
-  *carr = new jlong[sz]; 
-  if (!*carr) {
-    SWIG_JavaThrowException(jenv, SWIG_JavaOutOfMemoryError, "array memory allocation failed");
-    return 0;
-  }
-  for (i=0; i<sz; i++)
-    (*carr)[i] = (jlong)(*jarr)[i];
-  return 1;
-}
-
-void SWIG_JavaArrayArgoutLonglong (JNIEnv *jenv, jlong *jarr, jlong *carr, jlongArray input) {
-  int i;
-  jsize sz = jenv->GetArrayLength(input);
-  for (i=0; i<sz; i++)
-    jarr[i] = (jlong)carr[i];
-  jenv->ReleaseLongArrayElements(input, jarr, 0);
-}
-
-jlongArray SWIG_JavaArrayOutLonglong (JNIEnv *jenv, jlong *result, jsize sz) {
-  jlong *arr;
-  int i;
-  jlongArray jresult = jenv->NewLongArray(sz);
-  if (!jresult)
-    return NULL;
-  arr = jenv->GetLongArrayElements(jresult, 0);
-  if (!arr)
-    return NULL;
-  for (i=0; i<sz; i++)
-    arr[i] = (jlong)result[i];
-  jenv->ReleaseLongArrayElements(jresult, arr, 0);
-  return jresult;
-}
-
-
-/* float[] support */
-int SWIG_JavaArrayInFloat (JNIEnv *jenv, jfloat **jarr, float **carr, jfloatArray input) {
-  int i;
-  jsize sz;
-  if (!input) {
-    SWIG_JavaThrowException(jenv, SWIG_JavaNullPointerException, "null array");
-    return 0;
-  }
-  sz = jenv->GetArrayLength(input);
-  *jarr = jenv->GetFloatArrayElements(input, 0);
-  if (!*jarr)
-    return 0; 
-  *carr = new float[sz]; 
-  if (!*carr) {
-    SWIG_JavaThrowException(jenv, SWIG_JavaOutOfMemoryError, "array memory allocation failed");
-    return 0;
-  }
-  for (i=0; i<sz; i++)
-    (*carr)[i] = (float)(*jarr)[i];
-  return 1;
-}
-
-void SWIG_JavaArrayArgoutFloat (JNIEnv *jenv, jfloat *jarr, float *carr, jfloatArray input) {
-  int i;
-  jsize sz = jenv->GetArrayLength(input);
-  for (i=0; i<sz; i++)
-    jarr[i] = (jfloat)carr[i];
-  jenv->ReleaseFloatArrayElements(input, jarr, 0);
-}
-
-jfloatArray SWIG_JavaArrayOutFloat (JNIEnv *jenv, float *result, jsize sz) {
-  jfloat *arr;
-  int i;
-  jfloatArray jresult = jenv->NewFloatArray(sz);
-  if (!jresult)
-    return NULL;
-  arr = jenv->GetFloatArrayElements(jresult, 0);
-  if (!arr)
-    return NULL;
-  for (i=0; i<sz; i++)
-    arr[i] = (jfloat)result[i];
-  jenv->ReleaseFloatArrayElements(jresult, arr, 0);
-  return jresult;
-}
-
-
-/* double[] support */
-int SWIG_JavaArrayInDouble (JNIEnv *jenv, jdouble **jarr, double **carr, jdoubleArray input) {
-  int i;
-  jsize sz;
-  if (!input) {
-    SWIG_JavaThrowException(jenv, SWIG_JavaNullPointerException, "null array");
-    return 0;
-  }
-  sz = jenv->GetArrayLength(input);
-  *jarr = jenv->GetDoubleArrayElements(input, 0);
-  if (!*jarr)
-    return 0; 
-  *carr = new double[sz]; 
-  if (!*carr) {
-    SWIG_JavaThrowException(jenv, SWIG_JavaOutOfMemoryError, "array memory allocation failed");
-    return 0;
-  }
-  for (i=0; i<sz; i++)
-    (*carr)[i] = (double)(*jarr)[i];
-  return 1;
-}
-
-void SWIG_JavaArrayArgoutDouble (JNIEnv *jenv, jdouble *jarr, double *carr, jdoubleArray input) {
-  int i;
-  jsize sz = jenv->GetArrayLength(input);
-  for (i=0; i<sz; i++)
-    jarr[i] = (jdouble)carr[i];
-  jenv->ReleaseDoubleArrayElements(input, jarr, 0);
-}
-
-jdoubleArray SWIG_JavaArrayOutDouble (JNIEnv *jenv, double *result, jsize sz) {
-  jdouble *arr;
-  int i;
-  jdoubleArray jresult = jenv->NewDoubleArray(sz);
-  if (!jresult)
-    return NULL;
-  arr = jenv->GetDoubleArrayElements(jresult, 0);
-  if (!arr)
-    return NULL;
-  for (i=0; i<sz; i++)
-    arr[i] = (jdouble)result[i];
-  jenv->ReleaseDoubleArrayElements(jresult, arr, 0);
-  return jresult;
-}
-
-
-#endif
-
-
+#include <swig_base.h>
 #include <pjsua-lib/pjsua.h>
+#define THIS_FILE	"pjsua_wrap.cpp"
+
+//---------------------
+// RINGBACK MANAGEMENT-
+// --------------------
+/* Ringtones		    US	       UK  */
+#define RINGBACK_FREQ1	    440	    /* 400 */
+#define RINGBACK_FREQ2	    480	    /* 450 */
+#define RINGBACK_ON	    2000    /* 400 */
+#define RINGBACK_OFF	    4000    /* 200 */
+#define RINGBACK_CNT	    1	    /* 2   */
+#define RINGBACK_INTERVAL   4000    /* 2000 */
+
+static struct app_config {
+	pj_pool_t		   *pool;
+    int			    ringback_slot;
+    int			    ringback_cnt;
+    pjmedia_port	   *ringback_port;
+    pj_bool_t ringback_on;
+} app_config;
+
+
+static void ringback_start(){
+	app_config.ringback_on = PJ_TRUE;
+
+    if (++app_config.ringback_cnt==1 && app_config.ringback_slot!=PJSUA_INVALID_ID)
+    {
+	pjsua_conf_connect(app_config.ringback_slot, 0);
+    }
+}
+
+static void ring_stop(pjsua_call_id call_id) {
+
+    if (app_config.ringback_on) {
+    	app_config.ringback_on = PJ_FALSE;
+
+		pj_assert(app_config.ringback_cnt>0);
+		if (--app_config.ringback_cnt == 0 &&
+			app_config.ringback_slot!=PJSUA_INVALID_ID)  {
+			pjsua_conf_disconnect(app_config.ringback_slot, 0);
+			pjmedia_tonegen_rewind(app_config.ringback_port);
+		}
+    }
+}
+
+static void init_ringback_tone(){
+	pj_status_t status;
+	pj_str_t name;
+	pjmedia_tone_desc tone[RINGBACK_CNT];
+	unsigned i;
+
+	app_config.pool = pjsua_pool_create("pjsua-app", 1000, 1000);
+	app_config.ringback_slot=PJSUA_INVALID_ID;
+	app_config.ringback_on = PJ_FALSE;
+	app_config.ringback_cnt = 0;
+
+
+
+	//Ringback
+	name = pj_str("ringback");
+	status = pjmedia_tonegen_create2(app_config.pool, &name,
+					 16000,
+					 1,
+					 320,
+					 16, PJMEDIA_TONEGEN_LOOP,
+					 &app_config.ringback_port);
+	if (status != PJ_SUCCESS){
+		goto on_error;
+	}
+
+	pj_bzero(&tone, sizeof(tone));
+	for (i=0; i<RINGBACK_CNT; ++i) {
+		tone[i].freq1 = RINGBACK_FREQ1;
+		tone[i].freq2 = RINGBACK_FREQ2;
+		tone[i].on_msec = RINGBACK_ON;
+		tone[i].off_msec = RINGBACK_OFF;
+	}
+	tone[RINGBACK_CNT-1].off_msec = RINGBACK_INTERVAL;
+
+	pjmedia_tonegen_play(app_config.ringback_port, RINGBACK_CNT, tone, PJMEDIA_TONEGEN_LOOP);
+
+
+	status = pjsua_conf_add_port(app_config.pool, app_config.ringback_port,
+					 &app_config.ringback_slot);
+	if (status != PJ_SUCCESS){
+		goto on_error;
+	}
+	return;
+
+	on_error :{
+		pj_pool_release(app_config.pool);
+	}
+}
+
+static void destroy_ringback_tone(){
+	/* Close ringback port */
+	if (app_config.ringback_port &&
+	app_config.ringback_slot != PJSUA_INVALID_ID){
+		pjsua_conf_remove_port(app_config.ringback_slot);
+		app_config.ringback_slot = PJSUA_INVALID_ID;
+		pjmedia_port_destroy(app_config.ringback_port);
+		app_config.ringback_port = NULL;
+	}
+}
+
+
 
 class Callback {
 public:
@@ -1139,34 +219,70 @@ public:
 
 static Callback* registeredCallbackObject = NULL;
 
+
 extern "C" {
 void on_call_state_wrapper(pjsua_call_id call_id, pjsip_event *e) {
+	pjsua_call_info call_info;
+	pjsua_call_get_info(call_id, &call_info);
+
+	if (call_info.state == PJSIP_INV_STATE_DISCONNECTED) {
+		/* Stop all ringback for this call */
+		ring_stop(call_id);
+		PJ_LOG(3,(THIS_FILE, "Call %d is DISCONNECTED [reason=%d (%s)]",
+			  call_id,
+			  call_info.last_status,
+			  call_info.last_status_text.ptr));
+	} else {
+		if (call_info.state == PJSIP_INV_STATE_EARLY) {
+			int code;
+			pj_str_t reason;
+			pjsip_msg *msg;
+
+			/* This can only occur because of TX or RX message */
+			pj_assert(e->type == PJSIP_EVENT_TSX_STATE);
+
+			if (e->body.tsx_state.type == PJSIP_EVENT_RX_MSG) {
+				msg = e->body.tsx_state.src.rdata->msg_info.msg;
+			} else {
+				msg = e->body.tsx_state.src.tdata->msg;
+			}
+
+			code = msg->line.status.code;
+			reason = msg->line.status.reason;
+
+			/* Start ringback for 180 for UAC unless there's SDP in 180 */
+			if (call_info.role==PJSIP_ROLE_UAC && code==180 &&
+			msg->body == NULL &&
+			call_info.media_status==PJSUA_CALL_MEDIA_NONE) {
+				ringback_start();
+			}
+
+			PJ_LOG(3,(THIS_FILE, "Call %d state changed to %s (%d %.*s)",
+				  call_id, call_info.state_text.ptr,
+				  code, (int)reason.slen, reason.ptr));
+		} else {
+			PJ_LOG(3,(THIS_FILE, "Call %d state changed to %s",
+				  call_id,
+				  call_info.state_text.ptr));
+		}
+	}
 	registeredCallbackObject->on_call_state(call_id, e);
 }
-    
+
 void on_incoming_call_wrapper (pjsua_acc_id acc_id, pjsua_call_id call_id,
 	pjsip_rx_data *rdata) {
 	registeredCallbackObject->on_incoming_call(acc_id, call_id, rdata);
 }
-    
-void on_call_tsx_state_wrapper (pjsua_call_id call_id, 
+
+void on_call_tsx_state_wrapper (pjsua_call_id call_id,
 		pjsip_transaction *tsx,
 		pjsip_event *e) {
 	registeredCallbackObject->on_call_tsx_state(call_id, tsx, e);
 }
-    
+
 void on_call_media_state_wrapper (pjsua_call_id call_id) {
+	ring_stop(call_id);
 	registeredCallbackObject->on_call_media_state(call_id);
-	//We connect the conf here.... (do nothing in parent)
-	pjsua_call_info ci;
-	pjsua_call_get_info(call_id, &ci);
-
-	if (ci.media_status == PJSUA_CALL_MEDIA_ACTIVE) {
-		// When media is active, connect call to sound device.
-		pjsua_conf_connect(ci.conf_slot, 0);
-		pjsua_conf_connect(0, ci.conf_slot);
-	}
-
 }
  
 
@@ -8376,26 +7492,30 @@ SWIGEXPORT jint JNICALL Java_org_pjsip_pjsua_pjsuaJNI_create(JNIEnv *jenv, jclas
 }
 
 
-SWIGEXPORT jint JNICALL Java_org_pjsip_pjsua_pjsuaJNI_init(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_, jlong jarg2, jobject jarg2_, jlong jarg3, jobject jarg3_) {
-  jint jresult = 0 ;
-  pjsua_config *arg1 = (pjsua_config *) 0 ;
-  pjsua_logging_config *arg2 = (pjsua_logging_config *) 0 ;
-  pjsua_media_config *arg3 = (pjsua_media_config *) 0 ;
-  pj_status_t result;
-  
-  (void)jenv;
-  (void)jcls;
-  (void)jarg1_;
-  (void)jarg2_;
-  (void)jarg3_;
-  arg1 = *(pjsua_config **)&jarg1; 
-  arg2 = *(pjsua_logging_config **)&jarg2; 
-  arg3 = *(pjsua_media_config **)&jarg3; 
 
-  arg2->cb = &on_log_msg;
-  result = (pj_status_t)pjsua_init((pjsua_config const *)arg1,(pjsua_logging_config const *)arg2,(pjsua_media_config const *)arg3);
-  jresult = (jint)result; 
-  return jresult;
+SWIGEXPORT jint JNICALL Java_org_pjsip_pjsua_pjsuaJNI_init(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_, jlong jarg2, jobject jarg2_, jlong jarg3, jobject jarg3_) {
+	jint jresult = 0 ;
+	pjsua_config *arg1 = (pjsua_config *) 0 ;
+	pjsua_logging_config *arg2 = (pjsua_logging_config *) 0 ;
+	pjsua_media_config *arg3 = (pjsua_media_config *) 0 ;
+	pj_status_t result;
+
+	(void)jenv;
+	(void)jcls;
+	(void)jarg1_;
+	(void)jarg2_;
+	(void)jarg3_;
+	arg1 = *(pjsua_config **)&jarg1;
+	arg2 = *(pjsua_logging_config **)&jarg2;
+	arg3 = *(pjsua_media_config **)&jarg3;
+
+	arg2->cb = &on_log_msg;
+	result = (pj_status_t)pjsua_init((pjsua_config const *)arg1,(pjsua_logging_config const *)arg2,(pjsua_media_config const *)arg3);
+	jresult = (jint)result;
+	if(result == PJ_SUCCESS){
+		init_ringback_tone();
+	}
+	return jresult;
 }
 
 
@@ -8416,6 +7536,7 @@ SWIGEXPORT jint JNICALL Java_org_pjsip_pjsua_pjsuaJNI_destroy(JNIEnv *jenv, jcla
   pj_status_t result;
   (void)jenv;
   (void)jcls;
+  destroy_ringback_tone();
   result = (pj_status_t)pjsua_destroy();
   jresult = (jint)result;
   return jresult;
@@ -14298,6 +13419,44 @@ SWIGEXPORT jint JNICALL Java_org_pjsip_pjsua_pjsuaJNI_enum_1codecs(JNIEnv *jenv,
 }
 
 
+SWIGEXPORT jint JNICALL Java_org_pjsip_pjsua_pjsuaJNI_get_1nbr_1of_1codecs(JNIEnv *jenv, jclass jcls) {
+  jint jresult = 0 ;
+  pj_status_t status;
+
+  (void)jenv;
+  (void)jcls;
+
+  pjsua_codec_info c[32];
+  unsigned i, count = PJ_ARRAY_SIZE(c);
+  status = pjsua_enum_codecs(c, &count);
+  if(status == PJ_SUCCESS){
+	jresult = (jint) count;
+  }
+  return jresult;
+}
+
+SWIGEXPORT jlong JNICALL Java_org_pjsip_pjsua_pjsuaJNI_codec_1get_1id(JNIEnv *jenv, jclass jcls, jint jarg1) {
+  pjsua_codec_info c[32];
+  unsigned i, count = PJ_ARRAY_SIZE(c);
+  int arg1 = 0;
+  jlong jresult = 0 ;
+  pj_str_t *result = 0 ;
+
+  (void)jenv;
+  (void)jcls;
+  arg1 = (int)jarg1;
+
+  pjsua_enum_codecs(c, &count);
+  if (arg1 < count){
+	  result = (pj_str_t *)& (c[arg1].codec_id);
+  }
+  //TODO : else
+
+  *(pj_str_t **)&jresult = result;
+  return jresult;
+}
+
+
 SWIGEXPORT jint JNICALL Java_org_pjsip_pjsua_pjsuaJNI_codec_1set_1priority(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_, jshort jarg2) {
   jint jresult = 0 ;
   pj_str_t *arg1 = (pj_str_t *) 0 ;
@@ -14453,8 +13612,8 @@ JNIEXPORT jint JNI_OnLoad(JavaVM *vm, void *reserved) {
 #endif
 
 
-	//#define NBR_JNI_METHODS 814
-	#define NBR_JNI_METHODS 804
+	//#define NBR_JNI_METHODS 816
+	#define NBR_JNI_METHODS 806
 	JNINativeMethod methods[NBR_JNI_METHODS] = {
 			{"pj_str_copy", "(Ljava/lang/String;)J", (void*)& Java_org_pjsip_pjsua_pjsuaJNI_pj_1str_1copy},
 			{"get_snd_dev_info", "(JLorg/pjsip/pjsua/pjmedia_snd_dev_info;I)I", (void*)& Java_org_pjsip_pjsua_pjsuaJNI_get_1snd_1dev_1info},
@@ -15265,6 +14424,8 @@ JNIEXPORT jint JNI_OnLoad(JavaVM *vm, void *reserved) {
 			{"set_ec", "(JJ)I", (void*)& Java_org_pjsip_pjsua_pjsuaJNI_set_1ec},
 			{"get_ec_tail", "(J)I", (void*)& Java_org_pjsip_pjsua_pjsuaJNI_get_1ec_1tail},
 			{"enum_codecs", "(JLorg/pjsip/pjsua/pjsua_codec_info;[J)I", (void*)& Java_org_pjsip_pjsua_pjsuaJNI_enum_1codecs},
+			{"get_nbr_of_codecs", "()I", (void*)& Java_org_pjsip_pjsua_pjsuaJNI_get_1nbr_1of_1codecs},
+			{"codec_get_id", "(I)J", (void*)& Java_org_pjsip_pjsua_pjsuaJNI_codec_1get_1id},
 			{"codec_set_priority", "(JLorg/pjsip/pjsua/pj_str_t;S)I", (void*)& Java_org_pjsip_pjsua_pjsuaJNI_codec_1set_1priority},
 			{"codec_get_param", "(JLorg/pjsip/pjsua/pj_str_t;JLorg/pjsip/pjsua/pjmedia_codec_param;)I", (void*)& Java_org_pjsip_pjsua_pjsuaJNI_codec_1get_1param},
 			{"codec_set_param", "(JLorg/pjsip/pjsua/pj_str_t;JLorg/pjsip/pjsua/pjmedia_codec_param;)I", (void*)& Java_org_pjsip_pjsua_pjsuaJNI_codec_1set_1param},
