@@ -1,4 +1,4 @@
-/* $Id: os_core_unix.c 3057 2010-01-13 13:09:45Z bennylp $ */
+/* $Id: os_core_unix.c 3180 2010-05-19 05:50:08Z bennylp $ */
 /* 
  * Copyright (C) 2008-2009 Teluu Inc. (http://www.teluu.com)
  * Copyright (C) 2003-2008 Benny Prijono <benny@prijono.org>
@@ -311,6 +311,7 @@ PJ_DEF(int) pj_thread_get_prio_min(pj_thread_t *thread)
 #if defined _POSIX_PRIORITY_SCHEDULING
     return sched_get_priority_min(policy);
 #elif defined __OpenBSD__
+    /* OpenBSD doesn't have sched_get_priority_min/_max */
     return 0;
 #else
     pj_assert("pj_thread_get_prio_min() not supported!");
@@ -335,7 +336,8 @@ PJ_DEF(int) pj_thread_get_prio_max(pj_thread_t *thread)
 #if defined _POSIX_PRIORITY_SCHEDULING
     return sched_get_priority_max(policy);
 #elif defined __OpenBSD__
-    return 31;
+    /* OpenBSD doesn't have sched_get_priority_min/_max */
+    return 0;
 #else
     pj_assert("pj_thread_get_prio_max() not supported!");
     return 0;

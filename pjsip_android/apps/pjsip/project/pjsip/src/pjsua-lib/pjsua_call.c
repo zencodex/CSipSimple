@@ -1,4 +1,4 @@
-/* $Id: pjsua_call.c 3013 2009-11-11 00:33:00Z bennylp $ */
+/* $Id: pjsua_call.c 3196 2010-06-03 10:41:32Z nanang $ */
 /* 
  * Copyright (C) 2008-2009 Teluu Inc. (http://www.teluu.com)
  * Copyright (C) 2003-2008 Benny Prijono <benny@prijono.org>
@@ -1320,6 +1320,31 @@ PJ_DEF(pj_status_t) pjsua_call_get_info( pjsua_call_id call_id,
     pjsip_dlg_dec_lock(dlg);
 
     return PJ_SUCCESS;
+}
+
+/*
+ * Check if call remote peer support the specified capability.
+ */
+PJ_DEF(pjsip_dialog_cap_status) pjsua_call_remote_has_cap(
+						    pjsua_call_id call_id,
+						    int htype,
+						    const pj_str_t *hname,
+						    const pj_str_t *token)
+{
+    pjsua_call *call;
+    pjsip_dialog *dlg;
+    pj_status_t status;
+    pjsip_dialog_cap_status cap_status;
+
+    status = acquire_call("pjsua_call_peer_has_cap()", call_id, &call, &dlg);
+    if (status != PJ_SUCCESS)
+	return PJSIP_DIALOG_CAP_UNKNOWN;
+
+    cap_status = pjsip_dlg_remote_has_cap(dlg, htype, hname, token);
+
+    pjsip_dlg_dec_lock(dlg);
+
+    return cap_status;
 }
 
 

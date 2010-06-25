@@ -1,4 +1,4 @@
-/* $Id: pjsua_pres.c 3096 2010-02-10 14:24:48Z bennylp $ */
+/* $Id: pjsua_pres.c 3190 2010-06-02 03:03:43Z bennylp $ */
 /* 
  * Copyright (C) 2008-2009 Teluu Inc. (http://www.teluu.com)
  * Copyright (C) 2003-2008 Benny Prijono <benny@prijono.org>
@@ -1610,7 +1610,7 @@ static void pjsua_evsub_on_tsx_state(pjsip_evsub *sub,
     contact_hdr = (pjsip_contact_hdr*)
 		  pjsip_msg_find_hdr(event->body.rx_msg.rdata->msg_info.msg,
 				     PJSIP_H_CONTACT, NULL);
-    if (!contact_hdr) {
+    if (!contact_hdr || !contact_hdr->uri) {
 	return;
     }
 

@@ -1,4 +1,4 @@
-/* $Id: sock_common.c 3133 2010-03-30 13:31:22Z bennylp $ */
+/* $Id: sock_common.c 3186 2010-05-26 15:10:07Z bennylp $ */
 /* 
  * Copyright (C) 2008-2009 Teluu Inc. (http://www.teluu.com)
  * Copyright (C) 2003-2008 Benny Prijono <benny@prijono.org>
@@ -479,7 +479,7 @@ PJ_DEF(pj_status_t) pj_sockaddr_parse2(int af, unsigned options,
 	    p_hostpart->slen = 0;
 	if (p_port)
 	    *p_port = 0;
-	if (*raf)
+	if (raf)
 	    *raf = PJ_AF_INET;
 	return PJ_SUCCESS;
     }

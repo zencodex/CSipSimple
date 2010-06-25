@@ -1,4 +1,4 @@
-/* $Id: config.h 3135 2010-04-07 13:21:31Z nanang $ */
+/* $Id: config.h 3177 2010-05-17 16:10:08Z bennylp $ */
 /* 
  * Copyright (C) 2008-2009 Teluu Inc. (http://www.teluu.com)
  * Copyright (C) 2003-2008 Benny Prijono <benny@prijono.org>
@@ -71,6 +71,14 @@ PJ_BEGIN_DECL
  */
 #ifndef PJMEDIA_AUDIO_DEV_HAS_NULL_AUDIO
 #   define PJMEDIA_AUDIO_DEV_HAS_NULL_AUDIO	0
+#endif
+
+
+/**
+ * This setting controls whether coreaudio support should be included.
+ */
+#ifndef PJMEDIA_AUDIO_DEV_HAS_COREAUDIO
+#   define PJMEDIA_AUDIO_DEV_HAS_COREAUDIO	0
 #endif
 
 

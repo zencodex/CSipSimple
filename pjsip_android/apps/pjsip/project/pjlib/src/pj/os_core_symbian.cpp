@@ -1,4 +1,4 @@
-/* $Id: os_core_symbian.cpp 2853 2009-08-05 10:58:02Z bennylp $ */
+/* $Id: os_core_symbian.cpp 3189 2010-06-01 15:32:10Z bennylp $ */
 /* 
  * Copyright (C) 2008-2009 Teluu Inc. (http://www.teluu.com)
  * Copyright (C) 2003-2008 Benny Prijono <benny@prijono.org>
@@ -35,7 +35,14 @@
 #define DUMMY_MUTEX	    ((pj_mutex_t*)101)
 #define DUMMY_SEMAPHORE	    ((pj_sem_t*)102)
 #define THIS_FILE	    "os_core_symbian.c"
- 
+
+/* Default message slot number for RSocketServ::Connect().
+ * Increase it to 32 from the default 8 (KESockDefaultMessageSlots)
+ */
+#ifndef PJ_SYMBIAN_SOCK_MSG_SLOTS
+#  define PJ_SYMBIAN_SOCK_MSG_SLOTS  32
+#endif
+
 /*
  * Note:
  *
@@ -194,7 +201,7 @@ TInt PjSymbianOS::Initialize()
      * in the parameters
      */
     if (!isSocketServInitialized_ && appSocketServ_ == NULL) {
-	err = socketServ_.Connect();
+	err = socketServ_.Connect(PJ_SYMBIAN_SOCK_MSG_SLOTS);
 	if (err != KErrNone)
 	    goto on_error;
 

@@ -1,4 +1,4 @@
-/* $Id: config.h 2966 2009-10-25 09:02:07Z bennylp $ */
+/* $Id: config.h 3197 2010-06-03 16:18:11Z bennylp $ */
 /* 
  * Copyright (C) 2008-2009 Teluu Inc. (http://www.teluu.com)
  * Copyright (C) 2003-2008 Benny Prijono <benny@prijono.org>
@@ -467,6 +467,25 @@
 #   define PJNATH_POOL_INC_STUN_TDATA		    1000
 #endif
 
+/** TURN session initial pool size */
+#ifndef PJNATH_POOL_LEN_TURN_SESS
+#   define PJNATH_POOL_LEN_TURN_SESS		    1000
+#endif
+
+/** TURN session pool increment size */
+#ifndef PJNATH_POOL_INC_TURN_SESS
+#   define PJNATH_POOL_INC_TURN_SESS		    1000
+#endif
+
+/** TURN socket initial pool size */
+#ifndef PJNATH_POOL_LEN_TURN_SOCK
+#   define PJNATH_POOL_LEN_TURN_SOCK		    1000
+#endif
+
+/** TURN socket pool increment size */
+#ifndef PJNATH_POOL_INC_TURN_SOCK
+#   define PJNATH_POOL_INC_TURN_SOCK		    1000
+#endif
 
 /**
  * @}

@@ -1,4 +1,4 @@
-/* $Id: turn_sock.c 3028 2009-12-08 13:11:25Z bennylp $ */
+/* $Id: turn_sock.c 3197 2010-06-03 16:18:11Z bennylp $ */
 /* 
  * Copyright (C) 2008-2009 Teluu Inc. (http://www.teluu.com)
  * Copyright (C) 2003-2008 Benny Prijono <benny@prijono.org>
@@ -142,7 +142,8 @@ PJ_DEF(pj_status_t) pj_turn_sock_create(pj_stun_config *cfg,
     }
 
     /* Create and init basic data structure */
-    pool = pj_pool_create(cfg->pf, name_tmpl, 1000, 1000, NULL);
+    pool = pj_pool_create(cfg->pf, name_tmpl, PJNATH_POOL_LEN_TURN_SOCK,
+			  PJNATH_POOL_INC_TURN_SOCK, NULL);
     turn_sock = PJ_POOL_ZALLOC_T(pool, pj_turn_sock);
     turn_sock->pool = pool;
     turn_sock->obj_name = pool->obj_name;

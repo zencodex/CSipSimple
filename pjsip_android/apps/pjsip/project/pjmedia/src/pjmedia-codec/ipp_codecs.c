@@ -1,4 +1,4 @@
-/* $Id: ipp_codecs.c 3165 2010-05-11 06:33:55Z nanang $ */
+/* $Id: ipp_codecs.c 3199 2010-06-07 05:23:56Z nanang $ */
 /* 
  * Copyright (C) 2008-2009 Teluu Inc. (http://www.teluu.com)
  * Copyright (C) 2003-2008 Benny Prijono <benny@prijono.org>
@@ -289,6 +289,11 @@ ipp_codec[] =
 		    40000, 40000, 2, 0, 0,
 		    NULL, NULL, NULL
     },
+    /* Old definition of G726-32 */
+    {1, "G721",	    PJMEDIA_RTP_PT_G721,      &USC_G726_Fxns,	 8000, 1,  80, 
+		    32000, 32000, 2, 0, 0,
+		    NULL, NULL, NULL
+    },
 #   endif
 
 #   if PJMEDIA_HAS_INTEL_IPP_CODEC_G728
@@ -562,7 +567,9 @@ static pj_status_t parse_amr(ipp_private_t *codec_data, void *pkt,
 	return status;
 
     /* Check Change Mode Request. */
-    if ((setting->amr_nb && cmr <= 7) || (!setting->amr_nb && cmr <= 8)) {
+    if (((setting->amr_nb && cmr <= 7) || (!setting->amr_nb && cmr <= 8)) &&
+	s->enc_mode != cmr)
+    {
 	struct ipp_codec *ippc = &ipp_codec[codec_data->codec_idx];
 
 	s->enc_mode = cmr;
@@ -1496,7 +1503,8 @@ static pj_status_t ipp_codec_decode( pjmedia_codec *codec,
 #if PJMEDIA_HAS_INTEL_IPP_CODEC_G726
     /* For G.726: amplify decoding result (USC G.726 encoder deamplified it) */
     if (pt == PJMEDIA_RTP_PT_G726_16 || pt == PJMEDIA_RTP_PT_G726_24 ||
-	pt == PJMEDIA_RTP_PT_G726_32 || pt == PJMEDIA_RTP_PT_G726_40)
+	pt == PJMEDIA_RTP_PT_G726_32 || pt == PJMEDIA_RTP_PT_G726_40 ||
+	pt == PJMEDIA_RTP_PT_G721)
     {
 	unsigned i;
 	pj_int16_t *s = (pj_int16_t*)output->buf;

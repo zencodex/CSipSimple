@@ -344,15 +344,15 @@
 #endif
 #if defined(PJ_ANDROID) && PJ_ANDROID!=0
 
-    #define PJ_LOG_USE_STACK_BUFFER             1
+//    #define PJ_LOG_USE_STACK_BUFFER             1
 
 
 	/* Optimizations */
-	#define PJMEDIA_HAS_ALAW_ULAW_TABLE 1
-	#define PJ_ENABLE_EXTRA_CHECK   0
+//	#define PJMEDIA_HAS_ALAW_ULAW_TABLE 1
+//	#define PJ_ENABLE_EXTRA_CHECK   0
 
 	//Conference is useless for now
-	#define PJMEDIA_CONF_USE_SWITCH_BOARD 0
+//	#define PJMEDIA_CONF_USE_SWITCH_BOARD 0
 
 	/*
      * PJMEDIA settings
@@ -365,7 +365,7 @@
 
     /* Select codecs to disable */
     #define PJMEDIA_HAS_L16_CODEC               0
-    #define PJMEDIA_HAS_ILBC_CODEC              0
+    #define PJMEDIA_HAS_ILBC_CODEC              1
     #define PJMEDIA_HAS_G722_CODEC              1
     #define PJMEDIA_HAS_SPEEX_CODEC             1
     #define PJMEDIA_HAS_GSM_CODEC              1
@@ -389,38 +389,13 @@
     #define PJMEDIA_RESAMPLE_IMP                PJMEDIA_RESAMPLE_LIBRESAMPLE
 
     /* Use the lighter WSOLA implementation */
-    #define PJMEDIA_WSOLA_IMP                   PJMEDIA_WSOLA_IMP_WSOLA_LITE
+ //   #define PJMEDIA_WSOLA_IMP                   PJMEDIA_WSOLA_IMP_WSOLA_LITE
 
     /* We probably need more buffers especially if MDA audio backend 
      * is used, so increase the limit 
      */
-    #define PJMEDIA_SOUND_BUFFER_COUNT          32
+//    #define PJMEDIA_SOUND_BUFFER_COUNT          32
 
-
-    /*
-     * PJSIP settings.
-     */
-/*
-    // Disable safe module access, since we don't use multithreading
-    #define PJSIP_SAFE_MODULE                   0
-
-    // Increase allowable packet size, just in case
-    #define PJSIP_MAX_PKT_LEN                   2000
-
-    // Symbian has problem with too many large blocks
-    #define PJSIP_POOL_LEN_ENDPT                1000
-    #define PJSIP_POOL_INC_ENDPT                1000
-    #define PJSIP_POOL_RDATA_LEN                2000
-    #define PJSIP_POOL_RDATA_INC                2000
-    #define PJSIP_POOL_LEN_TDATA                2000
-    #define PJSIP_POOL_INC_TDATA                512
-    #define PJSIP_POOL_LEN_UA                   2000
-    #define PJSIP_POOL_INC_UA                   1000
-    #define PJSIP_POOL_TSX_LAYER_LEN            256
-    #define PJSIP_POOL_TSX_LAYER_INC            256
-    #define PJSIP_POOL_TSX_LEN                  512
-    #define PJSIP_POOL_TSX_INC                  128
-*/
 
     /*
      * PJSUA settings.
@@ -430,18 +405,5 @@
      * set to 4 to make sure pjsua instantiates resampler with small filter.
      */
     #define PJSUA_DEFAULT_CODEC_QUALITY         4
-
-    /* Set maximum number of dialog/transaction/calls to minimum */
-   // #define PJSIP_MAX_TSX_COUNT                 31
-  //  #define PJSIP_MAX_DIALOG_COUNT              31
-    #define PJSUA_MAX_CALLS                     4
-
-    /* Other pjsua settings */
-    #define PJSUA_MAX_ACC                       4
-    #define PJSUA_MAX_PLAYERS                   4
-    #define PJSUA_MAX_RECORDERS                 4
-    #define PJSUA_MAX_CONF_PORTS                (PJSUA_MAX_CALLS+2*PJSUA_MAX_PLAYERS)
-    #define PJSUA_MAX_BUDDIES                   32
-
 
 #endif
