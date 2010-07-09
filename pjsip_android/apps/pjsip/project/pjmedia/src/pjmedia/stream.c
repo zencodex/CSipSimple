@@ -1,4 +1,4 @@
-/* $Id: stream.c 3161 2010-05-07 15:15:39Z nanang $ */
+/* $Id: stream.c 3224 2010-06-26 04:43:50Z nanang $ */
 /* 
  * Copyright (C) 2008-2009 Teluu Inc. (http://www.teluu.com)
  * Copyright (C) 2003-2008 Benny Prijono <benny@prijono.org>
@@ -390,22 +390,28 @@ static void send_keep_alive_packet(pjmedia_stream *stream)
 
     /* Keep-alive packet is empty RTP */
     pj_status_t status;
-    void *rtphdr;
+    void *pkt;
     int pkt_len;
 
+    TRC_((stream->port.info.name.ptr,
+	  "Sending keep-alive (RTCP and empty RTP)"));
 
+    /* Send RTP */
     status = pjmedia_rtp_encode_rtp( &stream->enc->rtp,
 				     stream->enc->pt, 0,
 				     1,
 				     0,
-				     (const void**)&rtphdr,
+				     (const void**)&pkt,
 				     &pkt_len);
     pj_assert(status == PJ_SUCCESS);
 
-    pj_memcpy(stream->enc->out_pkt, rtphdr, pkt_len);
+    pj_memcpy(stream->enc->out_pkt, pkt, pkt_len);
     pjmedia_transport_send_rtp(stream->transport, stream->enc->out_pkt,
 			       pkt_len);
-    TRC_((stream->port.info.name.ptr, "Keep-alive sent (empty RTP)"));
+
+    /* Send RTCP */
+    pjmedia_rtcp_build_rtcp(&stream->rtcp, &pkt, &pkt_len);
+    pjmedia_transport_send_rtcp(stream->transport, pkt, pkt_len);
 
 #elif PJMEDIA_STREAM_ENABLE_KA == PJMEDIA_STREAM_KA_USER
 
@@ -413,11 +419,18 @@ static void send_keep_alive_packet(pjmedia_stream *stream)
     int pkt_len;
     const pj_str_t str_ka = PJMEDIA_STREAM_KA_USER_PKT;
 
+    TRC_((stream->port.info.name.ptr,
+	  "Sending keep-alive (custom RTP/RTCP packets)"));
+
+    /* Send to RTP port */
     pj_memcpy(stream->enc->out_pkt, str_ka.ptr, str_ka.slen);
     pkt_len = str_ka.slen;
     pjmedia_transport_send_rtp(stream->transport, stream->enc->out_pkt,
 			       pkt_len);
-    TRC_((stream->port.info.name.ptr, "Keep-alive sent"));
+
+    /* Send to RTCP port */
+    pjmedia_transport_send_rtcp(stream->transport, stream->enc->out_pkt,
+			        pkt_len);
 
 #else
     
@@ -2108,28 +2121,11 @@ PJ_DEF(pj_status_t) pjmedia_stream_create( pjmedia_endpt *endpt,
     stream->rtp_rx_ts_len_per_frame = stream->port.info.samples_per_frame / 
 				       stream->codec_param.info.channel_cnt;
 
-    /* Init RTCP session: */
-
-    /* Special case for G.722 */
     if (info->fmt.pt == PJMEDIA_RTP_PT_G722) {
-	pjmedia_rtcp_init(&stream->rtcp, stream->port.info.name.ptr,
-			  8000, 
-			  160,
-			  info->ssrc);
 	stream->has_g722_mpeg_bug = PJ_TRUE;
 	/* RTP clock rate = 1/2 real clock rate */
 	stream->rtp_tx_ts_len_per_pkt >>= 1;
-    } else {
-	pjmedia_rtcp_init(&stream->rtcp, stream->port.info.name.ptr,
-			  info->fmt.clock_rate, 
-			  stream->port.info.samples_per_frame, 
-			  info->ssrc);
     }
-#else
-    pjmedia_rtcp_init(&stream->rtcp, stream->port.info.name.ptr,
-		      info->fmt.clock_rate, 
-		      stream->port.info.samples_per_frame, 
-		      info->ssrc);
 #endif
 
     /* Init jitter buffer parameters: */
@@ -2184,6 +2180,29 @@ PJ_DEF(pj_status_t) pjmedia_stream_create( pjmedia_endpt *endpt,
     if (status != PJ_SUCCESS)
 	goto err_cleanup;
 
+
+    /* Init RTCP session: */
+
+    {
+	pjmedia_rtcp_session_setting rtcp_setting;
+
+	pjmedia_rtcp_session_setting_default(&rtcp_setting);
+	rtcp_setting.name = stream->port.info.name.ptr;
+	rtcp_setting.ssrc = info->ssrc;
+	rtcp_setting.rtp_ts_base = pj_ntohl(stream->enc->rtp.out_hdr.ts);
+	rtcp_setting.clock_rate = info->fmt.clock_rate;
+	rtcp_setting.samples_per_frame = stream->port.info.samples_per_frame;
+
+#if defined(PJMEDIA_HANDLE_G722_MPEG_BUG) && (PJMEDIA_HANDLE_G722_MPEG_BUG!=0)
+	/* Special case for G.722 */
+	if (info->fmt.pt == PJMEDIA_RTP_PT_G722) {
+	    rtcp_setting.clock_rate = 8000;
+	    rtcp_setting.samples_per_frame = 160;
+	}
+#endif
+
+	pjmedia_rtcp_init2(&stream->rtcp, &rtcp_setting);
+    }
 
     /* Only attach transport when stream is ready. */
     status = pjmedia_transport_attach(tp, stream, &info->rem_addr, 

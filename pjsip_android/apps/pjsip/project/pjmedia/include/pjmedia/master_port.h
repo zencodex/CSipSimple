@@ -1,4 +1,4 @@
-/* $Id: master_port.h 2394 2008-12-23 17:27:53Z bennylp $ */
+/* $Id: master_port.h 3214 2010-06-21 09:10:44Z nanang $ */
 /* 
  * Copyright (C) 2008-2009 Teluu Inc. (http://www.teluu.com)
  * Copyright (C) 2003-2008 Benny Prijono <benny@prijono.org>
@@ -103,6 +103,26 @@ PJ_DECL(pj_status_t) pjmedia_master_port_start(pjmedia_master_port *m);
  * @return		PJ_SUCCESS on success.
  */
 PJ_DECL(pj_status_t) pjmedia_master_port_stop(pjmedia_master_port *m);
+
+
+/**
+ * Poll the master port clock and execute the callback when the clock tick has
+ * elapsed. This operation is only valid if the master port is created with
+ * #PJMEDIA_CLOCK_NO_ASYNC flag.
+ *
+ * @param m		    The master port.
+ * @param wait		    If non-zero, then the function will block until
+ *			    a clock tick elapsed and callback has been called.
+ * @param ts		    Optional argument to receive the current 
+ *			    timestamp.
+ *
+ * @return		    Non-zero if clock tick has elapsed, or FALSE if
+ *			    the function returns before a clock tick has
+ *			    elapsed.
+ */
+PJ_DECL(pj_bool_t) pjmedia_master_port_wait(pjmedia_master_port *m,
+					    pj_bool_t wait,
+					    pj_timestamp *ts);
 
 
 /**

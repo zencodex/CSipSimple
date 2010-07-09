@@ -45,7 +45,7 @@ static void on_log_msg(int level, const char *data, int len) {
 }
 
 
-
+#include <utils/misc.h>
 
 #include <swig_base.h>
 #include <pjsua-lib/pjsua.h>
@@ -108,7 +108,7 @@ static void init_ringback_tone(){
 
 
 	//Ringback
-	name = pj_str("ringback");
+	name = pj_str((char *)"ringback");
 	status = pjmedia_tonegen_create2(app_config.pool, &name,
 					 16000,
 					 1,
@@ -13613,8 +13613,8 @@ JNIEXPORT jint JNI_OnLoad(JavaVM *vm, void *reserved) {
 
 
 	//#define NBR_JNI_METHODS 816
-	#define NBR_JNI_METHODS 806
-	JNINativeMethod methods[NBR_JNI_METHODS] = {
+	//#define NBR_JNI_METHODS 806
+	JNINativeMethod methods[] = {
 			{"pj_str_copy", "(Ljava/lang/String;)J", (void*)& Java_org_pjsip_pjsua_pjsuaJNI_pj_1str_1copy},
 			{"get_snd_dev_info", "(JLorg/pjsip/pjsua/pjmedia_snd_dev_info;I)I", (void*)& Java_org_pjsip_pjsua_pjsuaJNI_get_1snd_1dev_1info},
 			{"delete_Callback", "(J)V", (void*)& Java_org_pjsip_pjsua_pjsuaJNI_delete_1Callback},
@@ -14433,7 +14433,7 @@ JNIEXPORT jint JNI_OnLoad(JavaVM *vm, void *reserved) {
 			{"swig_module_init", "()V", (void*)& Java_org_pjsip_pjsua_pjsuaJNI_swig_1module_1init}
 	};
 
-	r = env->RegisterNatives (k, methods, NBR_JNI_METHODS);
+	r = env->RegisterNatives (k, methods, NELEM(methods));
 	return JNI_VERSION_1_4;
 }
 

@@ -1,4 +1,4 @@
-/* $Id: http_client.c 3098 2010-02-11 12:50:42Z ming $ */
+/* $Id: http_client.c 3229 2010-06-29 17:06:01Z ming $ */
 /* 
  * Copyright (C) 2008-2010 Teluu Inc. (http://www.teluu.com)
  *
@@ -327,9 +327,9 @@ static pj_bool_t http_on_data_read(pj_activesock_t *asock,
             hreq->response.size = 0;
 
 	    if (rem > 0 || hreq->response.content_length == 0)
-		http_on_data_read(asock, (rem == 0 ? NULL:
-		   	          (char *)data + size - rem),
-				  rem, PJ_SUCCESS, NULL);
+		return http_on_data_read(asock, (rem == 0 ? NULL:
+		   	                 (char *)data + size - rem),
+				         rem, PJ_SUCCESS, NULL);
         }
 
         return PJ_TRUE;

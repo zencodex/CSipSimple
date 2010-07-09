@@ -1,4 +1,4 @@
-/* $Id: sdp_neg.h 2394 2008-12-23 17:27:53Z bennylp $ */
+/* $Id: sdp_neg.h 3217 2010-06-23 12:21:20Z bennylp $ */
 /* 
  * Copyright (C) 2008-2009 Teluu Inc. (http://www.teluu.com)
  * Copyright (C) 2003-2008 Benny Prijono <benny@prijono.org>
@@ -622,9 +622,11 @@ PJ_DECL(pj_bool_t) pjmedia_sdp_neg_has_local_answer(pjmedia_sdp_neg *neg);
 
 
 /**
- * Cancel previously sent offer, and move negotiator state back to
- * previous stable state (PJMEDIA_SDP_NEG_STATE_DONE). The negotiator
- * must be in PJMEDIA_SDP_NEG_STATE_LOCAL_OFFER state.
+ * Cancel any pending offer, whether the offer is initiated by local or
+ * remote, and move negotiator state back to previous stable state
+ * (PJMEDIA_SDP_NEG_STATE_DONE). The negotiator must be in
+ * PJMEDIA_SDP_NEG_STATE_LOCAL_OFFER or PJMEDIA_SDP_NEG_STATE_REMOTE_OFFER
+ * state.
  *
  * @param neg		The negotiator.
  *

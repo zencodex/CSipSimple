@@ -1,4 +1,4 @@
-/* $Id: g722.h 3083 2010-01-29 15:51:09Z nanang $ */
+/* $Id: g722.h 3202 2010-06-11 13:38:42Z nanang $ */
 /* 
  * Copyright (C) 2008-2009 Teluu Inc. (http://www.teluu.com)
  * Copyright (C) 2003-2008 Benny Prijono <benny@prijono.org>
@@ -76,6 +76,21 @@ PJ_DECL(pj_status_t) pjmedia_codec_g722_init(pjmedia_endpt *endpt);
  * @return	    PJ_SUCCESS on success.
  */
 PJ_DECL(pj_status_t) pjmedia_codec_g722_deinit(void);
+
+
+/**
+ * Set the G.722 codec encoder and decoder level adjustment.
+ * If the value is non-zero, then PCM input samples to the encoder will 
+ * be shifted right by this value, and similarly PCM output samples from
+ * the decoder will be shifted left by this value.
+ *
+ * Default value is PJMEDIA_G722_DEFAULT_PCM_SHIFT.
+ *
+ * @param val		The value
+ *
+ * @return		PJ_SUCCESS on success.
+ */
+PJ_DECL(pj_status_t) pjmedia_codec_g722_set_pcm_shift(unsigned val);
 
 
 PJ_END_DECL

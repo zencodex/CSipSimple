@@ -1,4 +1,4 @@
-/* $Id: sip_inv.h 2869 2009-08-12 17:53:47Z bennylp $ */
+/* $Id: sip_inv.h 3222 2010-06-24 12:33:18Z bennylp $ */
 /* 
  * Copyright (C) 2008-2009 Teluu Inc. (http://www.teluu.com)
  * Copyright (C) 2003-2008 Benny Prijono <benny@prijono.org>
@@ -295,6 +295,16 @@ enum pjsip_inv_option
      */
     PJSIP_INV_SUPPORT_UPDATE	= 4,
 
+    /**
+     * Indicate support for ICE
+     */
+    PJSIP_INV_SUPPORT_ICE	= 8,
+
+    /**
+     * Require ICE support.
+     */
+    PJSIP_INV_REQUIRE_ICE	= 16,
+
     /** 
      * Require reliable provisional response extension. 
      */
@@ -309,7 +319,7 @@ enum pjsip_inv_option
      * Session timer extension will always be used even when peer doesn't
      * support/want session timer.
      */
-    PJSIP_INV_ALWAYS_USE_TIMER	= 128,
+    PJSIP_INV_ALWAYS_USE_TIMER	= 128
 
 };
 

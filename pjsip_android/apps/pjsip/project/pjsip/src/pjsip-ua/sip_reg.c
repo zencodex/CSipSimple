@@ -1,4 +1,4 @@
-/* $Id: sip_reg.c 3128 2010-03-30 11:13:59Z nanang $ */
+/* $Id: sip_reg.c 3223 2010-06-24 13:32:05Z bennylp $ */
 /* 
  * Copyright (C) 2008-2009 Teluu Inc. (http://www.teluu.com)
  * Copyright (C) 2003-2008 Benny Prijono <benny@prijono.org>
@@ -527,6 +527,7 @@ PJ_DEF(pj_status_t) pjsip_regc_register(pjsip_regc *regc, pj_bool_t autoreg,
 {
     pjsip_msg *msg;
     pjsip_contact_hdr *hdr;
+    const pjsip_hdr *h_allow;
     pj_status_t status;
     pjsip_tx_data *tdata;
 
@@ -567,6 +568,14 @@ PJ_DEF(pj_status_t) pjsip_regc_register(pjsip_regc *regc, pj_bool_t autoreg,
     if (regc->timer.id != 0) {
 	pjsip_endpt_cancel_timer(regc->endpt, &regc->timer);
 	regc->timer.id = 0;
+    }
+
+    /* Add Allow header (http://trac.pjsip.org/repos/ticket/1039) */
+    h_allow = pjsip_endpt_get_capability(regc->endpt, PJSIP_H_ALLOW, NULL);
+    if (h_allow) {
+	pjsip_msg_add_hdr(msg, (pjsip_hdr*)
+			       pjsip_hdr_shallow_clone(tdata->pool, h_allow));
+
     }
 
     regc->auto_reg = autoreg;

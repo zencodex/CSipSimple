@@ -1,4 +1,4 @@
-/* $Id: rtcp.h 2394 2008-12-23 17:27:53Z bennylp $ */
+/* $Id: rtcp.h 3224 2010-06-26 04:43:50Z nanang $ */
 /* 
  * Copyright (C) 2008-2009 Teluu Inc. (http://www.teluu.com)
  * Copyright (C) 2003-2008 Benny Prijono <benny@prijono.org>
@@ -246,6 +246,7 @@ struct pjmedia_rtcp_session
     pj_time_val		    tv_base;	/**< Base time, in seconds.	    */
     pj_timestamp	    ts_base;	/**< Base system timestamp.	    */
     pj_timestamp	    ts_freq;	/**< System timestamp frequency.    */
+    pj_uint32_t		    rtp_ts_base;/**< Base RTP timestamp.	    */
 
     pj_uint32_t		    rx_lsr;	/**< NTP ts in last SR received	    */
     pj_timestamp	    rx_lsr_time;/**< Time when last SR is received  */
@@ -274,6 +275,28 @@ typedef struct pjmedia_rtcp_session pjmedia_rtcp_session;
 
 
 /**
+ * RTCP session settings.
+ */
+typedef struct pjmedia_rtcp_session_setting
+{
+    char	    *name;		/**< RTCP session name.		*/
+    unsigned	     clock_rate;	/**< Sequence.			*/
+    unsigned	     samples_per_frame;	/**< Timestamp.			*/
+    pj_uint32_t	     ssrc;		/**< Sender SSRC.		*/
+    pj_uint32_t	     rtp_ts_base;	/**< Base RTP timestamp.	*/
+} pjmedia_rtcp_session_setting;
+
+
+/**
+ * Initialize RTCP session setting.
+ *
+ * @param settings	    The RTCP session setting to be initialized.
+ */
+PJ_DECL(void) pjmedia_rtcp_session_setting_default(
+				    pjmedia_rtcp_session_setting *settings);
+
+
+/**
  * Initialize RTCP session.
  *
  * @param session	    The session
@@ -288,6 +311,16 @@ PJ_DECL(void) pjmedia_rtcp_init( pjmedia_rtcp_session *session,
 				 unsigned clock_rate,
 				 unsigned samples_per_frame,
 				 pj_uint32_t ssrc );
+
+
+/**
+ * Initialize RTCP session.
+ *
+ * @param session	    The session
+ * @param settings	    The RTCP session settings.
+ */
+PJ_DECL(void) pjmedia_rtcp_init2(pjmedia_rtcp_session *session,
+				 const pjmedia_rtcp_session_setting *settings);
 
 
 /**

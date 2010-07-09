@@ -1,4 +1,4 @@
-/* $Id: http_client.h 3089 2010-02-05 16:03:29Z ming $ */
+/* $Id: http_client.h 3227 2010-06-29 13:43:05Z ming $ */
 /* 
  * Copyright (C) 2008-2010 Teluu Inc. (http://www.teluu.com)
  *
@@ -213,6 +213,10 @@ typedef struct pj_http_req_callback
      * pj_http_req's internal memory pool so the data remain valid
      * as long as pj_http_req is not destroyed and application does
      * not start a new request.
+     *
+     * If no longer required, application may choose to destroy 
+     * pj_http_req immediately by calling #pj_http_req_destroy() inside 
+     * the callback.
      *
      * @param http_req	The http request.
      * @param status	The status of the request operation. PJ_SUCCESS

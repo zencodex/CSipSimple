@@ -1,4 +1,4 @@
-/* $Id: sip_inv.c 3190 2010-06-02 03:03:43Z bennylp $ */
+/* $Id: sip_inv.c 3222 2010-06-24 12:33:18Z bennylp $ */
 /* 
  * Copyright (C) 2008-2009 Teluu Inc. (http://www.teluu.com)
  * Copyright (C) 2003-2008 Benny Prijono <benny@prijono.org>
@@ -458,6 +458,16 @@ static pj_bool_t mod_inv_on_rx_request(pjsip_rx_data *rdata)
 	     */
 	    if (inv->state < PJSIP_INV_STATE_DISCONNECTED) {
 		inv_check_sdp_in_incoming_msg(inv, inv->invite_tsx, rdata);
+
+		/* Check if local offer got no SDP answer and INVITE session
+		 * is in CONFIRMED state.
+		 */
+		if (pjmedia_sdp_neg_get_state(inv->neg)==
+		    PJMEDIA_SDP_NEG_STATE_LOCAL_OFFER &&
+		    inv->state==PJSIP_INV_STATE_CONFIRMED)
+		{
+		    pjmedia_sdp_neg_cancel_offer(inv->neg);
+		}
 	    }
 
 	    /* Now we can terminate the INVITE transaction */
@@ -767,6 +777,8 @@ PJ_DEF(pj_status_t) pjsip_inv_verify_request2(pjsip_rx_data *rdata,
 	*options |= PJSIP_INV_SUPPORT_100REL;
     if (*options & PJSIP_INV_REQUIRE_TIMER)
 	*options |= PJSIP_INV_SUPPORT_TIMER;
+    if (*options & PJSIP_INV_REQUIRE_ICE)
+	*options |= PJSIP_INV_SUPPORT_ICE;
 
     /* Get the message in rdata */
     msg = rdata->msg_info.msg;
@@ -938,12 +950,15 @@ PJ_DEF(pj_status_t) pjsip_inv_verify_request2(pjsip_rx_data *rdata,
 	unsigned i;
 	const pj_str_t STR_100REL = { "100rel", 6};
 	const pj_str_t STR_TIMER = { "timer", 5};
+	const pj_str_t STR_ICE = { "ice", 3 };
 
 	for (i=0; i<sup_hdr->count; ++i) {
 	    if (pj_stricmp(&sup_hdr->values[i], &STR_100REL)==0)
 		rem_option |= PJSIP_INV_SUPPORT_100REL;
-	    if (pj_stricmp(&sup_hdr->values[i], &STR_TIMER)==0)
+	    else if (pj_stricmp(&sup_hdr->values[i], &STR_TIMER)==0)
 		rem_option |= PJSIP_INV_SUPPORT_TIMER;
+	    else if (pj_stricmp(&sup_hdr->values[i], &STR_ICE)==0)
+		rem_option |= PJSIP_INV_SUPPORT_ICE;
 	}
     }
 
@@ -955,6 +970,7 @@ PJ_DEF(pj_status_t) pjsip_inv_verify_request2(pjsip_rx_data *rdata,
 	const pj_str_t STR_100REL = { "100rel", 6};
 	const pj_str_t STR_REPLACES = { "replaces", 8 };
 	const pj_str_t STR_TIMER = { "timer", 5 };
+	const pj_str_t STR_ICE = { "ice", 3 };
 	unsigned unsupp_cnt = 0;
 	pj_str_t unsupp_tags[PJSIP_GENERIC_ARRAY_MAX_COUNT];
 	
@@ -976,6 +992,10 @@ PJ_DEF(pj_status_t) pjsip_inv_verify_request2(pjsip_rx_data *rdata,
 						  NULL, &STR_REPLACES);
 		if (!supp)
 		    unsupp_tags[unsupp_cnt++] = req_hdr->values[i];
+	    } else if ((*options & PJSIP_INV_SUPPORT_ICE) &&
+		pj_stricmp(&req_hdr->values[i], &STR_ICE)==0)
+	    {
+		rem_option |= PJSIP_INV_REQUIRE_ICE;
 
 	    } else if (!pjsip_endpt_has_capability(endpt, PJSIP_H_SUPPORTED,
 						   NULL, &req_hdr->values[i]))
@@ -2383,7 +2403,7 @@ PJ_DEF(pj_status_t) pjsip_inv_update (	pjsip_inv_session *inv,
     pj_status_t status = PJ_SUCCESS;
 
     /* Verify arguments. */
-    PJ_ASSERT_RETURN(inv && p_tdata && offer, PJ_EINVAL);
+    PJ_ASSERT_RETURN(inv && p_tdata, PJ_EINVAL);
 
     /* Dialog must have been established */
     PJ_ASSERT_RETURN(inv->dlg->state == PJSIP_DIALOG_STATE_ESTABLISHED,
@@ -2396,24 +2416,26 @@ PJ_DEF(pj_status_t) pjsip_inv_update (	pjsip_inv_session *inv,
     /* Lock dialog. */
     pjsip_dlg_inc_lock(inv->dlg);
 
-    /* Process offer */
-    if (pjmedia_sdp_neg_get_state(inv->neg)!=PJMEDIA_SDP_NEG_STATE_DONE) {
-	PJ_LOG(4,(inv->dlg->obj_name, 
-		  "Invalid SDP offer/answer state for UPDATE"));
-	status = PJ_EINVALIDOP;
-	goto on_error;
+    /* Process offer, if any */
+    if (offer) {
+	if (pjmedia_sdp_neg_get_state(inv->neg)!=PJMEDIA_SDP_NEG_STATE_DONE) {
+	    PJ_LOG(4,(inv->dlg->obj_name,
+		      "Invalid SDP offer/answer state for UPDATE"));
+	    status = PJ_EINVALIDOP;
+	    goto on_error;
+	}
+
+	/* Notify negotiator about the new offer. This will fix the offer
+	 * with correct SDP origin.
+	 */
+	status = pjmedia_sdp_neg_modify_local_offer(inv->pool_prov, inv->neg,
+						    offer);
+	if (status != PJ_SUCCESS)
+	    goto on_error;
+
+	/* Retrieve the "fixed" offer from negotiator */
+	pjmedia_sdp_neg_get_neg_local(inv->neg, &offer);
     }
-
-    /* Notify negotiator about the new offer. This will fix the offer
-     * with correct SDP origin.
-     */
-    status = pjmedia_sdp_neg_modify_local_offer(inv->pool_prov, inv->neg,
-						offer);
-    if (status != PJ_SUCCESS)
-	goto on_error;
-
-    /* Retrieve the "fixed" offer from negotiator */
-    pjmedia_sdp_neg_get_neg_local(inv->neg, &offer);
 
     /* Update Contact if required */
     if (new_contact) {
@@ -2439,8 +2461,10 @@ PJ_DEF(pj_status_t) pjsip_inv_update (	pjsip_inv_session *inv,
 	    goto on_error;
 
     /* Attach SDP body */
-    sdp_copy = pjmedia_sdp_session_clone(tdata->pool, offer);
-    pjsip_create_sdp_body(tdata->pool, sdp_copy, &tdata->msg->body);
+    if (offer) {
+	sdp_copy = pjmedia_sdp_session_clone(tdata->pool, offer);
+	pjsip_create_sdp_body(tdata->pool, sdp_copy, &tdata->msg->body);
+    }
 
     /* Unlock dialog. */
     pjsip_dlg_dec_lock(inv->dlg);
@@ -2775,7 +2799,14 @@ static void inv_respond_incoming_update(pjsip_inv_session *inv,
 	if (neg_state != PJMEDIA_SDP_NEG_STATE_WAIT_NEGO ||
 	    (status=inv_negotiate_sdp(inv)) != PJ_SUCCESS)
 	{
-	    /* Negotiation has failed */
+	    /* Negotiation has failed. If negotiator is still
+	     * stuck at non-DONE state, cancel any ongoing offer.
+	     */
+	    neg_state = pjmedia_sdp_neg_get_state(inv->neg);
+	    if (neg_state != PJMEDIA_SDP_NEG_STATE_DONE) {
+		pjmedia_sdp_neg_cancel_offer(inv->neg);
+	    }
+
 	    status = pjsip_dlg_create_response(inv->dlg, rdata, 
 					       PJSIP_SC_NOT_ACCEPTABLE_HERE,
 					       NULL, &tdata);
@@ -2869,6 +2900,16 @@ static void inv_handle_update_response( pjsip_inv_session *inv,
     /* Get/attach invite session's transaction data */
     else 
     {
+	/* Session-Timer needs to see any error responses, to determine
+	 * whether peer supports UPDATE with empty body.
+	 */
+	if (tsx->state == PJSIP_TSX_STATE_COMPLETED &&
+	    tsx->role == PJSIP_ROLE_UAC)
+	{
+	    status = handle_timer_response(inv, e->body.tsx_state.src.rdata,
+					   PJ_FALSE);
+	}
+
 	tsx_inv_data = (struct tsx_inv_data*)tsx->mod_data[mod_inv.mod.id];
 	if (tsx_inv_data == NULL) {
 	    tsx_inv_data=PJ_POOL_ZALLOC_T(tsx->pool, struct tsx_inv_data);
@@ -2877,11 +2918,9 @@ static void inv_handle_update_response( pjsip_inv_session *inv,
 	}
     }
 
-    /* Otherwise if we don't get successful response, cancel
-     * our negotiator.
-     */
-    if (status != PJ_SUCCESS &&
-	pjmedia_sdp_neg_get_state(inv->neg)==PJMEDIA_SDP_NEG_STATE_LOCAL_OFFER &&
+    /* Cancel the negotiation if we don't get successful negotiation by now */
+    if (pjmedia_sdp_neg_get_state(inv->neg) ==
+		PJMEDIA_SDP_NEG_STATE_LOCAL_OFFER &&
 	tsx_inv_data && tsx_inv_data->sdp_done == PJ_FALSE) 
     {
 	pjmedia_sdp_neg_cancel_offer(inv->neg);
@@ -3975,6 +4014,13 @@ static void inv_on_state_confirmed( pjsip_inv_session *inv, pjsip_event *e)
 	    {
 		inv_check_sdp_in_incoming_msg(inv, tsx,
 					      e->body.tsx_state.src.rdata);
+
+		/* Check if local offer got no SDP answer */
+		if (pjmedia_sdp_neg_get_state(inv->neg)==
+		    PJMEDIA_SDP_NEG_STATE_LOCAL_OFFER)
+		{
+		    pjmedia_sdp_neg_cancel_offer(inv->neg);
+		}
 	    }
 
 	}
@@ -4012,6 +4058,13 @@ static void inv_on_state_confirmed( pjsip_inv_session *inv, pjsip_event *e)
 	    /* Process SDP */
 	    inv_check_sdp_in_incoming_msg(inv, tsx, 
 					  e->body.tsx_state.src.rdata);
+
+	    /* Check if local offer got no SDP answer */
+	    if (pjmedia_sdp_neg_get_state(inv->neg)==
+		PJMEDIA_SDP_NEG_STATE_LOCAL_OFFER)
+	    {
+		pjmedia_sdp_neg_cancel_offer(inv->neg);
+	    }
 
 	    /* Send ACK */
 	    inv_send_ack(inv, e);

@@ -1,4 +1,4 @@
-/* $Id: g722_enc.c 2394 2008-12-23 17:27:53Z bennylp $ */
+/* $Id: g722_enc.c 3202 2010-06-11 13:38:42Z nanang $ */
 /* 
  * Copyright (C) 2008-2009 Teluu Inc. (http://www.teluu.com)
  * Copyright (C) 2003-2008 Benny Prijono <benny@prijono.org>
@@ -543,7 +543,7 @@ PJ_DEF(pj_status_t) g722_enc_encode( g722_enc_t *enc,
     PJ_ASSERT_RETURN(*out_size >= (nsamples >> 1), PJ_ETOOSMALL);
     
     for(i = 0; i < nsamples; i += 2) {
-	tx_qmf(enc, in[i]>>2, in[i+1]>>2, &xlow, &xhigh);
+	tx_qmf(enc, in[i], in[i+1], &xlow, &xhigh);
 
 	/* low band encoder */
 	ilow = block1l (xlow, enc->slow, enc->detlow) ;

@@ -1,4 +1,4 @@
-/* $Id: endpoint.c 3080 2010-01-28 05:02:56Z nanang $ */
+/* $Id: endpoint.c 3204 2010-06-15 05:16:06Z bennylp $ */
 /* 
  * Copyright (C) 2008-2009 Teluu Inc. (http://www.teluu.com)
  * Copyright (C) 2003-2008 Benny Prijono <benny@prijono.org>
@@ -420,6 +420,7 @@ PJ_DEF(pj_status_t) pjmedia_endpt_create_sdp( pjmedia_endpt *endpt,
 	    rtpmap.param.slen = 1;
 
 	} else {
+	    rtpmap.param.ptr = NULL;
 	    rtpmap.param.slen = 0;
 	}
 

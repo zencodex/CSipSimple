@@ -1,4 +1,4 @@
-/* $Id: transport_srtp.c 3191 2010-06-02 09:32:42Z nanang $ */
+/* $Id: transport_srtp.c 3221 2010-06-24 08:46:12Z nanang $ */
 /* 
  * Copyright (C) 2008-2009 Teluu Inc. (http://www.teluu.com)
  * Copyright (C) 2003-2008 Benny Prijono <benny@prijono.org>
@@ -312,6 +312,7 @@ static void pjmedia_srtp_deinit_lib(void)
     libsrtp_initialized = PJ_FALSE;
 }
 
+
 static int get_crypto_idx(const pj_str_t* crypto_name)
 {
     int i;
@@ -328,6 +329,24 @@ static int get_crypto_idx(const pj_str_t* crypto_name)
 
     return -1;
 }
+
+
+static int srtp_crypto_cmp(const pjmedia_srtp_crypto* c1,
+			   const pjmedia_srtp_crypto* c2)
+{
+    int r;
+
+    r = pj_strcmp(&c1->key, &c2->key);
+    if (r != 0)
+	return r;
+
+    r = pj_stricmp(&c1->name, &c2->name);
+    if (r != 0)
+	return r;
+
+    return (c1->flags != c2->flags);
+}
+
 
 PJ_DEF(void) pjmedia_srtp_setting_default(pjmedia_srtp_setting *opt)
 {
@@ -1165,9 +1184,16 @@ static pj_status_t transport_encode_sdp(pjmedia_transport *tp,
 	goto BYPASS_SRTP;
 
     /* If the media is inactive, do nothing. */
+    /* No, we still need to process SRTP offer/answer even if the media is
+     * marked as inactive, because the transport is still alive in this
+     * case (e.g. for keep-alive). See:
+     *   http://trac.pjsip.org/repos/ticket/1079
+     */
+    /*
     if (pjmedia_sdp_media_find_attr(m_loc, &ID_INACTIVE, NULL) || 
 	(m_rem && pjmedia_sdp_media_find_attr(m_rem, &ID_INACTIVE, NULL)))
 	goto BYPASS_SRTP;
+    */
 
     /* Check remote media transport & set local media transport 
      * based on SRTP usage option.
@@ -1483,9 +1509,20 @@ static pj_status_t transport_media_start(pjmedia_transport *tp,
     srtp->probation_cnt = PROBATION_CNT_INIT;
 
     /* Got policy_local & policy_remote, let's initalize the SRTP */
-    status = pjmedia_transport_srtp_start(tp, &srtp->tx_policy_neg, &srtp->rx_policy_neg);
-    if (status != PJ_SUCCESS)
-	return status;
+
+    /* Ticket #1075: media_start() is called whenever media description
+     * gets updated, e.g: call hold, however we should restart SRTP only
+     * when the SRTP policy settings are updated.
+     */
+    if (srtp_crypto_cmp(&srtp->tx_policy_neg, &srtp->tx_policy) ||
+	srtp_crypto_cmp(&srtp->rx_policy_neg, &srtp->rx_policy))
+    {
+	status = pjmedia_transport_srtp_start(tp,
+					      &srtp->tx_policy_neg,
+					      &srtp->rx_policy_neg);
+	if (status != PJ_SUCCESS)
+	    return status;
+    }
 
     goto PROPAGATE_MEDIA_START;
 

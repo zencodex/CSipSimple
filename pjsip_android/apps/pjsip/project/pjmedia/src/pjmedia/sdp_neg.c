@@ -1,4 +1,4 @@
-/* $Id: sdp_neg.c 3198 2010-06-04 13:41:34Z nanang $ */
+/* $Id: sdp_neg.c 3217 2010-06-23 12:21:20Z bennylp $ */
 /* 
  * Copyright (C) 2008-2009 Teluu Inc. (http://www.teluu.com)
  * Copyright (C) 2003-2008 Benny Prijono <benny@prijono.org>
@@ -1390,7 +1390,8 @@ PJ_DEF(pj_status_t) pjmedia_sdp_neg_cancel_offer(pjmedia_sdp_neg *neg)
     PJ_ASSERT_RETURN(neg, PJ_EINVAL);
 
     /* Must be in LOCAL_OFFER state. */
-    PJ_ASSERT_RETURN(neg->state == PJMEDIA_SDP_NEG_STATE_LOCAL_OFFER,
+    PJ_ASSERT_RETURN(neg->state == PJMEDIA_SDP_NEG_STATE_LOCAL_OFFER ||
+		     neg->state == PJMEDIA_SDP_NEG_STATE_REMOTE_OFFER,
 		     PJMEDIA_SDPNEG_EINSTATE);
 
     /* Reset state to done */

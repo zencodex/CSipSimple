@@ -1,4 +1,4 @@
-/* $Id: pjsua_core.c 3172 2010-05-13 05:22:51Z nanang $ */
+/* $Id: pjsua_core.c 3216 2010-06-22 06:02:13Z bennylp $ */
 /* 
  * Copyright (C) 2008-2009 Teluu Inc. (http://www.teluu.com)
  * Copyright (C) 2003-2008 Benny Prijono <benny@prijono.org>
@@ -64,6 +64,7 @@ static void init_data()
     pjsua_var.stun_status = PJ_EUNKNOWN;
     pjsua_var.nat_status = PJ_EPENDING;
     pj_list_init(&pjsua_var.stun_res);
+    pj_list_init(&pjsua_var.outbound_proxy);
 
     pjsua_config_default(&pjsua_var.ua_cfg);
 }
@@ -178,6 +179,9 @@ PJ_DEF(void) pjsua_acc_config_default(pjsua_acc_config *cfg)
     cfg->srtp_optional_dup_offer = pjsua_var.ua_cfg.srtp_optional_dup_offer;
 #endif
     cfg->reg_retry_interval = PJSUA_REG_RETRY_INTERVAL;
+    cfg->contact_rewrite_method = PJSUA_CONTACT_REWRITE_METHOD;
+    cfg->reg_use_proxy = PJSUA_REG_USE_OUTBOUND_PROXY |
+			 PJSUA_REG_USE_ACC_PROXY;
 }
 
 PJ_DEF(void) pjsua_buddy_config_default(pjsua_buddy_config *cfg)
@@ -664,6 +668,7 @@ PJ_DEF(pj_status_t) pjsua_init( const pjsua_config *ua_cfg,
     pjsua_media_config	 default_media_cfg;
     const pj_str_t	 STR_OPTIONS = { "OPTIONS", 7 };
     pjsip_ua_init_param  ua_init_param;
+    unsigned i;
     pj_status_t status;
 
 
@@ -782,6 +787,36 @@ PJ_DEF(pj_status_t) pjsua_init( const pjsua_config *ua_cfg,
 	PJ_ASSERT_RETURN(status == PJ_SUCCESS, status);
     }
 
+    /* Parse outbound proxies */
+    for (i=0; i<ua_cfg->outbound_proxy_cnt; ++i) {
+	pj_str_t tmp;
+    	pj_str_t hname = { "Route", 5};
+	pjsip_route_hdr *r;
+
+	pj_strdup_with_null(pjsua_var.pool, &tmp, &ua_cfg->outbound_proxy[i]);
+
+	r = (pjsip_route_hdr*)
+	    pjsip_parse_hdr(pjsua_var.pool, &hname, tmp.ptr,
+			    (unsigned)tmp.slen, NULL);
+	if (r == NULL) {
+	    pjsua_perror(THIS_FILE, "Invalid outbound proxy URI",
+			 PJSIP_EINVALIDURI);
+	    return PJSIP_EINVALIDURI;
+	}
+
+	if (pjsua_var.ua_cfg.force_lr) {
+	    pjsip_sip_uri *sip_url;
+	    if (!PJSIP_URI_SCHEME_IS_SIP(r->name_addr.uri) &&
+		!PJSIP_URI_SCHEME_IS_SIP(r->name_addr.uri))
+	    {
+		return PJSIP_EINVALIDSCHEME;
+	    }
+	    sip_url = (pjsip_sip_uri*)r->name_addr.uri;
+	    sip_url->lr_param = 1;
+	}
+
+	pj_list_push_back(&pjsua_var.outbound_proxy, r);
+    }
     
 
     /* Initialize PJSUA call subsystem: */
