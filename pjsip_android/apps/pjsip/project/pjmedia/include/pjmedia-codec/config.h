@@ -1,4 +1,4 @@
-/* $Id: config.h 2875 2009-08-13 15:57:26Z bennylp $ */
+/* $Id: config.h 3202 2010-06-11 13:38:42Z nanang $ */
 /* 
  * Copyright (C) 2008-2009 Teluu Inc. (http://www.teluu.com)
  * Copyright (C) 2003-2008 Benny Prijono <benny@prijono.org>
@@ -94,6 +94,40 @@
  */
 #ifndef PJMEDIA_HAS_G722_CODEC
 #   define PJMEDIA_HAS_G722_CODEC    1
+#endif
+
+
+/**
+ * Default G.722 codec encoder and decoder level adjustment. The G.722
+ * specifies that it uses 14 bit PCM for input and output, while PJMEDIA
+ * normally uses 16 bit PCM, so the conversion is done by applying
+ * level adjustment. If the value is non-zero, then PCM input samples to
+ * the encoder will be shifted right by this value, and similarly PCM
+ * output samples from the decoder will be shifted left by this value.
+ *
+ * This can be changed at run-time after initialization by calling
+ * #pjmedia_codec_g722_set_pcm_shift().
+ *
+ * Default: 2.
+ */
+#ifndef PJMEDIA_G722_DEFAULT_PCM_SHIFT
+#   define PJMEDIA_G722_DEFAULT_PCM_SHIFT	    2
+#endif
+
+
+/**
+ * Specifies whether G.722 PCM shifting should be stopped when clipping
+ * detected in the decoder. Enabling this feature can be useful when
+ * talking to G.722 implementation that uses 16 bit PCM for G.722 input/
+ * output (for any reason it seems to work) and the PCM shifting causes
+ * audio clipping.
+ *
+ * See also #PJMEDIA_G722_DEFAULT_PCM_SHIFT.
+ *
+ * Default: enabled.
+ */
+#ifndef PJMEDIA_G722_STOP_PCM_SHIFT_ON_CLIPPING
+#   define PJMEDIA_G722_STOP_PCM_SHIFT_ON_CLIPPING  1
 #endif
 
 

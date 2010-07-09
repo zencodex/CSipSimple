@@ -1,4 +1,4 @@
-/* $Id: pjsua.h 3196 2010-06-03 10:41:32Z nanang $ */
+/* $Id: pjsua.h 3222 2010-06-24 12:33:18Z bennylp $ */
 /* 
  * Copyright (C) 2008-2009 Teluu Inc. (http://www.teluu.com)
  * Copyright (C) 2003-2008 Benny Prijono <benny@prijono.org>
@@ -304,6 +304,18 @@ typedef struct pjsua_msg_data pjsua_msg_data;
 #endif
 
 #endif
+
+/**
+ * Controls whether PJSUA-LIB should add ICE media feature tag
+ * parameter (the ";+sip.ice" parameter) to Contact header if ICE
+ * is enabled in the config.
+ *
+ * Default: 1
+ */
+#ifndef PJSUA_ADD_ICE_TAGS
+#   define PJSUA_ADD_ICE_TAGS		1
+#endif
+
 
 /**
  * Logging configuration, which can be (optionally) specified when calling
@@ -848,6 +860,19 @@ typedef struct pjsua_callback
      * #pjsip_tp_state_callback.
      */
     pjsip_tp_state_callback on_transport_state;
+
+    /**
+     * This callback is called to report error in ICE media transport.
+     * Currently it is used to report TURN Refresh error.
+     *
+     * @param index	Transport index.
+     * @param op	Operation which trigger the failure.
+     * @param status	Error status.
+     * @param param	Additional info about the event. Currently this will
+     * 			always be set to NULL.
+     */
+    void (*on_ice_transport_error)(int index, pj_ice_strans_op op,
+				   pj_status_t status, void *param);
 
 } pjsua_callback;
 
@@ -1887,6 +1912,44 @@ PJ_DECL(pj_status_t) pjsua_transport_close( pjsua_transport_id id,
 
 
 /**
+ * This macro specifies the default value for \a contact_rewrite_method
+ * field in pjsua_acc_config. I specifies  how Contact update will be
+ * done with the registration, if \a allow_contact_rewrite is enabled in
+ *  the account config.
+ *
+ * If set to 1, the Contact update will be done by sending unregistration
+ * to the currently registered Contact, while simultaneously sending new
+ * registration (with different Call-ID) for the updated Contact.
+ *
+ * If set to 2, the Contact update will be done in a single, current
+ * registration session, by removing the current binding (by setting its
+ * Contact's expires parameter to zero) and adding a new Contact binding,
+ * all done in a single request.
+ *
+ * Value 1 is the legacy behavior.
+ *
+ * Default value: 2
+ */
+#ifndef PJSUA_CONTACT_REWRITE_METHOD
+#   define PJSUA_CONTACT_REWRITE_METHOD		2
+#endif
+
+
+/**
+ * Bit value used in pjsua_acc_config.reg_use_proxy field to indicate that
+ * the global outbound proxy list should be added to the REGISTER request.
+ */
+#define PJSUA_REG_USE_OUTBOUND_PROXY		1
+
+
+/**
+ * Bit value used in pjsua_acc_config.reg_use_proxy field to indicate that
+ * the account proxy list should be added to the REGISTER request.
+ */
+#define PJSUA_REG_USE_ACC_PROXY			2
+
+
+/**
  * This structure describes account configuration to be specified when
  * adding a new account with #pjsua_acc_add(). Application MUST initialize
  * this structure first by calling #pjsua_acc_config_default().
@@ -2093,9 +2156,30 @@ typedef struct pjsua_acc_config
      * This will also update the public name of UDP transport if STUN is
      * configured. 
      *
+     * See also contact_rewrite_method field.
+     *
      * Default: 1 (yes)
      */
     pj_bool_t allow_contact_rewrite;
+
+    /**
+     * Specify how Contact update will be done with the registration, if
+     * \a allow_contact_rewrite is enabled.
+     *
+     * If set to 1, the Contact update will be done by sending unregistration
+     * to the currently registered Contact, while simultaneously sending new
+     * registration (with different Call-ID) for the updated Contact.
+     *
+     * If set to 2, the Contact update will be done in a single, current
+     * registration session, by removing the current binding (by setting its
+     * Contact's expires parameter to zero) and adding a new Contact binding,
+     * all done in a single request.
+     *
+     * Value 1 is the legacy behavior.
+     *
+     * Default value: PJSUA_CONTACT_REWRITE_METHOD (2)
+     */
+    int		     contact_rewrite_method;
 
     /**
      * Set the interval for periodic keep-alive transmission for this account.
@@ -2165,6 +2249,18 @@ typedef struct pjsua_acc_config
      * Default: PJ_FALSE (disabled)
      */
     pj_bool_t	     drop_calls_on_reg_fail;
+
+    /**
+     * Specify how the registration uses the outbound and account proxy
+     * settings. This controls if and what Route headers will appear in
+     * the REGISTER request of this account. The value is bitmask combination
+     * of PJSUA_REG_USE_OUTBOUND_PROXY and PJSUA_REG_USE_ACC_PROXY bits.
+     * If the value is set to 0, the REGISTER request will not use any proxy
+     * (i.e. it will not have any Route headers).
+     *
+     * Default: 3 (PJSUA_REG_USE_OUTBOUND_PROXY | PJSUA_REG_USE_ACC_PROXY)
+     */
+    unsigned	     reg_use_proxy;
 
 } pjsua_acc_config;
 

@@ -1,4 +1,4 @@
-/* $Id: pjsua_acc.c 3190 2010-06-02 03:03:43Z bennylp $ */
+/* $Id: pjsua_acc.c 3222 2010-06-24 12:33:18Z bennylp $ */
 /* 
  * Copyright (C) 2008-2009 Teluu Inc. (http://www.teluu.com)
  * Copyright (C) 2003-2008 Benny Prijono <benny@prijono.org>
@@ -22,7 +22,7 @@
 
 
 #define THIS_FILE		"pjsua_acc.c"
-#define NO_FREEPHONIE_HACK 0
+
 
 static void schedule_reregistration(pjsua_acc *acc);
 
@@ -199,21 +199,15 @@ static pj_status_t initialize_acc(unsigned acc_id)
      */
     pj_list_init(&acc->route_set);
 
-    for (i=0; i<pjsua_var.ua_cfg.outbound_proxy_cnt; ++i) {
-    	pj_str_t hname = { "Route", 5};
+    if (!pj_list_empty(&pjsua_var.outbound_proxy)) {
 	pjsip_route_hdr *r;
-	pj_str_t tmp;
 
-	pj_strdup_with_null(acc->pool, &tmp, 
-			    &pjsua_var.ua_cfg.outbound_proxy[i]);
-	r = (pjsip_route_hdr*)
-	    pjsip_parse_hdr(acc->pool, &hname, tmp.ptr, tmp.slen, NULL);
-	if (r == NULL) {
-	    pjsua_perror(THIS_FILE, "Invalid outbound proxy URI",
-			 PJSIP_EINVALIDURI);
-	    return PJSIP_EINVALIDURI;
+	r = pjsua_var.outbound_proxy.next;
+	while (r != &pjsua_var.outbound_proxy) {
+	    pj_list_push_back(&acc->route_set,
+			      pjsip_hdr_shallow_clone(acc->pool, r));
+	    r = r->next;
 	}
-	pj_list_push_back(&acc->route_set, r);
     }
 
     for (i=0; i<acc_cfg->proxy_cnt; ++i) {
@@ -242,6 +236,22 @@ static pj_status_t initialize_acc(unsigned acc_id)
     {
 	acc->cred[acc->cred_cnt++] = pjsua_var.ua_cfg.cred_info[i];
     }
+
+    /* If ICE is enabled, add "+sip.ice" media feature tag in account's
+     * contact params.
+     */
+#if PJSUA_ADD_ICE_TAGS
+    if (pjsua_var.media_cfg.enable_ice) {
+	unsigned new_len;
+	pj_str_t new_prm;
+
+	new_len = acc_cfg->contact_params.slen + 10;
+	new_prm.ptr = (char*)pj_pool_alloc(acc->pool, new_len);
+	pj_strcpy(&new_prm, &acc_cfg->contact_params);
+	pj_strcat2(&new_prm, ";+sip.ice");
+	acc_cfg->contact_params = new_prm;
+    }
+#endif
 
     status = pjsua_pres_init_acc(acc_id);
     if (status != PJ_SUCCESS)
@@ -602,24 +612,14 @@ PJ_DEF(pj_status_t) pjsua_acc_modify( pjsua_acc_id acc_id,
 				      pjsua_var.ua_cfg.outbound_proxy_cnt);
     if (global_route_crc != acc->global_route_crc) {
 	pjsip_route_hdr *r;
-	unsigned i;
 
-	/* Validate the global route and save it to temporary var */
+	/* Copy from global outbound proxies */
 	pj_list_init(&global_route);
-	for (i=0; i < pjsua_var.ua_cfg.outbound_proxy_cnt; ++i) {
-    	    pj_str_t hname = { "Route", 5};
-	    pj_str_t tmp;
-
-	    pj_strdup_with_null(acc->pool, &tmp, 
-				&pjsua_var.ua_cfg.outbound_proxy[i]);
-	    r = (pjsip_route_hdr*)
-		pjsip_parse_hdr(acc->pool, &hname, tmp.ptr, tmp.slen, NULL);
-	    if (r == NULL) {
-		status = PJSIP_EINVALIDURI;
-		pjsua_perror(THIS_FILE, "Invalid outbound proxy URI", status);
-		goto on_return;
-	    }
-	    pj_list_push_back(&global_route, r);
+	r = pjsua_var.outbound_proxy.next;
+	while (r != &pjsua_var.outbound_proxy) {
+	    pj_list_push_back(&global_route,
+		              pjsip_hdr_shallow_clone(acc->pool, r));
+	    r = r->next;
 	}
     }
 
@@ -1098,26 +1098,33 @@ static pj_bool_t acc_check_nat_addr(pjsua_acc *acc,
     }
 
     PJ_LOG(3,(THIS_FILE, "IP address change detected for account %d "
-			 "(%.*s:%d --> %.*s:%d). Updating registration..",
+			 "(%.*s:%d --> %.*s:%d). Updating registration "
+			 "(using method %d)",
 			 acc->index,
 			 (int)uri->host.slen,
 			 uri->host.ptr,
 			 uri->port,
 			 (int)via_addr->slen,
 			 via_addr->ptr,
-			 rport));
+			 rport,
+			 acc->cfg.contact_rewrite_method));
 
-    /* Unregister current contact */
-    pjsua_acc_set_registration(acc->index, PJ_FALSE);
-    if (acc->regc != NULL) {
-#if NO_FREEPHONIE_HACK
-	pjsip_regc_destroy(acc->regc);
-	acc->regc = NULL;
-#endif
-	acc->contact.slen = 0;
+    pj_assert(acc->cfg.contact_rewrite_method == 1 ||
+	      acc->cfg.contact_rewrite_method == 2);
+
+    if (acc->cfg.contact_rewrite_method == 1) {
+	/* Unregister current contact */
+	pjsua_acc_set_registration(acc->index, PJ_FALSE);
+	if (acc->regc != NULL) {
+	    pjsip_regc_destroy(acc->regc);
+	    acc->regc = NULL;
+	    acc->contact.slen = 0;
+	}
     }
 
-    /* Update account's Contact header */
+    /*
+     * Build new Contact header
+     */
     {
 	char *tmp;
 	const char *beginquote, *endquote;
@@ -1153,38 +1160,24 @@ static pj_bool_t acc_check_nat_addr(pjsua_acc *acc,
 	    return PJ_FALSE;
 	}
 	pj_strdup2_with_null(acc->pool, &acc->contact, tmp);
+
+	/* Always update, by http://trac.pjsip.org/repos/ticket/864. */
+	pj_strdup_with_null(tp->pool, &tp->local_name.host, via_addr);
+	tp->local_name.port = rport;
+
     }
 
-    /* Always update, by http://trac.pjsip.org/repos/ticket/864. */
-    pj_strdup_with_null(tp->pool, &tp->local_name.host, via_addr);
-    tp->local_name.port = rport;
+    if (acc->cfg.contact_rewrite_method == 2 && acc->regc != NULL) {
+	pjsip_regc_update_contact(acc->regc, 1, &acc->contact);
+    }
 
     /* Perform new registration */
-#if NO_FREEPHONIE_HACK
     pjsua_acc_set_registration(acc->index, PJ_TRUE);
-#else
-    acc->has_pending_nat_unregistration = PJ_TRUE;
-#endif
 
     pj_pool_release(pool);
 
     return PJ_TRUE;
 }
-
-#if !NO_FREEPHONIE_HACK
-static pj_bool_t acc_finalize_nat_addr(pjsua_acc *acc,
-				    struct pjsip_regc_cbparam *param)
-{
-	acc->has_pending_nat_unregistration = PJ_FALSE;
-	if (acc->regc != NULL) {
-		pjsip_regc_destroy(acc->regc);
-		acc->regc = NULL;
-		//acc->contact.slen = 0;
-	}
-	pjsua_acc_set_registration(acc->index, PJ_TRUE);
-	return PJ_TRUE;
-}
-#endif
 
 /* Check and update Service-Route header */
 void update_service_route(pjsua_acc *acc, pjsip_rx_data *rdata)
@@ -1463,15 +1456,6 @@ static void regc_cb(struct pjsip_regc_cbparam *param)
 
 	    PJ_LOG(3,(THIS_FILE, "%s: unregistration success",
 		      pjsua_var.acc[acc->index].cfg.id.ptr));
-#if !NO_FREEPHONIE_HACK
-	    if(pjsua_var.acc[acc->index].has_pending_nat_unregistration == PJ_TRUE){
-	    	 PJ_LOG(3, (THIS_FILE, "Treat pending nat re-registartion"));
-	    	acc_finalize_nat_addr(acc, param);
-	    	/* Update address, don't notify application yet */
-	    	PJSUA_UNLOCK();
-	    	return;
-	    }
-#endif
 	} else {
 	    /* Check NAT bound address */
 	    if (acc_check_nat_addr(acc, param)) {
@@ -1626,8 +1610,36 @@ static pj_status_t pjsua_regc_init(int acc_id)
 
     /* Set route-set
      */
-    if (!pj_list_empty(&acc->route_set)) {
-	pjsip_regc_set_route_set( acc->regc, &acc->route_set );
+    if (acc->cfg.reg_use_proxy) {
+	pjsip_route_hdr route_set;
+	const pjsip_route_hdr *r;
+
+	pj_list_init(&route_set);
+
+	if (acc->cfg.reg_use_proxy & PJSUA_REG_USE_OUTBOUND_PROXY) {
+	    r = pjsua_var.outbound_proxy.next;
+	    while (r != &pjsua_var.outbound_proxy) {
+		pj_list_push_back(&route_set, pjsip_hdr_shallow_clone(pool, r));
+		r = r->next;
+	    }
+	}
+
+	if (acc->cfg.reg_use_proxy & PJSUA_REG_USE_ACC_PROXY &&
+	    acc->cfg.proxy_cnt)
+	{
+	    int cnt = acc->cfg.proxy_cnt;
+	    pjsip_route_hdr *pos = route_set.prev;
+	    int i;
+
+	    r = acc->route_set.prev;
+	    for (i=0; i<cnt; ++i) {
+		pj_list_push_front(pos, pjsip_hdr_shallow_clone(pool, r));
+		r = r->prev;
+	    }
+	}
+
+	if (!pj_list_empty(&route_set))
+	    pjsip_regc_set_route_set( acc->regc, &route_set );
     }
 
     /* Add other request headers. */
@@ -2148,7 +2160,7 @@ PJ_DEF(pj_status_t) pjsua_acc_create_uac_contact( pj_pool_t *pool,
 	tp_type = PJSIP_TRANSPORT_UDP;
     } else
 	tp_type = pjsip_transport_get_type_from_name(&sip_uri->transport_param);
-
+    
     if (tp_type == PJSIP_TRANSPORT_UNSPECIFIED)
 	return PJSIP_EUNSUPTRANSPORT;
 

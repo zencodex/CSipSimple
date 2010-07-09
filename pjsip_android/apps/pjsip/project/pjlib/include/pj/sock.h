@@ -1,4 +1,4 @@
-/* $Id: sock.h 2966 2009-10-25 09:02:07Z bennylp $ */
+/* $Id: sock.h 3145 2010-04-26 07:08:53Z bennylp $ */
 /* 
  * Copyright (C) 2008-2009 Teluu Inc. (http://www.teluu.com)
  * Copyright (C) 2003-2008 Benny Prijono <benny@prijono.org>
@@ -527,8 +527,10 @@ typedef union pj_in6_addr
 
     /* Do not use this with Winsock2, as this will align pj_sockaddr_in6
      * to 64-bit boundary and Winsock2 doesn't like it!
+     * Update 26/04/2010:
+     *  This is now disabled, see http://trac.pjsip.org/repos/ticket/1058
      */
-#if defined(PJ_HAS_INT64) && PJ_HAS_INT64!=0 && \
+#if 0 && defined(PJ_HAS_INT64) && PJ_HAS_INT64!=0 && \
     (!defined(PJ_WIN32) || PJ_WIN32==0)
     pj_int64_t	u6_addr64[2];
 #endif

@@ -206,7 +206,15 @@ static int PJ_THREAD_FUNC AndroidRecorderCallback(void* userData){
 			frame.bit_info = 0;
 			frame.buf = (void*) stream->rec_buf;
 			frame.timestamp.u64 = stream->rec_timestamp.u64;
+
+		//	PJ_LOG(3, (THIS_FILE, "New audio record frame to treat : %d <size : %d>", frame.type, frame.size));
+
 			status = (*stream->rec_cb)(stream->user_data, &frame);
+			if (status != PJ_SUCCESS){
+				PJ_LOG(1, (THIS_FILE, "Error in record callback"));
+				goto on_finish;
+			}
+
 
 			//Update for next step
 			stream->rec_timestamp.u64 += stream->samples_per_frame / stream->channel_count;
@@ -216,7 +224,8 @@ static int PJ_THREAD_FUNC AndroidRecorderCallback(void* userData){
 	};
 
 
-	jni_env->DeleteLocalRef(inputBuffer);
+	on_finish:
+		jni_env->DeleteLocalRef(inputBuffer);
 
 	on_break:
 		stream->jvm->DetachCurrentThread();
@@ -283,16 +292,21 @@ static int PJ_THREAD_FUNC AndroidTrackCallback(void* userData){
 
 		if (frame.type != PJMEDIA_FRAME_TYPE_AUDIO){
 			pj_bzero(frame.buf, frame.size);
+			PJ_LOG(3, (THIS_FILE, "Hey, not an audio frame !!!"));
+			continue;
 		}
 
-		//Write to the device output
-		jni_env->SetByteArrayRegion(outputBuffer, 0, frameSize, (jbyte*)stream->play_buf);
+	//	PJ_LOG(3, (THIS_FILE, "New audio track frame to treat : %d <size : %d>", frame.type, frame.size));
 
+		//Write to the java buffer
+		jni_env->SetByteArrayRegion(outputBuffer, 0, frame.size, (jbyte*)frame.buf);
+
+		//Write to the device output
 		status = jni_env->CallIntMethod(stream->track, write_method,
 				outputBuffer,
 				0,
-				frameSize);
-
+				frame.size);
+		//PJ_LOG(3, (THIS_FILE, "Written"));
 		if(status < 0){
 			PJ_LOG(1, (THIS_FILE, "Error while writing %d ", status));
 			goto on_finish;
@@ -539,7 +553,7 @@ static pj_status_t android_create_stream(pjmedia_aud_dev_factory *f,
 			PJ_LOG(2, (THIS_FILE, "Min buffer size is not a valid value"));
 			goto on_error;
 		}
-		PJ_LOG(3, (THIS_FILE, "Min buffer %d %d", inputBuffSize, inputBuffSize <= 0));
+		PJ_LOG(3, (THIS_FILE, "Min buffer %d", inputBuffSize));
 
 
 
@@ -608,7 +622,7 @@ static pj_status_t android_create_stream(pjmedia_aud_dev_factory *f,
 					param->clock_rate,
 					2, // CHANNEL_CONFIGURATION_MONO
 					sampleFormat,
-					inputBuffSize,
+					inputBuffSize /**2*/,
 					1); // MODE_STREAM
 
 

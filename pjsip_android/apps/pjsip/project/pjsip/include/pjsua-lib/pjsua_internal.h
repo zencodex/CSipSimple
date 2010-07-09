@@ -1,4 +1,4 @@
-/* $Id: pjsua_internal.h 3144 2010-04-20 14:36:38Z nanang $ */
+/* $Id: pjsua_internal.h 3216 2010-06-22 06:02:13Z bennylp $ */
 /* 
  * Copyright (C) 2008-2009 Teluu Inc. (http://www.teluu.com)
  * Copyright (C) 2003-2008 Benny Prijono <benny@prijono.org>
@@ -90,6 +90,12 @@ typedef struct pjsua_call
 
     char    last_text_buf_[128];    /**< Buffer for last_text.		    */
 
+    struct {
+	pj_timer_entry	 reinv_timer;/**< Reinvite retry timer.		    */
+	pjmedia_sdp_session *new_sdp;/**< The new SDP offer.		    */
+    } lock_codec;		     /**< Data for codec locking when answer
+					  contains multiple codecs.	    */
+
 } pjsua_call;
 
 
@@ -155,8 +161,6 @@ typedef struct pjsua_acc
 
     pjsip_evsub	    *mwi_sub;	    /**< MWI client subscription	*/
     pjsip_dialog    *mwi_dlg;	    /**< Dialog for MWI sub.		*/
-
-    pj_bool_t		 has_pending_nat_unregistration; /**< If has a pending unregistration due to ip changed dectection */
 } pjsua_acc;
 
 
@@ -280,6 +284,9 @@ struct pjsua_data
     pj_stun_nat_type	 nat_type;	/**< NAT type.			*/
     pj_status_t		 nat_status;	/**< Detection status.		*/
     pj_bool_t		 nat_in_progress; /**< Detection in progress	*/
+
+    /* List of outbound proxies: */
+    pjsip_route_hdr	 outbound_proxy;
 
     /* Account: */
     unsigned		 acc_cnt;	     /**< Number of accounts.	*/

@@ -1,4 +1,4 @@
-/* $Id: pjsua_media.c 3198 2010-06-04 13:41:34Z nanang $ */
+/* $Id: pjsua_media.c 3219 2010-06-23 12:38:28Z bennylp $ */
 /* 
  * Copyright (C) 2008-2009 Teluu Inc. (http://www.teluu.com)
  * Copyright (C) 2003-2008 Benny Prijono <benny@prijono.org>
@@ -855,11 +855,36 @@ static void on_ice_complete(pjmedia_transport *tp,
 		pj_sockaddr_cmp(&tpinfo.sock_info.rtp_addr_name,
 				&pjsua_var.calls[id].med_rtp_addr))
 	    {
+		pj_bool_t use_update;
+		const pj_str_t STR_UPDATE = { "UPDATE", 6 };
+		pjsip_dialog_cap_status support_update;
+		pjsip_dialog *dlg;
+
+		dlg = pjsua_var.calls[id].inv->dlg;
+		support_update = pjsip_dlg_remote_has_cap(dlg, PJSIP_H_ALLOW,
+							  NULL, &STR_UPDATE);
+		use_update = (support_update == PJSIP_DIALOG_CAP_SUPPORTED);
+
 		PJ_LOG(4,(THIS_FILE, 
 		          "ICE default transport address has changed for "
-			  "call %d, sending UPDATE", id));
-		pjsua_call_update(id, 0, NULL);
+			  "call %d, sending %s", id,
+			  (use_update ? "UPDATE" : "re-INVITE")));
+
+		if (use_update)
+		    pjsua_call_update(id, 0, NULL);
+		else
+		    pjsua_call_reinvite(id, 0, NULL);
 	    }
+	}
+	break;
+    case PJ_ICE_STRANS_OP_KEEP_ALIVE:
+	if (result != PJ_SUCCESS) {
+	    PJ_PERROR(4,(THIS_FILE, result,
+		         "ICE keep alive failure for transport %d", id));
+	}
+	if (pjsua_var.ua_cfg.cb.on_ice_transport_error) {
+	    (*pjsua_var.ua_cfg.cb.on_ice_transport_error)(id, op, result,
+							  NULL);
 	}
 	break;
     }
@@ -1532,6 +1557,11 @@ pj_status_t pjsua_media_channel_update(pjsua_call_id call_id,
 	/* Call media direction */
 	call->media_dir = PJMEDIA_DIR_NONE;
 
+	/* Don't stop transport because we need to transmit keep-alives, and
+	 * also to prevent restarting ICE negotiation. See
+	 *  http://trac.pjsip.org/repos/ticket/1094
+	 */
+#if 0
 	/* Shutdown transport's session */
 	pjmedia_transport_media_stop(call->med_tp);
 	call->med_tp_st = PJSUA_MED_TP_IDLE;
@@ -1543,6 +1573,7 @@ pj_status_t pjsua_media_channel_update(pjsua_call_id call_id,
 	    pjmedia_transport_close(call->med_tp);
 	    call->med_tp = call->med_orig;
 	}
+#endif
 
     } else {
 	pjmedia_transport_info tp_info;

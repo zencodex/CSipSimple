@@ -1,4 +1,4 @@
-/* $Id: string.c 2394 2008-12-23 17:27:53Z bennylp $ */
+/* $Id: string.c 3207 2010-06-16 14:49:37Z bennylp $ */
 /* 
  * Copyright (C) 2008-2009 Teluu Inc. (http://www.teluu.com)
  * Copyright (C) 2003-2008 Benny Prijono <benny@prijono.org>
@@ -69,8 +69,9 @@ PJ_DEF(char*) pj_stristr(const pj_str_t *str, const pj_str_t *substr)
 
 PJ_DEF(pj_str_t*) pj_strltrim( pj_str_t *str )
 {
+    char *end = str->ptr + str->slen;
     register char *p = str->ptr;
-    while (pj_isspace(*p))
+    while (p < end && pj_isspace(*p))
 	++p;
     str->slen -= (p - str->ptr);
     str->ptr = p;
