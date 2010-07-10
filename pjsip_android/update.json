@@ -4,28 +4,6 @@
 {
 	"sip_core" : [
 		{
-			"id": "android-archos",
-			"filters" : {
-				"android.os.Build$VERSION" : {
-					"SDK" : "^4$"
-				},
-				"android.os.Build" : {
-					"MANUFACTURER" : "^archos$"
-				}
-			},
-			"versions":[
-				{
-					"version" : "0.00-11",
-					"download_url" : "http://csipsimple.googlecode.com/files/android-4_libpjsipjni-0.00-10.so.gz",
-					"changelog" : "Fetedusip release"
-					
-				}
-			],
-			"label" : "CSipSimple build",
-			"description" : "PjSip for android armeabi devices",
-			"autoconf" : {}
-		},
-		{
 			"id": "android-armeabi",
 			"filters" : {
 				"android.os.Build$VERSION" : {
@@ -34,8 +12,8 @@
 			},
 			"versions":[
 				{
-					"version" : "0.00-11",
-					"download_url" : "http://csipsimple.googlecode.com/files/android-armeabi_libpjsipjni-0.00-11.so.gz",
+					"version" : "0.00-12",
+					"download_url" : "http://csipsimple.googlecode.com/files/android-armeabi_libpjsipjni-0.00-12.so.gz",
 					"changelog" : "Fetedusip release"
 					
 				}
