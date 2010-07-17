@@ -10898,36 +10898,36 @@ SWIGEXPORT void JNICALL Java_org_pjsip_pjsua_pjsuaJNI_call_1hangup_1all(JNIEnv *
 }
 
 
-SWIGEXPORT jint JNICALL Java_org_pjsip_pjsua_pjsuaJNI_call_1dump(JNIEnv *jenv, jclass jcls, jint jarg1, jint jarg2, jstring jarg3, jlong jarg4, jstring jarg5) {
-  jint jresult = 0 ;
+SWIGEXPORT jstring JNICALL Java_org_pjsip_pjsua_pjsuaJNI_call_1dump(JNIEnv *jenv, jclass jcls, jint jarg1, jint jarg2, jstring jarg5) {
+  jstring jresult ;
   pjsua_call_id arg1 ;
   pj_bool_t arg2 ;
-  char *arg3 = (char *) 0 ;
-  unsigned int arg4 ;
   char *arg5 = (char *) 0 ;
-  pj_status_t result;
   
   (void)jenv;
   (void)jcls;
+
+  char some_buf[1024 * 4];
+
   arg1 = (pjsua_call_id)jarg1; 
   arg2 = (pj_bool_t)jarg2; 
-  arg3 = 0;
-  if (jarg3) {
-    arg3 = (char *)jenv->GetStringUTFChars(jarg3, 0);
-    if (!arg3) return 0;
-  }
-  arg4 = (unsigned int)jarg4; 
+
   arg5 = 0;
   if (jarg5) {
     arg5 = (char *)jenv->GetStringUTFChars(jarg5, 0);
     if (!arg5) return 0;
   }
-  result = (pj_status_t)pjsua_call_dump(arg1,arg2,arg3,arg4,(char const *)arg5);
-  jresult = (jint)result; 
-  if (arg3) jenv->ReleaseStringUTFChars(jarg3, (const char *)arg3);
+
+  (pj_status_t)pjsua_call_dump(arg1,arg2,some_buf,sizeof(some_buf),(char const *)arg5);
+
   if (arg5) jenv->ReleaseStringUTFChars(jarg5, (const char *)arg5);
+
+
+  if(some_buf) jresult = jenv->NewStringUTF((const char *)some_buf);
   return jresult;
 }
+
+
 
 
 SWIGEXPORT jint JNICALL Java_org_pjsip_pjsua_pjsuaJNI_PJSUA_1MAX_1BUDDIES_1get(JNIEnv *jenv, jclass jcls) {
@@ -14261,7 +14261,7 @@ JNIEXPORT jint JNI_OnLoad(JavaVM *vm, void *reserved) {
 			{"call_send_typing_ind", "(IIJLorg/pjsip/pjsua/pjsua_msg_data;)I", (void*)& Java_org_pjsip_pjsua_pjsuaJNI_call_1send_1typing_1ind},
 			{"call_send_request", "(IJLorg/pjsip/pjsua/pj_str_t;JLorg/pjsip/pjsua/pjsua_msg_data;)I", (void*)& Java_org_pjsip_pjsua_pjsuaJNI_call_1send_1request},
 			{"call_hangup_all", "()V", (void*)& Java_org_pjsip_pjsua_pjsuaJNI_call_1hangup_1all},
-			{"call_dump", "(IILjava/lang/String;JLjava/lang/String;)I", (void*)& Java_org_pjsip_pjsua_pjsuaJNI_call_1dump},
+			{"call_dump", "(IILjava/lang/String;)Ljava/lang/String;", (void*)& Java_org_pjsip_pjsua_pjsuaJNI_call_1dump},
 			{"PJSUA_MAX_BUDDIES_get", "()I", (void*)& Java_org_pjsip_pjsua_pjsuaJNI_PJSUA_1MAX_1BUDDIES_1get},
 			{"PJSUA_PRES_TIMER_get", "()I", (void*)& Java_org_pjsip_pjsua_pjsuaJNI_PJSUA_1PRES_1TIMER_1get},
 			{"pjsua_buddy_config_uri_set", "(JLorg/pjsip/pjsua/pjsua_buddy_config;JLorg/pjsip/pjsua/pj_str_t;)V", (void*)& Java_org_pjsip_pjsua_pjsuaJNI_pjsua_1buddy_1config_1uri_1set},
