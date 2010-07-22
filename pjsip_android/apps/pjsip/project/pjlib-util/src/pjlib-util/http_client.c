@@ -1,4 +1,4 @@
-/* $Id: http_client.c 3229 2010-06-29 17:06:01Z ming $ */
+/* $Id: http_client.c 3236 2010-07-13 13:18:08Z ming $ */
 /* 
  * Copyright (C) 2008-2010 Teluu Inc. (http://www.teluu.com)
  *
@@ -881,8 +881,8 @@ static pj_status_t http_req_start_sending(pj_http_req *hreq)
                      get_protocol(&hreq->hurl.protocol), 
                      STR_PREC(hreq->param.version));
         /* Header field "Host" */
-        str_snprintf(&pkt, BUF_SIZE, PJ_TRUE, "Host: %.*s\n",
-                     STR_PREC(hreq->hurl.host));
+        str_snprintf(&pkt, BUF_SIZE, PJ_TRUE, "Host: %.*s:%d\n",
+                     STR_PREC(hreq->hurl.host), hreq->hurl.port);
         if (!pj_strcmp2(&hreq->param.method, http_method_names[HTTP_PUT])) {
             char buf[16];
 

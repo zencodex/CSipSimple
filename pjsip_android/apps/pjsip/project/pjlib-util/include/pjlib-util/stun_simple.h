@@ -1,4 +1,4 @@
-/* $Id: stun_simple.h 2394 2008-12-23 17:27:53Z bennylp $ */
+/* $Id: stun_simple.h 3235 2010-07-06 08:11:04Z nanang $ */
 /* 
  * Copyright (C) 2008-2009 Teluu Inc. (http://www.teluu.com)
  * Copyright (C) 2003-2008 Benny Prijono <benny@prijono.org>
@@ -60,7 +60,8 @@ typedef enum pjstun_attr_type
     PJSTUN_ATTR_MESSAGE_INTEGRITY,
     PJSTUN_ATTR_ERROR_CODE,
     PJSTUN_ATTR_UNKNOWN_ATTRIBUTES,
-    PJSTUN_ATTR_REFLECTED_FORM
+    PJSTUN_ATTR_REFLECTED_FROM,
+    PJSTUN_ATTR_XOR_MAPPED_ADDR = 0x0020
 } pjstun_attr_type;
 
 

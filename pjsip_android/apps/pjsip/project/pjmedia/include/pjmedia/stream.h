@@ -1,4 +1,4 @@
-/* $Id: stream.h 2844 2009-07-29 12:14:21Z bennylp $ */
+/* $Id: stream.h 3237 2010-07-15 10:18:59Z nanang $ */
 /* 
  * Copyright (C) 2008-2009 Teluu Inc. (http://www.teluu.com)
  * Copyright (C) 2003-2008 Benny Prijono <benny@prijono.org>
@@ -225,6 +225,17 @@ PJ_DECL(pj_status_t) pjmedia_stream_start(pjmedia_stream *stream);
  */
 PJ_DECL(pj_status_t) pjmedia_stream_get_stat( const pjmedia_stream *stream,
 					      pjmedia_rtcp_stat *stat);
+
+
+/**
+ * Reset the stream statistics.
+ *
+ * @param stream	The media stream.
+ *
+ * @return		PJ_SUCCESS on success.
+ */
+PJ_DECL(pj_status_t) pjmedia_stream_reset_stat(pjmedia_stream *stream);
+
 
 #if defined(PJMEDIA_HAS_RTCP_XR) && (PJMEDIA_HAS_RTCP_XR != 0)
 /**

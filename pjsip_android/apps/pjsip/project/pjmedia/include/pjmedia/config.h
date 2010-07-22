@@ -1,4 +1,4 @@
-/* $Id: config.h 3067 2010-01-21 08:39:14Z bennylp $ */
+/* $Id: config.h 3239 2010-07-15 14:45:47Z nanang $ */
 /* 
  * Copyright (C) 2008-2009 Teluu Inc. (http://www.teluu.com)
  * Copyright (C) 2003-2008 Benny Prijono <benny@prijono.org>
@@ -429,6 +429,35 @@
 #ifndef PJMEDIA_RTCP_IGNORE_FIRST_PACKETS
 #   define  PJMEDIA_RTCP_IGNORE_FIRST_PACKETS	25
 #endif
+
+
+/**
+ * Specify whether RTCP statistics includes raw jitter statistics.
+ * Raw jitter is defined as absolute value of network transit time
+ * difference of two consecutive packets; refering to "difference D"
+ * term in interarrival jitter calculation in RFC 3550 section 6.4.1.
+ *
+ * Default: 0 (no).
+ */
+#ifndef PJMEDIA_RTCP_STAT_HAS_RAW_JITTER
+#   define PJMEDIA_RTCP_STAT_HAS_RAW_JITTER	0
+#endif
+
+
+/**
+ * Specify whether RTCP statistics includes IP Delay Variation statistics.
+ * IPDV is defined as network transit time difference of two consecutive
+ * packets. The IPDV statistic can be useful to inspect clock skew existance
+ * and level, e.g: when the IPDV mean values were stable in positive numbers,
+ * then the remote clock (used in sending RTP packets) is faster than local
+ * system clock. Ideally, the IPDV mean values are always equal to 0.
+ *
+ * Default: 0 (no).
+ */
+#ifndef PJMEDIA_RTCP_STAT_HAS_IPDV
+#   define PJMEDIA_RTCP_STAT_HAS_IPDV		0
+#endif
+
 
 /**
  * Specify whether RTCP XR support should be built into PJMEDIA. Disabling

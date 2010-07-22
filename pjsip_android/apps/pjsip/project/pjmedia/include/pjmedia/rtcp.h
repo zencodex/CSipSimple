@@ -1,4 +1,4 @@
-/* $Id: rtcp.h 3224 2010-06-26 04:43:50Z nanang $ */
+/* $Id: rtcp.h 3239 2010-07-15 14:45:47Z nanang $ */
 /* 
  * Copyright (C) 2008-2009 Teluu Inc. (http://www.teluu.com)
  * Copyright (C) 2003-2008 Benny Prijono <benny@prijono.org>
@@ -214,6 +214,18 @@ struct pjmedia_rtcp_stat
 
     pj_uint32_t		     rtp_tx_last_ts; /**< Last TX RTP timestamp.    */
     pj_uint16_t		     rtp_tx_last_seq;/**< Last TX RTP sequence.	    */
+
+#if defined(PJMEDIA_RTCP_STAT_HAS_IPDV) && PJMEDIA_RTCP_STAT_HAS_IPDV!=0
+    pj_math_stat	     rx_ipdv;/**< Statistics of IP packet delay
+				          variation in receiving direction
+					  (in usec).			    */
+#endif
+
+#if defined(PJMEDIA_RTCP_STAT_HAS_RAW_JITTER) && PJMEDIA_RTCP_STAT_HAS_RAW_JITTER!=0
+    pj_math_stat	     rx_raw_jitter;/**< Statistic of raw jitter in
+						receiving direction 
+						(in usec).		    */
+#endif
 };
 
 
@@ -294,6 +306,14 @@ typedef struct pjmedia_rtcp_session_setting
  */
 PJ_DECL(void) pjmedia_rtcp_session_setting_default(
 				    pjmedia_rtcp_session_setting *settings);
+
+
+/**
+ * Initialize bidirectional RTCP statistics.
+ *
+ * @param stat		    The bidirectional RTCP statistics.
+ */
+PJ_DECL(void) pjmedia_rtcp_init_stat(pjmedia_rtcp_stat *stat);
 
 
 /**

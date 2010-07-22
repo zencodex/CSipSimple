@@ -104,6 +104,8 @@ struct android_aud_stream
 	pj_thread_t *play_thread;
 	jbyte *play_buf;
 
+	jclass ua_class;
+
 };
 
 /* Factory prototypes */
@@ -219,7 +221,7 @@ static int PJ_THREAD_FUNC AndroidRecorderCallback(void* userData){
 			//Update for next step
 			stream->rec_timestamp.u64 += stream->samples_per_frame / stream->channel_count;
 		}else{
-			PJ_LOG(1, (THIS_FILE, "Overrun..."));
+			PJ_LOG(3, (THIS_FILE, "Overrun..."));
 		}
 	};
 
@@ -636,6 +638,13 @@ static pj_status_t android_create_stream(pjmedia_aud_dev_factory *f,
 
 	}
 
+
+	stream->ua_class = (jclass)jni_env->NewGlobalRef(jni_env->FindClass("com/csipsimple/service/SipService"));
+	if (stream->ua_class == 0) {
+		PJ_LOG(1, (THIS_FILE, "Not able to find sipservice class"));
+		goto on_error;
+	}
+
 	//OK, done
 	*p_aud_strm = &stream->base;
 	(*p_aud_strm)->op = &android_strm_op;
@@ -716,14 +725,30 @@ static pj_status_t strm_start(pjmedia_aud_stream *s)
 		return PJ_ENOMEM;
 	}
 
+	//Set media in call
+	{
 
+		jmethodID setincall_method = jni_env->GetStaticMethodID(stream->ua_class, "setAudioInCall", "()V");
+		if(setincall_method == 0){
+			return PJ_ENOMEM;
+		}
+		jni_env->CallStaticVoidMethod(stream->ua_class, setincall_method);
+	}
+
+	//Call play methods
 	pj_status_t status;
 	if(stream->record){
 		jmethodID record_method = jni_env->GetMethodID(stream->record_class,"startRecording", "()V");
-
 		jni_env->CallVoidMethod(stream->record, record_method);
-		PJ_LOG(3, (THIS_FILE, "Recorder is : %x ", stream->record));
+	}
 
+	if(stream->track){
+		jmethodID play_method = jni_env->GetMethodID(stream->track_class,"play", "()V");
+		jni_env->CallVoidMethod(stream->track, play_method);
+	}
+
+	//Start threads
+	if(stream->record){
 		status = pj_thread_create(stream->pool, "android_recorder", &AndroidRecorderCallback, stream, 0, 0,  &stream->rec_thread);
 		if (status != PJ_SUCCESS) {
 			strm_destroy(&stream->base);
@@ -732,17 +757,12 @@ static pj_status_t strm_start(pjmedia_aud_stream *s)
 	}
 
 	if(stream->track){
-		jmethodID play_method = jni_env->GetMethodID(stream->track_class,"play", "()V");
-		jni_env->CallVoidMethod(stream->track, play_method);
-
 		status = pj_thread_create(stream->pool, "android_track", &AndroidTrackCallback, stream, 0, 0,  &stream->play_thread);
 		if (status != PJ_SUCCESS) {
 			strm_destroy(&stream->base);
 			return status;
 		}
 	}
-
-
 
 	PJ_LOG(4,(THIS_FILE, "Starting done"));
 
@@ -799,6 +819,15 @@ static pj_status_t strm_stop(pjmedia_aud_stream *s)
 		}
 	}
 
+
+	//Unset media in call
+	{
+		jmethodID unsetincall_method = jni_env->GetStaticMethodID(stream->ua_class, "unsetAudioInCall", "()V");
+		if(unsetincall_method == 0){
+			return PJ_ENOMEM;
+		}
+		jni_env->CallStaticVoidMethod(stream->ua_class, unsetincall_method);
+	}
 
 	PJ_LOG(4,(THIS_FILE, "Stopping Done"));
 
