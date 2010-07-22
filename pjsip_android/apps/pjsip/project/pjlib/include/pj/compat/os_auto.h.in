@@ -1,4 +1,4 @@
-/* $Id: os_auto.h.in 3059 2010-01-13 21:28:06Z bennylp $ */
+/* $Id: os_auto.h.in 3238 2010-07-15 13:32:11Z ming $ */
 /* 
  * Copyright (C) 2008-2009 Teluu Inc. (http://www.teluu.com)
  * Copyright (C) 2003-2008 Benny Prijono <benny@prijono.org>
@@ -168,6 +168,15 @@
 
 /* The type of atomic variable value: */
 #undef PJ_ATOMIC_VALUE_TYPE
+
+/* Append ".local" suffix to the system's hostname? */
+#if defined(PJ_DARWINOS) && PJ_DARWINOS!=0
+#    include "TargetConditionals.h"
+#    if defined(__IPHONE_4_0) && \
+        __IPHONE_OS_VERSION_MIN_REQUIRED >= __IPHONE_4_0
+#	define PJ_GETHOSTNAME_APPEND_LOCAL_SUFFIX 1
+#    endif
+#endif
 
 /* If 1, use Read/Write mutex emulation for platforms that don't support it */
 #undef PJ_EMULATE_RWMUTEX

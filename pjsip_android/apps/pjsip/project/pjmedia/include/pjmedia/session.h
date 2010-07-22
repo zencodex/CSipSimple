@@ -1,4 +1,4 @@
-/* $Id: session.h 2844 2009-07-29 12:14:21Z bennylp $ */
+/* $Id: session.h 3237 2010-07-15 10:18:59Z nanang $ */
 /* 
  * Copyright (C) 2008-2009 Teluu Inc. (http://www.teluu.com)
  * Copyright (C) 2003-2008 Benny Prijono <benny@prijono.org>
@@ -280,6 +280,18 @@ PJ_DECL(pj_status_t) pjmedia_session_get_port( pjmedia_session *session,
 PJ_DECL(pj_status_t) pjmedia_session_get_stream_stat(pjmedia_session *session,
 						     unsigned index,
 						     pjmedia_rtcp_stat *stat);
+
+
+/**
+ * Reset session statistics.
+ *
+ * @param session	The media session.
+ * @param index		Stream index.
+ *
+ * @return		PJ_SUCCESS on success.
+ */
+PJ_DECL(pj_status_t) pjmedia_session_reset_stream_stat(pjmedia_session *session,
+						       unsigned index);
 
 
 #if defined(PJMEDIA_HAS_RTCP_XR) && (PJMEDIA_HAS_RTCP_XR != 0)

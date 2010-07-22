@@ -1,4 +1,4 @@
-/* $Id: rtcp.c 3226 2010-06-26 14:58:58Z bennylp $ */
+/* $Id: rtcp.c 3239 2010-07-15 14:45:47Z nanang $ */
 /* 
  * Copyright (C) 2008-2009 Teluu Inc. (http://www.teluu.com)
  * Copyright (C) 2003-2008 Benny Prijono <benny@prijono.org>
@@ -136,6 +136,37 @@ PJ_DEF(void) pjmedia_rtcp_session_setting_default(
 
 
 /*
+ * Initialize bidirectional RTCP statistics.
+ *
+ */
+PJ_DEF(void) pjmedia_rtcp_init_stat(pjmedia_rtcp_stat *stat)
+{
+    pj_time_val now;
+
+    pj_assert(stat);
+
+    pj_bzero(stat, sizeof(pjmedia_rtcp_stat));
+
+    pj_math_stat_init(&stat->rtt);
+    pj_math_stat_init(&stat->rx.loss_period);
+    pj_math_stat_init(&stat->rx.jitter);
+    pj_math_stat_init(&stat->tx.loss_period);
+    pj_math_stat_init(&stat->tx.jitter);
+
+#if defined(PJMEDIA_RTCP_STAT_HAS_IPDV) && PJMEDIA_RTCP_STAT_HAS_IPDV!=0
+    pj_math_stat_init(&stat->rx_ipdv);
+#endif
+
+#if defined(PJMEDIA_RTCP_STAT_HAS_RAW_JITTER) && PJMEDIA_RTCP_STAT_HAS_RAW_JITTER!=0
+    pj_math_stat_init(&stat->rx_raw_jitter);
+#endif
+
+    pj_gettimeofday(&now);
+    stat->start = now;
+}
+
+
+/*
  * Initialize RTCP session.
  */
 PJ_DEF(void) pjmedia_rtcp_init(pjmedia_rtcp_session *sess, 
@@ -194,17 +225,12 @@ PJ_DEF(void) pjmedia_rtcp_init2( pjmedia_rtcp_session *sess,
     /* Get time and timestamp base and frequency */
     pj_gettimeofday(&now);
     sess->tv_base = now;
-    sess->stat.start = now;
     pj_get_timestamp(&sess->ts_base);
     pj_get_timestamp_freq(&sess->ts_freq);
     sess->rtp_ts_base = settings->rtp_ts_base;
 
     /* Initialize statistics states */
-    pj_math_stat_init(&sess->stat.rtt);
-    pj_math_stat_init(&sess->stat.rx.loss_period);
-    pj_math_stat_init(&sess->stat.rx.jitter);
-    pj_math_stat_init(&sess->stat.tx.loss_period);
-    pj_math_stat_init(&sess->stat.tx.jitter);
+    pjmedia_rtcp_init_stat(&sess->stat);
 
     /* RR will be initialized on receipt of the first RTP packet. */
 }
@@ -342,24 +368,61 @@ PJ_DEF(void) pjmedia_rtcp_rx_rtp2(pjmedia_rtcp_session *sess,
 	} else {
 	    pj_int32_t d;
 	    pj_uint32_t jitter;
-	    
+
 	    d = transit - sess->transit;
-	    sess->transit = transit;
 	    if (d < 0) 
 		d = -d;
 	    
 	    sess->jitter += d - ((sess->jitter + 8) >> 4);
 
-	    /* Get jitter in usec */
-	    if (d < 4294)
-		jitter = d * 1000000 / sess->clock_rate;
+	    /* Update jitter stat */
+	    jitter = sess->jitter >> 4;
+	    
+	    /* Convert jitter unit from samples to usec */
+	    if (jitter < 4294)
+		jitter = jitter * 1000000 / sess->clock_rate;
 	    else {
-		jitter = d * 1000 / sess->clock_rate;
+		jitter = jitter * 1000 / sess->clock_rate;
 		jitter *= 1000;
 	    }
-
-	    /* Update jitter stat */
 	    pj_math_stat_update(&sess->stat.rx.jitter, jitter);
+
+
+#if defined(PJMEDIA_RTCP_STAT_HAS_RAW_JITTER) && PJMEDIA_RTCP_STAT_HAS_RAW_JITTER!=0
+	    {
+		pj_uint32_t raw_jitter;
+
+		/* Convert raw jitter unit from samples to usec */
+		if (d < 4294)
+		    raw_jitter = d * 1000000 / sess->clock_rate;
+		else {
+		    raw_jitter = d * 1000 / sess->clock_rate;
+		    raw_jitter *= 1000;
+		}
+		
+		/* Update jitter stat */
+		pj_math_stat_update(&sess->stat.rx_raw_jitter, raw_jitter);
+	    }
+#endif
+
+
+#if defined(PJMEDIA_RTCP_STAT_HAS_IPDV) && PJMEDIA_RTCP_STAT_HAS_IPDV!=0
+	    {
+		pj_int32_t ipdv;
+
+		ipdv = transit - sess->transit;
+		/* Convert IPDV unit from samples to usec */
+		if (ipdv > -2147 && ipdv < 2147)
+		    ipdv = ipdv * 1000000 / (int)sess->clock_rate;
+		else {
+		    ipdv = ipdv * 1000 / (int)sess->clock_rate;
+		    ipdv *= 1000;
+		}
+		
+		/* Update jitter stat */
+		pj_math_stat_update(&sess->stat.rx_ipdv, ipdv);
+	    }
+#endif
 
 #if defined(PJMEDIA_HAS_RTCP_XR) && (PJMEDIA_HAS_RTCP_XR != 0)
 	    pjmedia_rtcp_xr_rx_rtp(&sess->xr_session, seq, 
@@ -369,6 +432,9 @@ PJ_DEF(void) pjmedia_rtcp_rx_rtp2(pjmedia_rtcp_session *sess,
 				   (sess->jitter >> 4),	    /* jitter  */
 				   -1, 0);		    /* toh     */
 #endif
+
+	    /* Update session transit */
+	    sess->transit = transit;
 	}
 #if defined(PJMEDIA_HAS_RTCP_XR) && (PJMEDIA_HAS_RTCP_XR != 0)
     } else if (seq_st.diff > 1) {

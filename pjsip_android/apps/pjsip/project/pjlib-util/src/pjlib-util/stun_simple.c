@@ -1,4 +1,4 @@
-/* $Id: stun_simple.c 2394 2008-12-23 17:27:53Z bennylp $ */
+/* $Id: stun_simple.c 3235 2010-07-06 08:11:04Z nanang $ */
 /* 
  * Copyright (C) 2008-2009 Teluu Inc. (http://www.teluu.com)
  * Copyright (C) 2003-2008 Benny Prijono <benny@prijono.org>
@@ -86,6 +86,7 @@ PJ_DEF(pj_status_t) pjstun_parse_msg( void *buf, pj_size_t len,
     while (msg_len > 0) {
 	pjstun_attr_hdr **attr = &msg->attr[msg->attr_count];
 	pj_uint32_t len;
+	pj_uint16_t attr_type;
 
 	*attr = (pjstun_attr_hdr*)p_attr;
 	len = pj_ntohs((pj_uint16_t) ((*attr)->length)) + sizeof(pjstun_attr_hdr);
@@ -97,10 +98,13 @@ PJ_DEF(pj_status_t) pjstun_parse_msg( void *buf, pj_size_t len,
 	    return PJLIB_UTIL_ESTUNINATTRLEN;
 	}
 
-	if (pj_ntohs((*attr)->type) > PJSTUN_ATTR_REFLECTED_FORM) {
+	attr_type = pj_ntohs((*attr)->type);
+	if (attr_type > PJSTUN_ATTR_REFLECTED_FROM &&
+	    attr_type != PJSTUN_ATTR_XOR_MAPPED_ADDR)
+	{
 	    PJ_LOG(5,(THIS_FILE, "Warning: unknown attr type %x in attr %d. "
 				 "Attribute was ignored.",
-				 pj_ntohs((*attr)->type), msg->attr_count));
+				 attr_type, msg->attr_count));
 	}
 
 	msg_len = (pj_uint16_t)(msg_len - len);

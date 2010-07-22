@@ -1,4 +1,4 @@
-/* $Id: stun_simple_client.c 2394 2008-12-23 17:27:53Z bennylp $ */
+/* $Id: stun_simple_client.c 3235 2010-07-06 08:11:04Z nanang $ */
 /* 
  * Copyright (C) 2008-2009 Teluu Inc. (http://www.teluu.com)
  * Copyright (C) 2003-2008 Benny Prijono <benny@prijono.org>
@@ -29,6 +29,7 @@
 
 enum { MAX_REQUEST = 4 };
 static int stun_timer[] = {1000, 1000, 1000, 1000 };
+#define STUN_MAGIC 0x2112A442
 
 #define THIS_FILE	"stun_client.c"
 #define LOG_ADDR(addr)	pj_inet_ntoa(addr.sin_addr), pj_ntohs(addr.sin_port)
@@ -223,12 +224,20 @@ PJ_DEF(pj_status_t) pjstun_get_mapped_addr( pj_pool_factory *pf,
 		attr = (pjstun_mapped_addr_attr*) 
 		       pjstun_msg_find_attr(&msg, PJSTUN_ATTR_MAPPED_ADDR);
 		if (!attr) {
-		    status = PJLIB_UTIL_ESTUNNOMAP;
-		    continue;
+		    attr = (pjstun_mapped_addr_attr*) 
+			   pjstun_msg_find_attr(&msg, PJSTUN_ATTR_XOR_MAPPED_ADDR);
+		    if (!attr || attr->family != 1) {
+			status = PJLIB_UTIL_ESTUNNOMAP;
+			continue;
+		    }
 		}
 
 		rec[sock_idx].srv[srv_idx].mapped_addr = attr->addr;
 		rec[sock_idx].srv[srv_idx].mapped_port = attr->port;
+		if (pj_ntohs(attr->hdr.type) == PJSTUN_ATTR_XOR_MAPPED_ADDR) {
+		    rec[sock_idx].srv[srv_idx].mapped_addr ^= pj_htonl(STUN_MAGIC);
+		    rec[sock_idx].srv[srv_idx].mapped_port ^= pj_htons(STUN_MAGIC >> 16);
+		}
 	    }
 	}
 

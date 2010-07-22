@@ -1,4 +1,4 @@
-/* $Id: sip_msg.h 2968 2009-10-26 11:21:37Z bennylp $ */
+/* $Id: sip_msg.h 3233 2010-07-02 12:23:20Z bennylp $ */
 /* 
  * Copyright (C) 2008-2009 Teluu Inc. (http://www.teluu.com)
  * Copyright (C) 2003-2008 Benny Prijono <benny@prijono.org>
@@ -465,7 +465,14 @@ typedef enum pjsip_status_code
 
     PJSIP_SC_TSX_TIMEOUT = PJSIP_SC_REQUEST_TIMEOUT,
     /*PJSIP_SC_TSX_RESOLVE_ERROR = 702,*/
-    PJSIP_SC_TSX_TRANSPORT_ERROR = PJSIP_SC_SERVICE_UNAVAILABLE
+    PJSIP_SC_TSX_TRANSPORT_ERROR = PJSIP_SC_SERVICE_UNAVAILABLE,
+
+    /* This is not an actual status code, but rather a constant
+     * to force GCC to use 32bit to represent this enum, since
+     * we have a code in PJSUA-LIB that assigns an integer
+     * to this enum (see pjsua_acc_get_info() function).
+     */
+    PJSIP_SC__force_32bit = 0x7FFFFFFF
 
 } pjsip_status_code;
 
