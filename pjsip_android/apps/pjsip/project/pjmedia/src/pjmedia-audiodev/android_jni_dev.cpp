@@ -161,7 +161,7 @@ static pjmedia_aud_stream_op android_strm_op =
 static int PJ_THREAD_FUNC AndroidRecorderCallback(void* userData){
 	struct android_aud_stream *stream = (struct android_aud_stream*) userData;
 	JNIEnv *jni_env = 0;
-	jmethodID read_method=0;
+	jmethodID read_method=0, record_method=0;
 	int bytesRead;
 	ssize_t frameSize;
 	pj_status_t status = 0;
@@ -173,9 +173,15 @@ static int PJ_THREAD_FUNC AndroidRecorderCallback(void* userData){
 	if (result != 0) {
 		return result;
 	}
+	if(!stream->record){
+		goto on_break;
+	}
+
+
 	//Get methods ids
 	read_method = jni_env->GetMethodID(stream->record_class,"read", "([BII)I");
-	if(read_method==0) {
+	record_method = jni_env->GetMethodID(stream->record_class,"startRecording", "()V");
+	if(read_method==0 || record_method==0) {
 		goto on_break;
 	}
 
@@ -191,6 +197,9 @@ static int PJ_THREAD_FUNC AndroidRecorderCallback(void* userData){
 
 	//start recording
 	setpriority(PRIO_PROCESS, 0, ANDROID_PRIORITY_URGENT_AUDIO);
+
+
+	jni_env->CallVoidMethod(stream->record, record_method);
 
 	while ( /*!stream->quit_flag &&*/ (bytesRead = jni_env->CallIntMethod(stream->record, read_method,
 			inputBuffer,
@@ -240,7 +249,7 @@ static int PJ_THREAD_FUNC AndroidRecorderCallback(void* userData){
 static int PJ_THREAD_FUNC AndroidTrackCallback(void* userData){
 	struct android_aud_stream *stream = (struct android_aud_stream*) userData;
 	JNIEnv *jni_env = 0;
-	jmethodID write_method=0;
+	jmethodID write_method=0, play_method=0;
 	//jmethodID get_state_method=0;
 	pj_status_t status = 0;
 	//jint track_state;
@@ -254,8 +263,13 @@ static int PJ_THREAD_FUNC AndroidTrackCallback(void* userData){
 		return result;
 	}
 
-	//Get method ids
+	if(!stream->track){
+		goto on_break;
+	}
+
+	//Get methods ids
 	write_method = jni_env->GetMethodID(stream->track_class,"write", "([BII)I");
+	play_method = jni_env->GetMethodID(stream->track_class,"play", "()V");
 	/*
 	get_state_method =  jni_env->GetMethodID(stream->track_class,"getState", "()I");
 	if(get_state_method==0) {
@@ -266,6 +280,8 @@ static int PJ_THREAD_FUNC AndroidTrackCallback(void* userData){
 	//start playing
 	setpriority(PRIO_PROCESS, 0, ANDROID_PRIORITY_URGENT_AUDIO);
 
+
+
 	/*
 	track_state = jni_env->CallIntMethod(stream->track, get_state_method);
 	PJ_LOG(3,(THIS_FILE, "Player state is now %d", track_state));
@@ -274,8 +290,10 @@ static int PJ_THREAD_FUNC AndroidTrackCallback(void* userData){
 		goto on_break;
 	}*/
 
-
 	outputBuffer = jni_env->NewByteArray(frameSize);
+
+
+	jni_env->CallVoidMethod(stream->track, play_method);
 
 	while ( !stream->quit_flag ) {
 
@@ -298,7 +316,7 @@ static int PJ_THREAD_FUNC AndroidTrackCallback(void* userData){
 			continue;
 		}
 
-	//	PJ_LOG(3, (THIS_FILE, "New audio track frame to treat : %d <size : %d>", frame.type, frame.size));
+		//PJ_LOG(4, (THIS_FILE, "New audio track frame to treat : %d <size : %d>", frame.type, frame.size));
 
 		//Write to the java buffer
 		jni_env->SetByteArrayRegion(outputBuffer, 0, frame.size, (jbyte*)frame.buf);
@@ -621,6 +639,7 @@ static pj_status_t android_create_stream(pjmedia_aud_dev_factory *f,
 
 		stream->track =  jni_env->NewObject(stream->track_class, constructor_method,
 					0, // VOICE_CALL
+				//	3, //MUSIC
 					param->clock_rate,
 					2, // CHANNEL_CONFIGURATION_MONO
 					sampleFormat,
@@ -735,17 +754,8 @@ static pj_status_t strm_start(pjmedia_aud_stream *s)
 		jni_env->CallStaticVoidMethod(stream->ua_class, setincall_method);
 	}
 
-	//Call play methods
-	pj_status_t status;
-	if(stream->record){
-		jmethodID record_method = jni_env->GetMethodID(stream->record_class,"startRecording", "()V");
-		jni_env->CallVoidMethod(stream->record, record_method);
-	}
 
-	if(stream->track){
-		jmethodID play_method = jni_env->GetMethodID(stream->track_class,"play", "()V");
-		jni_env->CallVoidMethod(stream->track, play_method);
-	}
+	pj_status_t status;
 
 	//Start threads
 	if(stream->record){
