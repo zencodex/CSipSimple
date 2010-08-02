@@ -145,6 +145,16 @@
 
 
 /**
+ * Unless specified otherwise, G.729 codec is not included by default.
+ */
+#ifndef PJMEDIA_HAS_G729_CODEC
+#   define PJMEDIA_HAS_G729_CODEC    0
+#endif
+
+
+
+
+/**
  * Visual Studio only: when this option is set, the Intel IPP libraries
  * will be automatically linked to application using pragma(comment)
  * constructs. This is convenient, however it will only link with

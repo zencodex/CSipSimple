@@ -181,6 +181,16 @@ pj_status_t pjsua_media_subsys_init(const pjsua_media_config *cfg)
     }
 #endif  /* PJMEDIA_HAS_G722_CODEC */
 
+
+#if PJMEDIA_HAS_G729_CODEC
+    status = pjmedia_codec_g729_init(pjsua_var.med_endpt);
+    if (status != PJ_SUCCESS) {
+		pjsua_perror(THIS_FILE, "Error initializing G729 codec", status);
+		return status;
+    }
+#endif /* PJMEDIA_HAS_G729_CODEC */
+
+
 #if PJMEDIA_HAS_INTEL_IPP
     /* Register IPP codecs */
     status = pjmedia_codec_ipp_init(pjsua_var.med_endpt);

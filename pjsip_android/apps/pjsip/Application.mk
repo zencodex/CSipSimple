@@ -1,2 +1,12 @@
 APP_PROJECT_PATH := $(call my-dir)/project
-APP_MODULES      := pjlib pjlib-util pjnath pjmedia pjsip pjsipjni resample srtp speex gsm ilbc
+APP_BUILD_SCRIPT= := $(call my-dir)/project/build/Android.mk
+
+MY_USE_G729 := 0
+MY_USE_ILBC := 1
+MY_USE_G722 := 1
+MY_USE_SPEEX := 1
+MY_USE_GSM := 1
+
+MY_PJSIP_FLAGS := -DPJ_ANDROID=1 -DPJMEDIA_HAS_G729_CODEC=$(MY_USE_G729) \
+	-DPJMEDIA_HAS_ILBC_CODEC=$(MY_USE_ILBC) -DPJMEDIA_HAS_G722_CODEC=$(MY_USE_G722) \
+	-DPJMEDIA_HAS_SPEEX_CODEC=$(MY_USE_SPEEX) -DPJMEDIA_HAS_GSM_CODEC=$(MY_USE_GSM)
