@@ -72,22 +72,29 @@ static struct app_config {
 
 
 static void ringback_start(){
-	app_config.ringback_on = PJ_TRUE;
+	if (app_config.ringback_on) {
+		//Already ringing back
+		return;
+	}
 
-    if (++app_config.ringback_cnt==1 && app_config.ringback_slot!=PJSUA_INVALID_ID)
-    {
-	pjsua_conf_connect(app_config.ringback_slot, 0);
+	app_config.ringback_on = PJ_TRUE;
+	LOGD("Start ringback");
+    if (++app_config.ringback_cnt==1 && app_config.ringback_slot!=PJSUA_INVALID_ID){
+    	LOGD("Connect ringback");
+    	pjsua_conf_connect(app_config.ringback_slot, 0);
     }
 }
 
 static void ring_stop(pjsua_call_id call_id) {
-
+	LOGD("Stop ringback");
     if (app_config.ringback_on) {
+    	LOGD("Stop ringback 2");
     	app_config.ringback_on = PJ_FALSE;
 
 		pj_assert(app_config.ringback_cnt>0);
 		if (--app_config.ringback_cnt == 0 &&
 			app_config.ringback_slot!=PJSUA_INVALID_ID)  {
+			LOGD("Disconnect ringback");
 			pjsua_conf_disconnect(app_config.ringback_slot, 0);
 			pjmedia_tonegen_rewind(app_config.ringback_port);
 		}

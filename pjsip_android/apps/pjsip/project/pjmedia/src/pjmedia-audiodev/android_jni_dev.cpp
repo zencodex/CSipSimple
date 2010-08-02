@@ -81,7 +81,6 @@ struct android_aud_stream
 	int channel_count;
 	void *user_data;
 
-	JavaVM* jvm;
 	pj_bool_t quit_flag;
 
 	//Record
@@ -161,6 +160,8 @@ static pjmedia_aud_stream_op android_strm_op =
 static int PJ_THREAD_FUNC AndroidRecorderCallback(void* userData){
 	struct android_aud_stream *stream = (struct android_aud_stream*) userData;
 	JNIEnv *jni_env = 0;
+	ATTACH_JVM(jni_env);
+
 	jmethodID read_method=0, record_method=0;
 	int bytesRead;
 	ssize_t frameSize;
@@ -169,10 +170,6 @@ static int PJ_THREAD_FUNC AndroidRecorderCallback(void* userData){
 
 	PJ_LOG(3,(THIS_FILE, "<< Enter recorder thread"));
 
-	jint result = stream->jvm->AttachCurrentThread(&jni_env,NULL);
-	if (result != 0) {
-		return result;
-	}
 	if(!stream->record){
 		goto on_break;
 	}
@@ -239,7 +236,7 @@ static int PJ_THREAD_FUNC AndroidRecorderCallback(void* userData){
 		jni_env->DeleteLocalRef(inputBuffer);
 
 	on_break:
-		stream->jvm->DetachCurrentThread();
+		DETACH_JVM(jni_env);
 		PJ_LOG(3,(THIS_FILE, ">> Record thread stopped"));
 		stream->rec_thread_exited = 1;
 		return 0;
@@ -249,6 +246,7 @@ static int PJ_THREAD_FUNC AndroidRecorderCallback(void* userData){
 static int PJ_THREAD_FUNC AndroidTrackCallback(void* userData){
 	struct android_aud_stream *stream = (struct android_aud_stream*) userData;
 	JNIEnv *jni_env = 0;
+	ATTACH_JVM(jni_env);
 	jmethodID write_method=0, play_method=0;
 	//jmethodID get_state_method=0;
 	pj_status_t status = 0;
@@ -257,11 +255,6 @@ static int PJ_THREAD_FUNC AndroidTrackCallback(void* userData){
 	ssize_t frameSize = stream->samples_per_frame * stream->bytes_per_sample;
 
 	PJ_LOG(3,(THIS_FILE, "<< Enter player thread"));
-
-	jint result = stream->jvm->AttachCurrentThread(&jni_env,NULL);
-	if (result != 0) {
-		return result;
-	}
 
 	if(!stream->track){
 		goto on_break;
@@ -343,7 +336,7 @@ static int PJ_THREAD_FUNC AndroidTrackCallback(void* userData){
 
 
 	on_break:
-		stream->jvm->DetachCurrentThread();
+		DETACH_JVM(jni_env);
 		PJ_LOG(3,(THIS_FILE, ">> Play thread stopped"));
 		stream->play_thread_exited = 1;
 		return 0;
@@ -522,22 +515,19 @@ static pj_status_t android_create_stream(pjmedia_aud_dev_factory *f,
 	int inputBuffSize;
 	int sampleFormat;
 
-
 	//TODO : return codes should be better
 	JNIEnv *jni_env = 0;
-	jmethodID constructor_method=0;
-	jmethodID get_min_buffer_size_method;
+	ATTACH_JVM(jni_env);
+	jmethodID constructor_method=0, get_min_buffer_size_method = 0;
 
-	stream->jvm = android_jvm;
 
-	//Attach to jvm
-	jint attachResult = stream->jvm->AttachCurrentThread(&jni_env,NULL);
+/*
 	if (attachResult != 0) {
 		PJ_LOG(1, (THIS_FILE, "Not able to attach the jvm"));
 		pj_pool_release(pool);
 		return PJ_ENOMEM;
 	}
-
+*/
 	if (param->bits_per_sample == 8) {
 		sampleFormat = 3; //ENCODING_PCM_8BIT
 	} else if (param->bits_per_sample == 16) {
@@ -545,6 +535,23 @@ static pj_status_t android_create_stream(pjmedia_aud_dev_factory *f,
 	} else {
 		pj_pool_release(pool);
 		return PJMEDIA_EAUD_SAMPFORMAT;
+	}
+
+
+	stream->ua_class = (jclass)jni_env->NewGlobalRef(jni_env->FindClass("com/csipsimple/service/SipService"));
+	if (stream->ua_class == 0) {
+		PJ_LOG(1, (THIS_FILE, "Not able to find sipservice class"));
+		goto on_error;
+	}
+
+	//Set media in call
+	{
+
+		jmethodID setincall_method = jni_env->GetStaticMethodID(stream->ua_class, "setAudioInCall", "()V");
+		if(setincall_method == 0){
+			goto on_error;
+		}
+		jni_env->CallStaticVoidMethod(stream->ua_class, setincall_method);
 	}
 
 
@@ -598,9 +605,13 @@ static pj_status_t android_create_stream(pjmedia_aud_dev_factory *f,
 			goto on_error;
 		}
 
+		//TODO check if initialized properly
+
 		PJ_LOG(3, (THIS_FILE, "We have the instance done"));
 
 	}
+
+
 
 
 	if (stream->dir & PJMEDIA_DIR_PLAYBACK) {
@@ -653,24 +664,24 @@ static pj_status_t android_create_stream(pjmedia_aud_dev_factory *f,
 			goto on_error;
 		}
 
+		//TODO check if initialized properly
+
 		PJ_LOG(3, (THIS_FILE, "We have the instance done"));
 
 	}
 
 
-	stream->ua_class = (jclass)jni_env->NewGlobalRef(jni_env->FindClass("com/csipsimple/service/SipService"));
-	if (stream->ua_class == 0) {
-		PJ_LOG(1, (THIS_FILE, "Not able to find sipservice class"));
-		goto on_error;
-	}
+
 
 	//OK, done
 	*p_aud_strm = &stream->base;
 	(*p_aud_strm)->op = &android_strm_op;
+	DETACH_JVM(jni_env);
 
 	return PJ_SUCCESS;
 
 on_error:
+	DETACH_JVM(jni_env);
 	pj_pool_release(pool);
 	return PJ_ENOMEM;
 }
@@ -735,16 +746,18 @@ static pj_status_t strm_start(pjmedia_aud_stream *s)
 	PJ_LOG(4,(THIS_FILE, "Starting %s stream..", stream->name.ptr));
 	stream->quit_flag = 0;
 
-	//TODO : init media routing here
 	JNIEnv *jni_env = 0;
-
+	ATTACH_JVM(jni_env);
+	/*
 	jint attachResult = stream->jvm->AttachCurrentThread(&jni_env,NULL);
 	if (attachResult != 0) {
 		PJ_LOG(1, (THIS_FILE, "Not able to attach the jvm"));
 		return PJ_ENOMEM;
 	}
+	*/
 
 	//Set media in call
+	/*
 	{
 
 		jmethodID setincall_method = jni_env->GetStaticMethodID(stream->ua_class, "setAudioInCall", "()V");
@@ -753,6 +766,7 @@ static pj_status_t strm_start(pjmedia_aud_stream *s)
 		}
 		jni_env->CallStaticVoidMethod(stream->ua_class, setincall_method);
 	}
+	*/
 
 
 	pj_status_t status;
@@ -761,22 +775,27 @@ static pj_status_t strm_start(pjmedia_aud_stream *s)
 	if(stream->record){
 		status = pj_thread_create(stream->pool, "android_recorder", &AndroidRecorderCallback, stream, 0, 0,  &stream->rec_thread);
 		if (status != PJ_SUCCESS) {
-			strm_destroy(&stream->base);
-			return status;
+			goto on_error;
 		}
 	}
 
 	if(stream->track){
 		status = pj_thread_create(stream->pool, "android_track", &AndroidTrackCallback, stream, 0, 0,  &stream->play_thread);
 		if (status != PJ_SUCCESS) {
-			strm_destroy(&stream->base);
-			return status;
+			goto on_error;
 		}
 	}
 
 	PJ_LOG(4,(THIS_FILE, "Starting done"));
 
-	return PJ_SUCCESS;
+	status = PJ_SUCCESS;
+
+on_error:
+	DETACH_JVM(jni_env);
+	if(status != PJ_SUCCESS){
+		strm_destroy(&stream->base);
+	}
+	return status;
 }
 
 /* API: stop stream. */
@@ -793,15 +812,17 @@ static pj_status_t strm_stop(pjmedia_aud_stream *s)
 	}
 
 	JNIEnv *jni_env = 0;
+	ATTACH_JVM(jni_env);
 	jmethodID method_id;
 
 	stream->quit_flag = 1;
 
-	jint result = stream->jvm->AttachCurrentThread(&jni_env, NULL);
+	/*
 	if (result != 0) {
 		PJ_LOG(1, (THIS_FILE, "Not able to attach the jvm"));
 		return PJ_ENOMEM;
 	}
+	*/
 
 	if(stream->record){
 		//stop recording
@@ -834,6 +855,7 @@ static pj_status_t strm_stop(pjmedia_aud_stream *s)
 	{
 		jmethodID unsetincall_method = jni_env->GetStaticMethodID(stream->ua_class, "unsetAudioInCall", "()V");
 		if(unsetincall_method == 0){
+			DETACH_JVM(jni_env);
 			return PJ_ENOMEM;
 		}
 		jni_env->CallStaticVoidMethod(stream->ua_class, unsetincall_method);
@@ -841,7 +863,7 @@ static pj_status_t strm_stop(pjmedia_aud_stream *s)
 
 	PJ_LOG(4,(THIS_FILE, "Stopping Done"));
 
-	stream->jvm->DetachCurrentThread();
+	DETACH_JVM(jni_env);
 	return PJ_SUCCESS;
 
 }
@@ -857,13 +879,8 @@ static pj_status_t strm_destroy(pjmedia_aud_stream *s)
 
 	struct android_aud_stream *stream = (struct android_aud_stream*)s;
 	JNIEnv *jni_env = 0;
+	ATTACH_JVM(jni_env);
 	jmethodID release_method=0;
-
-
-	jint result = stream->jvm->AttachCurrentThread(&jni_env,NULL);
-	if (result != 0) {
-		return result;
-	}
 
 	if(stream->record){
 		//release recording - we assume the release method exists
@@ -896,7 +913,7 @@ static pj_status_t strm_destroy(pjmedia_aud_stream *s)
 	pj_pool_release(stream->pool);
 	PJ_LOG(3,(THIS_FILE, "Stream is destroyed"));
 
-	stream->jvm->DetachCurrentThread();
+	DETACH_JVM(jni_env);
 	return PJ_SUCCESS;
 }
 

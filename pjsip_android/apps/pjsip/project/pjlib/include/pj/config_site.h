@@ -365,10 +365,6 @@
 
     /* Select codecs to disable */
     #define PJMEDIA_HAS_L16_CODEC               0
-    #define PJMEDIA_HAS_ILBC_CODEC              1
-    #define PJMEDIA_HAS_G722_CODEC              1
-    #define PJMEDIA_HAS_SPEEX_CODEC             1
-    #define PJMEDIA_HAS_GSM_CODEC              1
 
     /* Fine tune Speex's default settings for best performance/quality */
     #define PJMEDIA_CODEC_SPEEX_DEFAULT_QUALITY 5
