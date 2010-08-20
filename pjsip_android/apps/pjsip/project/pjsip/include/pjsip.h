@@ -1,4 +1,4 @@
-/* $Id: pjsip.h 2394 2008-12-23 17:27:53Z bennylp $ */
+/* $Id: pjsip.h 3243 2010-08-01 09:48:51Z bennylp $ */
 /* 
  * Copyright (C) 2008-2009 Teluu Inc. (http://www.teluu.com)
  * Copyright (C) 2003-2008 Benny Prijono <benny@prijono.org>
@@ -28,6 +28,7 @@
 #include <pjsip/sip_uri.h>
 #include <pjsip/sip_tel_uri.h>
 #include <pjsip/sip_msg.h>
+#include <pjsip/sip_multipart.h>
 #include <pjsip/sip_parser.h>
 
 /* Core */

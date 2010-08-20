@@ -1,4 +1,4 @@
-/* $Id: sip_util.c 3106 2010-02-24 05:43:34Z nanang $ */
+/* $Id: sip_util.c 3260 2010-08-09 14:24:36Z bennylp $ */
 /* 
  * Copyright (C) 2008-2009 Teluu Inc. (http://www.teluu.com)
  * Copyright (C) 2003-2008 Benny Prijono <benny@prijono.org>
@@ -574,7 +574,7 @@ PJ_DEF(pj_status_t) pjsip_endpt_create_response( pjsip_endpoint *endpt,
      * to do this is to derive the tag from Via branch parameter (or to
      * use it directly).
      */
-    if (st_code > 100 && top_via) {
+    if (to_hdr->tag.slen==0 && st_code > 100 && top_via) {
 	to_hdr->tag = top_via->branch_param;
     }
 

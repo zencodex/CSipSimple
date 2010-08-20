@@ -1,4 +1,4 @@
-/* $Id: ice_strans.c 3212 2010-06-19 12:35:33Z bennylp $ */
+/* $Id: ice_strans.c 3262 2010-08-11 06:03:47Z bennylp $ */
 /* 
  * Copyright (C) 2008-2009 Teluu Inc. (http://www.teluu.com)
  * Copyright (C) 2003-2008 Benny Prijono <benny@prijono.org>
@@ -268,7 +268,7 @@ static pj_status_t add_update_turn(pj_ice_strans *ice_st,
 	/* Also if this component's default candidate is set to relay,
 	 * move it temporarily to something else.
 	 */
-	if (comp->default_cand == cand - comp->cand_list) {
+	if ((int)comp->default_cand == cand - comp->cand_list) {
 	    /* Init to something */
 	    comp->default_cand = 0;
 	    /* Use srflx candidate as the default, if any */

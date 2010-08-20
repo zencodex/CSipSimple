@@ -1,4 +1,4 @@
-/* $Id: test.h 2638 2009-04-22 14:27:55Z nanang $ */
+/* $Id: test.h 3243 2010-08-01 09:48:51Z bennylp $ */
 /* 
  * Copyright (C) 2008-2009 Teluu Inc. (http://www.teluu.com)
  * Copyright (C) 2003-2008 Benny Prijono <benny@prijono.org>
@@ -56,6 +56,7 @@ extern pjsip_endpoint *endpt;
 
 #define INCLUDE_URI_TEST	INCLUDE_MESSAGING_GROUP
 #define INCLUDE_MSG_TEST	INCLUDE_MESSAGING_GROUP
+#define INCLUDE_MULTIPART_TEST	INCLUDE_MESSAGING_GROUP
 #define INCLUDE_TXDATA_TEST	INCLUDE_MESSAGING_GROUP
 #define INCLUDE_TSX_BENCH	INCLUDE_MESSAGING_GROUP
 #define INCLUDE_UDP_TEST	INCLUDE_TRANSPORT_GROUP
@@ -71,6 +72,7 @@ extern pjsip_endpoint *endpt;
 int uri_test(void);
 int msg_test(void);
 int msg_err_test(void);
+int multipart_test(void);
 int txdata_test(void);
 int tsx_bench(void);
 int transport_udp_test(void);

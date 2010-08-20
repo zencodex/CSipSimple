@@ -1,5 +1,7 @@
 APP_PROJECT_PATH := $(call my-dir)/project
 APP_BUILD_SCRIPT= := $(call my-dir)/project/build/Android.mk
+APP_OPTIM        := release
+APP_ABI := armeabi armeabi-v7a
 
 MY_USE_G729 := 0
 MY_USE_ILBC := 1

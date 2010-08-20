@@ -1,4 +1,4 @@
-/* $Id: g7221.h 3083 2010-01-29 15:51:09Z nanang $ */
+/* $Id: g7221.h 3263 2010-08-11 07:18:08Z nanang $ */
 /* 
  * Copyright (C) 2008-2009 Teluu Inc. (http://www.teluu.com)
  * Copyright (C) 2003-2008 Benny Prijono <benny@prijono.org>
@@ -128,6 +128,10 @@ PJ_DECL(pj_status_t) pjmedia_codec_g7221_set_mode(unsigned sample_rate,
  * If the value is non-zero, then PCM input samples to the encoder will 
  * be shifted right by this value, and similarly PCM output samples from
  * the decoder will be shifted left by this value.
+ *
+ * \note
+ * This function is also applicable for G722.1 implementation with IPP
+ * back-end.
  *
  * Default value is PJMEDIA_G7221_DEFAULT_PCM_SHIFT.
  *

@@ -17,7 +17,20 @@ LOCAL_SRC_FILES := pjsua_wrap.cpp
 #LOCAL_ARM_MODE := arm
 
 LOCAL_LDLIBS := -llog #-lmedia -lcutils -lutils
-LOCAL_STATIC_LIBRARIES := pjsip pjmedia pjnath pjlib-util pjlib resample srtp speex ilbc gsm g729
+LOCAL_STATIC_LIBRARIES := pjsip pjmedia pjnath pjlib-util pjlib resample srtp 
+ifeq ($(MY_USE_ILBC),1)
+	LOCAL_STATIC_LIBRARIES += ilbc
+endif
+ifeq ($(MY_USE_GSM),1)
+	LOCAL_STATIC_LIBRARIES += gsm
+endif
+ifeq ($(MY_USE_SPEEX),1)
+	LOCAL_STATIC_LIBRARIES += speex
+endif
+ifeq ($(MY_USE_G729),1)
+	LOCAL_STATIC_LIBRARIES += g729
+endif
+
 
 include $(BUILD_SHARED_LIBRARY)
 

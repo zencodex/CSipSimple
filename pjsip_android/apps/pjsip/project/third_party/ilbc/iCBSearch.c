@@ -127,8 +127,7 @@
                *ppe=0.0;
                pp=buf+LPC_FILTERORDER+lMem-lTarget;
                for (j=0; j<lTarget; j++) {
-                   *ppe+=(*pp)*(*pp);
-		   ++pp;
+                   *ppe+=(*pp)*(*pp++);
                }
 
                if (*ppe>0.0) {
@@ -234,20 +233,22 @@
 
            /* unrestricted search */
 
-#	   if CB_RESRANGE == -1
-           //if (CB_RESRANGE == -1) {
+           if (CB_RESRANGE == -1) {
                sInd=0;
                eInd=range-1;
                sIndAug=20;
                eIndAug=39;
-           //}
+           }
 
-#	   else
+
+
+
+
 
            /* restricted search around best index from first
            codebook section */
 
-           //else {
+           else {
                /* Initialize search indices */
                sIndAug=0;
                eIndAug=0;
@@ -305,10 +306,7 @@
                        eInd = range;
                    }
                }
-
-           //}
-#	   endif /* CB_RESRANGE == -1 */
-
+           }
 
            /* search of higher codebook section */
 
@@ -324,8 +322,7 @@
 
                pp=cbvectors+lMem-lTarget;
                for (j=0; j<lTarget; j++) {
-                   *ppe+=(*pp)*(*pp);
-		   ++pp;
+                   *ppe+=(*pp)*(*pp++);
                }
 
                ppi = cbvectors + lMem - 1 - lTarget;

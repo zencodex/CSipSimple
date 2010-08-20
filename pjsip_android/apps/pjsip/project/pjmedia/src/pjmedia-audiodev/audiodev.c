@@ -1,4 +1,4 @@
-/* $Id: audiodev.c 3174 2010-05-17 12:51:06Z ming $ */
+/* $Id: audiodev.c 3262 2010-08-11 06:03:47Z bennylp $ */
 /* 
  * Copyright (C) 2008-2009 Teluu Inc. (http://www.teluu.com)
  * Copyright (C) 2003-2008 Benny Prijono <benny@prijono.org>
@@ -459,7 +459,7 @@ pjmedia_aud_unregister_factory(pjmedia_aud_dev_factory_create_func_ptr adf)
 	if (drv->create == adf) {
 	    for (j = drv->start_idx; j < drv->start_idx + drv->dev_cnt; j++)
 	    {
-		aud_subsys.dev_list[j] = PJMEDIA_AUD_INVALID_DEV;
+		aud_subsys.dev_list[j] = (pj_uint32_t)PJMEDIA_AUD_INVALID_DEV;
 	    }
 
 	    deinit_driver(i);

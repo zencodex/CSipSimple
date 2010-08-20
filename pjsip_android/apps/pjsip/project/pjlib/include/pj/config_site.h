@@ -348,11 +348,15 @@
 
 
 	/* Optimizations */
-//	#define PJMEDIA_HAS_ALAW_ULAW_TABLE 1
-//	#define PJ_ENABLE_EXTRA_CHECK   0
+	#define PJMEDIA_HAS_ALAW_ULAW_TABLE 1
+	#define PJ_ENABLE_EXTRA_CHECK   0
 
-	//Conference is useless for now
-//	#define PJMEDIA_CONF_USE_SWITCH_BOARD 0
+	//Conference ports?
+	#define PJMEDIA_CONF_USE_SWITCH_BOARD 0
+
+    #define PJ_OS_HAS_CHECK_STACK		0
+    /* Disable floating point support */
+    #define PJ_HAS_FLOATING_POINT		0
 
 	/*
      * PJMEDIA settings
@@ -385,13 +389,12 @@
     #define PJMEDIA_RESAMPLE_IMP                PJMEDIA_RESAMPLE_LIBRESAMPLE
 
     /* Use the lighter WSOLA implementation */
- //   #define PJMEDIA_WSOLA_IMP                   PJMEDIA_WSOLA_IMP_WSOLA_LITE
+    #define PJMEDIA_WSOLA_IMP                   PJMEDIA_WSOLA_IMP_WSOLA_LITE
 
     /* We probably need more buffers especially if MDA audio backend 
      * is used, so increase the limit 
      */
-//    #define PJMEDIA_SOUND_BUFFER_COUNT          32
-
+  //  #define PJMEDIA_SOUND_BUFFER_COUNT          32
 
     /*
      * PJSUA settings.
@@ -401,5 +404,19 @@
      * set to 4 to make sure pjsua instantiates resampler with small filter.
      */
     #define PJSUA_DEFAULT_CODEC_QUALITY         4
+	//#define PJSUA_DEFAULT_ILBC_MODE 			20
+
+
+    /* Set maximum number of dialog/transaction/calls to minimum */
+    #define PJSIP_MAX_TSX_COUNT 		31
+    #define PJSIP_MAX_DIALOG_COUNT 		31
+    #define PJSUA_MAX_CALLS			4
+
+    /* Other pjsua settings */
+    #define PJSUA_MAX_ACC			10
+    #define PJSUA_MAX_PLAYERS			4
+    #define PJSUA_MAX_RECORDERS			4
+    #define PJSUA_MAX_CONF_PORTS		(PJSUA_MAX_CALLS+2*PJSUA_MAX_PLAYERS)
+    #define PJSUA_MAX_BUDDIES			32
 
 #endif
