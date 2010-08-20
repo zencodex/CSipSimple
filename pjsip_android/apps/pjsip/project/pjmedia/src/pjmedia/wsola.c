@@ -1,4 +1,4 @@
-/* $Id: wsola.c 2850 2009-08-01 09:20:59Z bennylp $ */
+/* $Id: wsola.c 3255 2010-08-06 07:18:08Z nanang $ */
 /* 
  * Copyright (C) 2008-2009 Teluu Inc. (http://www.teluu.com)
  * Copyright (C) 2003-2008 Benny Prijono <benny@prijono.org>
@@ -850,7 +850,7 @@ PJ_DEF(pj_status_t) pjmedia_wsola_save( pjmedia_wsola *wsola,
 	    /* Continue applying fade out to the extra samples */
 	    if (reg2_len == 0) {
 		wsola_fade_out(wsola, reg1 + reg1_len - count, count);
-	    } else if ((int)reg2_len >= count) {
+	    } else if (reg2_len >= count) {
 		wsola_fade_out(wsola, reg2 + reg2_len - count, count);
 	    } else {
 		unsigned tmp = count - reg2_len;

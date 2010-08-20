@@ -17,7 +17,7 @@ PJSIPUA_SRC_DIR := src/pjsip-ua
 PJSIPSIMPLE_SRC_DIR := src/pjsip-simple
 PJSUA_SRC_DIR := src/pjsua-lib
 
-LOCAL_SRC_FILES := $(PJSIP_SRC_DIR)/sip_config.c \
+LOCAL_SRC_FILES := $(PJSIP_SRC_DIR)/sip_config.c $(PJSIP_SRC_DIR)/sip_multipart.c \
 		$(PJSIP_SRC_DIR)/sip_errno.c $(PJSIP_SRC_DIR)/sip_msg.c $(PJSIP_SRC_DIR)/sip_parser.c \
 		$(PJSIP_SRC_DIR)/sip_tel_uri.c $(PJSIP_SRC_DIR)/sip_uri.c \
 		$(PJSIP_SRC_DIR)/sip_endpoint.c $(PJSIP_SRC_DIR)/sip_util.c $(PJSIP_SRC_DIR)/sip_util_proxy.c \

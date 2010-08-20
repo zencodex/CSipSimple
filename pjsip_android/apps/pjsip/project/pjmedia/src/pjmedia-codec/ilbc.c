@@ -291,7 +291,7 @@ static pj_status_t ilbc_default_attr (pjmedia_codec_factory *factory,
     attr->setting.frm_per_pkt = 1;
     attr->setting.vad = 1;
     attr->setting.plc = 1;
-    attr->setting.penh = 1;
+    attr->setting.penh = 0;
     attr->setting.dec_fmtp.cnt = 1;
     attr->setting.dec_fmtp.param[0].name = STR_MODE;
     if (ilbc_factory.mode == 30)

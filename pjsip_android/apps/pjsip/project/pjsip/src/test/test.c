@@ -1,4 +1,4 @@
-/* $Id: test.c 2660 2009-04-28 19:38:43Z nanang $ */
+/* $Id: test.c 3243 2010-08-01 09:48:51Z bennylp $ */
 /* 
  * Copyright (C) 2008-2009 Teluu Inc. (http://www.teluu.com)
  * Copyright (C) 2003-2008 Benny Prijono <benny@prijono.org>
@@ -299,6 +299,10 @@ int test_main(void)
 #if INCLUDE_MSG_TEST
     DO_TEST(msg_test());
     DO_TEST(msg_err_test());
+#endif
+
+#if INCLUDE_MULTIPART_TEST
+    DO_TEST(multipart_test());
 #endif
 
 #if INCLUDE_TXDATA_TEST

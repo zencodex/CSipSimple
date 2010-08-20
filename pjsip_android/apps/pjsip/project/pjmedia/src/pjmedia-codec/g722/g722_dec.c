@@ -1,4 +1,4 @@
-/* $Id: g722_dec.c 3202 2010-06-11 13:38:42Z nanang $ */
+/* $Id: g722_dec.c 3250 2010-08-05 10:41:48Z nanang $ */
 /* 
  * Copyright (C) 2008-2009 Teluu Inc. (http://www.teluu.com)
  * Copyright (C) 2003-2008 Benny Prijono <benny@prijono.org>
@@ -504,6 +504,7 @@ PJ_DEF(pj_status_t) g722_dec_decode( g722_dec_t *dec,
     unsigned i;
     int ilowr, ylow, rlow, dlowt;
     int ihigh, rhigh, dhigh;
+    int pcm1, pcm2;
     pj_uint8_t *in_ = (pj_uint8_t*) in;
 
     PJ_ASSERT_RETURN(dec && in && in_size && out && nsamples, PJ_EINVAL);
@@ -528,7 +529,9 @@ PJ_DEF(pj_status_t) g722_dec_decode( g722_dec_t *dec,
 	dec->shigh = block4h (dec, dhigh) ;
 	/* rhigh <= output high band pcm */
 
-	rx_qmf(dec, rlow, rhigh, &out[i*2], &out[i*2+1]);
+	rx_qmf(dec, rlow, rhigh, &pcm1, &pcm2);
+	out[i*2]   = (pj_int16_t)pcm1;
+	out[i*2+1] = (pj_int16_t)pcm2;
     }
 
     *nsamples = in_size << 1;

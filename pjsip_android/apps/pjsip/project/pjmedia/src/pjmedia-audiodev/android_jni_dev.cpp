@@ -309,6 +309,9 @@ static int PJ_THREAD_FUNC AndroidTrackCallback(void* userData){
 			continue;
 		}
 
+		if(frameSize != frame.size){
+			PJ_LOG(2, (THIS_FILE, "Frame size doesn't match : %d vs %d", frame.size, frameSize) );
+		}
 		//PJ_LOG(4, (THIS_FILE, "New audio track frame to treat : %d <size : %d>", frame.type, frame.size));
 
 		//Write to the java buffer
@@ -319,12 +322,12 @@ static int PJ_THREAD_FUNC AndroidTrackCallback(void* userData){
 				outputBuffer,
 				0,
 				frame.size);
-		//PJ_LOG(3, (THIS_FILE, "Written"));
+
 		if(status < 0){
 			PJ_LOG(1, (THIS_FILE, "Error while writing %d ", status));
 			goto on_finish;
 		}else if(frameSize != status){
-			PJ_LOG(3, (THIS_FILE, "Not everything written"));
+			PJ_LOG(2, (THIS_FILE, "Not everything written"));
 		}
 
 		stream->play_timestamp.u64 += stream->samples_per_frame / stream->channel_count;
@@ -512,7 +515,7 @@ static pj_status_t android_create_stream(pjmedia_aud_dev_factory *f,
 			stream->samples_per_frame * stream->bytes_per_sample);
 	stream->play_timestamp.u64 = 0;
 
-	int inputBuffSize;
+	int inputBuffSize=0, inputBuffSizePlay, inputBuffSizeRec;
 	int sampleFormat;
 
 	//TODO : return codes should be better
@@ -537,6 +540,8 @@ static pj_status_t android_create_stream(pjmedia_aud_dev_factory *f,
 		return PJMEDIA_EAUD_SAMPFORMAT;
 	}
 
+	PJ_LOG(3, (THIS_FILE, "Sample format is : %d for %d ", sampleFormat, param->bits_per_sample));
+
 
 	stream->ua_class = (jclass)jni_env->NewGlobalRef(jni_env->FindClass("com/csipsimple/service/SipService"));
 	if (stream->ua_class == 0) {
@@ -553,6 +558,8 @@ static pj_status_t android_create_stream(pjmedia_aud_dev_factory *f,
 		}
 		jni_env->CallStaticVoidMethod(stream->ua_class, setincall_method);
 	}
+
+
 
 
 	if (stream->dir & PJMEDIA_DIR_CAPTURE) {
@@ -573,46 +580,19 @@ static pj_status_t android_create_stream(pjmedia_aud_dev_factory *f,
 		}
 		PJ_LOG(3, (THIS_FILE, "We have the buffer method"));
 		//Call it
-		inputBuffSize = jni_env->CallStaticIntMethod(stream->record_class, get_min_buffer_size_method,
+		inputBuffSizeRec = jni_env->CallStaticIntMethod(stream->record_class, get_min_buffer_size_method,
 				param->clock_rate, 2, sampleFormat);
 
-		if(inputBuffSize <= 0){
+		if(inputBuffSizeRec <= 0){
 			PJ_LOG(2, (THIS_FILE, "Min buffer size is not a valid value"));
 			goto on_error;
 		}
-		PJ_LOG(3, (THIS_FILE, "Min buffer %d", inputBuffSize));
+		PJ_LOG(3, (THIS_FILE, "Min record buffer %d", inputBuffSizeRec));
 
-
-
-		//Get pointer to the constructor
-		constructor_method = jni_env->GetMethodID(stream->record_class,"<init>", "(IIIII)V");
-		if (constructor_method == 0) {
-			PJ_LOG(2, (THIS_FILE, "Not able to find audio record class constructor"));
-			goto on_error;
+		if(inputBuffSizeRec > inputBuffSize){
+			inputBuffSize = inputBuffSizeRec;
 		}
-
-		stream->record =  jni_env->NewObject(stream->record_class, constructor_method,
-					1, // Mic input source
-					param->clock_rate,
-					2, // CHANNEL_CONFIGURATION_MONO
-					sampleFormat,
-					inputBuffSize);
-
-
-		stream->record = jni_env->NewGlobalRef(stream->record);
-		if (stream->record == 0) {
-			PJ_LOG(1, (THIS_FILE, "Not able to instantiate record class"));
-			goto on_error;
-		}
-
-		//TODO check if initialized properly
-
-		PJ_LOG(3, (THIS_FILE, "We have the instance done"));
-
 	}
-
-
-
 
 	if (stream->dir & PJMEDIA_DIR_PLAYBACK) {
 		//Get pointer to the java class
@@ -632,14 +612,57 @@ static pj_status_t android_create_stream(pjmedia_aud_dev_factory *f,
 		}
 		PJ_LOG(3, (THIS_FILE, "We have the buffer method"));
 		//Call it
-		inputBuffSize = jni_env->CallStaticIntMethod(stream->track_class, get_min_buffer_size_method,
+		inputBuffSizePlay = jni_env->CallStaticIntMethod(stream->track_class, get_min_buffer_size_method,
 				param->clock_rate, 2, sampleFormat);
 
-		if(inputBuffSize < 0){
+		if(inputBuffSizePlay < 0){
 			PJ_LOG(2, (THIS_FILE, "Min buffer size is not a valid value"));
 			goto on_error;
 		}
-		PJ_LOG(3, (THIS_FILE, "Min buffer %d", inputBuffSize));
+		PJ_LOG(3, (THIS_FILE, "Min play buffer %d", inputBuffSizePlay));
+
+
+		if(inputBuffSizePlay > inputBuffSize){
+			inputBuffSize = inputBuffSizePlay;
+		}
+	}
+
+	PJ_LOG(3, (THIS_FILE, "Min buffer %d", inputBuffSize));
+
+
+
+	if (stream->dir & PJMEDIA_DIR_CAPTURE) {
+		//Get pointer to the constructor
+		constructor_method = jni_env->GetMethodID(stream->record_class,"<init>", "(IIIII)V");
+		if (constructor_method == 0) {
+			PJ_LOG(2, (THIS_FILE, "Not able to find audio record class constructor"));
+			goto on_error;
+		}
+
+		stream->record =  jni_env->NewObject(stream->record_class, constructor_method,
+					1, // Mic input source
+					param->clock_rate,
+					2, // CHANNEL_CONFIGURATION_MONO
+					sampleFormat,
+					inputBuffSizeRec);
+
+
+		stream->record = jni_env->NewGlobalRef(stream->record);
+		if (stream->record == 0) {
+			PJ_LOG(1, (THIS_FILE, "Not able to instantiate record class"));
+			goto on_error;
+		}
+
+		//TODO check if initialized properly
+
+		PJ_LOG(3, (THIS_FILE, "We have the instance done"));
+
+	}
+
+
+
+
+	if (stream->dir & PJMEDIA_DIR_PLAYBACK) {
 
 		//Get pointer to the constructor
 		constructor_method = jni_env->GetMethodID(stream->track_class,"<init>", "(IIIIII)V");
@@ -654,7 +677,7 @@ static pj_status_t android_create_stream(pjmedia_aud_dev_factory *f,
 					param->clock_rate,
 					2, // CHANNEL_CONFIGURATION_MONO
 					sampleFormat,
-					inputBuffSize /**2*/,
+					inputBuffSizePlay /**2*/,
 					1); // MODE_STREAM
 
 

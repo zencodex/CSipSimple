@@ -1,4 +1,4 @@
-/* $Id: g722.c 3202 2010-06-11 13:38:42Z nanang $ */
+/* $Id: g722.c 3250 2010-08-05 10:41:48Z nanang $ */
 /* 
  * Copyright (C) 2008-2009 Teluu Inc. (http://www.teluu.com)
  * Copyright (C) 2003-2008 Benny Prijono <benny@prijono.org>
@@ -588,7 +588,7 @@ static pj_status_t g722_codec_encode(pjmedia_codec *codec,
 	pj_int16_t *p, *end;
 
 	p = (pj_int16_t*)input->buf;
-	end = p + input->size;
+	end = p + input->size/2;
 	while (p < end) {
 	    *p++ >>= g722_data->pcm_shift;
 	}

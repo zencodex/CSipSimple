@@ -1,4 +1,4 @@
-/* $Id: log.c 2868 2009-08-12 17:50:52Z nanang $ */
+/* $Id: log.c 3255 2010-08-06 07:18:08Z nanang $ */
 /* 
  * Copyright (C) 2008-2009 Teluu Inc. (http://www.teluu.com)
  * Copyright (C) 2003-2008 Benny Prijono <benny@prijono.org>
@@ -30,7 +30,11 @@ PJ_DEF_DATA(int) pj_log_max_level = PJ_LOG_MAX_LEVEL;
 #else
 static int pj_log_max_level = PJ_LOG_MAX_LEVEL;
 #endif
+
+#if PJ_HAS_THREADS
 static long thread_suspended_tls_id = -1;
+#endif
+
 static pj_log_func *log_writer = &pj_log_write;
 static unsigned log_decor = PJ_LOG_HAS_TIME | PJ_LOG_HAS_MICRO_SEC |
 			    PJ_LOG_HAS_SENDER | PJ_LOG_HAS_NEWLINE |
@@ -67,15 +71,15 @@ static pj_color_t PJ_LOG_COLOR_77 = PJ_TERM_COLOR_R |
 static char log_buffer[PJ_LOG_MAX_SIZE];
 #endif
 
+#if PJ_HAS_THREADS
 static void logging_shutdown(void)
 {
-#if PJ_HAS_THREADS
     if (thread_suspended_tls_id != -1) {
 	pj_thread_local_free(thread_suspended_tls_id);
 	thread_suspended_tls_id = -1;
     }
-#endif
 }
+#endif
 
 pj_status_t pj_log_init(void)
 {

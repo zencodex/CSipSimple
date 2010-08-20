@@ -1,4 +1,4 @@
-/* $Id: pjsua.h 3222 2010-06-24 12:33:18Z bennylp $ */
+/* $Id: pjsua.h 3243 2010-08-01 09:48:51Z bennylp $ */
 /* 
  * Copyright (C) 2008-2009 Teluu Inc. (http://www.teluu.com)
  * Copyright (C) 2003-2008 Benny Prijono <benny@prijono.org>
@@ -1186,10 +1186,26 @@ struct pjsua_msg_data
     pj_str_t	content_type;
 
     /**
-     * Optional message body.
+     * Optional message body to be added to the message, only when the
+     * message doesn't have a body.
      */
     pj_str_t	msg_body;
 
+    /**
+     * Content type of the multipart body. If application wants to send
+     * multipart message bodies, it puts the parts in \a parts and set
+     * the content type in \a multipart_ctype. If the message already
+     * contains a body, the body will be added to the multipart bodies.
+     */
+    pjsip_media_type  multipart_ctype;
+
+    /**
+     * List of multipart parts. If application wants to send multipart
+     * message bodies, it puts the parts in \a parts and set the content
+     * type in \a multipart_ctype. If the message already contains a body,
+     * the body will be added to the multipart bodies.
+     */
+    pjsip_multipart_part multipart_parts;
 };
 
 

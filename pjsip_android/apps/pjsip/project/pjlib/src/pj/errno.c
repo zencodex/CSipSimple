@@ -1,4 +1,4 @@
-/* $Id: errno.c 2992 2009-11-09 04:09:13Z bennylp $ */
+/* $Id: errno.c 3255 2010-08-06 07:18:08Z nanang $ */
 /* 
  * Copyright (C) 2008-2009 Teluu Inc. (http://www.teluu.com)
  * Copyright (C) 2003-2008 Benny Prijono <benny@prijono.org>
@@ -217,7 +217,7 @@ static void pj_perror_imp(int log_level, const char *sender,
 
     /* Build the title */
     len = pj_ansi_vsnprintf(titlebuf, sizeof(titlebuf), title_fmt, marker);
-    if (len < 0 || len >= sizeof(titlebuf))
+    if (len < 0 || len >= (int)sizeof(titlebuf))
 	pj_ansi_strcpy(titlebuf, "Error");
 
     /* Get the error */

@@ -222,6 +222,8 @@ public:
 		const pj_str_t *to, const pj_str_t *contact,
 		pj_bool_t is_typing) {}
 	virtual void on_nat_detect (const pj_stun_nat_detect_result *res) {}
+//	virtual void on_mwi_info (pjsua_acc_id acc_id
+///*XXX, pjsua_mwi_info *mwi_info*/){}
 };
 
 static Callback* registeredCallbackObject = NULL;
@@ -404,11 +406,11 @@ pjsip_redirect_op on_call_redirected_wrapper (pjsua_call_id  call_id, const pjsi
 	LOGI("REDIRECT OP...");
 
 }
-
-void on_mwi_info_wrapper (pjsua_acc_id acc_id, pjsua_mwi_info *mwi_info){
-
-}
 */
+//void on_mwi_info_wrapper (pjsua_acc_id acc_id, pjsua_mwi_info *mwi_info){
+//	registeredCallbackObject->on_mwi_info(acc_id/*, mwi_info*/);
+//}
+
 
 }
 
@@ -429,8 +431,8 @@ static struct pjsua_callback wrapper_callback_struct = {
 
 //	&on_incoming_subscribe_wrapper,
 //	&on_srv_subscribe_state_wrapper,
-	NULL,
-	NULL,
+	NULL, // incoming subscribe
+	NULL, // srv_subscribe state
 
 	&on_buddy_state_wrapper,
 	&on_pager_wrapper,
@@ -438,9 +440,10 @@ static struct pjsua_callback wrapper_callback_struct = {
 	&on_pager_status_wrapper,
 	&on_pager_status2_wrapper,
 	&on_typing_wrapper,
-	NULL,
+	NULL, //TYPING 2
 	&on_nat_detect_wrapper,
-	NULL
+	NULL, //on_call_redirected
+	NULL //&on_mwi_info_wrapper
 };
 
 
@@ -13531,6 +13534,187 @@ SWIGEXPORT jint JNICALL Java_org_pjsip_pjsua_pjsuaJNI_media_1transports_1create(
   return jresult;
 }
 
+//MWI info
+/*
+SWIGEXPORT void JNICALL Java_org_pjsip_pjsua_pjsuaJNI_pjsua_1mwi_1info_1evsub_1set(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_, jlong jarg2) {
+  pjsua_mwi_info *arg1 = (pjsua_mwi_info *) 0 ;
+  pjsip_evsub *arg2 = (pjsip_evsub *) 0 ;
+
+  (void)jenv;
+  (void)jcls;
+  (void)jarg1_;
+  arg1 = *(pjsua_mwi_info **)&jarg1;
+  arg2 = *(pjsip_evsub **)&jarg2;
+  if (arg1) (arg1)->evsub = arg2;
+}
+
+
+SWIGEXPORT jlong JNICALL Java_org_pjsip_pjsua_pjsuaJNI_pjsua_1mwi_1info_1evsub_1get(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_) {
+  jlong jresult = 0 ;
+  pjsua_mwi_info *arg1 = (pjsua_mwi_info *) 0 ;
+  pjsip_evsub *result = 0 ;
+
+  (void)jenv;
+  (void)jcls;
+  (void)jarg1_;
+  arg1 = *(pjsua_mwi_info **)&jarg1;
+  result = (pjsip_evsub *) ((arg1)->evsub);
+  *(pjsip_evsub **)&jresult = result;
+  return jresult;
+}
+
+
+SWIGEXPORT void JNICALL Java_org_pjsip_pjsua_pjsuaJNI_pjsua_1mwi_1info_1rdata_1set(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_, jlong jarg2) {
+  pjsua_mwi_info *arg1 = (pjsua_mwi_info *) 0 ;
+  pjsip_rx_data *arg2 = (pjsip_rx_data *) 0 ;
+
+  (void)jenv;
+  (void)jcls;
+  (void)jarg1_;
+  arg1 = *(pjsua_mwi_info **)&jarg1;
+  arg2 = *(pjsip_rx_data **)&jarg2;
+  if (arg1) (arg1)->rdata = arg2;
+}
+
+
+SWIGEXPORT jlong JNICALL Java_org_pjsip_pjsua_pjsuaJNI_pjsua_1mwi_1info_1rdata_1get(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_) {
+  jlong jresult = 0 ;
+  pjsua_mwi_info *arg1 = (pjsua_mwi_info *) 0 ;
+  pjsip_rx_data *result = 0 ;
+
+  (void)jenv;
+  (void)jcls;
+  (void)jarg1_;
+  arg1 = *(pjsua_mwi_info **)&jarg1;
+  result = (pjsip_rx_data *) ((arg1)->rdata);
+  *(pjsip_rx_data **)&jresult = result;
+  return jresult;
+}
+
+
+SWIGEXPORT jlong JNICALL Java_org_pjsip_pjsua_pjsuaJNI_new_1pjsua_1mwi_1info(JNIEnv *jenv, jclass jcls) {
+  jlong jresult = 0 ;
+  pjsua_mwi_info *result = 0 ;
+
+  (void)jenv;
+  (void)jcls;
+  result = (pjsua_mwi_info *)new pjsua_mwi_info();
+  *(pjsua_mwi_info **)&jresult = result;
+  return jresult;
+}
+
+
+SWIGEXPORT void JNICALL Java_org_pjsip_pjsua_pjsuaJNI_delete_1pjsua_1mwi_1info(JNIEnv *jenv, jclass jcls, jlong jarg1) {
+  pjsua_mwi_info *arg1 = (pjsua_mwi_info *) 0 ;
+
+  (void)jenv;
+  (void)jcls;
+  arg1 = *(pjsua_mwi_info **)&jarg1;
+  delete arg1;
+}
+*/
+#include <pjmedia-audiodev/audiodev.h>
+#include <pjmedia-audiodev/audiotest.h>
+
+SWIGEXPORT void JNICALL Java_org_pjsip_pjsua_pjsuaJNI_test_1audio_1dev(JNIEnv *jenv, jclass jcls, jlong jarg1, jlong jarg2) {
+//	pjmedia_dir dir, unsigned rec_id, unsigned play_id,
+//				unsigned clock_rate, unsigned ptime,
+//				unsigned chnum
+	unsigned int clock_rate;
+	unsigned int ptime;
+
+  (void)jenv;
+  (void)jcls;
+  clock_rate =  (unsigned int) jarg1;
+  ptime =  (unsigned int) jarg2;
+
+  pjmedia_aud_param param;
+  pjmedia_aud_test_results result;
+  pj_status_t status;
+
+  pjmedia_dir dir =  PJMEDIA_DIR_ENCODING_DECODING;
+
+  if (dir & PJMEDIA_DIR_CAPTURE) {
+	  status = pjmedia_aud_dev_default_param(0, &param);
+  }else{
+	  status = pjmedia_aud_dev_default_param(0, &param);
+  }
+
+  if (status != PJ_SUCCESS) {
+	PJ_LOG(1, (THIS_FILE, "pjmedia_aud_dev_default_param() %d", status));
+	return;
+  }
+
+  param.dir = dir;
+  param.rec_id = 0;
+  param.play_id = 0;
+  param.clock_rate = clock_rate;
+  param.channel_count = 1;
+  param.samples_per_frame = clock_rate * 1 * ptime / 1000;
+
+  /* Latency settings */
+  param.flags |= (PJMEDIA_AUD_DEV_CAP_INPUT_LATENCY |
+		    PJMEDIA_AUD_DEV_CAP_OUTPUT_LATENCY);
+  param.input_latency_ms = PJMEDIA_SND_DEFAULT_REC_LATENCY;
+  param.output_latency_ms = PJMEDIA_SND_DEFAULT_PLAY_LATENCY;
+
+  PJ_LOG(3,(THIS_FILE, "Performing test.."));
+
+  status = pjmedia_aud_test(&param, &result);
+  if (status != PJ_SUCCESS) {
+	  PJ_LOG(1, (THIS_FILE, "Test has completed with error %d", status));
+	return;
+  }
+
+  PJ_LOG(3,(THIS_FILE, "Done. Result:"));
+
+  if (dir & PJMEDIA_DIR_CAPTURE) {
+	if (result.rec.frame_cnt==0) {
+	    PJ_LOG(1,(THIS_FILE, "Error: no frames captured!"));
+	} else {
+	    PJ_LOG(3,(THIS_FILE, "  %-20s: interval (min/max/avg/dev)=%u/%u/%u/%u, burst=%u",
+		      "Recording result",
+		      result.rec.min_interval,
+		      result.rec.max_interval,
+		      result.rec.avg_interval,
+		      result.rec.dev_interval,
+		      result.rec.max_burst));
+	}
+  }
+
+  if (dir & PJMEDIA_DIR_PLAYBACK) {
+	if (result.play.frame_cnt==0) {
+	    PJ_LOG(1,(THIS_FILE, "Error: no playback!"));
+	} else {
+	    PJ_LOG(3,(THIS_FILE, "  %-20s: interval (min/max/avg/dev)=%u/%u/%u/%u, burst=%u",
+		      "Playback result",
+		      result.play.min_interval,
+		      result.play.max_interval,
+		      result.play.avg_interval,
+		      result.play.dev_interval,
+		      result.play.max_burst));
+	}
+  }
+
+  if (dir==PJMEDIA_DIR_CAPTURE_PLAYBACK) {
+	if (result.rec_drift_per_sec == 0) {
+	    PJ_LOG(3,(THIS_FILE, " No clock drift detected"));
+	} else {
+	    const char *which = result.rec_drift_per_sec>=0 ? "faster" : "slower";
+	    unsigned drift = result.rec_drift_per_sec>=0 ?
+				result.rec_drift_per_sec :
+				-result.rec_drift_per_sec;
+
+	    PJ_LOG(3,(THIS_FILE, " Clock drifts detected. Capture device "
+				 "is running %d samples per second %s "
+				 "than the playback device",
+				 drift, which));
+	}
+  }
+
+}
+
+
 
 SWIGEXPORT void JNICALL Java_org_pjsip_pjsua_pjsuaJNI_swig_1module_1init(JNIEnv *jenv, jclass jcls) {
   int i;
@@ -14437,6 +14621,7 @@ JNIEXPORT jint JNI_OnLoad(JavaVM *vm, void *reserved) {
 			{"codec_get_param", "(JLorg/pjsip/pjsua/pj_str_t;JLorg/pjsip/pjsua/pjmedia_codec_param;)I", (void*)& Java_org_pjsip_pjsua_pjsuaJNI_codec_1get_1param},
 			{"codec_set_param", "(JLorg/pjsip/pjsua/pj_str_t;JLorg/pjsip/pjsua/pjmedia_codec_param;)I", (void*)& Java_org_pjsip_pjsua_pjsuaJNI_codec_1set_1param},
 			{"media_transports_create", "(JLorg/pjsip/pjsua/pjsua_transport_config;)I", (void*)& Java_org_pjsip_pjsua_pjsuaJNI_media_1transports_1create},
+			{"test_audio_dev", "(JJ)V", (void*)& Java_org_pjsip_pjsua_pjsuaJNI_test_1audio_1dev},
 			{"swig_module_init", "()V", (void*)& Java_org_pjsip_pjsua_pjsuaJNI_swig_1module_1init}
 	};
 

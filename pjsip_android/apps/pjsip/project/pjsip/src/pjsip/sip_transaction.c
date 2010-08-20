@@ -1,4 +1,4 @@
-/* $Id: sip_transaction.c 3203 2010-06-15 05:14:10Z bennylp $ */
+/* $Id: sip_transaction.c 3262 2010-08-11 06:03:47Z bennylp $ */
 /* 
  * Copyright (C) 2008-2009 Teluu Inc. (http://www.teluu.com)
  * Copyright (C) 2003-2008 Benny Prijono <benny@prijono.org>
@@ -1861,6 +1861,8 @@ static void tsx_tp_state_callback( pjsip_transport *tp,
 				   pjsip_transport_state state,
 				   const pjsip_transport_state_info *info)
 {
+    PJ_UNUSED_ARG(tp);
+
     if (state == PJSIP_TP_STATE_DISCONNECTED) {
 	pjsip_transaction *tsx;
 	struct tsx_lock_data lck;

@@ -735,6 +735,10 @@ pj_status_t pjsua_media_subsys_destroy(void)
 	    pjmedia_codec_g7221_deinit();
 #	endif /* PJMEDIA_HAS_G7221_CODEC */
 
+#if PJMEDIA_HAS_G729_CODEC
+    pjmedia_codec_g729_deinit();
+#endif /* PJMEDIA_HAS_G729_CODEC */
+
 #	if PJMEDIA_HAS_L16_CODEC
 	    pjmedia_codec_l16_deinit();
 #	endif	/* PJMEDIA_HAS_L16_CODEC */
