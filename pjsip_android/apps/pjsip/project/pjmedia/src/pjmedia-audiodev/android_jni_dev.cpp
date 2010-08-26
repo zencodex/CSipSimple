@@ -87,21 +87,17 @@ struct android_aud_stream
 	jobject	record;
 	jclass 	record_class;
 	pjmedia_aud_rec_cb rec_cb;
-	pj_timestamp rec_timestamp;
 	pj_bool_t rec_thread_exited;
 	//pj_thread_desc rec_thread_desc;
 	pj_thread_t *rec_thread;
-	jbyte *rec_buf;
 
 	//Track
 	jobject	track;
 	jclass 	track_class;
 	pjmedia_aud_play_cb play_cb;
-	pj_timestamp play_timestamp;
 	pj_bool_t play_thread_exited;
 	//pj_thread_desc play_thread_desc;
 	pj_thread_t *play_thread;
-	jbyte *play_buf;
 
 	jclass ua_class;
 
@@ -164,9 +160,17 @@ static int PJ_THREAD_FUNC AndroidRecorderCallback(void* userData){
 
 	jmethodID read_method=0, record_method=0;
 	int bytesRead;
-	ssize_t frameSize;
+	int size =  stream->samples_per_frame * stream->bytes_per_sample;
+	int nframes = stream->samples_per_frame / stream->channel_count;
+	jbyte* buf;
 	pj_status_t status = 0;
 	jbyteArray inputBuffer;
+	pj_timestamp tstamp;
+
+
+
+
+
 
 	PJ_LOG(3,(THIS_FILE, "<< Enter recorder thread"));
 
@@ -182,57 +186,71 @@ static int PJ_THREAD_FUNC AndroidRecorderCallback(void* userData){
 		goto on_break;
 	}
 
-	frameSize = stream->samples_per_frame * stream->bytes_per_sample;
-
-
 	//Create a buffer for frames read
-	inputBuffer = jni_env->NewByteArray(frameSize);
+	inputBuffer = jni_env->NewByteArray(size);
 	if (inputBuffer == 0) {
 		PJ_LOG(2, (THIS_FILE, "Not able to allocate a buffer for input read process"));
 		goto on_break;
 	}
 
+
 	//start recording
-	setpriority(PRIO_PROCESS, 0, ANDROID_PRIORITY_URGENT_AUDIO);
+	setpriority(PRIO_PROCESS, 0, ANDROID_PRIORITY_AUDIO);
+
+	buf = jni_env->GetByteArrayElements(inputBuffer, 0);
+
+	//Init everything
+	tstamp.u64 = 0;
+	pj_bzero (buf, size);
 
 
 	jni_env->CallVoidMethod(stream->record, record_method);
 
-	while ( /*!stream->quit_flag &&*/ (bytesRead = jni_env->CallIntMethod(stream->record, read_method,
-			inputBuffer,
-			0,
-			frameSize))>0) {
+	while ( !stream->quit_flag ) {
+		pj_bzero (buf, size);
 
-		if(bytesRead == frameSize){
-
-			jni_env->GetByteArrayRegion(inputBuffer, 0, frameSize, (jbyte*) stream->rec_buf );
-
-			pjmedia_frame frame;
-
-			frame.type = PJMEDIA_FRAME_TYPE_AUDIO;
-			frame.size =  frameSize;
-			frame.bit_info = 0;
-			frame.buf = (void*) stream->rec_buf;
-			frame.timestamp.u64 = stream->rec_timestamp.u64;
-
-		//	PJ_LOG(3, (THIS_FILE, "New audio record frame to treat : %d <size : %d>", frame.type, frame.size));
-
-			status = (*stream->rec_cb)(stream->user_data, &frame);
-			if (status != PJ_SUCCESS){
-				PJ_LOG(1, (THIS_FILE, "Error in record callback"));
-				goto on_finish;
-			}
-
-
-			//Update for next step
-			stream->rec_timestamp.u64 += stream->samples_per_frame / stream->channel_count;
-		}else{
-			PJ_LOG(3, (THIS_FILE, "Overrun..."));
+		bytesRead = jni_env->CallIntMethod(stream->record, read_method,
+					inputBuffer,
+					0,
+					size);
+		if(bytesRead<=0){
+			PJ_LOG (3, (THIS_FILE, "Record thread : error while reading data... is there something we can do here? %d", bytesRead));
+			continue;
 		}
+		if(stream->quit_flag){
+			break;
+		}
+		if(bytesRead != size){
+			PJ_LOG(3, (THIS_FILE, "Overrun..."));
+			continue;
+		}
+
+		//jni_env->GetByteArrayRegion(inputBuffer, 0, size, buf );
+
+		pjmedia_frame frame;
+
+		frame.type = PJMEDIA_FRAME_TYPE_AUDIO;
+		frame.size =  size;
+		frame.bit_info = 0;
+		frame.buf = (void*) buf;
+		frame.timestamp.u64 = tstamp.u64;
+
+	//	PJ_LOG(3, (THIS_FILE, "New audio record frame to treat : %d <size : %d>", frame.type, frame.size));
+
+		status = (*stream->rec_cb)(stream->user_data, &frame);
+		if (status != PJ_SUCCESS){
+			PJ_LOG(1, (THIS_FILE, "Error in record callback"));
+			goto on_finish;
+		}
+
+
+		//Update for next step
+		tstamp.u64 += nframes;
 	};
 
 
 	on_finish:
+		jni_env->ReleaseByteArrayElements(inputBuffer, buf, 0);
 		jni_env->DeleteLocalRef(inputBuffer);
 
 	on_break:
@@ -251,8 +269,11 @@ static int PJ_THREAD_FUNC AndroidTrackCallback(void* userData){
 	//jmethodID get_state_method=0;
 	pj_status_t status = 0;
 	//jint track_state;
+	int size =  stream->samples_per_frame * stream->bytes_per_sample;
+	int nframes = stream->samples_per_frame / stream->channel_count;
+	jbyte* buf;
 	jbyteArray outputBuffer;
-	ssize_t frameSize = stream->samples_per_frame * stream->bytes_per_sample;
+	pj_timestamp tstamp;
 
 	PJ_LOG(3,(THIS_FILE, "<< Enter player thread"));
 
@@ -270,8 +291,6 @@ static int PJ_THREAD_FUNC AndroidTrackCallback(void* userData){
 	}*/
 
 
-	//start playing
-	setpriority(PRIO_PROCESS, 0, ANDROID_PRIORITY_URGENT_AUDIO);
 
 
 
@@ -283,18 +302,31 @@ static int PJ_THREAD_FUNC AndroidTrackCallback(void* userData){
 		goto on_break;
 	}*/
 
-	outputBuffer = jni_env->NewByteArray(frameSize);
+	outputBuffer = jni_env->NewByteArray(size);
+	if (outputBuffer == 0) {
+		PJ_LOG(2, (THIS_FILE, "Not able to allocate a buffer for input play process"));
+		goto on_break;
+	}
 
+	buf = jni_env->GetByteArrayElements(outputBuffer, 0);
 
+	setpriority(PRIO_PROCESS, 0, ANDROID_PRIORITY_AUDIO);
+
+	//start playing
 	jni_env->CallVoidMethod(stream->track, play_method);
 
-	while ( !stream->quit_flag ) {
+	//Init everything
+	tstamp.u64 = 0;
+	pj_bzero (buf, size);
 
+	while ( !stream->quit_flag ) {
+		pj_bzero (buf, size);
 		pjmedia_frame frame;
+
 		frame.type = PJMEDIA_FRAME_TYPE_AUDIO;
-		frame.size = frameSize;
-		frame.buf = (void *) stream->play_buf;
-		frame.timestamp.u64 = stream->play_timestamp.u64;
+		frame.size = size;
+		frame.buf = (void *) buf;
+		frame.timestamp.u64 = tstamp.u64;
 		frame.bit_info = 0;
 
 		//Fill frame from pj
@@ -308,14 +340,15 @@ static int PJ_THREAD_FUNC AndroidTrackCallback(void* userData){
 			PJ_LOG(3, (THIS_FILE, "Hey, not an audio frame !!!"));
 			continue;
 		}
-
-		if(frameSize != frame.size){
-			PJ_LOG(2, (THIS_FILE, "Frame size doesn't match : %d vs %d", frame.size, frameSize) );
+		/*
+		if(size != frame.size){
+			PJ_LOG(2, (THIS_FILE, "Frame size doesn't match : %d vs %d", frame.size, size) );
 		}
+		*/
 		//PJ_LOG(4, (THIS_FILE, "New audio track frame to treat : %d <size : %d>", frame.type, frame.size));
 
 		//Write to the java buffer
-		jni_env->SetByteArrayRegion(outputBuffer, 0, frame.size, (jbyte*)frame.buf);
+		//jni_env->SetByteArrayRegion(outputBuffer, 0, frame.size, (jbyte*)frame.buf);
 
 		//Write to the device output
 		status = jni_env->CallIntMethod(stream->track, write_method,
@@ -326,15 +359,15 @@ static int PJ_THREAD_FUNC AndroidTrackCallback(void* userData){
 		if(status < 0){
 			PJ_LOG(1, (THIS_FILE, "Error while writing %d ", status));
 			goto on_finish;
-		}else if(frameSize != status){
+		}else if(size != status){
 			PJ_LOG(2, (THIS_FILE, "Not everything written"));
 		}
 
-		stream->play_timestamp.u64 += stream->samples_per_frame / stream->channel_count;
-
+		tstamp.u64 += nframes;
 	};
 
 	on_finish:
+	jni_env->ReleaseByteArrayElements(outputBuffer, buf, 0);
 		jni_env->DeleteLocalRef(outputBuffer);
 
 
@@ -507,14 +540,6 @@ static pj_status_t android_create_stream(pjmedia_aud_dev_factory *f,
 	stream->rec_cb = rec_cb;
 	stream->play_cb = play_cb;
 
-	stream->rec_buf = (jbyte*)pj_pool_alloc(pool,
-			stream->samples_per_frame * stream->bytes_per_sample);
-	stream->rec_timestamp.u64 = 0;
-
-	stream->play_buf = (jbyte*)pj_pool_alloc(pool,
-			stream->samples_per_frame * stream->bytes_per_sample);
-	stream->play_timestamp.u64 = 0;
-
 	int inputBuffSize=0, inputBuffSizePlay, inputBuffSizeRec;
 	int sampleFormat;
 
@@ -587,11 +612,14 @@ static pj_status_t android_create_stream(pjmedia_aud_dev_factory *f,
 			PJ_LOG(2, (THIS_FILE, "Min buffer size is not a valid value"));
 			goto on_error;
 		}
+	//	inputBuffSizeRec = inputBuffSizeRec << 1;
 		PJ_LOG(3, (THIS_FILE, "Min record buffer %d", inputBuffSizeRec));
+
 
 		if(inputBuffSizeRec > inputBuffSize){
 			inputBuffSize = inputBuffSizeRec;
 		}
+
 	}
 
 	if (stream->dir & PJMEDIA_DIR_PLAYBACK) {
@@ -619,6 +647,7 @@ static pj_status_t android_create_stream(pjmedia_aud_dev_factory *f,
 			PJ_LOG(2, (THIS_FILE, "Min buffer size is not a valid value"));
 			goto on_error;
 		}
+		//inputBuffSizePlay = inputBuffSizePlay << 1;
 		PJ_LOG(3, (THIS_FILE, "Min play buffer %d", inputBuffSizePlay));
 
 
