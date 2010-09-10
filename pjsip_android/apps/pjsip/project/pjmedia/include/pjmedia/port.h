@@ -1,4 +1,4 @@
-/* $Id: port.h 2506 2009-03-12 18:11:37Z bennylp $ */
+/* $Id: port.h 3292 2010-08-24 10:45:01Z nanang $ */
 /* 
  * Copyright (C) 2008-2009 Teluu Inc. (http://www.teluu.com)
  * Copyright (C) 2003-2008 Benny Prijono <benny@prijono.org>
@@ -218,7 +218,7 @@ typedef struct pjmedia_port_info
     unsigned	    channel_count;	/**< Number of channels.	    */
     unsigned	    bits_per_sample;	/**< Bits/sample		    */
     unsigned	    samples_per_frame;	/**< No of samples per frame.	    */
-    unsigned	    bytes_per_frame;	/**< No of samples per frame.	    */
+    unsigned	    bytes_per_frame;	/**< No of bytes per frame.	    */
 } pjmedia_port_info;
 
 

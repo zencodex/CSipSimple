@@ -71,7 +71,8 @@ include $(NDK_TOOLCHAIN.$(TARGET_TOOLCHAIN).setup)
 TARGET_GDBSERVER := $(dir $(TARGET_CC))/gdbserver
 
 # compute NDK_APP_DST_DIR as the destination directory for the generated files
-NDK_APP_DST_DIR := $(NDK_APP_PROJECT_PATH)/libs/$(TARGET_ARCH_ABI)/$(TARGET_PLATFORM)
+NDK_APP_DST_DIR := $(NDK_APP_PROJECT_PATH)/libs/$(TARGET_ARCH_ABI)
+#/$(TARGET_PLATFORM)
 
 # Ensure that for debuggable applications, gdbserver will be copied to
 # the proper location

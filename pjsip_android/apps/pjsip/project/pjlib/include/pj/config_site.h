@@ -345,10 +345,10 @@
 #if defined(PJ_ANDROID) && PJ_ANDROID!=0
 
 //    #define PJ_LOG_USE_STACK_BUFFER             1
-
+	//#define PJSUA_DEFAULT_AUDIO_FRAME_PTIME 30
 
 	/* Optimizations */
-	#define PJMEDIA_HAS_ALAW_ULAW_TABLE 1
+//	#define PJMEDIA_HAS_ALAW_ULAW_TABLE 1
 	#define PJ_ENABLE_EXTRA_CHECK   0
 
 	//Conference ports?
@@ -404,6 +404,9 @@
      * set to 4 to make sure pjsua instantiates resampler with small filter.
      */
     #define PJSUA_DEFAULT_CODEC_QUALITY         4
+	//We need hi availablitly so retry each minute if network fails -
+	//all the more so as we unregister if network not available for us
+	#define PJSUA_REG_RETRY_INTERVAL	60
 	//#define PJSUA_DEFAULT_ILBC_MODE 			20
 
 
@@ -418,5 +421,6 @@
     #define PJSUA_MAX_RECORDERS			4
     #define PJSUA_MAX_CONF_PORTS		(PJSUA_MAX_CALLS+2*PJSUA_MAX_PLAYERS)
     #define PJSUA_MAX_BUDDIES			32
+
 
 #endif

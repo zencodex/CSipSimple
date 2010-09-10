@@ -1,4 +1,4 @@
-/* $Id: pjsua.h 3243 2010-08-01 09:48:51Z bennylp $ */
+/* $Id: pjsua.h 3305 2010-09-07 09:36:15Z nanang $ */
 /* 
  * Copyright (C) 2008-2009 Teluu Inc. (http://www.teluu.com)
  * Copyright (C) 2003-2008 Benny Prijono <benny@prijono.org>
@@ -314,6 +314,15 @@ typedef struct pjsua_msg_data pjsua_msg_data;
  */
 #ifndef PJSUA_ADD_ICE_TAGS
 #   define PJSUA_ADD_ICE_TAGS		1
+#endif
+
+/**
+ * Timeout value used to acquire mutex lock on a particular call.
+ *
+ * Default: 2000 ms
+ */
+#ifndef PJSUA_ACQUIRE_CALL_TIMEOUT
+#   define PJSUA_ACQUIRE_CALL_TIMEOUT 2000
 #endif
 
 
@@ -877,6 +886,36 @@ typedef struct pjsua_callback
 } pjsua_callback;
 
 
+/**
+ * This enumeration specifies the usage of SIP Session Timers extension.
+ */
+typedef enum pjsua_sip_timer_use
+{
+    /**
+     * When this flag is specified, Session Timers will not be used in any
+     * session, except it is explicitly required in the remote request.
+     */
+    PJSUA_SIP_TIMER_INACTIVE,
+
+    /**
+     * When this flag is specified, Session Timers will be used in all 
+     * sessions whenever remote supports and uses it.
+     */
+    PJSUA_SIP_TIMER_OPTIONAL,
+
+    /**
+     * When this flag is specified, Session Timers support will be 
+     * a requirement for the remote to be able to establish a session.
+     */
+    PJSUA_SIP_TIMER_REQUIRED,
+
+    /**
+     * When this flag is specified, Session Timers will always be used
+     * in all sessions, regardless whether remote supports/uses it or not.
+     */
+    PJSUA_SIP_TIMER_ALWAYS
+
+} pjsua_sip_timer_use;
 
 
 /**
@@ -1024,13 +1063,13 @@ typedef struct pjsua_config
     pj_bool_t	    require_100rel;
 
     /**
-     * Specify whether support for Session Timers should be required by 
-     * default. Note that this setting can be further customized in account
-     * configuration (#pjsua_acc_config).
+     * Specify the usage of Session Timers for all sessions. See the
+     * #pjsua_sip_timer_use for possible values. Note that this setting can be
+     * further customized in account configuration (#pjsua_acc_config).
      *
-     * Default: PJ_FALSE
+     * Default: PJSUA_SIP_TIMER_OPTIONAL
      */
-    pj_bool_t	    require_timer;
+    pjsua_sip_timer_use use_timer;
 
     /**
      * Handle unsolicited NOTIFY requests containing message waiting 
@@ -2089,12 +2128,12 @@ typedef struct pjsua_acc_config
     pj_bool_t	    require_100rel;
 
     /**
-     * Specify whether support for Session Timers should be required for all 
-     * sessions of this account.
+     * Specify the usage of Session Timers for all sessions. See the
+     * #pjsua_sip_timer_use for possible values.
      *
-     * Default: PJ_FALSE
+     * Default: PJSUA_SIP_TIMER_OPTIONAL
      */
-    pj_bool_t	    require_timer;
+    pjsua_sip_timer_use use_timer;
 
     /**
      * Specify Session Timer settings, see #pjsip_timer_setting. 
@@ -2339,6 +2378,14 @@ typedef struct pjsua_acc_info
      * status code of the registration.
      */
     pjsip_status_code	status;
+
+    /**
+     * Last registration error code. When the status field contains a SIP
+     * status code that indicates a registration failure, last registration
+     * error code contains the error code that causes the failure. In any
+     * other case, its value is zero.
+     */
+    pj_status_t	        reg_last_err;
 
     /**
      * String describing the registration status.

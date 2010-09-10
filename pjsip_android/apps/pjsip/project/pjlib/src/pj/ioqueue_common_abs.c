@@ -1,4 +1,4 @@
-/* $Id: ioqueue_common_abs.c 3088 2010-02-05 11:11:52Z bennylp $ */
+/* $Id: ioqueue_common_abs.c 3299 2010-08-27 06:46:29Z ming $ */
 /* 
  * Copyright (C) 2008-2009 Teluu Inc. (http://www.teluu.com)
  * Copyright (C) 2003-2008 Benny Prijono <benny@prijono.org>
@@ -529,6 +529,16 @@ void ioqueue_dispatch_read_event( pj_ioqueue_t *ioqueue, pj_ioqueue_key_t *h )
 
             /* In any case we would report this to caller. */
             bytes_read = -rc;
+
+#if defined(PJ_IPHONE_OS_HAS_MULTITASKING_SUPPORT) && \
+    PJ_IPHONE_OS_HAS_MULTITASKING_SUPPORT!=0
+	    /* Special treatment for dead UDP sockets here, see ticket #1107 */
+	    if (rc == PJ_STATUS_FROM_OS(ENOTCONN) && !IS_CLOSING(h) &&
+		h->fd_type==pj_SOCK_DGRAM())
+	    {
+		replace_udp_sock(h);
+	    }
+#endif
 	}
 
 	/* Unlock; from this point we don't need to hold key's mutex

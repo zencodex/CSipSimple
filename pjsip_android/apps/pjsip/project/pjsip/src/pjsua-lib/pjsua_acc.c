@@ -1,4 +1,4 @@
-/* $Id: pjsua_acc.c 3222 2010-06-24 12:33:18Z bennylp $ */
+/* $Id: pjsua_acc.c 3305 2010-09-07 09:36:15Z nanang $ */
 /* 
  * Copyright (C) 2008-2009 Teluu Inc. (http://www.teluu.com)
  * Copyright (C) 2003-2008 Benny Prijono <benny@prijono.org>
@@ -737,7 +737,7 @@ PJ_DEF(pj_status_t) pjsua_acc_modify( pjsua_acc_id acc_id,
     acc->cfg.require_100rel = cfg->require_100rel;
 
     /* Session timer */
-    acc->cfg.require_timer = cfg->require_timer;
+    acc->cfg.use_timer = cfg->use_timer;
     acc->cfg.timer_setting = cfg->timer_setting;
 
     /* Transport and keep-alive */
@@ -1799,14 +1799,12 @@ PJ_DEF(pj_status_t) pjsua_acc_get_info( pjsua_acc_id acc_id,
     else
 	info->online_status_text = pj_str("Offline");
 
-    if (acc->reg_last_err) {
-	info->status = (pjsip_status_code) acc->reg_last_err;
-	pj_strerror(acc->reg_last_err, info->buf_, sizeof(info->buf_));
-	info->status_text = pj_str(info->buf_);
-    } else if (acc->reg_last_code) {
+    if (acc->reg_last_code) {
 	if (info->has_registration) {
 	    info->status = (pjsip_status_code) acc->reg_last_code;
 	    info->status_text = *pjsip_get_status_text(acc->reg_last_code);
+            if (acc->reg_last_err)
+	        info->reg_last_err = acc->reg_last_err;
 	} else {
 	    info->status = (pjsip_status_code) 0;
 	    info->status_text = pj_str("not registered");

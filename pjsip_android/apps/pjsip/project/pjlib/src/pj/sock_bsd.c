@@ -1,4 +1,4 @@
-/* $Id: sock_bsd.c 3238 2010-07-15 13:32:11Z ming $ */
+/* $Id: sock_bsd.c 3299 2010-08-27 06:46:29Z ming $ */
 /* 
  * Copyright (C) 2008-2009 Teluu Inc. (http://www.teluu.com)
  * Copyright (C) 2003-2008 Benny Prijono <benny@prijono.org>
@@ -513,12 +513,21 @@ PJ_DEF(pj_status_t) pj_sock_socket(int af,
     PJ_ASSERT_RETURN(sock!=NULL, PJ_EINVAL);
     PJ_ASSERT_RETURN(PJ_INVALID_SOCKET==-1, 
                      (*sock=PJ_INVALID_SOCKET, PJ_EINVAL));
-
+    
     *sock = socket(af, type, proto);
     if (*sock == PJ_INVALID_SOCKET)
 	return PJ_RETURN_OS_ERROR(pj_get_native_netos_error());
-    else 
+    else {
+#if defined(PJ_IPHONE_OS_HAS_MULTITASKING_SUPPORT) && \
+    PJ_IPHONE_OS_HAS_MULTITASKING_SUPPORT!=0
+	pj_int32_t val = 1;
+	if (type == pj_SOCK_DGRAM()) {
+	    pj_sock_setsockopt(*sock, pj_SOL_SOCKET(), SO_NOSIGPIPE, 
+			       &val, sizeof(val));
+	}
+#endif
 	return PJ_SUCCESS;
+    }
 }
 #endif
 
