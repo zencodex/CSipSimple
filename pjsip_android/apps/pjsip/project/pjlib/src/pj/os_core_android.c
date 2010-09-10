@@ -1552,16 +1552,16 @@ PJ_DEF(pj_status_t) pj_sem_wait(pj_sem_t *sem)
     PJ_CHECK_STACK();
     PJ_ASSERT_RETURN(sem, PJ_EINVAL);
 
-    PJ_LOG(6, (sem->obj_name, "Semaphore: thread %s is waiting", 
+    PJ_LOG(6, (sem->obj_name, "Semaphore: thread %s is waiting",
 			      pj_thread_this()->obj_name));
 
     result = sem_wait( sem->sem );
     
     if (result == 0) {
-	PJ_LOG(6, (sem->obj_name, "Semaphore acquired by thread %s", 
+	PJ_LOG(6, (sem->obj_name, "Semaphore acquired by thread %s",
 				  pj_thread_this()->obj_name));
     } else {
-	PJ_LOG(6, (sem->obj_name, "Semaphore: thread %s FAILED to acquire", 
+	PJ_LOG(6, (sem->obj_name, "Semaphore: thread %s FAILED to acquire",
 				  pj_thread_this()->obj_name));
     }
 

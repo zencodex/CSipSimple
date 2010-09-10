@@ -99,7 +99,11 @@ struct android_aud_stream
 	//pj_thread_desc play_thread_desc;
 	pj_thread_t *play_thread;
 
+//	pj_sem_t *audio_launch_sem;
+
 	jclass ua_class;
+
+
 
 };
 
@@ -165,12 +169,10 @@ static int PJ_THREAD_FUNC AndroidRecorderCallback(void* userData){
 	jbyte* buf;
 	pj_status_t status = 0;
 	jbyteArray inputBuffer;
-	pj_timestamp tstamp;
+	pj_timestamp tstamp, now, last_frame;
 
-
-
-
-
+	int next_frame_in = 0;
+	pj_uint32_t frame_time = nframes * 1000 / stream->samples_per_sec;
 
 	PJ_LOG(3,(THIS_FILE, "<< Enter recorder thread"));
 
@@ -201,14 +203,35 @@ static int PJ_THREAD_FUNC AndroidRecorderCallback(void* userData){
 
 	//Init everything
 	tstamp.u64 = 0;
+	pj_get_timestamp(&last_frame);
 	pj_bzero (buf, size);
 
 
 	jni_env->CallVoidMethod(stream->record, record_method);
 
+//	pj_sem_post(stream->audio_launch_sem);
+
+
+
+
 	while ( !stream->quit_flag ) {
 		pj_bzero (buf, size);
 
+		pj_get_timestamp(&now);
+		next_frame_in = frame_time - (pj_elapsed_msec(&last_frame, &now));
+		//PJ_LOG (4, (THIS_FILE, ">> %d / %8d", frame_rate,  pj_elapsed_usec(&last_frame, &now)/1000));
+		last_frame = now;
+
+		//PJ_LOG (4, (THIS_FILE, "Next frame %d", next_frame_in));
+		if (next_frame_in > 0) {
+			//PJ_LOG (4, (THIS_FILE, "Wait for buffer %d", next_frame_in));
+			pj_thread_sleep(next_frame_in);
+			if(next_frame_in-2 > 0){
+				last_frame.u64 += (next_frame_in-2)*1000;
+			}
+		}
+
+		//pj_get_timestamp(&last_frame);
 		bytesRead = jni_env->CallIntMethod(stream->record, read_method,
 					inputBuffer,
 					0,
@@ -225,6 +248,7 @@ static int PJ_THREAD_FUNC AndroidRecorderCallback(void* userData){
 			continue;
 		}
 
+	//	PJ_LOG(4,(THIS_FILE, "Valid record frame read"));
 		//jni_env->GetByteArrayRegion(inputBuffer, 0, size, buf );
 
 		pjmedia_frame frame;
@@ -238,6 +262,8 @@ static int PJ_THREAD_FUNC AndroidRecorderCallback(void* userData){
 	//	PJ_LOG(3, (THIS_FILE, "New audio record frame to treat : %d <size : %d>", frame.type, frame.size));
 
 		status = (*stream->rec_cb)(stream->user_data, &frame);
+	//	PJ_LOG(4,(THIS_FILE, "Valid record frame sent to network stack"));
+
 		if (status != PJ_SUCCESS){
 			PJ_LOG(1, (THIS_FILE, "Error in record callback"));
 			goto on_finish;
@@ -256,6 +282,7 @@ static int PJ_THREAD_FUNC AndroidRecorderCallback(void* userData){
 	on_break:
 		DETACH_JVM(jni_env);
 		PJ_LOG(3,(THIS_FILE, ">> Record thread stopped"));
+//		pj_sem_post(stream->audio_launch_sem);
 		stream->rec_thread_exited = 1;
 		return 0;
 }
@@ -290,10 +317,6 @@ static int PJ_THREAD_FUNC AndroidTrackCallback(void* userData){
 		goto on_break;
 	}*/
 
-
-
-
-
 	/*
 	track_state = jni_env->CallIntMethod(stream->track, get_state_method);
 	PJ_LOG(3,(THIS_FILE, "Player state is now %d", track_state));
@@ -319,6 +342,8 @@ static int PJ_THREAD_FUNC AndroidTrackCallback(void* userData){
 	tstamp.u64 = 0;
 	pj_bzero (buf, size);
 
+//	pj_sem_post(stream->audio_launch_sem);
+
 	while ( !stream->quit_flag ) {
 		pj_bzero (buf, size);
 		pjmedia_frame frame;
@@ -340,6 +365,8 @@ static int PJ_THREAD_FUNC AndroidTrackCallback(void* userData){
 			PJ_LOG(3, (THIS_FILE, "Hey, not an audio frame !!!"));
 			continue;
 		}
+
+	//	PJ_LOG(4,(THIS_FILE, "Valid play frame get from network stack"));
 		/*
 		if(size != frame.size){
 			PJ_LOG(2, (THIS_FILE, "Frame size doesn't match : %d vs %d", frame.size, size) );
@@ -363,6 +390,8 @@ static int PJ_THREAD_FUNC AndroidTrackCallback(void* userData){
 			PJ_LOG(2, (THIS_FILE, "Not everything written"));
 		}
 
+	//	PJ_LOG(4,(THIS_FILE, "Valid play frame sent to the audio layer"));
+
 		tstamp.u64 += nframes;
 	};
 
@@ -373,6 +402,7 @@ static int PJ_THREAD_FUNC AndroidTrackCallback(void* userData){
 
 	on_break:
 		DETACH_JVM(jni_env);
+//		pj_sem_post(stream->audio_launch_sem);
 		PJ_LOG(3,(THIS_FILE, ">> Play thread stopped"));
 		stream->play_thread_exited = 1;
 		return 0;
@@ -513,6 +543,7 @@ static pj_status_t android_create_stream(pjmedia_aud_dev_factory *f,
 	struct android_aud_factory *pa = (struct android_aud_factory*)f;
 	pj_pool_t *pool;
 	struct android_aud_stream *stream;
+	pj_status_t status;
 
 
 	PJ_ASSERT_RETURN(play_cb && rec_cb && p_aud_strm, PJ_EINVAL);
@@ -539,6 +570,15 @@ static pj_status_t android_create_stream(pjmedia_aud_dev_factory *f,
 	stream->channel_count = param->channel_count;
 	stream->rec_cb = rec_cb;
 	stream->play_cb = play_cb;
+
+	PJ_LOG(3, (THIS_FILE, "Create stream : %d samples/sec, %d samples/frame, %d bytes/sample", stream->samples_per_sec, stream->samples_per_frame, stream->bytes_per_sample));
+
+/*
+	if(pj_sem_create(pool, NULL, 0, 2, &stream->audio_launch_sem) != PJ_SUCCESS){
+		pj_pool_release(pool);
+		return PJ_ENOMEM;
+	}
+*/
 
 	int inputBuffSize=0, inputBuffSizePlay, inputBuffSizeRec;
 	int sampleFormat;
@@ -612,8 +652,13 @@ static pj_status_t android_create_stream(pjmedia_aud_dev_factory *f,
 			PJ_LOG(2, (THIS_FILE, "Min buffer size is not a valid value"));
 			goto on_error;
 		}
-	//	inputBuffSizeRec = inputBuffSizeRec << 1;
+
+		if(inputBuffSizeRec <= 4096){
+			inputBuffSizeRec = 4096 * 3/2;
+		}
+
 		PJ_LOG(3, (THIS_FILE, "Min record buffer %d", inputBuffSizeRec));
+
 
 
 		if(inputBuffSizeRec > inputBuffSize){
@@ -647,6 +692,14 @@ static pj_status_t android_create_stream(pjmedia_aud_dev_factory *f,
 			PJ_LOG(2, (THIS_FILE, "Min buffer size is not a valid value"));
 			goto on_error;
 		}
+
+		//Not sure that's a good idea
+		/*
+		if(inputBuffSizePlay < 2*2*1024*param->clock_rate/8000){
+			inputBuffSizePlay = 2*2*1024*param->clock_rate/8000;
+		}
+		*/
+
 		//inputBuffSizePlay = inputBuffSizePlay << 1;
 		PJ_LOG(3, (THIS_FILE, "Min play buffer %d", inputBuffSizePlay));
 
@@ -825,10 +878,13 @@ static pj_status_t strm_start(pjmedia_aud_stream *s)
 
 	//Start threads
 	if(stream->record){
+
+
 		status = pj_thread_create(stream->pool, "android_recorder", &AndroidRecorderCallback, stream, 0, 0,  &stream->rec_thread);
 		if (status != PJ_SUCCESS) {
 			goto on_error;
 		}
+//		pj_sem_wait(stream->audio_launch_sem);
 	}
 
 	if(stream->track){
@@ -836,6 +892,7 @@ static pj_status_t strm_start(pjmedia_aud_stream *s)
 		if (status != PJ_SUCCESS) {
 			goto on_error;
 		}
+//		pj_sem_wait(stream->audio_launch_sem);
 	}
 
 	PJ_LOG(4,(THIS_FILE, "Starting done"));
@@ -962,6 +1019,7 @@ static pj_status_t strm_destroy(pjmedia_aud_stream *s)
 		PJ_LOG(2,(THIS_FILE, "Nothing to release !!! track"));
 	}
 
+//	pj_sem_destroy(stream->audio_launch_sem);
 	pj_pool_release(stream->pool);
 	PJ_LOG(3,(THIS_FILE, "Stream is destroyed"));
 

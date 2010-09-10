@@ -1,4 +1,4 @@
-/* $Id: ipp_codecs.c 3263 2010-08-11 07:18:08Z nanang $ */
+/* $Id: ipp_codecs.c 3288 2010-08-18 15:08:30Z nanang $ */
 /* 
  * Copyright (C) 2008-2009 Teluu Inc. (http://www.teluu.com)
  * Copyright (C) 2003-2008 Benny Prijono <benny@prijono.org>
@@ -1027,7 +1027,10 @@ static pj_status_t ipp_codec_open( pjmedia_codec *codec,
 	    if (pj_stricmp2(&attr->setting.enc_fmtp.param[i].name, "annexb")==0)
 	    {
 		if (pj_stricmp2(&attr->setting.enc_fmtp.param[i].val, "no")==0)
+		{
+		    attr->setting.vad = 0;
 		    codec_data->info->params.modes.vad = 0;
+		}
 		break;
 	    }
 	}

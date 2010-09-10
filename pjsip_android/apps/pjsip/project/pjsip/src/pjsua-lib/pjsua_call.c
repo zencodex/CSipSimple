@@ -1,4 +1,4 @@
-/* $Id: pjsua_call.c 3243 2010-08-01 09:48:51Z bennylp $ */
+/* $Id: pjsua_call.c 3305 2010-09-07 09:36:15Z nanang $ */
 /* 
  * Copyright (C) 2008-2009 Teluu Inc. (http://www.teluu.com)
  * Copyright (C) 2003-2008 Benny Prijono <benny@prijono.org>
@@ -493,11 +493,15 @@ PJ_DEF(pj_status_t) pjsua_call_make_call( pjsua_acc_id acc_id,
 
     /* Create the INVITE session: */
     options |= PJSIP_INV_SUPPORT_100REL;
-    options |= PJSIP_INV_SUPPORT_TIMER;
     if (acc->cfg.require_100rel)
 	options |= PJSIP_INV_REQUIRE_100REL;
-    if (acc->cfg.require_timer)
-	options |= PJSIP_INV_REQUIRE_TIMER;
+    if (acc->cfg.use_timer != PJSUA_SIP_TIMER_INACTIVE) {
+	options |= PJSIP_INV_SUPPORT_TIMER;
+	if (acc->cfg.use_timer == PJSUA_SIP_TIMER_REQUIRED)
+	    options |= PJSIP_INV_REQUIRE_TIMER;
+	else if (acc->cfg.use_timer == PJSUA_SIP_TIMER_ALWAYS)
+	    options |= PJSIP_INV_ALWAYS_USE_TIMER;
+    }
 
     status = pjsip_inv_create_uac( dlg, offer, options, &inv);
     if (status != PJ_SUCCESS) {
@@ -839,10 +843,12 @@ pj_bool_t pjsua_call_on_incoming(pjsip_rx_data *rdata)
     options |= PJSIP_INV_SUPPORT_TIMER;
     if (pjsua_var.acc[acc_id].cfg.require_100rel)
 	options |= PJSIP_INV_REQUIRE_100REL;
-    if (pjsua_var.acc[acc_id].cfg.require_timer)
-	options |= PJSIP_INV_REQUIRE_TIMER;
     if (pjsua_var.media_cfg.enable_ice)
 	options |= PJSIP_INV_SUPPORT_ICE;
+    if (pjsua_var.acc[acc_id].cfg.use_timer == PJSUA_SIP_TIMER_REQUIRED)
+	options |= PJSIP_INV_REQUIRE_TIMER;
+    else if (pjsua_var.acc[acc_id].cfg.use_timer == PJSUA_SIP_TIMER_ALWAYS)
+	options |= PJSIP_INV_ALWAYS_USE_TIMER;
 
     status = pjsip_inv_verify_request2(rdata, &options, offer, answer, NULL,
 				       pjsua_var.endpt, &response);
@@ -908,6 +914,15 @@ pj_bool_t pjsua_call_on_incoming(pjsip_rx_data *rdata)
     /* Set preference */
     pjsip_auth_clt_set_prefs(&dlg->auth_sess, 
 			     &pjsua_var.acc[acc_id].cfg.auth_pref);
+
+    /* Disable Session Timers if not prefered and the incoming INVITE request
+     * did not require it.
+     */
+    if (pjsua_var.acc[acc_id].cfg.use_timer == PJSUA_SIP_TIMER_INACTIVE && 
+	(options & PJSIP_INV_REQUIRE_TIMER) == 0)
+    {
+	options &= ~(PJSIP_INV_SUPPORT_TIMER);
+    }
 
     /* Create invite session: */
     status = pjsip_inv_create_uas( dlg, rdata, answer, options, &inv);
@@ -1130,13 +1145,26 @@ pj_status_t acquire_call(const char *title,
 				pjsua_call **p_call,
 				pjsip_dialog **p_dlg)
 {
-    enum { MAX_RETRY=50 };
     unsigned retry;
     pjsua_call *call = NULL;
     pj_bool_t has_pjsua_lock = PJ_FALSE;
     pj_status_t status = PJ_SUCCESS;
+    pj_time_val time_start, timeout;
 
-    for (retry=0; retry<MAX_RETRY; ++retry) {
+    pj_gettimeofday(&time_start);
+    timeout.msec = PJSUA_ACQUIRE_CALL_TIMEOUT;
+    pj_time_val_normalize(&timeout);
+
+    for (retry=0; ; ++retry) {
+
+        if (retry % 10 == 9) {
+            pj_time_val dtime;
+
+            pj_gettimeofday(&dtime);
+            PJ_TIME_VAL_SUB(dtime, time_start);
+            if (!PJ_TIME_VAL_LT(dtime, timeout))
+                break;
+        }
 	
 	has_pjsua_lock = PJ_FALSE;
 

@@ -8178,11 +8178,12 @@ SWIGEXPORT void JNICALL Java_org_pjsip_pjsua_pjsuaJNI_delete_1pjsua_1transport_1
 }
 
 
-SWIGEXPORT jint JNICALL Java_org_pjsip_pjsua_pjsuaJNI_transport_1create(JNIEnv *jenv, jclass jcls, jint jarg1, jlong jarg2, jobject jarg2_, jlong jarg3) {
+SWIGEXPORT jint JNICALL Java_org_pjsip_pjsua_pjsuaJNI_transport_1create(JNIEnv *jenv, jclass jcls, jint jarg1, jlong jarg2, jobject jarg2_, jintArray jarg3) {
   jint jresult = 0 ;
   pjsip_transport_type_e arg1 ;
   pjsua_transport_config *arg2 = (pjsua_transport_config *) 0 ;
   pjsua_transport_id *arg3 = (pjsua_transport_id *) 0 ;
+  pjsua_transport_id temp3 ;
   pj_status_t result;
   
   (void)jenv;
@@ -8190,8 +8191,26 @@ SWIGEXPORT jint JNICALL Java_org_pjsip_pjsua_pjsuaJNI_transport_1create(JNIEnv *
   (void)jarg2_;
   arg1 = (pjsip_transport_type_e)jarg1; 
   arg2 = *(pjsua_transport_config **)&jarg2; 
-  arg3 = *(pjsua_transport_id **)&jarg3; 
+
+
+  {
+      if (!jarg3) {
+        SWIG_JavaThrowException(jenv, SWIG_JavaNullPointerException, "array null");
+        return 0;
+      }
+      if (jenv->GetArrayLength(jarg3) == 0) {
+        SWIG_JavaThrowException(jenv, SWIG_JavaIndexOutOfBoundsException, "Array must contain at least 1 element");
+        return 0;
+      }
+      arg3 = &temp3;
+    }
+
+
   result = (pj_status_t)pjsua_transport_create(arg1,(pjsua_transport_config const *)arg2,arg3);
+  {
+      jint jvalue = (jint)temp3;
+      jenv->SetIntArrayRegion(jarg3, 0, 1, &jvalue);
+   }
   jresult = (jint)result; 
   return jresult;
 }
@@ -14283,7 +14302,7 @@ JNIEXPORT jint JNI_OnLoad(JavaVM *vm, void *reserved) {
 			{"pjsua_transport_info_usage_count_get", "(JLorg/pjsip/pjsua/pjsua_transport_info;)J", (void*)& Java_org_pjsip_pjsua_pjsuaJNI_pjsua_1transport_1info_1usage_1count_1get},
 			{"new_pjsua_transport_info", "()J", (void*)& Java_org_pjsip_pjsua_pjsuaJNI_new_1pjsua_1transport_1info},
 			{"delete_pjsua_transport_info", "(J)V", (void*)& Java_org_pjsip_pjsua_pjsuaJNI_delete_1pjsua_1transport_1info},
-			{"transport_create", "(IJLorg/pjsip/pjsua/pjsua_transport_config;J)I", (void*)& Java_org_pjsip_pjsua_pjsuaJNI_transport_1create},
+			{"transport_create", "(IJLorg/pjsip/pjsua/pjsua_transport_config;[I)I", (void*)& Java_org_pjsip_pjsua_pjsuaJNI_transport_1create},
 			{"transport_register", "(JJ)I", (void*)& Java_org_pjsip_pjsua_pjsuaJNI_transport_1register},
 			{"transport_get_count", "()J", (void*)& Java_org_pjsip_pjsua_pjsuaJNI_transport_1get_1count},
 			{"enum_transports", "([I[J)I", (void*)& Java_org_pjsip_pjsua_pjsuaJNI_enum_1transports},
