@@ -217,19 +217,22 @@ static int PJ_THREAD_FUNC AndroidRecorderCallback(void* userData){
 	while ( !stream->quit_flag ) {
 		pj_bzero (buf, size);
 
+
 		pj_get_timestamp(&now);
 		next_frame_in = frame_time - (pj_elapsed_msec(&last_frame, &now));
 		//PJ_LOG (4, (THIS_FILE, ">> %d / %8d", frame_rate,  pj_elapsed_usec(&last_frame, &now)/1000));
 		last_frame = now;
-
+		//if(next_frame_in > 0){
+		//	pj_thread_sleep(next_frame_in);
+		//}
 		//PJ_LOG (4, (THIS_FILE, "Next frame %d", next_frame_in));
-		if (next_frame_in > 0) {
+		if (next_frame_in-2 > 0) {
 			//PJ_LOG (4, (THIS_FILE, "Wait for buffer %d", next_frame_in));
-			pj_thread_sleep(next_frame_in);
-			if(next_frame_in-2 > 0){
-				last_frame.u64 += (next_frame_in-2)*1000;
-			}
+			pj_thread_sleep(next_frame_in-2);
+			last_frame.u64 += (next_frame_in-2)*1000;
+
 		}
+
 
 		//pj_get_timestamp(&last_frame);
 		bytesRead = jni_env->CallIntMethod(stream->record, read_method,
