@@ -131,6 +131,7 @@ static void digest2str(const unsigned char digest[], char *output)
  * digest ASCII in 'result'. 
  */
 PJ_DEF(void) pjsip_auth_create_digest( pj_str_t *result,
+					   pj_pool_t *pool,
 				       const pj_str_t *nonce,
 				       const pj_str_t *nc,
 				       const pj_str_t *cnonce,
@@ -138,18 +139,72 @@ PJ_DEF(void) pjsip_auth_create_digest( pj_str_t *result,
 				       const pj_str_t *uri,
 				       const pj_str_t *realm,
 				       const pjsip_cred_info *cred_info,
-				       const pj_str_t *method)
+				       const pj_str_t *method,
+				       const pj_str_t* cid)
 {
     char ha1[PJSIP_MD5STRLEN];
     char ha2[PJSIP_MD5STRLEN];
     unsigned char digest[16];
     pj_md5_context pms;
+    int i, len;
+    pj_status_t status;
+    pj_str_t new_nonce;
 
     pj_assert(result->slen >= PJSIP_MD5STRLEN);
-
+    PJ_LOG(4,(THIS_FILE, "Create digest !!"));
     AUTH_TRACE_((THIS_FILE, "Begin creating digest"));
 
-    if ((cred_info->data_type & PASSWD_MASK) == PJSIP_CRED_DATA_PLAIN_PASSWD) {
+#if PJSIP_HAS_DIGEST_MJMD5_AUTH
+    if((cred_info->data_type & PASSWD_MASK) == PJSIP_CRED_DATA_MJMD5){
+    	//PJ_LOG(4,(THIS_FILE, "Alloc pool"));
+    	len = nonce->slen + 1 + 8 +1;
+		new_nonce.ptr = (char*) pj_pool_alloc(pool, len);
+
+		pj_strcpy(&new_nonce, nonce);
+
+		//PJ_LOG(4,(THIS_FILE, "Copy nounce"));
+		/*
+		 * Call-ID is used as a lookup table to append the nonce value
+		 * 75E16D8104254DB68CFE... callid
+		 * 0123456789abcdef....... index
+		 * First an underscore is appended to the nonce
+		 * Now take the first hex character of the nonce which is 5 so get the callid character at index 5
+		 * This is a D since the index is zero based
+		 * Append a D to the nonce and so on
+		 * The final nonce = 5437837f0_06998_D6110116 in this example
+		 * The next block of code does the trick
+		 */
+		//PJ_LOG(4, (THIS_FILE, "Call-ID : %.*s  Nonce : %.*s ",  cid->slen,cid->ptr, nonce->slen, nonce->ptr));
+		// Calculate new nonce
+		pj_strcat2(&new_nonce, "_");
+		//PJ_LOG(4, (THIS_FILE, "0 - New nonce : %.*s",  new_nonce.slen, new_nonce.ptr));
+		char hex[2];
+		hex[1] = 0;
+		for (i = 0; i < 8; i++) {
+			hex[0] = nonce->ptr[i];
+			int x = strtol(hex, NULL, 16);
+			pj_memcpy(new_nonce.ptr + new_nonce.slen, &cid->ptr[x], 1);
+			new_nonce.slen = new_nonce.slen + 1;
+			//pj_strcat2(&new_nonce, &cid->ptr[x]);
+			//new_nonce.ptr[base_len+i] = cid->ptr[x];
+		}
+		new_nonce.ptr[new_nonce.slen] = '\0';
+		//PJ_LOG(4, (THIS_FILE, "New nonce : %.*s",  new_nonce.slen, new_nonce.ptr));
+    }else{
+#endif
+    	new_nonce.ptr = (char*) pj_pool_alloc(pool, nonce->slen);
+		new_nonce.slen = len;
+		pj_strcpy(&new_nonce, nonce);
+#if PJSIP_HAS_DIGEST_MJMD5_AUTH
+    }
+#endif
+
+
+    if ((cred_info->data_type & PASSWD_MASK) == PJSIP_CRED_DATA_PLAIN_PASSWD
+#if PJSIP_HAS_DIGEST_MJMD5_AUTH
+    		|| (cred_info->data_type & PASSWD_MASK) == PJSIP_CRED_DATA_MJMD5
+#endif
+    	) {
 	/*** 
 	 *** ha1 = MD5(username ":" realm ":" password) 
 	 ***/
@@ -194,7 +249,7 @@ PJ_DEF(void) pjsip_auth_create_digest( pj_str_t *result,
     pj_md5_init(&pms);
     MD5_APPEND( &pms, ha1, PJSIP_MD5STRLEN);
     MD5_APPEND( &pms, ":", 1);
-    MD5_APPEND( &pms, nonce->ptr, nonce->slen);
+    MD5_APPEND( &pms, new_nonce.ptr, new_nonce.slen);
     if (qop && qop->slen != 0) {
 	MD5_APPEND( &pms, ":", 1);
 	MD5_APPEND( &pms, nc->ptr, nc->slen);
@@ -212,7 +267,7 @@ PJ_DEF(void) pjsip_auth_create_digest( pj_str_t *result,
     /* Convert digest to string and store in chal->response. */
     result->slen = PJSIP_MD5STRLEN;
     digest2str(digest, result->ptr);
-
+    PJ_LOG(4, (THIS_FILE, "  digest=%.32s", result->ptr));
     AUTH_TRACE_((THIS_FILE, "  digest=%.32s", result->ptr));
     AUTH_TRACE_((THIS_FILE, "Digest created"));
 }
@@ -261,6 +316,7 @@ static pj_status_t respond_digest( pj_pool_t *pool,
 				   pjsip_digest_credential *cred,
 				   const pjsip_digest_challenge *chal,
 				   const pj_str_t *uri,
+				   const pj_str_t *cid,
 				   const pjsip_cred_info *cred_info,
 				   const pj_str_t *cnonce,
 				   pj_uint32_t nc,
@@ -300,12 +356,11 @@ static pj_status_t respond_digest( pj_pool_t *pool,
 	    /* Call application callback to create the response digest */
 	    return (*cred_info->ext.aka.cb)(pool, chal, cred_info, 
 					    method, cred);
-	} 
-	else {
+	} else {
 	    /* Convert digest to string and store in chal->response. */
-	    pjsip_auth_create_digest( &cred->response, &cred->nonce, NULL, 
+	    pjsip_auth_create_digest( &cred->response, pool, &cred->nonce, NULL,
 				      NULL,  NULL, uri, &chal->realm, 
-				      cred_info, method);
+				      cred_info, method, cid);
 	}
 
     } else if (has_auth_qop(pool, &chal->qop)) {
@@ -329,9 +384,9 @@ static pj_status_t respond_digest( pj_pool_t *pool,
 					    method, cred);
 	}
 	else {
-	    pjsip_auth_create_digest( &cred->response, &cred->nonce, 
+	    pjsip_auth_create_digest( &cred->response, pool, &cred->nonce,
 				      &cred->nc, cnonce, &pjsip_AUTH_STR, 
-				      uri, &chal->realm, cred_info, method );
+				      uri, &chal->realm, cred_info, method, cid );
 	}
 
     } else {
@@ -630,6 +685,7 @@ static pj_status_t auth_respond( pj_pool_t *req_pool,
 				 const pjsip_uri *uri,
 				 const pjsip_cred_info *cred_info,
 				 const pjsip_method *method,
+				 const pj_str_t* cid,
 				 pj_pool_t *sess_pool,
 				 pjsip_cached_auth *cached_auth,
 				 pjsip_authorization_hdr **p_h_auth)
@@ -692,7 +748,7 @@ static pj_status_t auth_respond( pj_pool_t *req_pool,
 
 	hauth->scheme = pjsip_DIGEST_STR;
 	status = respond_digest( pool, &hauth->credential.digest,
-				 &hdr->challenge.digest, &uri_str, cred_info,
+				 &hdr->challenge.digest, &uri_str, cid, cred_info,
 				 cnonce, nc, &method->name);
 	if (status != PJ_SUCCESS)
 	    return status;
@@ -957,6 +1013,7 @@ static pj_status_t process_auth( pj_pool_t *req_pool,
 				 const pjsip_www_authenticate_hdr *hchal,
 				 const pjsip_uri *uri,
 				 pjsip_tx_data *tdata,
+				 const pjsip_rx_data *rdata,
 				 pjsip_auth_clt_sess *sess,
 				 pjsip_cached_auth *cached_auth,
 				 pjsip_authorization_hdr **h_auth)
@@ -1060,7 +1117,7 @@ static pj_status_t process_auth( pj_pool_t *req_pool,
 
     /* Respond to authorization challenge. */
     status = auth_respond( req_pool, hchal, uri, cred, 
-			   &tdata->msg->line.req.method, 
+			   &tdata->msg->line.req.method, &rdata->msg_info.cid->id,
 			   sess->pool, cached_auth, h_auth);
     return status;
 }
@@ -1139,7 +1196,7 @@ PJ_DEF(pj_status_t) pjsip_auth_clt_reinit_req(	pjsip_auth_clt_sess *sess,
 	 * authorization session.
 	 */
 	status = process_auth( tdata->pool, hchal, tdata->msg->line.req.uri, 
-			       tdata, sess, cached_auth, &hauth);
+			       tdata, rdata, sess, cached_auth, &hauth);
 	if (status != PJ_SUCCESS)
 	    return status;
 

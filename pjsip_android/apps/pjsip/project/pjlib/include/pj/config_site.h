@@ -358,6 +358,8 @@
     /* Disable floating point support */
     #define PJ_HAS_FLOATING_POINT		0
 
+	#define PJSIP_HAS_DIGEST_MJMD5_AUTH	1
+
 	/*
      * PJMEDIA settings
      */
@@ -395,6 +397,9 @@
      * is used, so increase the limit 
      */
   //  #define PJMEDIA_SOUND_BUFFER_COUNT          32
+
+//	#define PJMEDIA_SND_DEFAULT_REC_LATENCY 150
+//	#define PJMEDIA_SND_DEFAULT_PLAY_LATENCY 200
 
     /*
      * PJSUA settings.
