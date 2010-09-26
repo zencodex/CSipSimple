@@ -4,6 +4,25 @@
 {
 	"sip_core" : [
 		{
+			"id": "android-armeabi-v7a",
+			"filters" : {
+				"android.os.Build" : {
+					"CPU_ABI" : "^armeabi-v7a$"
+				}
+			},
+			"versions":[
+				{
+					"version" : "0.00-13",
+					"download_url" : "http://csipsimple.googlecode.com/files/android-armeabi-v7a_libpjsipjni-0.00-13.so.gz",
+					"changelog" : "Beta release"
+					
+				}
+			],
+			"label" : "CSipSimple build",
+			"description" : "PjSip for android armeabi-v7a devices",
+			"autoconf" : {}
+		},
+		{
 			"id": "android-armeabi",
 			"filters" : {
 				"android.os.Build$VERSION" : {
@@ -12,9 +31,9 @@
 			},
 			"versions":[
 				{
-					"version" : "0.00-12",
-					"download_url" : "http://csipsimple.googlecode.com/files/android-armeabi_libpjsipjni-0.00-12.so.gz",
-					"changelog" : "Fetedusip release"
+					"version" : "0.00-13",
+					"download_url" : "http://csipsimple.googlecode.com/files/android-armeabi_libpjsipjni-0.00-13.so.gz",
+					"changelog" : "Beta release"
 					
 				}
 			],
