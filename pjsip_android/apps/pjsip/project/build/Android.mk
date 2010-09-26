@@ -9,8 +9,9 @@ include $(TOP_LOCAL_PATH)/pjsip/build/Android.mk
 
 # Third party
 include $(TOP_LOCAL_PATH)/third_party/build/resample/Android.mk
-
 include $(TOP_LOCAL_PATH)/third_party/build/srtp/Android.mk
+
+
 ifeq ($(MY_USE_ILBC),1)
 	include $(TOP_LOCAL_PATH)/third_party/build/ilbc/Android.mk
 endif
@@ -23,6 +24,7 @@ endif
 ifeq ($(MY_USE_G729),1)
 	include $(TOP_LOCAL_PATH)/third_party/build/g729/Android.mk
 endif
+
 
 # pjsip JNI
 include $(TOP_LOCAL_PATH)/jni/Android.mk
