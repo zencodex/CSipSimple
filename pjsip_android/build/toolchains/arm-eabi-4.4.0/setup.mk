@@ -26,16 +26,6 @@
 TOOLCHAIN_NAME   := arm-eabi-4.4.0
 TOOLCHAIN_PREFIX := $(HOST_PREBUILT)/$(TOOLCHAIN_NAME)/bin/arm-eabi-
 
-ifeq ($(TARGET_ARCH_ABI),armv4)
-TARGET_CFLAGS.common := \
-    -I$(SYSROOT)/usr/include \
-    -fpic \
-    -ffunction-sections \
-    -funwind-tables \
-    -fstack-protector \
-    -fno-short-enums \
-    -D__ARM_ARCH_4T__
-else
 TARGET_CFLAGS.common := \
     -I$(SYSROOT)/usr/include \
     -fpic \
@@ -45,8 +35,8 @@ TARGET_CFLAGS.common := \
     -fstack-protector \
     -fno-short-enums \
     -D__ARM_ARCH_5__ -D__ARM_ARCH_5T__ \
-    -D__ARM_ARCH_5E__ -D__ARM_ARCH_5TE__ 
-endif
+    -D__ARM_ARCH_5E__ -D__ARM_ARCH_5TE__ \
+
 # This is to avoid the dreaded warning compiler message:
 #   note: the mangling of 'va_list' has changed in GCC 4.4
 #
@@ -63,16 +53,10 @@ ifeq ($(TARGET_ARCH_ABI),armeabi-v7a)
                           -mfpu=vfp
     TARGET_ARCH_LDFLAGS := -Wl,--fix-cortex-a8
 else
-ifeq ($(TARGET_ARCH_ABI),armv4)
-    TARGET_ARCH_CFLAGS := -march=armv4 \
-                            -msoft-float
-    TARGET_ARCH_LDFLAGS :=
-else
     TARGET_ARCH_CFLAGS := -march=armv5te \
                             -mtune=xscale \
                             -msoft-float
     TARGET_ARCH_LDFLAGS :=
-endif
 endif
 
 TARGET_CFLAGS.neon := \
@@ -84,28 +68,21 @@ TARGET_arm_release_CFLAGS :=  -O2 \
                               -funswitch-loops     \
                               -finline-limit=300
 
-
 TARGET_thumb_release_CFLAGS := -mthumb \
                                -Os \
                                -fomit-frame-pointer \
                                -fno-strict-aliasing \
                                -finline-limit=64
 
-
 # When building for debug, compile everything as arm.
 TARGET_arm_debug_CFLAGS := $(TARGET_arm_release_CFLAGS) \
                            -fno-omit-frame-pointer \
                            -fno-strict-aliasing
-ifeq ($(TARGET_ARCH_ABI),armv4)
-#Force arm
-TARGET_thumb_debug_CFLAGS := $(TARGET_arm_release_CFLAGS) \
-                           -fno-omit-frame-pointer \
-                           -fno-strict-aliasing
-else
+
 TARGET_thumb_debug_CFLAGS := $(TARGET_thumb_release_CFLAGS) \
                              -marm \
                              -fno-omit-frame-pointer
-endif
+
 # This function will be called to determine the target CFLAGS used to build
 # a C or Assembler source file, based on its tags.
 #
@@ -147,7 +124,6 @@ TARGET_LDFLAGS := $(TARGET_ARCH_LDFLAGS) -rdynamic
 
 TARGET_AR      := $(TOOLCHAIN_PREFIX)ar
 TARGET_ARFLAGS := crs
-
 
 TARGET_LIBGCC := $(shell $(TARGET_CC) -mthumb-interwork -print-libgcc-file-name)
 TARGET_LDLIBS := -Wl,-rpath-link=$(SYSROOT)/usr/lib
