@@ -1,4 +1,4 @@
-/* $Id: sip_transaction.h 3138 2010-04-14 06:57:35Z nanang $ */
+/* $Id: sip_transaction.h 3311 2010-09-15 07:42:14Z bennylp $ */
 /* 
  * Copyright (C) 2008-2009 Teluu Inc. (http://www.teluu.com)
  * Copyright (C) 2003-2008 Benny Prijono <benny@prijono.org>
@@ -86,6 +86,9 @@ struct pjsip_transaction
     pjsip_module	       *tsx_user;	/**< Transaction user.	    */
     pjsip_endpoint	       *endpt;          /**< Endpoint instance.     */
     pj_mutex_t		       *mutex;          /**< Mutex for this tsx.    */
+    pj_mutex_t		       *mutex_b;	/**< Second mutex to avoid
+						     deadlock. It is used to
+						     protect timer.	    */
 
     /*
      * Transaction identification.

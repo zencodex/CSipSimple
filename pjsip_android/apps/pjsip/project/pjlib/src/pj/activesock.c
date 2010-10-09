@@ -1,4 +1,4 @@
-/* $Id: activesock.c 3299 2010-08-27 06:46:29Z ming $ */
+/* $Id: activesock.c 3317 2010-09-22 13:21:40Z ming $ */
 /* 
  * Copyright (C) 2008-2009 Teluu Inc. (http://www.teluu.com)
  * Copyright (C) 2003-2008 Benny Prijono <benny@prijono.org>
@@ -84,6 +84,9 @@ struct pj_activesock_t
     CFReadStreamRef	 readStream;
 #endif
     
+    unsigned		 err_counter;
+    pj_status_t		 last_err;
+
     struct send_data	 send_data;
 
     struct read_op	*read_op;
@@ -216,8 +219,7 @@ PJ_DEF(pj_status_t) pj_activesock_create( pj_pool_t *pool,
 #if defined(PJ_IPHONE_OS_HAS_MULTITASKING_SUPPORT) && \
     PJ_IPHONE_OS_HAS_MULTITASKING_SUPPORT!=0
     asock->sock = sock;
-    pj_activesock_set_iphone_os_bg(asock,
-				   PJ_ACTIVESOCK_TCP_IPHONE_OS_BG);
+    asock->bg_setting = PJ_ACTIVESOCK_TCP_IPHONE_OS_BG;
 #endif
 
     *p_asock = asock;
@@ -790,6 +792,19 @@ static void ioqueue_on_accept_complete(pj_ioqueue_key_t *key,
     PJ_UNUSED_ARG(new_sock);
 
     do {
+	if (status == asock->last_err && status != PJ_SUCCESS) {
+	    asock->err_counter++;
+	    if (asock->err_counter >= PJ_ACTIVESOCK_MAX_CONSECUTIVE_ACCEPT_ERROR) {
+		PJ_LOG(3, ("", "Received %d consecutive errors: %d for the accept()"
+			       " operation, stopping further ioqueue accepts.",
+			       asock->err_counter, asock->last_err));
+		return;
+	    }
+	} else {
+	    asock->err_counter = 0;
+	    asock->last_err = status;
+	}
+
 	if (status==PJ_SUCCESS && asock->cb.on_accept_complete) {
 	    pj_bool_t ret;
 

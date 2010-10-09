@@ -1,4 +1,4 @@
-/* $Id: sip_errno.h 3110 2010-02-25 11:58:19Z nanang $  */
+/* $Id: sip_errno.h 3323 2010-09-28 07:43:18Z bennylp $  */
 /* 
  * Copyright (C) 2008-2009 Teluu Inc. (http://www.teluu.com)
  * Copyright (C) 2003-2008 Benny Prijono <benny@prijono.org>
@@ -96,6 +96,11 @@ PJ_BEGIN_DECL
  * SIP object is not initialized.
  */
 #define PJSIP_ENOTINITIALIZED	(PJSIP_ERRNO_START_PJSIP + 4)	/* 171004 */
+/**
+ * @hideinitializer
+ * Missing route set (for tel: URI)
+ */
+#define PJSIP_ENOROUTESET	(PJSIP_ERRNO_START_PJSIP + 5)	/* 171005 */
 
 
 /************************************************************

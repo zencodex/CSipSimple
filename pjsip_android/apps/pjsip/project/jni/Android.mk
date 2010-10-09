@@ -13,10 +13,15 @@ LOCAL_C_INCLUDES += $(LOCAL_PATH)/../pjsip/include $(LOCAL_PATH)/../pjlib-util/i
 			$(LOCAL_PATH)/../pjnath/include $(LOCAL_PATH)/
 LOCAL_CFLAGS := $(MY_PJSIP_FLAGS)
 
-LOCAL_SRC_FILES := pjsua_wrap.cpp
+LOCAL_SRC_FILES := pjsua_wrap.cpp pjsua_jni_addons.cpp
 #LOCAL_ARM_MODE := arm
 
 LOCAL_LDLIBS := -llog #-lmedia -lcutils -lutils
+ifeq ($(MY_USE_TLS),1)
+LOCAL_LDLIBS += -ldl 
+endif
+
+
 LOCAL_STATIC_LIBRARIES := pjsip pjmedia pjnath pjlib-util pjlib resample srtp 
 ifeq ($(MY_USE_ILBC),1)
 	LOCAL_STATIC_LIBRARIES += ilbc
@@ -30,6 +35,10 @@ endif
 ifeq ($(MY_USE_G729),1)
 	LOCAL_STATIC_LIBRARIES += g729
 endif
+ifeq ($(MY_USE_TLS),1)
+	LOCAL_STATIC_LIBRARIES += ssl crypto
+endif
+
 
 
 include $(BUILD_SHARED_LIBRARY)

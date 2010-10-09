@@ -1,4 +1,4 @@
-/* $Id: delaybuf.h 2394 2008-12-23 17:27:53Z bennylp $ */
+/* $Id: delaybuf.h 3327 2010-09-30 04:23:27Z bennylp $ */
 /* 
  * Copyright (C) 2008-2009 Teluu Inc. (http://www.teluu.com)
  * Copyright (C) 2003-2008 Benny Prijono <benny@prijono.org>
@@ -79,7 +79,7 @@ typedef struct pjmedia_delay_buf pjmedia_delay_buf;
  *			    in ms, if this value is negative or less than 
  *			    one frame time, default maximum delay used is
  *			    400 ms.
- * @param option	    Option flags, must be zero for now.
+ * @param options	    Option flags, must be zero for now.
  * @param p_b		    Pointer to receive the delay buffer instance.
  *
  * @return		    PJ_SUCCESS if the delay buffer has been

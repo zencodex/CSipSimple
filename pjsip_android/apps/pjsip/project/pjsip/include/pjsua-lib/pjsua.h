@@ -1,4 +1,4 @@
-/* $Id: pjsua.h 3305 2010-09-07 09:36:15Z nanang $ */
+/* $Id: pjsua.h 3330 2010-10-01 02:03:42Z bennylp $ */
 /* 
  * Copyright (C) 2008-2009 Teluu Inc. (http://www.teluu.com)
  * Copyright (C) 2003-2008 Benny Prijono <benny@prijono.org>
@@ -411,6 +411,16 @@ typedef struct pjsua_mwi_info
 
 
 /**
+ * Structure to be passed on registration callback.
+ */
+typedef struct pjsua_reg_info
+{
+    struct pjsip_regc_cbparam	*cbparam;   /**< Parameters returned by 
+						 registration callback.	*/
+} pjsua_reg_info;
+
+
+/**
  * This structure describes application callback to receive various event
  * notification from PJSUA-API. All of these callbacks are OPTIONAL, 
  * although definitely application would want to implement some of
@@ -582,9 +592,19 @@ typedef struct pjsua_callback
      * Application may then query the account info to get the
      * registration details.
      *
-     * @param acc_id	    Account ID.
+     * @param acc_id	    The account ID.
      */
     void (*on_reg_state)(pjsua_acc_id acc_id);
+
+    /**
+     * Notify application when registration status has changed.
+     * Application may inspect the registration info to get the
+     * registration status details.
+     *
+     * @param acc_id	    The account ID.
+     * @param info	    The registration info.
+     */
+    void (*on_reg_state2)(pjsua_acc_id acc_id, pjsua_reg_info *info);
 
     /**
      * Notification when incoming SUBSCRIBE request is received. Application
@@ -1520,13 +1540,29 @@ PJ_DECL(pj_status_t) pjsua_cancel_stun_resolution(void *token,
 
 /**
  * This is a utility function to verify that valid SIP url is given. If the
- * URL is valid, PJ_SUCCESS will be returned.
+ * URL is a valid SIP/SIPS scheme, PJ_SUCCESS will be returned.
  *
  * @param url		The URL, as NULL terminated string.
  *
  * @return		PJ_SUCCESS on success, or the appropriate error code.
+ *
+ * @see pjsua_verify_url()
  */
 PJ_DECL(pj_status_t) pjsua_verify_sip_url(const char *url);
+
+
+/**
+ * This is a utility function to verify that valid URI is given. Unlike
+ * pjsua_verify_sip_url(), this function will return PJ_SUCCESS if tel: URI
+ * is given.
+ *
+ * @param url		The URL, as NULL terminated string.
+ *
+ * @return		PJ_SUCCESS on success, or the appropriate error code.
+ *
+ * @see pjsua_verify_sip_url()
+ */
+PJ_DECL(pj_status_t) pjsua_verify_url(const char *url);
 
 
 /**
@@ -2005,6 +2041,45 @@ PJ_DECL(pj_status_t) pjsua_transport_close( pjsua_transport_id id,
 
 
 /**
+ * This enumeration specifies how we should offer call hold request to
+ * remote peer. The default value is set by compile time constant
+ * PJSUA_CALL_HOLD_TYPE_DEFAULT, and application may control the setting
+ * on per-account basis by manipulating \a call_hold_type field in
+ * #pjsua_acc_config.
+ */
+typedef enum pjsua_call_hold_type
+{
+    /**
+     * This will follow RFC 3264 recommendation to use a=sendonly,
+     * a=recvonly, and a=inactive attribute as means to signal call
+     * hold status. This is the correct value to use.
+     */
+    PJSUA_CALL_HOLD_TYPE_RFC3264,
+
+    /**
+     * This will use the old and deprecated method as specified in RFC 2543,
+     * and will offer c=0.0.0.0 in the SDP instead. Using this has many
+     * drawbacks such as inability to keep the media transport alive while
+     * the call is being put on hold, and should only be used if remote
+     * does not understand RFC 3264 style call hold offer.
+     */
+    PJSUA_CALL_HOLD_TYPE_RFC2543
+
+} pjsua_call_hold_type;
+
+
+/**
+ * Specify the default call hold type to be used in #pjsua_acc_config.
+ *
+ * Default is PJSUA_CALL_HOLD_TYPE_RFC3264, and there's no reason to change
+ * this except if you're communicating with an old/non-standard peer.
+ */
+#ifndef PJSUA_CALL_HOLD_TYPE_DEFAULT
+#   define PJSUA_CALL_HOLD_TYPE_DEFAULT		PJSUA_CALL_HOLD_TYPE_RFC3264
+#endif
+
+
+/**
  * This structure describes account configuration to be specified when
  * adding a new account with #pjsua_acc_add(). Application MUST initialize
  * this structure first by calling #pjsua_acc_config_default().
@@ -2041,6 +2116,12 @@ typedef struct pjsua_acc_config
      * value is empty, no account registration will be performed.
      */
     pj_str_t	    reg_uri;
+
+    /** 
+     * The optional custom SIP headers to be put in the registration
+     * request.
+     */
+    pjsip_hdr	    reg_hdr_list;
 
     /**
      * Subscribe to message waiting indication events (RFC 3842).
@@ -2316,6 +2397,25 @@ typedef struct pjsua_acc_config
      * Default: 3 (PJSUA_REG_USE_OUTBOUND_PROXY | PJSUA_REG_USE_ACC_PROXY)
      */
     unsigned	     reg_use_proxy;
+
+#if defined(PJMEDIA_STREAM_ENABLE_KA) && (PJMEDIA_STREAM_ENABLE_KA != 0)
+    /**
+     * Specify whether stream keep-alive and NAT hole punching with
+     * non-codec-VAD mechanism (see @ref PJMEDIA_STREAM_ENABLE_KA) is enabled
+     * for this account.
+     *
+     * Default: PJ_FALSE (disabled)
+     */
+    pj_bool_t	     use_stream_ka;
+#endif
+
+    /**
+     * Specify how to offer call hold to remote peer. Please see the
+     * documentation on #pjsua_call_hold_type for more info.
+     *
+     * Default: PJSUA_CALL_HOLD_TYPE_DEFAULT
+     */
+    pjsua_call_hold_type call_hold_type;
 
 } pjsua_acc_config;
 

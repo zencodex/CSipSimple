@@ -40,7 +40,7 @@
 #include <jvm_wrapper.h>
 
 
-
+#define COMPATIBLE_ALSA 1
 
 
 #define THIS_FILE	"android_jni_dev.cpp"
@@ -172,7 +172,8 @@ static int PJ_THREAD_FUNC AndroidRecorderCallback(void* userData){
 	pj_timestamp tstamp, now, last_frame;
 
 	int next_frame_in = 0;
-	pj_uint32_t frame_time = nframes * 1000 / stream->samples_per_sec;
+	int frame_time = nframes * 1000 / stream->samples_per_sec;
+	int retard = 0;
 
 	PJ_LOG(3,(THIS_FILE, "<< Enter recorder thread"));
 
@@ -203,42 +204,41 @@ static int PJ_THREAD_FUNC AndroidRecorderCallback(void* userData){
 
 	//Init everything
 	tstamp.u64 = 0;
-	pj_get_timestamp(&last_frame);
 	pj_bzero (buf, size);
 
 
 	jni_env->CallVoidMethod(stream->record, record_method);
-
-//	pj_sem_post(stream->audio_launch_sem);
-
-
-
+	pj_get_timestamp(&last_frame);
 
 	while ( !stream->quit_flag ) {
 		pj_bzero (buf, size);
 
-
+#if COMPATIBLE_ALSA
 		pj_get_timestamp(&now);
 		next_frame_in = frame_time - (pj_elapsed_msec(&last_frame, &now));
-		//PJ_LOG (4, (THIS_FILE, ">> %d / %8d", frame_rate,  pj_elapsed_usec(&last_frame, &now)/1000));
-		last_frame = now;
-		//if(next_frame_in > 0){
-		//	pj_thread_sleep(next_frame_in);
-		//}
 		//PJ_LOG (4, (THIS_FILE, "Next frame %d", next_frame_in));
 		if (next_frame_in-2 > 0) {
 			//PJ_LOG (4, (THIS_FILE, "Wait for buffer %d", next_frame_in));
 			pj_thread_sleep(next_frame_in-2);
-			last_frame.u64 += (next_frame_in-2)*1000;
-
+			retard = 0;
+		}else{
+			if(next_frame_in < 0){
+				retard += next_frame_in;
+			}
 		}
+#endif
 
-
-		//pj_get_timestamp(&last_frame);
 		bytesRead = jni_env->CallIntMethod(stream->record, read_method,
 					inputBuffer,
 					0,
 					size);
+
+#if COMPATIBLE_ALSA
+		if(retard <= frame_time){
+			pj_get_timestamp(&last_frame);
+		}
+#endif
+
 		if(bytesRead<=0){
 			PJ_LOG (3, (THIS_FILE, "Record thread : error while reading data... is there something we can do here? %d", bytesRead));
 			continue;

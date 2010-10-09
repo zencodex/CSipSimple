@@ -1,4 +1,4 @@
-/* $Id: pjsua_acc.c 3305 2010-09-07 09:36:15Z nanang $ */
+/* $Id: pjsua_acc.c 3326 2010-09-28 10:48:48Z nanang $ */
 /* 
  * Copyright (C) 2008-2009 Teluu Inc. (http://www.teluu.com)
  * Copyright (C) 2003-2008 Benny Prijono <benny@prijono.org>
@@ -91,6 +91,17 @@ PJ_DEF(void) pjsua_acc_config_dup( pj_pool_t *pool,
 	pjsip_cred_dup(pool, &dst->cred_info[i], &src->cred_info[i]);
     }
 
+    pj_list_init(&dst->reg_hdr_list);
+    if (!pj_list_empty(&src->reg_hdr_list)) {
+	const pjsip_hdr *hdr;
+
+	hdr = src->reg_hdr_list.next;
+	while (hdr != &src->reg_hdr_list) {
+	    pj_list_push_back(&dst->reg_hdr_list, pjsip_hdr_clone(pool, hdr));
+	    hdr = hdr->next;
+	}
+    }
+
     dst->ka_interval = src->ka_interval;
     pj_strdup(pool, &dst->ka_data, &src->ka_data);
 }
@@ -119,7 +130,7 @@ static pj_status_t initialize_acc(unsigned acc_id)
     pjsua_acc_config *acc_cfg = &pjsua_var.acc[acc_id].cfg;
     pjsua_acc *acc = &pjsua_var.acc[acc_id];
     pjsip_name_addr *name_addr;
-    pjsip_sip_uri *sip_uri, *sip_reg_uri;
+    pjsip_sip_uri *sip_reg_uri;
     pj_status_t status;
     unsigned i;
 
@@ -136,18 +147,27 @@ static pj_status_t initialize_acc(unsigned acc_id)
     }
 
     /* Local URI MUST be a SIP or SIPS: */
-
     if (!PJSIP_URI_SCHEME_IS_SIP(name_addr) && 
 	!PJSIP_URI_SCHEME_IS_SIPS(name_addr)) 
     {
-	pjsua_perror(THIS_FILE, "Invalid local URI", 
-		     PJSIP_EINVALIDSCHEME);
-	return PJSIP_EINVALIDSCHEME;
+	acc->display = name_addr->display;
+	acc->user_part = name_addr->display;
+	acc->srv_domain = pj_str("");
+	acc->srv_port = 0;
+    } else {
+	pjsip_sip_uri *sip_uri;
+
+	/* Get the SIP URI object: */
+	sip_uri = (pjsip_sip_uri*) pjsip_uri_get_uri(name_addr);
+
+	/* Save the user and domain part. These will be used when finding an
+	 * account for incoming requests.
+	 */
+	acc->display = name_addr->display;
+	acc->user_part = sip_uri->user;
+	acc->srv_domain = sip_uri->host;
+	acc->srv_port = 0;
     }
-
-
-    /* Get the SIP URI object: */
-    sip_uri = (pjsip_sip_uri*) pjsip_uri_get_uri(name_addr);
 
 
     /* Parse registrar URI, if any */
@@ -176,14 +196,6 @@ static pj_status_t initialize_acc(unsigned acc_id)
     } else {
 	sip_reg_uri = NULL;
     }
-
-    /* Save the user and domain part. These will be used when finding an 
-     * account for incoming requests.
-     */
-    acc->display = name_addr->display;
-    acc->user_part = sip_uri->user;
-    acc->srv_domain = sip_uri->host;
-    acc->srv_port = 0;
 
     if (sip_reg_uri) {
 	acc->srv_port = sip_reg_uri->port;
@@ -752,6 +764,10 @@ PJ_DEF(pj_status_t) pjsua_acc_modify( pjsua_acc_id acc_id,
     acc->cfg.use_srtp = cfg->use_srtp;
     acc->cfg.srtp_secure_signaling = cfg->srtp_secure_signaling;
     acc->cfg.srtp_optional_dup_offer = cfg->srtp_optional_dup_offer;    
+#endif
+
+#if defined(PJMEDIA_STREAM_ENABLE_KA) && (PJMEDIA_STREAM_ENABLE_KA != 0)
+    acc->cfg.use_stream_ka = cfg->use_stream_ka;
 #endif
 
     /* Global outbound proxy */
@@ -1509,9 +1525,19 @@ static void regc_cb(struct pjsip_regc_cbparam *param)
 	schedule_reregistration(acc);
     }
 
-    if (pjsua_var.ua_cfg.cb.on_reg_state)
-	(*pjsua_var.ua_cfg.cb.on_reg_state)(acc->index);
+    /* Call the registration status callback */
 
+    if (pjsua_var.ua_cfg.cb.on_reg_state) {
+	(*pjsua_var.ua_cfg.cb.on_reg_state)(acc->index);
+    }
+
+    if (pjsua_var.ua_cfg.cb.on_reg_state2) {
+	pjsua_reg_info reg_info;
+
+	reg_info.cbparam = param;
+	(*pjsua_var.ua_cfg.cb.on_reg_state2)(acc->index, &reg_info);
+    }
+    
     PJSUA_UNLOCK();
 }
 
@@ -1641,6 +1667,9 @@ static pj_status_t pjsua_regc_init(int acc_id)
 	if (!pj_list_empty(&route_set))
 	    pjsip_regc_set_route_set( acc->regc, &route_set );
     }
+
+    /* Add custom request headers specified in the account config */
+    pjsip_regc_add_headers(acc->regc, &acc->cfg.reg_hdr_list);
 
     /* Add other request headers. */
     if (pjsua_var.ua_cfg.user_agent.slen) {
@@ -2146,7 +2175,7 @@ PJ_DEF(pj_status_t) pjsua_acc_create_uac_contact( pj_pool_t *pool,
 
 	/* For non-SIP scheme, route set should be configured */
 	if (!PJSIP_URI_SCHEME_IS_SIP(uri) && !PJSIP_URI_SCHEME_IS_SIPS(uri))
-	    return PJSIP_EINVALIDREQURI;
+	    return PJSIP_ENOROUTESET;
 
 	sip_uri = (pjsip_sip_uri*)pjsip_uri_get_uri(uri);
     }

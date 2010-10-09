@@ -1,4 +1,4 @@
-/* $Id: types.h 2506 2009-03-12 18:11:37Z bennylp $ */
+/* $Id: types.h 3327 2010-09-30 04:23:27Z bennylp $ */
 /* 
  * Copyright (C) 2008-2009 Teluu Inc. (http://www.teluu.com)
  * Copyright (C) 2003-2008 Benny Prijono <benny@prijono.org>
@@ -458,7 +458,7 @@ pjmedia_frame_ext_get_subframe(const pjmedia_frame_ext *frm, unsigned n)
  *
  * @param frm		    The frame.
  * @param dst		    Destination buffer.
- * @param maxsize	    Maximum size to copy (i.e. the size of the
+ * @param maxlen	    Maximum size to copy (i.e. the size of the
  *			    destination buffer).
  *
  * @return		    Total size of payload copied.

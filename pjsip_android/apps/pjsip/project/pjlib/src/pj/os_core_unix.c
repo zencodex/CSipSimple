@@ -1,4 +1,4 @@
-/* $Id: os_core_unix.c 3180 2010-05-19 05:50:08Z bennylp $ */
+/* $Id: os_core_unix.c 3320 2010-09-24 07:49:32Z bennylp $ */
 /* 
  * Copyright (C) 2008-2009 Teluu Inc. (http://www.teluu.com)
  * Copyright (C) 2003-2008 Benny Prijono <benny@prijono.org>
@@ -213,6 +213,9 @@ PJ_DEF(void) pj_shutdown()
 	pj_thread_local_free(thread_tls_id);
 	thread_tls_id = -1;
     }
+
+    /* Ticket #1132: Assertion when (re)starting PJLIB on different thread */
+    pj_bzero(&main_thread, sizeof(main_thread));
 #endif
 
     /* Clear static variables */
@@ -311,7 +314,7 @@ PJ_DEF(int) pj_thread_get_prio_min(pj_thread_t *thread)
 #if defined _POSIX_PRIORITY_SCHEDULING
     return sched_get_priority_min(policy);
 #elif defined __OpenBSD__
-    /* OpenBSD doesn't have sched_get_priority_min/_max */
+    /* Thread prio min/max are declared in OpenBSD private hdr */
     return 0;
 #else
     pj_assert("pj_thread_get_prio_min() not supported!");
@@ -336,8 +339,8 @@ PJ_DEF(int) pj_thread_get_prio_max(pj_thread_t *thread)
 #if defined _POSIX_PRIORITY_SCHEDULING
     return sched_get_priority_max(policy);
 #elif defined __OpenBSD__
-    /* OpenBSD doesn't have sched_get_priority_min/_max */
-    return 0;
+    /* Thread prio min/max are declared in OpenBSD private hdr */
+    return 31;
 #else
     pj_assert("pj_thread_get_prio_max() not supported!");
     return 0;

@@ -1,4 +1,4 @@
-/* $Id: sip_errno.c 3110 2010-02-25 11:58:19Z nanang $ */
+/* $Id: sip_errno.c 3323 2010-09-28 07:43:18Z bennylp $ */
 /* 
  * Copyright (C) 2008-2009 Teluu Inc. (http://www.teluu.com)
  * Copyright (C) 2003-2008 Benny Prijono <benny@prijono.org>
@@ -39,6 +39,7 @@ static const struct
     PJ_BUILD_ERR( PJSIP_ETYPEEXISTS ,	"Object with the same type exists" ),
     PJ_BUILD_ERR( PJSIP_ESHUTDOWN,	"SIP stack shutting down" ),
     PJ_BUILD_ERR( PJSIP_ENOTINITIALIZED,"SIP object is not initialized." ),
+    PJ_BUILD_ERR( PJSIP_ENOROUTESET,	"Missing route set (for tel: URI)" ),
 
     /* Messaging errors */
     PJ_BUILD_ERR( PJSIP_EINVALIDMSG,	"Invalid message/syntax error" ),

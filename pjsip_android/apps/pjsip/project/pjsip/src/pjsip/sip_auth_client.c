@@ -151,7 +151,7 @@ PJ_DEF(void) pjsip_auth_create_digest( pj_str_t *result,
     pj_str_t new_nonce;
 
     pj_assert(result->slen >= PJSIP_MD5STRLEN);
-    PJ_LOG(4,(THIS_FILE, "Create digest !!"));
+
     AUTH_TRACE_((THIS_FILE, "Begin creating digest"));
 
 #if PJSIP_HAS_DIGEST_MJMD5_AUTH
@@ -267,7 +267,7 @@ PJ_DEF(void) pjsip_auth_create_digest( pj_str_t *result,
     /* Convert digest to string and store in chal->response. */
     result->slen = PJSIP_MD5STRLEN;
     digest2str(digest, result->ptr);
-    PJ_LOG(4, (THIS_FILE, "  digest=%.32s", result->ptr));
+
     AUTH_TRACE_((THIS_FILE, "  digest=%.32s", result->ptr));
     AUTH_TRACE_((THIS_FILE, "Digest created"));
 }
@@ -356,7 +356,8 @@ static pj_status_t respond_digest( pj_pool_t *pool,
 	    /* Call application callback to create the response digest */
 	    return (*cred_info->ext.aka.cb)(pool, chal, cred_info, 
 					    method, cred);
-	} else {
+	} 
+	else {
 	    /* Convert digest to string and store in chal->response. */
 	    pjsip_auth_create_digest( &cred->response, pool, &cred->nonce, NULL,
 				      NULL,  NULL, uri, &chal->realm, 

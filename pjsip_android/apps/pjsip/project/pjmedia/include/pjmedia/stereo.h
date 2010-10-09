@@ -1,4 +1,4 @@
-/* $Id: stereo.h 2394 2008-12-23 17:27:53Z bennylp $ */
+/* $Id: stereo.h 3327 2010-09-30 04:23:27Z bennylp $ */
 /* 
  * Copyright (C) 2008-2009 Teluu Inc. (http://www.teluu.com)
  * Copyright (C) 2003-2008 Benny Prijono <benny@prijono.org>
@@ -148,17 +148,17 @@ PJ_INLINE(pj_status_t) pjmedia_convert_channel_1ton(pj_int16_t multi[],
 
 
 /** 
- * Options for channel converter port. The @pjmedia_stereo_options is also
+ * Options for channel converter port. The #pjmedia_stereo_options is also
  * valid for this port options.
  */
-enum pjmedia_stereo_port_options
+typedef enum pjmedia_stereo_port_options
 {
     /**
      * Specifies whether this port should not destroy downstream port when 
      * this port is destroyed.
      */
     PJMEDIA_STEREO_DONT_DESTROY_DN  = 4
-};
+} pjmedia_stereo_port_options;
 
 
 /**
