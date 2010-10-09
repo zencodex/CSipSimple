@@ -1,4 +1,4 @@
-/* $Id: conference.h 2728 2009-06-01 13:56:09Z nanang $ */
+/* $Id: conference.h 3327 2010-09-30 04:23:27Z bennylp $ */
 /* 
  * Copyright (C) 2008-2009 Teluu Inc. (http://www.teluu.com)
  * Copyright (C) 2003-2008 Benny Prijono <benny@prijono.org>
@@ -239,7 +239,7 @@ PJ_DECL(pj_status_t) pjmedia_conf_add_port( pjmedia_conf *conf,
 
 /**
  * <i><b>Warning:</b> This API has been deprecated since 1.3 and will be
- * removed in the future release, use #PJMEDIA_SPLITCOMB instead.</i>
+ * removed in the future release, use @ref PJMEDIA_SPLITCOMB instead.</i>
  *
  * Create and add a passive media port to the conference bridge. Unlike
  * "normal" media port that is added with #pjmedia_conf_add_port(), media

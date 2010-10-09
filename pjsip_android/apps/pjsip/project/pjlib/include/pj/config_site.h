@@ -360,6 +360,8 @@
 
 	#define PJSIP_HAS_DIGEST_MJMD5_AUTH	1
 
+	#define PJ_HAS_IPV6 1
+
 	/*
      * PJMEDIA settings
      */

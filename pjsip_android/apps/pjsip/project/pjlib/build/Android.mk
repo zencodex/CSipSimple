@@ -8,6 +8,10 @@ include $(CLEAR_VARS)
 LOCAL_MODULE    := pjlib
 
 LOCAL_C_INCLUDES += $(LOCAL_PATH)/include/
+ifeq ($(MY_USE_TLS),1)
+LOCAL_C_INCLUDES += $(LOCAL_PATH)../third_party/openssl/include/
+endif
+
 LOCAL_CFLAGS := $(MY_PJSIP_FLAGS)
 PJLIB_SRC_DIR := src/pj
 

@@ -1,4 +1,4 @@
-/* $Id: config.h 3182 2010-05-19 06:07:40Z bennylp $ */
+/* $Id: config.h 3316 2010-09-22 13:11:11Z ming $ */
 /* 
  * Copyright (C) 2008-2009 Teluu Inc. (http://www.teluu.com)
  * Copyright (C) 2003-2008 Benny Prijono <benny@prijono.org>
@@ -512,6 +512,16 @@
  */
 #ifndef PJ_MAX_HOSTNAME
 #  define PJ_MAX_HOSTNAME	    (128)
+#endif
+
+/**
+ * Maximum consecutive identical error for accept() operation before
+ * activesock stops calling the next ioqueue accept.
+ *
+ * Default: 50
+ */
+#ifndef PJ_ACTIVESOCK_MAX_CONSECUTIVE_ACCEPT_ERROR
+#   define PJ_ACTIVESOCK_MAX_CONSECUTIVE_ACCEPT_ERROR 50
 #endif
 
 /**

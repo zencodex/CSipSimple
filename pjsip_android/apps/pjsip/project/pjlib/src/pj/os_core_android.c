@@ -1,4 +1,4 @@
-/* $Id: os_core_unix.c 2395 2008-12-24 09:17:08Z bennylp $ */
+/* $Id: os_core_android.c 3320 2010-09-24 07:49:32Z bennylp $ */
 /* 
  * Copyright (C) 2008-2009 Teluu Inc. (http://www.teluu.com)
  * Copyright (C) 2003-2008 Benny Prijono <benny@prijono.org>
@@ -140,6 +140,9 @@ PJ_DEF(pj_status_t) pj_init(void)
 
 #endif
 
+    /* Init logging */
+    pj_log_init();
+
     /* Initialize exception ID for the pool. 
      * Must do so after critical section is configured.
      */
@@ -211,6 +214,9 @@ PJ_DEF(void) pj_shutdown()
 	pj_thread_local_free(thread_tls_id);
 	thread_tls_id = -1;
     }
+
+    /* Ticket #1132: Assertion when (re)starting PJLIB on different thread */
+    pj_bzero(&main_thread, sizeof(main_thread));
 #endif
 
     /* Clear static variables */
@@ -465,7 +471,6 @@ static void *thread_main(void *param)
 
     /* Check if suspension is required. */
     if (rec->suspended_mutex) {
-    	 //PJ_LOG(4,("ICI", "Suspension required !!! "));
 	pj_mutex_lock(rec->suspended_mutex);
 	pj_mutex_unlock(rec->suspended_mutex);
     }
@@ -567,7 +572,6 @@ PJ_DEF(pj_status_t) pj_thread_create( pj_pool_t *pool,
     rec->proc = proc;
     rec->arg = arg;
     rc = pthread_create( &rec->thread, &thread_attr, &thread_main, rec);
-
     if (rc != 0) {
 	return PJ_RETURN_OS_ERROR(rc);
     }
@@ -646,7 +650,6 @@ PJ_DEF(pj_thread_t*) pj_thread_this(void)
  */
 PJ_DEF(pj_status_t) pj_thread_join(pj_thread_t *p)
 {
-
 #if PJ_HAS_THREADS
     pj_thread_t *rec = (pj_thread_t *)p;
     void *ret;
@@ -654,14 +657,17 @@ PJ_DEF(pj_status_t) pj_thread_join(pj_thread_t *p)
 
     PJ_CHECK_STACK();
 
-
-    PJ_LOG(6, (THIS_FILE "Joining thread ....%s", p->obj_name));
+    PJ_LOG(6, (pj_thread_this()->obj_name, "Joining thread %s", p->obj_name));
     result = pthread_join( rec->thread, &ret);
 
-    if (result == 0){
-    	return PJ_SUCCESS;
-    }else {
-		return result==ESRCH ? PJ_SUCCESS : PJ_RETURN_OS_ERROR(result);
+    if (result == 0)
+	return PJ_SUCCESS;
+    else {
+	/* Calling pthread_join() on a thread that no longer exists and 
+	 * getting back ESRCH isn't an error (in this context). 
+	 * Thanks Phil Torre <ptorre@zetron.com>.
+	 */
+	return result==ESRCH ? PJ_SUCCESS : PJ_RETURN_OS_ERROR(result);
     }
 #else
     PJ_CHECK_STACK();
@@ -1552,16 +1558,16 @@ PJ_DEF(pj_status_t) pj_sem_wait(pj_sem_t *sem)
     PJ_CHECK_STACK();
     PJ_ASSERT_RETURN(sem, PJ_EINVAL);
 
-    PJ_LOG(6, (sem->obj_name, "Semaphore: thread %s is waiting",
+    PJ_LOG(6, (sem->obj_name, "Semaphore: thread %s is waiting", 
 			      pj_thread_this()->obj_name));
 
     result = sem_wait( sem->sem );
     
     if (result == 0) {
-	PJ_LOG(6, (sem->obj_name, "Semaphore acquired by thread %s",
+	PJ_LOG(6, (sem->obj_name, "Semaphore acquired by thread %s", 
 				  pj_thread_this()->obj_name));
     } else {
-	PJ_LOG(6, (sem->obj_name, "Semaphore: thread %s FAILED to acquire",
+	PJ_LOG(6, (sem->obj_name, "Semaphore: thread %s FAILED to acquire", 
 				  pj_thread_this()->obj_name));
     }
 
@@ -1802,5 +1808,4 @@ PJ_DEF(pj_color_t) pj_term_get_color(void)
 }
 
 #endif	/* PJ_TERM_HAS_COLOR */
-
 

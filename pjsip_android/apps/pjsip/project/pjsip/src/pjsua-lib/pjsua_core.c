@@ -1,4 +1,4 @@
-/* $Id: pjsua_core.c 3305 2010-09-07 09:36:15Z nanang $ */
+/* $Id: pjsua_core.c 3330 2010-10-01 02:03:42Z bennylp $ */
 /* 
  * Copyright (C) 2008-2009 Teluu Inc. (http://www.teluu.com)
  * Copyright (C) 2003-2008 Benny Prijono <benny@prijono.org>
@@ -185,6 +185,11 @@ PJ_DEF(void) pjsua_acc_config_default(pjsua_acc_config *cfg)
     cfg->contact_rewrite_method = PJSUA_CONTACT_REWRITE_METHOD;
     cfg->reg_use_proxy = PJSUA_REG_USE_OUTBOUND_PROXY |
 			 PJSUA_REG_USE_ACC_PROXY;
+#if defined(PJMEDIA_STREAM_ENABLE_KA) && PJMEDIA_STREAM_ENABLE_KA!=0
+    cfg->use_stream_ka = (PJMEDIA_STREAM_ENABLE_KA != 0);
+#endif
+    pj_list_init(&cfg->reg_hdr_list);
+    cfg->call_hold_type = PJSUA_CALL_HOLD_TYPE_DEFAULT;
 }
 
 PJ_DEF(void) pjsua_buddy_config_default(pjsua_buddy_config *cfg)
@@ -2401,6 +2406,29 @@ PJ_DEF(pj_status_t) pjsua_get_nat_type(pj_stun_nat_type *type)
     return pjsua_var.nat_status;
 }
 
+/*
+ * Verify that valid url is given.
+ */
+PJ_DEF(pj_status_t) pjsua_verify_url(const char *c_url)
+{
+    pjsip_uri *p;
+    pj_pool_t *pool;
+    char *url;
+    int len = (c_url ? pj_ansi_strlen(c_url) : 0);
+
+    if (!len) return PJSIP_EINVALIDURI;
+
+    pool = pj_pool_create(&pjsua_var.cp.factory, "check%p", 1024, 0, NULL);
+    if (!pool) return PJ_ENOMEM;
+
+    url = (char*) pj_pool_alloc(pool, len+1);
+    pj_ansi_strcpy(url, c_url);
+
+    p = pjsip_parse_uri(pool, url, len, 0);
+
+    pj_pool_release(pool);
+    return p ? 0 : PJSIP_EINVALIDURI;
+}
 
 /*
  * Verify that valid SIP url is given.
@@ -2412,10 +2440,10 @@ PJ_DEF(pj_status_t) pjsua_verify_sip_url(const char *c_url)
     char *url;
     int len = (c_url ? pj_ansi_strlen(c_url) : 0);
 
-    if (!len) return -1;
+    if (!len) return PJSIP_EINVALIDURI;
 
     pool = pj_pool_create(&pjsua_var.cp.factory, "check%p", 1024, 0, NULL);
-    if (!pool) return -1;
+    if (!pool) return PJ_ENOMEM;
 
     url = (char*) pj_pool_alloc(pool, len+1);
     pj_ansi_strcpy(url, c_url);
@@ -2428,7 +2456,7 @@ PJ_DEF(pj_status_t) pjsua_verify_sip_url(const char *c_url)
     }
 
     pj_pool_release(pool);
-    return p ? 0 : -1;
+    return p ? 0 : PJSIP_EINVALIDURI;
 }
 
 /*

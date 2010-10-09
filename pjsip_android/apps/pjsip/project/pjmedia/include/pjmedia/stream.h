@@ -1,4 +1,4 @@
-/* $Id: stream.h 3237 2010-07-15 10:18:59Z nanang $ */
+/* $Id: stream.h 3327 2010-09-30 04:23:27Z bennylp $ */
 /* 
  * Copyright (C) 2008-2009 Teluu Inc. (http://www.teluu.com)
  * Copyright (C) 2003-2008 Benny Prijono <benny@prijono.org>
@@ -127,6 +127,12 @@ struct pjmedia_stream_info
     int			jb_max_pre; /**< Jitter buffer maximum prefetch
 					 delay in msec (-1 for default).    */
     int			jb_max;	    /**< Jitter buffer max delay in msec.   */
+
+#if defined(PJMEDIA_STREAM_ENABLE_KA) && PJMEDIA_STREAM_ENABLE_KA!=0
+    pj_bool_t		use_ka;	    /**< Stream keep-alive and NAT hole punch
+					 (see #PJMEDIA_STREAM_ENABLE_KA)
+					 is enabled?			    */
+#endif
 };
 
 

@@ -1,4 +1,4 @@
-/* $Id: sip_config.c 2394 2008-12-23 17:27:53Z bennylp $ */
+/* $Id: sip_config.c 3329 2010-10-01 00:24:23Z bennylp $ */
 /* 
  * Copyright (C) 2008-2009 Teluu Inc. (http://www.teluu.com)
  * Copyright (C) 2003-2008 Benny Prijono <benny@prijono.org>
@@ -23,6 +23,11 @@
 /* pjsip configuration instance, initialized with default values */
 pjsip_cfg_t pjsip_sip_cfg_var =
 {
+    /* Global settings */
+    {
+       PJSIP_ALLOW_PORT_IN_FROMTO_HDR
+    },
+
     /* Transaction settings */
     {
        PJSIP_MAX_TSX_COUNT,

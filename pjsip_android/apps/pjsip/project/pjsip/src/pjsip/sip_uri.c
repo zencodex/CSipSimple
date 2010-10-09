@@ -1,4 +1,4 @@
-/* $Id: sip_uri.c 3242 2010-08-01 09:26:34Z bennylp $ */
+/* $Id: sip_uri.c 3329 2010-10-01 00:24:23Z bennylp $ */
 /* 
  * Copyright (C) 2008-2009 Teluu Inc. (http://www.teluu.com)
  * Copyright (C) 2003-2008 Benny Prijono <benny@prijono.org>
@@ -288,14 +288,16 @@ static pj_ssize_t pjsip_url_print(  pjsip_uri_context_e context,
     }
 
     /* Only print port if it is explicitly specified. 
-     * Port is not allowed in To and From header.
+     * Port is not allowed in To and From header, see Table 1 in
+     * RFC 3261 Section 19.1.1
      */
-    /* Unfortunately some UA requires us to send back the port
-     * number exactly as it was sent. We don't remember whether an
-     * UA has sent us port, so we'll just send the port indiscrimately
+    /* Note: ticket #1141 adds run-time setting to allow port number to
+     * appear in From/To header. Default is still false.
      */
-    //PJ_TODO(SHOULD_DISALLOW_URI_PORT_IN_FROM_TO_HEADER)
-    if (url->port && context != PJSIP_URI_IN_FROMTO_HDR) {
+    if (url->port &&
+	(context != PJSIP_URI_IN_FROMTO_HDR ||
+	 pjsip_cfg()->endpt.allow_port_in_fromto_hdr))
+    {
 	if (endbuf - buf < 10)
 	    return -1;
 

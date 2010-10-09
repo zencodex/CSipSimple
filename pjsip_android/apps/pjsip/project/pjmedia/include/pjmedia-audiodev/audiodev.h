@@ -1,4 +1,4 @@
-/* $Id: audiodev.h 3174 2010-05-17 12:51:06Z ming $ */
+/* $Id: audiodev.h 3327 2010-09-30 04:23:27Z bennylp $ */
 /* 
  * Copyright (C) 2008-2009 Teluu Inc. (http://www.teluu.com)
  * Copyright (C) 2003-2008 Benny Prijono <benny@prijono.org>
@@ -455,7 +455,7 @@ PJ_DECL(const char*) pjmedia_aud_dev_cap_name(pjmedia_aud_dev_cap cap,
  *
  * @param param		The structure.
  * @param cap		The audio capability which value is to be set.
- * @param value		Pointer to value. Please see the type of value to
+ * @param pval		Pointer to value. Please see the type of value to
  *			be supplied in the pjmedia_aud_dev_cap documentation.
  *
  * @return		PJ_SUCCESS on successful operation or the appropriate
@@ -473,7 +473,7 @@ PJ_DECL(pj_status_t) pjmedia_aud_param_set_cap(pjmedia_aud_param *param,
  *
  * @param param		The structure.
  * @param cap		The audio capability which value is to be retrieved.
- * @param value		Pointer to value. Please see the type of value to
+ * @param pval		Pointer to value. Please see the type of value to
  *			be supplied in the pjmedia_aud_dev_cap documentation.
  *
  * @return		PJ_SUCCESS on successful operation or the appropriate

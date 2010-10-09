@@ -1,4 +1,4 @@
-/* $Id: os_core_win32.c 3023 2009-11-23 15:04:18Z bennylp $ */
+/* $Id: os_core_win32.c 3314 2010-09-22 07:45:26Z bennylp $ */
 /* 
  * Copyright (C) 2008-2009 Teluu Inc. (http://www.teluu.com)
  * Copyright (C) 2003-2008 Benny Prijono <benny@prijono.org>
@@ -245,6 +245,9 @@ PJ_DEF(void) pj_shutdown()
 
     /* Clear static variables */
     pj_errno_clear_handlers();
+
+    /* Ticket #1132: Assertion when (re)starting PJLIB on different thread */
+    pj_bzero(main_thread, sizeof(main_thread));
 
     /* Shutdown Winsock */
     WSACleanup();

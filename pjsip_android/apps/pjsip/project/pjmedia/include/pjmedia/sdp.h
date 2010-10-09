@@ -1,4 +1,4 @@
-/* $Id: sdp.h 3198 2010-06-04 13:41:34Z nanang $ */
+/* $Id: sdp.h 3327 2010-09-30 04:23:27Z bennylp $ */
 /* 
  * Copyright (C) 2008-2009 Teluu Inc. (http://www.teluu.com)
  * Copyright (C) 2003-2008 Benny Prijono <benny@prijono.org>
@@ -522,6 +522,7 @@ PJ_DECL(pj_status_t) pjmedia_sdp_transport_cmp(const pj_str_t *t1,
 /**
  * Deactivate SDP media.
  *
+ * @param pool	    Memory pool to allocate memory from.
  * @param m	    The SDP media to deactivate.
  *
  * @return	    PJ_SUCCESS when SDP media successfully deactivated,
@@ -534,6 +535,7 @@ PJ_DECL(pj_status_t) pjmedia_sdp_media_deactivate(pj_pool_t *pool,
 /**
  * Clone SDP media description and deactivate the new SDP media.
  *
+ * @param pool	    Memory pool to allocate memory for the clone.
  * @param rhs	    The SDP media to clone.
  *
  * @return	    New media descrption with deactivated indication.
@@ -672,7 +674,7 @@ PJ_DECL(pj_status_t) pjmedia_sdp_session_cmp(const pjmedia_sdp_session *sd1,
  *
  * @return		PJ_SUCCESS or the appropriate error code.
  */
-PJ_DECL(pj_status_t) pjmedia_sdp_session_add_attr(pjmedia_sdp_session *m,
+PJ_DECL(pj_status_t) pjmedia_sdp_session_add_attr(pjmedia_sdp_session *s,
 						  pjmedia_sdp_attr *attr);
 
 
