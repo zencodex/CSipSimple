@@ -64,6 +64,7 @@
 
 #define PJ_SOCK_HAS_INET_ATON	    1
 #define PJ_SOCK_HAS_INET_NTOP	    1
+#define PJ_SOCK_HAS_INET_PTON	1
 
 /* Set 1 if native sockaddr_in has sin_len member. 
  * Default: 0
