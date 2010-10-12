@@ -129,6 +129,42 @@ PJ_DECL(pj_status_t) test_audio_dev(unsigned int clock_rate, unsigned int ptime)
 	return status;
 }
 
+PJ_DECL(pj_status_t) send_dtmf_info(int current_call, pj_str_t digits){
+	/* Send DTMF with INFO */
+	if (current_call == -1) {
+		PJ_LOG(3,(THIS_FILE, "No current call"));
+		return PJ_EINVAL;
+	} else {
+		const pj_str_t SIP_INFO = pj_str((char *)"INFO");
+		int call = current_call;
+		int i;
+		pj_status_t status = PJ_EINVAL;
+		pjsua_msg_data msg_data;
+		PJ_LOG(4,(THIS_FILE, "SEND DTMF : %.s", digits.slen, digits.ptr));
+
+		for (i=0; i<digits.slen; ++i) {
+			char body[80];
+
+			pjsua_msg_data_init(&msg_data);
+			msg_data.content_type = pj_str((char *)"application/dtmf-relay");
+
+			pj_ansi_snprintf(body, sizeof(body),
+					 "Signal=%c\r\n"
+					 "Duration=160",
+					 digits.ptr[i]);
+			msg_data.msg_body = pj_str(body);
+			PJ_LOG(4,(THIS_FILE, "Send %.s", msg_data.msg_body.slen, msg_data.msg_body.ptr));
+
+			status = pjsua_call_send_request(current_call, &SIP_INFO,
+							 &msg_data);
+			if (status != PJ_SUCCESS) {
+				PJ_LOG(2,(THIS_FILE, "Failed %d", status));
+			break;
+			}
+		}
+		return status;
+	}
+}
 
 PJ_DECL(pj_status_t) media_transports_create_ipv6(pjsua_transport_config rtp_cfg) {
     pjsua_media_transport tp[PJSUA_MAX_CALLS];
@@ -216,6 +252,8 @@ PJ_DECL(pj_status_t) media_transports_create_ipv6(pjsua_transport_config rtp_cfg
 
     return pjsua_media_transports_attach(tp, i, PJ_TRUE);
 }
+
+
 
 
 //Wrap start & stop

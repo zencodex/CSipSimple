@@ -15249,6 +15249,29 @@ SWIGEXPORT jint JNICALL Java_org_pjsip_pjsua_pjsuaJNI_test_1audio_1dev(JNIEnv *j
 }
 
 
+SWIGEXPORT jint JNICALL Java_org_pjsip_pjsua_pjsuaJNI_send_1dtmf_1info(JNIEnv *jenv, jclass jcls, jint jarg1, jlong jarg2, jobject jarg2_) {
+  jint jresult = 0 ;
+  int arg1 ;
+  pj_str_t arg2 ;
+  pj_str_t *argp2 ;
+  pj_status_t result;
+  
+  (void)jenv;
+  (void)jcls;
+  (void)jarg2_;
+  arg1 = (int)jarg1; 
+  argp2 = *(pj_str_t **)&jarg2; 
+  if (!argp2) {
+    SWIG_JavaThrowException(jenv, SWIG_JavaNullPointerException, "Attempt to dereference null pj_str_t");
+    return 0;
+  }
+  arg2 = *argp2; 
+  result = (pj_status_t)send_dtmf_info(arg1,arg2);
+  jresult = (jint)result; 
+  return jresult;
+}
+
+
 SWIGEXPORT jlong JNICALL Java_org_pjsip_pjsua_pjsuaJNI_call_1dump_1_1SWIG_11(JNIEnv *jenv, jclass jcls, jint jarg1, jint jarg2, jstring jarg3) {
   jlong jresult = 0 ;
   pjsua_call_id arg1 ;
