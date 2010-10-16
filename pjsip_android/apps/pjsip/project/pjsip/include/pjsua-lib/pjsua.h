@@ -1,4 +1,4 @@
-/* $Id: pjsua.h 3330 2010-10-01 02:03:42Z bennylp $ */
+/* $Id: pjsua.h 3339 2010-10-12 12:45:15Z bennylp $ */
 /* 
  * Copyright (C) 2008-2009 Teluu Inc. (http://www.teluu.com)
  * Copyright (C) 2003-2008 Benny Prijono <benny@prijono.org>
@@ -686,6 +686,21 @@ typedef struct pjsua_callback
      * @param buddy_id	    The buddy id.
      */
     void (*on_buddy_state)(pjsua_buddy_id buddy_id);
+
+
+    /**
+     * Notify application when the state of client subscription session
+     * associated with a buddy has changed. Application may use this
+     * callback to retrieve more detailed information about the state
+     * changed event.
+     *
+     * @param buddy_id	    The buddy id.
+     * @param sub	    Event subscription session.
+     * @param event	    The event which triggers state change event.
+     */
+    void (*on_buddy_evsub_state)(pjsua_buddy_id buddy_id,
+				 pjsip_evsub *sub,
+				 pjsip_event *event);
 
     /**
      * Notify application on incoming pager (i.e. MESSAGE request).

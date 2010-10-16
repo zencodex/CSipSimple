@@ -1,4 +1,4 @@
-/* $Id: sip_msg.c 3301 2010-08-31 16:46:13Z bennylp $ */
+/* $Id: sip_msg.c 3340 2010-10-13 09:41:37Z bennylp $ */
 /* 
  * Copyright (C) 2008-2009 Teluu Inc. (http://www.teluu.com)
  * Copyright (C) 2003-2008 Benny Prijono <benny@prijono.org>
@@ -645,7 +645,8 @@ PJ_DEF(void) pjsip_media_type_init2( pjsip_media_type *mt,
  * Compare two media types.
  */
 PJ_DEF(int) pjsip_media_type_cmp( const pjsip_media_type *mt1,
-				  const pjsip_media_type *mt2)
+				  const pjsip_media_type *mt2,
+				  pj_bool_t cmp_param)
 {
     int rc;
 
@@ -657,7 +658,9 @@ PJ_DEF(int) pjsip_media_type_cmp( const pjsip_media_type *mt1,
     rc = pj_stricmp(&mt1->subtype, &mt2->subtype);
     if (rc) return rc;
 
-    rc = pjsip_param_cmp(&mt1->param, &mt2->param, 0);
+    if (cmp_param) {
+	rc = pjsip_param_cmp(&mt1->param, &mt2->param, (cmp_param==1));
+    }
 
     return rc;
 }

@@ -1,4 +1,4 @@
-/* $Id: config.h 3239 2010-07-15 14:45:47Z nanang $ */
+/* $Id: config.h 3345 2010-10-14 08:30:57Z bennylp $ */
 /* 
  * Copyright (C) 2008-2009 Teluu Inc. (http://www.teluu.com)
  * Copyright (C) 2003-2008 Benny Prijono <benny@prijono.org>
@@ -623,7 +623,7 @@
  * PJMEDIA_RTP_PT_TELEPHONE_EVENTS_STR too.
  */
 #ifndef PJMEDIA_RTP_PT_TELEPHONE_EVENTS
-#   define PJMEDIA_RTP_PT_TELEPHONE_EVENTS	    101
+#   define PJMEDIA_RTP_PT_TELEPHONE_EVENTS	    96
 #endif
 
 
@@ -632,7 +632,7 @@
  * payload type.
  */
 #ifndef PJMEDIA_RTP_PT_TELEPHONE_EVENTS_STR
-#   define PJMEDIA_RTP_PT_TELEPHONE_EVENTS_STR	    "101"
+#   define PJMEDIA_RTP_PT_TELEPHONE_EVENTS_STR	    "96"
 #endif
 
 

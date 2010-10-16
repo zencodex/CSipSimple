@@ -1,4 +1,4 @@
-/* $Id: coreaudio_dev.c 3174 2010-05-17 12:51:06Z ming $ */
+/* $Id: coreaudio_dev.c 3335 2010-10-10 15:51:08Z ming $ */
 /*
  * Copyright (C) 2008-2010 Teluu Inc. (http://www.teluu.com)
  *
@@ -1370,6 +1370,8 @@ static pj_status_t ca_stream_get_cap(pjmedia_aud_stream *s,
 	} else {
 	    *(pjmedia_aud_dev_route*)pval = PJMEDIA_AUD_DEV_ROUTE_DEFAULT;
 	}
+
+	CFRelease(route);
 
 	return PJ_SUCCESS;
     } else if (cap==PJMEDIA_AUD_DEV_CAP_EC) {

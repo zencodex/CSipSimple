@@ -1245,6 +1245,7 @@ static struct pjsua_callback wrapper_callback_struct = {
 	NULL, // incoming subscribe &on_incoming_subscribe_wrapper,
 	NULL, // srv_subscribe state &on_srv_subscribe_state_wrapper,
 	&on_buddy_state_wrapper,
+	NULL, // on_buddy_evsub_state
 	&on_pager_wrapper,
 	&on_pager2_wrapper,
 	&on_pager_status_wrapper,
@@ -6409,6 +6410,34 @@ SWIGEXPORT jlong JNICALL Java_org_pjsip_pjsua_pjsuaJNI_pjsua_1callback_1on_1budd
   arg1 = *(pjsua_callback **)&jarg1; 
   result = (void (*)(pjsua_buddy_id)) ((arg1)->on_buddy_state);
   *(void (**)(pjsua_buddy_id))&jresult = result; 
+  return jresult;
+}
+
+
+SWIGEXPORT void JNICALL Java_org_pjsip_pjsua_pjsuaJNI_pjsua_1callback_1on_1buddy_1evsub_1state_1set(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_, jlong jarg2) {
+  pjsua_callback *arg1 = (pjsua_callback *) 0 ;
+  void (*arg2)(pjsua_buddy_id,pjsip_evsub *,pjsip_event *) = (void (*)(pjsua_buddy_id,pjsip_evsub *,pjsip_event *)) 0 ;
+  
+  (void)jenv;
+  (void)jcls;
+  (void)jarg1_;
+  arg1 = *(pjsua_callback **)&jarg1; 
+  arg2 = *(void (**)(pjsua_buddy_id,pjsip_evsub *,pjsip_event *))&jarg2; 
+  if (arg1) (arg1)->on_buddy_evsub_state = arg2;
+}
+
+
+SWIGEXPORT jlong JNICALL Java_org_pjsip_pjsua_pjsuaJNI_pjsua_1callback_1on_1buddy_1evsub_1state_1get(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_) {
+  jlong jresult = 0 ;
+  pjsua_callback *arg1 = (pjsua_callback *) 0 ;
+  void (*result)(pjsua_buddy_id,pjsip_evsub *,pjsip_event *) = 0 ;
+  
+  (void)jenv;
+  (void)jcls;
+  (void)jarg1_;
+  arg1 = *(pjsua_callback **)&jarg1; 
+  result = (void (*)(pjsua_buddy_id,pjsip_evsub *,pjsip_event *)) ((arg1)->on_buddy_evsub_state);
+  *(void (**)(pjsua_buddy_id,pjsip_evsub *,pjsip_event *))&jresult = result; 
   return jresult;
 }
 

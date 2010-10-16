@@ -1,4 +1,4 @@
-/* $Id: activesock.c 3317 2010-09-22 13:21:40Z ming $ */
+/* $Id: activesock.c 3336 2010-10-11 10:59:37Z ming $ */
 /* 
  * Copyright (C) 2008-2009 Teluu Inc. (http://www.teluu.com)
  * Copyright (C) 2003-2008 Benny Prijono <benny@prijono.org>
@@ -29,6 +29,8 @@
 #if defined(PJ_IPHONE_OS_HAS_MULTITASKING_SUPPORT) && \
     PJ_IPHONE_OS_HAS_MULTITASKING_SUPPORT!=0
 #   include <CFNetwork/CFNetwork.h>
+
+    static pj_bool_t ios_bg_support = PJ_TRUE;
 #endif
 
 #define PJ_ACTIVESOCK_MAX_LOOP	    50
@@ -133,7 +135,7 @@ static void activesock_destroy_iphone_os_stream(pj_activesock_t *asock)
 
 static void activesock_create_iphone_os_stream(pj_activesock_t *asock)
 {
-    if (asock->bg_setting && asock->stream_oriented) {
+    if (ios_bg_support && asock->bg_setting && asock->stream_oriented) {
 	activesock_destroy_iphone_os_stream(asock);
 
 	CFStreamCreatePairWithSocket(kCFAllocatorDefault, asock->sock,
@@ -163,6 +165,11 @@ PJ_DEF(void) pj_activesock_set_iphone_os_bg(pj_activesock_t *asock,
 	activesock_create_iphone_os_stream(asock);
     else
 	activesock_destroy_iphone_os_stream(asock);
+}
+
+PJ_DEF(void) pj_activesock_enable_iphone_os_bg(pj_bool_t val)
+{
+    ios_bg_support = val;
 }
 #endif
 

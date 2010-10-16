@@ -1,4 +1,4 @@
-/* $Id: sip_multipart.c 3255 2010-08-06 07:18:08Z nanang $ */
+/* $Id: sip_multipart.c 3342 2010-10-13 11:17:51Z bennylp $ */
 /* 
  * Copyright (C) 2008-2010 Teluu Inc. (http://www.teluu.com)
  *
@@ -396,8 +396,11 @@ pjsip_multipart_find_part( const pjsip_msg_body *mp,
 	part = m_data->part_head.next;
 
     while (part != &m_data->part_head) {
-	if (pjsip_media_type_cmp(&part->body->content_type, content_type)==0)
+	if (pjsip_media_type_cmp(&part->body->content_type,
+				 content_type, 0)==0)
+	{
 	    return part;
+	}
 	part = part->next;
     }
 
@@ -518,6 +521,11 @@ PJ_DEF(pjsip_msg_body*) pjsip_multipart_parse(pj_pool_t *pool,
     ctype_param = pjsip_param_find(&ctype->param, &STR_BOUNDARY);
     if (ctype_param) {
 	boundary = ctype_param->value;
+	if (boundary.slen>2 && *boundary.ptr=='"') {
+	    /* Remove quote */
+	    boundary.ptr++;
+	    boundary.slen -= 2;
+	}
 	TRACE_((THIS_FILE, "Boundary is specified: '%.*s'", (int)boundary.slen,
 		boundary.ptr));
     }

@@ -12,14 +12,32 @@
 			},
 			"versions":[
 				{
-					"version" : "0.00-13",
-					"download_url" : "http://csipsimple.googlecode.com/files/android-armeabi-v7a_libpjsipjni-0.00-13.so.gz",
+					"version" : "0.00-14",
+					"download_url" : "http://csipsimple.googlecode.com/files/android-armeabi-v7a_libpjsipjni-0.00-14.so.gz",
 					"changelog" : "Beta release"
 					
 				}
 			],
 			"label" : "CSipSimple build",
 			"description" : "PjSip for android armeabi-v7a devices",
+			"autoconf" : {}
+		},
+		{
+			"id": "android-armeabi-v4",
+			"filters" : {
+				"android.os.Build" : {
+					"DEVICE" : "^freerunner$"
+				}
+			},
+			"versions":[
+				{
+					"version" : "0.00-14",
+					"download_url" : "http://csipsimple.googlecode.com/files/android-armeabi-v4_libpjsipjni-0.00-14.so.gz",
+					"changelog" : "Beta release"
+				}
+			],
+			"label" : "CSipSimple build",
+			"description" : "PjSip for android armeabi-v4 devices",
 			"autoconf" : {}
 		},
 		{
@@ -31,8 +49,8 @@
 			},
 			"versions":[
 				{
-					"version" : "0.00-13",
-					"download_url" : "http://csipsimple.googlecode.com/files/android-armeabi_libpjsipjni-0.00-13.so.gz",
+					"version" : "0.00-14",
+					"download_url" : "http://csipsimple.googlecode.com/files/android-armeabi_libpjsipjni-0.00-14.so.gz",
 					"changelog" : "Beta release"
 					
 				}
