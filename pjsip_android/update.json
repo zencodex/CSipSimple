@@ -32,7 +32,7 @@
 			"versions":[
 				{
 					"version" : "0.00-14",
-					"download_url" : "http://csipsimple.googlecode.com/files/android-armeabi-v4_libpjsipjni-0.00-14.so.gz",
+					"download_url" : "http://csipsimple.googlecode.com/files/android-armv4t_libpjsipjni-0.00-14.so.gz",
 					"changelog" : "Beta release"
 				}
 			],
