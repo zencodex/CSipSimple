@@ -1,4 +1,4 @@
-/* $Id: evsub.c 3331 2010-10-01 04:09:08Z bennylp $ */
+/* $Id: evsub.c 3341 2010-10-13 11:13:22Z bennylp $ */
 /* 
  * Copyright (C) 2008-2009 Teluu Inc. (http://www.teluu.com)
  * Copyright (C) 2003-2008 Benny Prijono <benny@prijono.org>
@@ -557,6 +557,7 @@ static void set_state( pjsip_evsub *sub, pjsip_evsub_state state,
 {
     pjsip_evsub_state prev_state = sub->state;
     pj_str_t old_state_str = sub->state_str;
+    pjsip_event dummy_event;
 
     sub->state = state;
 
@@ -574,6 +575,12 @@ static void set_state( pjsip_evsub *sub, pjsip_evsub_state state,
 	      old_state_str.ptr,
 	      (int)sub->state_str.slen,
 	      sub->state_str.ptr));
+
+    /* don't call the callback with NULL event, it may crash the app! */
+    if (!event) {
+	PJSIP_EVENT_INIT_USER(dummy_event, 0, 0, 0, 0);
+	event = &dummy_event;
+    }
 
     if (sub->user.on_evsub_state && sub->call_cb)
 	(*sub->user.on_evsub_state)(sub, event);
