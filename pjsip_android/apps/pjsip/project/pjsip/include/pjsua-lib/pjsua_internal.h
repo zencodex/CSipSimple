@@ -1,4 +1,4 @@
-/* $Id: pjsua_internal.h 3330 2010-10-01 02:03:42Z bennylp $ */
+/* $Id: pjsua_internal.h 3349 2010-10-20 05:31:08Z bennylp $ */
 /* 
  * Copyright (C) 2008-2009 Teluu Inc. (http://www.teluu.com)
  * Copyright (C) 2003-2008 Benny Prijono <benny@prijono.org>
@@ -93,7 +93,8 @@ typedef struct pjsua_call
 
     struct {
 	pj_timer_entry	 reinv_timer;/**< Reinvite retry timer.		    */
-	pjmedia_sdp_session *new_sdp;/**< The new SDP offer.		    */
+	pj_uint32_t	 sdp_ver;    /**< SDP version of the bad answer     */
+	int		 retry_cnt;  /**< Retry count.			    */
     } lock_codec;		     /**< Data for codec locking when answer
 					  contains multiple codecs.	    */
 
