@@ -171,9 +171,11 @@ static int PJ_THREAD_FUNC AndroidRecorderCallback(void* userData){
 	jbyteArray inputBuffer;
 	pj_timestamp tstamp, now, last_frame;
 
-	int next_frame_in = 0;
+	int elapsed_time = 0;
+	//Frame time in ms
 	int frame_time = nframes * 1000 / stream->samples_per_sec;
-	int retard = 0;
+	int missed_time = 0;
+	int to_wait = 0;
 
 	PJ_LOG(3,(THIS_FILE, "<< Enter recorder thread"));
 
@@ -215,17 +217,38 @@ static int PJ_THREAD_FUNC AndroidRecorderCallback(void* userData){
 
 #if COMPATIBLE_ALSA
 		pj_get_timestamp(&now);
-		next_frame_in = frame_time - (pj_elapsed_msec(&last_frame, &now));
+		// Time between now and last frame next frame (ms)
+		elapsed_time = pj_elapsed_msec(&last_frame, &now);
+
+		//Update missed time
+		// Positif if we are late
+		// negatif if we are earlier
+		missed_time += elapsed_time - frame_time;
+
+
+		if( missed_time <= 0 ){
+			if(elapsed_time < frame_time){
+				to_wait = frame_time - elapsed_time - 2;
+				if(to_wait > 0){
+					//PJ_LOG (4, (THIS_FILE, "Wait for %d", to_wait));
+					pj_thread_sleep(to_wait);
+				}
+			}
+		}
+/*
 		//PJ_LOG (4, (THIS_FILE, "Next frame %d", next_frame_in));
 		if (next_frame_in-2 > 0) {
 			//PJ_LOG (4, (THIS_FILE, "Wait for buffer %d", next_frame_in));
-			pj_thread_sleep(next_frame_in-2);
+			pj_thread_sleep(next_frame_in-5);
+			//Reset the delay we have regarding next frame
 			retard = 0;
 		}else{
 			if(next_frame_in < 0){
 				retard += next_frame_in;
 			}
 		}
+*/
+		pj_get_timestamp(&last_frame);
 #endif
 
 		bytesRead = jni_env->CallIntMethod(stream->record, read_method,
@@ -233,11 +256,6 @@ static int PJ_THREAD_FUNC AndroidRecorderCallback(void* userData){
 					0,
 					size);
 
-#if COMPATIBLE_ALSA
-		if(retard <= frame_time){
-			pj_get_timestamp(&last_frame);
-		}
-#endif
 
 		if(bytesRead<=0){
 			PJ_LOG (3, (THIS_FILE, "Record thread : error while reading data... is there something we can do here? %d", bytesRead));
