@@ -2760,27 +2760,21 @@ SWIGEXPORT jstring JNICALL Java_org_pjsip_pjsua_pjsuaJNI_pj_1str_1t_1ptr_1get(JN
 }
 
 
-SWIGEXPORT void JNICALL Java_org_pjsip_pjsua_pjsuaJNI_pj_1str_1t_1slen_1set(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_, jlong jarg2) {
+SWIGEXPORT void JNICALL Java_org_pjsip_pjsua_pjsuaJNI_pj_1str_1t_1slen_1set(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_, jint jarg2) {
   pj_str_t *arg1 = (pj_str_t *) 0 ;
   pj_ssize_t arg2 ;
-  pj_ssize_t *argp2 ;
   
   (void)jenv;
   (void)jcls;
   (void)jarg1_;
   arg1 = *(pj_str_t **)&jarg1; 
-  argp2 = *(pj_ssize_t **)&jarg2; 
-  if (!argp2) {
-    SWIG_JavaThrowException(jenv, SWIG_JavaNullPointerException, "Attempt to dereference null pj_ssize_t");
-    return ;
-  }
-  arg2 = *argp2; 
+  arg2 = (pj_ssize_t)jarg2; 
   if (arg1) (arg1)->slen = arg2;
 }
 
 
-SWIGEXPORT jlong JNICALL Java_org_pjsip_pjsua_pjsuaJNI_pj_1str_1t_1slen_1get(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_) {
-  jlong jresult = 0 ;
+SWIGEXPORT jint JNICALL Java_org_pjsip_pjsua_pjsuaJNI_pj_1str_1t_1slen_1get(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_) {
+  jint jresult = 0 ;
   pj_str_t *arg1 = (pj_str_t *) 0 ;
   pj_ssize_t result;
   
@@ -2788,8 +2782,8 @@ SWIGEXPORT jlong JNICALL Java_org_pjsip_pjsua_pjsuaJNI_pj_1str_1t_1slen_1get(JNI
   (void)jcls;
   (void)jarg1_;
   arg1 = *(pj_str_t **)&jarg1; 
-  result =  ((arg1)->slen);
-  *(pj_ssize_t **)&jresult = new pj_ssize_t((const pj_ssize_t &)result); 
+  result = (pj_ssize_t) ((arg1)->slen);
+  jresult = (jint)result; 
   return jresult;
 }
 
@@ -14818,7 +14812,7 @@ SWIGEXPORT jint JNICALL Java_org_pjsip_pjsua_pjsuaJNI_player_1destroy(JNIEnv *je
 }
 
 
-SWIGEXPORT jint JNICALL Java_org_pjsip_pjsua_pjsuaJNI_recorder_1create(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_, jlong jarg2, void * jarg3, jlong jarg4, jlong jarg5, jlong jarg6) {
+SWIGEXPORT jint JNICALL Java_org_pjsip_pjsua_pjsuaJNI_recorder_1create(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_, jlong jarg2, void * jarg3, jint jarg4, jlong jarg5, jintArray jarg6) {
   jint jresult = 0 ;
   pj_str_t *arg1 = (pj_str_t *) 0 ;
   unsigned int arg2 ;
@@ -14826,7 +14820,7 @@ SWIGEXPORT jint JNICALL Java_org_pjsip_pjsua_pjsuaJNI_recorder_1create(JNIEnv *j
   pj_ssize_t arg4 ;
   unsigned int arg5 ;
   pjsua_recorder_id *arg6 = (pjsua_recorder_id *) 0 ;
-  pj_ssize_t *argp4 ;
+  pjsua_recorder_id temp6 ;
   pj_status_t result;
   
   (void)jenv;
@@ -14837,16 +14831,26 @@ SWIGEXPORT jint JNICALL Java_org_pjsip_pjsua_pjsuaJNI_recorder_1create(JNIEnv *j
   
   arg3 = jarg3;
   
-  argp4 = *(pj_ssize_t **)&jarg4; 
-  if (!argp4) {
-    SWIG_JavaThrowException(jenv, SWIG_JavaNullPointerException, "Attempt to dereference null pj_ssize_t");
-    return 0;
-  }
-  arg4 = *argp4; 
+  arg4 = (pj_ssize_t)jarg4; 
   arg5 = (unsigned int)jarg5; 
-  arg6 = *(pjsua_recorder_id **)&jarg6; 
+  {
+    if (!jarg6) {
+      SWIG_JavaThrowException(jenv, SWIG_JavaNullPointerException, "array null");
+      return 0;
+    }
+    if (jenv->GetArrayLength(jarg6) == 0) {
+      SWIG_JavaThrowException(jenv, SWIG_JavaIndexOutOfBoundsException, "Array must contain at least 1 element");
+      return 0;
+    }
+    arg6 = &temp6; 
+  }
   result = (pj_status_t)pjsua_recorder_create((pj_str_t const *)arg1,arg2,arg3,arg4,arg5,arg6);
   jresult = (jint)result; 
+  {
+    jint jvalue = (jint)temp6;
+    jenv->SetIntArrayRegion(jarg6, 0, 1, &jvalue);
+  }
+  
   return jresult;
 }
 
@@ -15545,8 +15549,8 @@ JNIEXPORT jint JNI_OnLoad(JavaVM *vm, void *reserved) {
 {"PJ_FALSE_get", "()I", (void*)& Java_org_pjsip_pjsua_pjsuaJNI_PJ_1FALSE_1get},
 {"pj_str_t_ptr_set", "(JLorg/pjsip/pjsua/pj_str_t;Ljava/lang/String;)V", (void*)& Java_org_pjsip_pjsua_pjsuaJNI_pj_1str_1t_1ptr_1set},
 {"pj_str_t_ptr_get", "(JLorg/pjsip/pjsua/pj_str_t;)Ljava/lang/String;", (void*)& Java_org_pjsip_pjsua_pjsuaJNI_pj_1str_1t_1ptr_1get},
-{"pj_str_t_slen_set", "(JLorg/pjsip/pjsua/pj_str_t;J)V", (void*)& Java_org_pjsip_pjsua_pjsuaJNI_pj_1str_1t_1slen_1set},
-{"pj_str_t_slen_get", "(JLorg/pjsip/pjsua/pj_str_t;)J", (void*)& Java_org_pjsip_pjsua_pjsuaJNI_pj_1str_1t_1slen_1get},
+{"pj_str_t_slen_set", "(JLorg/pjsip/pjsua/pj_str_t;I)V", (void*)& Java_org_pjsip_pjsua_pjsuaJNI_pj_1str_1t_1slen_1set},
+{"pj_str_t_slen_get", "(JLorg/pjsip/pjsua/pj_str_t;)I", (void*)& Java_org_pjsip_pjsua_pjsuaJNI_pj_1str_1t_1slen_1get},
 {"new_pj_str_t", "()J", (void*)& Java_org_pjsip_pjsua_pjsuaJNI_new_1pj_1str_1t},
 {"delete_pj_str_t", "(J)V", (void*)& Java_org_pjsip_pjsua_pjsuaJNI_delete_1pj_1str_1t},
 {"pjmedia_port_info_set", "(JLorg/pjsip/pjsua/pjmedia_port;JLorg/pjsip/pjsua/pjmedia_port_info;)V", (void*)& Java_org_pjsip_pjsua_pjsuaJNI_pjmedia_1port_1info_1set},
@@ -16335,7 +16339,7 @@ JNIEXPORT jint JNI_OnLoad(JavaVM *vm, void *reserved) {
 {"player_get_port", "(IJ)I", (void*)& Java_org_pjsip_pjsua_pjsuaJNI_player_1get_1port},
 {"player_set_pos", "(IJ)I", (void*)& Java_org_pjsip_pjsua_pjsuaJNI_player_1set_1pos},
 {"player_destroy", "(I)I", (void*)& Java_org_pjsip_pjsua_pjsuaJNI_player_1destroy},
-{"recorder_create", "(JLorg/pjsip/pjsua/pj_str_t;J[BJJJ)I", (void*)& Java_org_pjsip_pjsua_pjsuaJNI_recorder_1create},
+{"recorder_create", "(JLorg/pjsip/pjsua/pj_str_t;J[BIJ[I)I", (void*)& Java_org_pjsip_pjsua_pjsuaJNI_recorder_1create},
 {"recorder_get_conf_port", "(I)I", (void*)& Java_org_pjsip_pjsua_pjsuaJNI_recorder_1get_1conf_1port},
 {"recorder_get_port", "(IJ)I", (void*)& Java_org_pjsip_pjsua_pjsuaJNI_recorder_1get_1port},
 {"recorder_destroy", "(I)I", (void*)& Java_org_pjsip_pjsua_pjsuaJNI_recorder_1destroy},
