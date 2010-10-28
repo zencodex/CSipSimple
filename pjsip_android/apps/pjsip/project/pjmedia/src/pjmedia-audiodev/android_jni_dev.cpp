@@ -220,6 +220,7 @@ static int PJ_THREAD_FUNC AndroidRecorderCallback(void* userData){
 		// Time between now and last frame next frame (ms)
 		elapsed_time = pj_elapsed_msec(&last_frame, &now);
 
+		pj_get_timestamp(&last_frame);
 		//Update missed time
 		// Positif if we are late
 		// negatif if we are earlier
@@ -248,7 +249,6 @@ static int PJ_THREAD_FUNC AndroidRecorderCallback(void* userData){
 			}
 		}
 */
-		pj_get_timestamp(&last_frame);
 #endif
 
 		bytesRead = jni_env->CallIntMethod(stream->record, read_method,
