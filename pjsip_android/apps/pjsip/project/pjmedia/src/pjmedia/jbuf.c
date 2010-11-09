@@ -1,4 +1,4 @@
-/* $Id: jbuf.c 3162 2010-05-07 15:20:10Z nanang $ */
+/* $Id: jbuf.c 3359 2010-10-29 03:27:17Z nanang $ */
 /* 
  * Copyright (C) 2008-2009 Teluu Inc. (http://www.teluu.com)
  * Copyright (C) 2003-2008 Benny Prijono <benny@prijono.org>
@@ -476,7 +476,7 @@ PJ_DEF(pj_status_t) pjmedia_jbuf_create(pj_pool_t *pool,
     jb->jb_max_prefetch  = max_count*4/5;
     jb->jb_max_count	 = max_count;
     jb->jb_min_shrink_gap= MIN_SHRINK_GAP_MSEC / ptime;
-    jb->jb_max_burst	 = PJ_MAX(MAX_BURST_MSEC, max_count*3/4);
+    jb->jb_max_burst	 = PJ_MAX(MAX_BURST_MSEC / ptime, max_count*3/4);
     jb->jb_last_discard_seq = 0;
 
     pj_math_stat_init(&jb->jb_delay);

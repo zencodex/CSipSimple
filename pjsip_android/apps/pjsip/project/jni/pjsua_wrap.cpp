@@ -5407,27 +5407,21 @@ SWIGEXPORT jlong JNICALL Java_org_pjsip_pjsua_pjsuaJNI_pjsip_1tls_1setting_1time
 }
 
 
-SWIGEXPORT void JNICALL Java_org_pjsip_pjsua_pjsuaJNI_pjsip_1tls_1setting_1qos_1type_1set(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_, jlong jarg2) {
+SWIGEXPORT void JNICALL Java_org_pjsip_pjsua_pjsuaJNI_pjsip_1tls_1setting_1qos_1type_1set(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_, jint jarg2) {
   pjsip_tls_setting *arg1 = (pjsip_tls_setting *) 0 ;
   pj_qos_type arg2 ;
-  pj_qos_type *argp2 ;
   
   (void)jenv;
   (void)jcls;
   (void)jarg1_;
   arg1 = *(pjsip_tls_setting **)&jarg1; 
-  argp2 = *(pj_qos_type **)&jarg2; 
-  if (!argp2) {
-    SWIG_JavaThrowException(jenv, SWIG_JavaNullPointerException, "Attempt to dereference null pj_qos_type");
-    return ;
-  }
-  arg2 = *argp2; 
+  arg2 = (pj_qos_type)jarg2; 
   if (arg1) (arg1)->qos_type = arg2;
 }
 
 
-SWIGEXPORT jlong JNICALL Java_org_pjsip_pjsua_pjsuaJNI_pjsip_1tls_1setting_1qos_1type_1get(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_) {
-  jlong jresult = 0 ;
+SWIGEXPORT jint JNICALL Java_org_pjsip_pjsua_pjsuaJNI_pjsip_1tls_1setting_1qos_1type_1get(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_) {
+  jint jresult = 0 ;
   pjsip_tls_setting *arg1 = (pjsip_tls_setting *) 0 ;
   pj_qos_type result;
   
@@ -5435,42 +5429,37 @@ SWIGEXPORT jlong JNICALL Java_org_pjsip_pjsua_pjsuaJNI_pjsip_1tls_1setting_1qos_
   (void)jcls;
   (void)jarg1_;
   arg1 = *(pjsip_tls_setting **)&jarg1; 
-  result =  ((arg1)->qos_type);
-  *(pj_qos_type **)&jresult = new pj_qos_type((const pj_qos_type &)result); 
+  result = (pj_qos_type) ((arg1)->qos_type);
+  jresult = (jint)result; 
   return jresult;
 }
 
 
-SWIGEXPORT void JNICALL Java_org_pjsip_pjsua_pjsuaJNI_pjsip_1tls_1setting_1qos_1params_1set(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_, jlong jarg2) {
+SWIGEXPORT void JNICALL Java_org_pjsip_pjsua_pjsuaJNI_pjsip_1tls_1setting_1qos_1params_1set(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_, jlong jarg2, jobject jarg2_) {
   pjsip_tls_setting *arg1 = (pjsip_tls_setting *) 0 ;
-  pj_qos_params arg2 ;
-  pj_qos_params *argp2 ;
+  pj_qos_params *arg2 = (pj_qos_params *) 0 ;
   
   (void)jenv;
   (void)jcls;
   (void)jarg1_;
+  (void)jarg2_;
   arg1 = *(pjsip_tls_setting **)&jarg1; 
-  argp2 = *(pj_qos_params **)&jarg2; 
-  if (!argp2) {
-    SWIG_JavaThrowException(jenv, SWIG_JavaNullPointerException, "Attempt to dereference null pj_qos_params");
-    return ;
-  }
-  arg2 = *argp2; 
-  if (arg1) (arg1)->qos_params = arg2;
+  arg2 = *(pj_qos_params **)&jarg2; 
+  if (arg1) (arg1)->qos_params = *arg2;
 }
 
 
 SWIGEXPORT jlong JNICALL Java_org_pjsip_pjsua_pjsuaJNI_pjsip_1tls_1setting_1qos_1params_1get(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_) {
   jlong jresult = 0 ;
   pjsip_tls_setting *arg1 = (pjsip_tls_setting *) 0 ;
-  pj_qos_params result;
+  pj_qos_params *result = 0 ;
   
   (void)jenv;
   (void)jcls;
   (void)jarg1_;
   arg1 = *(pjsip_tls_setting **)&jarg1; 
-  result =  ((arg1)->qos_params);
-  *(pj_qos_params **)&jresult = new pj_qos_params((const pj_qos_params &)result); 
+  result = (pj_qos_params *)& ((arg1)->qos_params);
+  *(pj_qos_params **)&jresult = result; 
   return jresult;
 }
 
@@ -5521,6 +5510,146 @@ SWIGEXPORT void JNICALL Java_org_pjsip_pjsua_pjsuaJNI_delete_1pjsip_1tls_1settin
   (void)jenv;
   (void)jcls;
   arg1 = *(pjsip_tls_setting **)&jarg1; 
+  delete arg1;
+}
+
+
+SWIGEXPORT void JNICALL Java_org_pjsip_pjsua_pjsuaJNI_pj_1qos_1params_1flags_1set(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_, jshort jarg2) {
+  pj_qos_params *arg1 = (pj_qos_params *) 0 ;
+  pj_uint8_t arg2 ;
+  
+  (void)jenv;
+  (void)jcls;
+  (void)jarg1_;
+  arg1 = *(pj_qos_params **)&jarg1; 
+  arg2 = (pj_uint8_t)jarg2; 
+  if (arg1) (arg1)->flags = arg2;
+}
+
+
+SWIGEXPORT jshort JNICALL Java_org_pjsip_pjsua_pjsuaJNI_pj_1qos_1params_1flags_1get(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_) {
+  jshort jresult = 0 ;
+  pj_qos_params *arg1 = (pj_qos_params *) 0 ;
+  pj_uint8_t result;
+  
+  (void)jenv;
+  (void)jcls;
+  (void)jarg1_;
+  arg1 = *(pj_qos_params **)&jarg1; 
+  result = (pj_uint8_t) ((arg1)->flags);
+  jresult = (jshort)result; 
+  return jresult;
+}
+
+
+SWIGEXPORT void JNICALL Java_org_pjsip_pjsua_pjsuaJNI_pj_1qos_1params_1dscp_1val_1set(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_, jshort jarg2) {
+  pj_qos_params *arg1 = (pj_qos_params *) 0 ;
+  pj_uint8_t arg2 ;
+  
+  (void)jenv;
+  (void)jcls;
+  (void)jarg1_;
+  arg1 = *(pj_qos_params **)&jarg1; 
+  arg2 = (pj_uint8_t)jarg2; 
+  if (arg1) (arg1)->dscp_val = arg2;
+}
+
+
+SWIGEXPORT jshort JNICALL Java_org_pjsip_pjsua_pjsuaJNI_pj_1qos_1params_1dscp_1val_1get(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_) {
+  jshort jresult = 0 ;
+  pj_qos_params *arg1 = (pj_qos_params *) 0 ;
+  pj_uint8_t result;
+  
+  (void)jenv;
+  (void)jcls;
+  (void)jarg1_;
+  arg1 = *(pj_qos_params **)&jarg1; 
+  result = (pj_uint8_t) ((arg1)->dscp_val);
+  jresult = (jshort)result; 
+  return jresult;
+}
+
+
+SWIGEXPORT void JNICALL Java_org_pjsip_pjsua_pjsuaJNI_pj_1qos_1params_1so_1prio_1set(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_, jshort jarg2) {
+  pj_qos_params *arg1 = (pj_qos_params *) 0 ;
+  pj_uint8_t arg2 ;
+  
+  (void)jenv;
+  (void)jcls;
+  (void)jarg1_;
+  arg1 = *(pj_qos_params **)&jarg1; 
+  arg2 = (pj_uint8_t)jarg2; 
+  if (arg1) (arg1)->so_prio = arg2;
+}
+
+
+SWIGEXPORT jshort JNICALL Java_org_pjsip_pjsua_pjsuaJNI_pj_1qos_1params_1so_1prio_1get(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_) {
+  jshort jresult = 0 ;
+  pj_qos_params *arg1 = (pj_qos_params *) 0 ;
+  pj_uint8_t result;
+  
+  (void)jenv;
+  (void)jcls;
+  (void)jarg1_;
+  arg1 = *(pj_qos_params **)&jarg1; 
+  result = (pj_uint8_t) ((arg1)->so_prio);
+  jresult = (jshort)result; 
+  return jresult;
+}
+
+
+SWIGEXPORT void JNICALL Java_org_pjsip_pjsua_pjsuaJNI_pj_1qos_1params_1wmm_1prio_1set(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_, jlong jarg2) {
+  pj_qos_params *arg1 = (pj_qos_params *) 0 ;
+  pj_qos_wmm_prio arg2 ;
+  pj_qos_wmm_prio *argp2 ;
+  
+  (void)jenv;
+  (void)jcls;
+  (void)jarg1_;
+  arg1 = *(pj_qos_params **)&jarg1; 
+  argp2 = *(pj_qos_wmm_prio **)&jarg2; 
+  if (!argp2) {
+    SWIG_JavaThrowException(jenv, SWIG_JavaNullPointerException, "Attempt to dereference null pj_qos_wmm_prio");
+    return ;
+  }
+  arg2 = *argp2; 
+  if (arg1) (arg1)->wmm_prio = arg2;
+}
+
+
+SWIGEXPORT jlong JNICALL Java_org_pjsip_pjsua_pjsuaJNI_pj_1qos_1params_1wmm_1prio_1get(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_) {
+  jlong jresult = 0 ;
+  pj_qos_params *arg1 = (pj_qos_params *) 0 ;
+  pj_qos_wmm_prio result;
+  
+  (void)jenv;
+  (void)jcls;
+  (void)jarg1_;
+  arg1 = *(pj_qos_params **)&jarg1; 
+  result =  ((arg1)->wmm_prio);
+  *(pj_qos_wmm_prio **)&jresult = new pj_qos_wmm_prio((const pj_qos_wmm_prio &)result); 
+  return jresult;
+}
+
+
+SWIGEXPORT jlong JNICALL Java_org_pjsip_pjsua_pjsuaJNI_new_1pj_1qos_1params(JNIEnv *jenv, jclass jcls) {
+  jlong jresult = 0 ;
+  pj_qos_params *result = 0 ;
+  
+  (void)jenv;
+  (void)jcls;
+  result = (pj_qos_params *)new pj_qos_params();
+  *(pj_qos_params **)&jresult = result; 
+  return jresult;
+}
+
+
+SWIGEXPORT void JNICALL Java_org_pjsip_pjsua_pjsuaJNI_delete_1pj_1qos_1params(JNIEnv *jenv, jclass jcls, jlong jarg1) {
+  pj_qos_params *arg1 = (pj_qos_params *) 0 ;
+  
+  (void)jenv;
+  (void)jcls;
+  arg1 = *(pj_qos_params **)&jarg1; 
   delete arg1;
 }
 
@@ -8458,27 +8587,21 @@ SWIGEXPORT jlong JNICALL Java_org_pjsip_pjsua_pjsuaJNI_pjsua_1transport_1config_
 }
 
 
-SWIGEXPORT void JNICALL Java_org_pjsip_pjsua_pjsuaJNI_pjsua_1transport_1config_1qos_1type_1set(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_, jlong jarg2) {
+SWIGEXPORT void JNICALL Java_org_pjsip_pjsua_pjsuaJNI_pjsua_1transport_1config_1qos_1type_1set(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_, jint jarg2) {
   pjsua_transport_config *arg1 = (pjsua_transport_config *) 0 ;
   pj_qos_type arg2 ;
-  pj_qos_type *argp2 ;
   
   (void)jenv;
   (void)jcls;
   (void)jarg1_;
   arg1 = *(pjsua_transport_config **)&jarg1; 
-  argp2 = *(pj_qos_type **)&jarg2; 
-  if (!argp2) {
-    SWIG_JavaThrowException(jenv, SWIG_JavaNullPointerException, "Attempt to dereference null pj_qos_type");
-    return ;
-  }
-  arg2 = *argp2; 
+  arg2 = (pj_qos_type)jarg2; 
   if (arg1) (arg1)->qos_type = arg2;
 }
 
 
-SWIGEXPORT jlong JNICALL Java_org_pjsip_pjsua_pjsuaJNI_pjsua_1transport_1config_1qos_1type_1get(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_) {
-  jlong jresult = 0 ;
+SWIGEXPORT jint JNICALL Java_org_pjsip_pjsua_pjsuaJNI_pjsua_1transport_1config_1qos_1type_1get(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_) {
+  jint jresult = 0 ;
   pjsua_transport_config *arg1 = (pjsua_transport_config *) 0 ;
   pj_qos_type result;
   
@@ -8486,42 +8609,37 @@ SWIGEXPORT jlong JNICALL Java_org_pjsip_pjsua_pjsuaJNI_pjsua_1transport_1config_
   (void)jcls;
   (void)jarg1_;
   arg1 = *(pjsua_transport_config **)&jarg1; 
-  result =  ((arg1)->qos_type);
-  *(pj_qos_type **)&jresult = new pj_qos_type((const pj_qos_type &)result); 
+  result = (pj_qos_type) ((arg1)->qos_type);
+  jresult = (jint)result; 
   return jresult;
 }
 
 
-SWIGEXPORT void JNICALL Java_org_pjsip_pjsua_pjsuaJNI_pjsua_1transport_1config_1qos_1params_1set(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_, jlong jarg2) {
+SWIGEXPORT void JNICALL Java_org_pjsip_pjsua_pjsuaJNI_pjsua_1transport_1config_1qos_1params_1set(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_, jlong jarg2, jobject jarg2_) {
   pjsua_transport_config *arg1 = (pjsua_transport_config *) 0 ;
-  pj_qos_params arg2 ;
-  pj_qos_params *argp2 ;
+  pj_qos_params *arg2 = (pj_qos_params *) 0 ;
   
   (void)jenv;
   (void)jcls;
   (void)jarg1_;
+  (void)jarg2_;
   arg1 = *(pjsua_transport_config **)&jarg1; 
-  argp2 = *(pj_qos_params **)&jarg2; 
-  if (!argp2) {
-    SWIG_JavaThrowException(jenv, SWIG_JavaNullPointerException, "Attempt to dereference null pj_qos_params");
-    return ;
-  }
-  arg2 = *argp2; 
-  if (arg1) (arg1)->qos_params = arg2;
+  arg2 = *(pj_qos_params **)&jarg2; 
+  if (arg1) (arg1)->qos_params = *arg2;
 }
 
 
 SWIGEXPORT jlong JNICALL Java_org_pjsip_pjsua_pjsuaJNI_pjsua_1transport_1config_1qos_1params_1get(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_) {
   jlong jresult = 0 ;
   pjsua_transport_config *arg1 = (pjsua_transport_config *) 0 ;
-  pj_qos_params result;
+  pj_qos_params *result = 0 ;
   
   (void)jenv;
   (void)jcls;
   (void)jarg1_;
   arg1 = *(pjsua_transport_config **)&jarg1; 
-  result =  ((arg1)->qos_params);
-  *(pj_qos_params **)&jresult = new pj_qos_params((const pj_qos_params &)result); 
+  result = (pj_qos_params *)& ((arg1)->qos_params);
+  *(pj_qos_params **)&jresult = result; 
   return jresult;
 }
 
@@ -15741,14 +15859,24 @@ JNIEXPORT jint JNI_OnLoad(JavaVM *vm, void *reserved) {
 {"pjsip_tls_setting_require_client_cert_get", "(JLorg/pjsip/pjsua/pjsip_tls_setting;)I", (void*)& Java_org_pjsip_pjsua_pjsuaJNI_pjsip_1tls_1setting_1require_1client_1cert_1get},
 {"pjsip_tls_setting_timeout_set", "(JLorg/pjsip/pjsua/pjsip_tls_setting;J)V", (void*)& Java_org_pjsip_pjsua_pjsuaJNI_pjsip_1tls_1setting_1timeout_1set},
 {"pjsip_tls_setting_timeout_get", "(JLorg/pjsip/pjsua/pjsip_tls_setting;)J", (void*)& Java_org_pjsip_pjsua_pjsuaJNI_pjsip_1tls_1setting_1timeout_1get},
-{"pjsip_tls_setting_qos_type_set", "(JLorg/pjsip/pjsua/pjsip_tls_setting;J)V", (void*)& Java_org_pjsip_pjsua_pjsuaJNI_pjsip_1tls_1setting_1qos_1type_1set},
-{"pjsip_tls_setting_qos_type_get", "(JLorg/pjsip/pjsua/pjsip_tls_setting;)J", (void*)& Java_org_pjsip_pjsua_pjsuaJNI_pjsip_1tls_1setting_1qos_1type_1get},
-{"pjsip_tls_setting_qos_params_set", "(JLorg/pjsip/pjsua/pjsip_tls_setting;J)V", (void*)& Java_org_pjsip_pjsua_pjsuaJNI_pjsip_1tls_1setting_1qos_1params_1set},
+{"pjsip_tls_setting_qos_type_set", "(JLorg/pjsip/pjsua/pjsip_tls_setting;I)V", (void*)& Java_org_pjsip_pjsua_pjsuaJNI_pjsip_1tls_1setting_1qos_1type_1set},
+{"pjsip_tls_setting_qos_type_get", "(JLorg/pjsip/pjsua/pjsip_tls_setting;)I", (void*)& Java_org_pjsip_pjsua_pjsuaJNI_pjsip_1tls_1setting_1qos_1type_1get},
+{"pjsip_tls_setting_qos_params_set", "(JLorg/pjsip/pjsua/pjsip_tls_setting;JLorg/pjsip/pjsua/pj_qos_params;)V", (void*)& Java_org_pjsip_pjsua_pjsuaJNI_pjsip_1tls_1setting_1qos_1params_1set},
 {"pjsip_tls_setting_qos_params_get", "(JLorg/pjsip/pjsua/pjsip_tls_setting;)J", (void*)& Java_org_pjsip_pjsua_pjsuaJNI_pjsip_1tls_1setting_1qos_1params_1get},
 {"pjsip_tls_setting_qos_ignore_error_set", "(JLorg/pjsip/pjsua/pjsip_tls_setting;I)V", (void*)& Java_org_pjsip_pjsua_pjsuaJNI_pjsip_1tls_1setting_1qos_1ignore_1error_1set},
 {"pjsip_tls_setting_qos_ignore_error_get", "(JLorg/pjsip/pjsua/pjsip_tls_setting;)I", (void*)& Java_org_pjsip_pjsua_pjsuaJNI_pjsip_1tls_1setting_1qos_1ignore_1error_1get},
 {"new_pjsip_tls_setting", "()J", (void*)& Java_org_pjsip_pjsua_pjsuaJNI_new_1pjsip_1tls_1setting},
 {"delete_pjsip_tls_setting", "(J)V", (void*)& Java_org_pjsip_pjsua_pjsuaJNI_delete_1pjsip_1tls_1setting},
+{"pj_qos_params_flags_set", "(JLorg/pjsip/pjsua/pj_qos_params;S)V", (void*)& Java_org_pjsip_pjsua_pjsuaJNI_pj_1qos_1params_1flags_1set},
+{"pj_qos_params_flags_get", "(JLorg/pjsip/pjsua/pj_qos_params;)S", (void*)& Java_org_pjsip_pjsua_pjsuaJNI_pj_1qos_1params_1flags_1get},
+{"pj_qos_params_dscp_val_set", "(JLorg/pjsip/pjsua/pj_qos_params;S)V", (void*)& Java_org_pjsip_pjsua_pjsuaJNI_pj_1qos_1params_1dscp_1val_1set},
+{"pj_qos_params_dscp_val_get", "(JLorg/pjsip/pjsua/pj_qos_params;)S", (void*)& Java_org_pjsip_pjsua_pjsuaJNI_pj_1qos_1params_1dscp_1val_1get},
+{"pj_qos_params_so_prio_set", "(JLorg/pjsip/pjsua/pj_qos_params;S)V", (void*)& Java_org_pjsip_pjsua_pjsuaJNI_pj_1qos_1params_1so_1prio_1set},
+{"pj_qos_params_so_prio_get", "(JLorg/pjsip/pjsua/pj_qos_params;)S", (void*)& Java_org_pjsip_pjsua_pjsuaJNI_pj_1qos_1params_1so_1prio_1get},
+{"pj_qos_params_wmm_prio_set", "(JLorg/pjsip/pjsua/pj_qos_params;J)V", (void*)& Java_org_pjsip_pjsua_pjsuaJNI_pj_1qos_1params_1wmm_1prio_1set},
+{"pj_qos_params_wmm_prio_get", "(JLorg/pjsip/pjsua/pj_qos_params;)J", (void*)& Java_org_pjsip_pjsua_pjsuaJNI_pj_1qos_1params_1wmm_1prio_1get},
+{"new_pj_qos_params", "()J", (void*)& Java_org_pjsip_pjsua_pjsuaJNI_new_1pj_1qos_1params},
+{"delete_pj_qos_params", "(J)V", (void*)& Java_org_pjsip_pjsua_pjsuaJNI_delete_1pj_1qos_1params},
 {"PJSUA_INVALID_ID_get", "()I", (void*)& Java_org_pjsip_pjsua_pjsuaJNI_PJSUA_1INVALID_1ID_1get},
 {"PJSUA_ACC_MAX_PROXIES_get", "()I", (void*)& Java_org_pjsip_pjsua_pjsuaJNI_PJSUA_1ACC_1MAX_1PROXIES_1get},
 {"PJSUA_DEFAULT_SRTP_SECURE_SIGNALING_get", "()I", (void*)& Java_org_pjsip_pjsua_pjsuaJNI_PJSUA_1DEFAULT_1SRTP_1SECURE_1SIGNALING_1get},
@@ -15939,9 +16067,9 @@ JNIEXPORT jint JNI_OnLoad(JavaVM *vm, void *reserved) {
 {"pjsua_transport_config_bound_addr_get", "(JLorg/pjsip/pjsua/pjsua_transport_config;)J", (void*)& Java_org_pjsip_pjsua_pjsuaJNI_pjsua_1transport_1config_1bound_1addr_1get},
 {"pjsua_transport_config_tls_setting_set", "(JLorg/pjsip/pjsua/pjsua_transport_config;JLorg/pjsip/pjsua/pjsip_tls_setting;)V", (void*)& Java_org_pjsip_pjsua_pjsuaJNI_pjsua_1transport_1config_1tls_1setting_1set},
 {"pjsua_transport_config_tls_setting_get", "(JLorg/pjsip/pjsua/pjsua_transport_config;)J", (void*)& Java_org_pjsip_pjsua_pjsuaJNI_pjsua_1transport_1config_1tls_1setting_1get},
-{"pjsua_transport_config_qos_type_set", "(JLorg/pjsip/pjsua/pjsua_transport_config;J)V", (void*)& Java_org_pjsip_pjsua_pjsuaJNI_pjsua_1transport_1config_1qos_1type_1set},
-{"pjsua_transport_config_qos_type_get", "(JLorg/pjsip/pjsua/pjsua_transport_config;)J", (void*)& Java_org_pjsip_pjsua_pjsuaJNI_pjsua_1transport_1config_1qos_1type_1get},
-{"pjsua_transport_config_qos_params_set", "(JLorg/pjsip/pjsua/pjsua_transport_config;J)V", (void*)& Java_org_pjsip_pjsua_pjsuaJNI_pjsua_1transport_1config_1qos_1params_1set},
+{"pjsua_transport_config_qos_type_set", "(JLorg/pjsip/pjsua/pjsua_transport_config;I)V", (void*)& Java_org_pjsip_pjsua_pjsuaJNI_pjsua_1transport_1config_1qos_1type_1set},
+{"pjsua_transport_config_qos_type_get", "(JLorg/pjsip/pjsua/pjsua_transport_config;)I", (void*)& Java_org_pjsip_pjsua_pjsuaJNI_pjsua_1transport_1config_1qos_1type_1get},
+{"pjsua_transport_config_qos_params_set", "(JLorg/pjsip/pjsua/pjsua_transport_config;JLorg/pjsip/pjsua/pj_qos_params;)V", (void*)& Java_org_pjsip_pjsua_pjsuaJNI_pjsua_1transport_1config_1qos_1params_1set},
 {"pjsua_transport_config_qos_params_get", "(JLorg/pjsip/pjsua/pjsua_transport_config;)J", (void*)& Java_org_pjsip_pjsua_pjsuaJNI_pjsua_1transport_1config_1qos_1params_1get},
 {"new_pjsua_transport_config", "()J", (void*)& Java_org_pjsip_pjsua_pjsuaJNI_new_1pjsua_1transport_1config},
 {"delete_pjsua_transport_config", "(J)V", (void*)& Java_org_pjsip_pjsua_pjsuaJNI_delete_1pjsua_1transport_1config},
