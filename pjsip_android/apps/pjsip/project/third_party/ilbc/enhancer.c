@@ -183,7 +183,7 @@
        float vect[ENH_VECTL],corrVec[ENH_CORRDIM],maxv;
        float corrVecUps[ENH_CORRDIM*ENH_UPS0];
 
-
+       (void)period;
 
 
 
