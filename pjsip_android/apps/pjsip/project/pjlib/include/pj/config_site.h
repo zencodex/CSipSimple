@@ -362,6 +362,8 @@
 
 	#define PJ_HAS_IPV6 1
 
+	#define PJ_QOS_IMPLEMENTATION    PJ_QOS_BSD
+
 	/*
      * PJMEDIA settings
      */
