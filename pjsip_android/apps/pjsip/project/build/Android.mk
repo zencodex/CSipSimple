@@ -27,6 +27,9 @@ endif
 ifeq ($(MY_USE_G729),1)
 	include $(TOP_LOCAL_PATH)/third_party/build/g729/Android.mk
 endif
+ifeq ($(MY_USE_SILK),1)
+	include $(TOP_LOCAL_PATH)/third_party/build/silk/Android.mk
+endif
 
 
 # pjsip JNI

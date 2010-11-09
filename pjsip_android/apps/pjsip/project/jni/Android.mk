@@ -35,6 +35,9 @@ endif
 ifeq ($(MY_USE_G729),1)
 	LOCAL_STATIC_LIBRARIES += g729
 endif
+ifeq ($(MY_USE_SILK),1)
+	LOCAL_STATIC_LIBRARIES += silk
+endif
 ifeq ($(MY_USE_TLS),1)
 	LOCAL_STATIC_LIBRARIES += ssl crypto
 endif
