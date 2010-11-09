@@ -12,10 +12,6 @@
 
    #include "iLBC_define.h"
 
-   /* adrian 10jul2004: bug fix: the following line is missing in
-    * draft-ietf-avt-ilbc-codec-05.txt */
-   #include "constants.h"
-
    /* ULP bit allocation */
 
        /* 20 ms frame */
