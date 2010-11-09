@@ -1,4 +1,4 @@
-/* $Id: sip_config.h 3329 2010-10-01 00:24:23Z bennylp $ */
+/* $Id: sip_config.h 3361 2010-11-03 06:48:58Z bennylp $ */
 /* 
  * Copyright (C) 2008-2009 Teluu Inc. (http://www.teluu.com)
  * Copyright (C) 2003-2008 Benny Prijono <benny@prijono.org>
@@ -77,6 +77,10 @@ typedef struct pjsip_cfg_t
 	 */
 	pj_bool_t allow_port_in_fromto_hdr;
 
+	/**
+	 * Disable rport in request.
+	 */
+	pj_bool_t disable_rport;
     } endpt;
 
     /** Transaction layer settings. */
