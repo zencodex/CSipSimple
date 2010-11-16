@@ -2,6 +2,9 @@
 
 #define THIS_FILE		"pjsua_jni_addons.c"
 
+/**
+ * Get nbr of codecs
+ */
 PJ_DECL(int) codecs_get_nbr() {
 	pjsua_codec_info c[32];
 	unsigned i, count = PJ_ARRAY_SIZE(c);
@@ -12,6 +15,9 @@ PJ_DECL(int) codecs_get_nbr() {
 	return 0;
 }
 
+/**
+ * Get codec id
+ */
 PJ_DECL(pj_str_t) codecs_get_id(int codec_id) {
 	pjsua_codec_info c[32];
 	unsigned i, count = PJ_ARRAY_SIZE(c);
@@ -23,6 +29,9 @@ PJ_DECL(pj_str_t) codecs_get_id(int codec_id) {
 	return pj_str((char *)"INVALID/8000/1");
 }
 
+/**
+ * Get call infos
+ */
 PJ_DECL(pj_str_t) call_dump(pjsua_call_id call_id, pj_bool_t with_media, const char *indent){
 	char some_buf[1024 * 3];
     pjsua_call_dump(call_id, with_media, some_buf,
@@ -30,15 +39,24 @@ PJ_DECL(pj_str_t) call_dump(pjsua_call_id call_id, pj_bool_t with_media, const c
     return pj_str(some_buf);
 }
 
+/**
+ * Can we use TLS ?
+ */
 PJ_DECL(pj_bool_t) can_use_tls(){
 	return PJ_HAS_SSL_SOCK;
 }
 
+/**
+ * Can we use SRTP ?
+ */
 PJ_DECL(pj_bool_t) can_use_srtp(){
 	return PJMEDIA_HAS_SRTP;
 }
 
 
+
+
+// USELESS METHOD
 PJ_DECL(pj_status_t) test_audio_dev(unsigned int clock_rate, unsigned int ptime) {
 
 	pjmedia_aud_param param;
@@ -129,6 +147,9 @@ PJ_DECL(pj_status_t) test_audio_dev(unsigned int clock_rate, unsigned int ptime)
 	return status;
 }
 
+/**
+ * Send dtmf with info method
+ */
 PJ_DECL(pj_status_t) send_dtmf_info(int current_call, pj_str_t digits){
 	/* Send DTMF with INFO */
 	if (current_call == -1) {
@@ -166,6 +187,9 @@ PJ_DECL(pj_status_t) send_dtmf_info(int current_call, pj_str_t digits){
 	}
 }
 
+/**
+ * Create ipv6 transport
+ */
 PJ_DECL(pj_status_t) media_transports_create_ipv6(pjsua_transport_config rtp_cfg) {
     pjsua_media_transport tp[PJSUA_MAX_CALLS];
     pj_status_t status;
@@ -255,6 +279,45 @@ PJ_DECL(pj_status_t) media_transports_create_ipv6(pjsua_transport_config rtp_cfg
 
 
 
+/**
+ * Is call using a secure RTP method (SRTP/ZRTP -- TODO)
+ */
+PJ_DECL(pj_bool_t) is_call_secure(pjsua_call_id call_id){
+
+    pjsua_call *call;
+    pjsip_dialog *dlg;
+    pj_status_t status;
+    pjmedia_transport_info tp_info;
+    pj_bool_t result = PJ_FALSE;
+
+	PJ_ASSERT_RETURN(call_id>=0 && call_id<(int)pjsua_var.ua_cfg.max_calls,
+		 PJ_EINVAL);
+
+
+	status = acquire_call("is_call_secure()", call_id, &call, &dlg);
+	if (status != PJ_SUCCESS) {
+		return result;
+	}
+
+    /* Get and ICE SRTP status */
+    pjmedia_transport_info_init(&tp_info);
+    pjmedia_transport_get_info(call->med_tp, &tp_info);
+    if (tp_info.specific_info_cnt > 0) {
+		unsigned i;
+		for (i = 0; i < tp_info.specific_info_cnt; ++i) {
+			if (tp_info.spc_info[i].type == PJMEDIA_TRANSPORT_TYPE_SRTP) {
+				pjmedia_srtp_info *srtp_info =
+						(pjmedia_srtp_info*) tp_info.spc_info[i].buffer;
+				if(srtp_info->active){
+					result = PJ_TRUE;
+				}
+			}
+		}
+    }
+
+	pjsip_dlg_dec_lock(dlg);
+	return result;
+}
 
 //Wrap start & stop
 PJ_DECL(pj_status_t) csipsimple_init(pjsua_config *ua_cfg,
