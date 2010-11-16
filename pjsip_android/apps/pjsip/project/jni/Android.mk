@@ -41,7 +41,9 @@ endif
 ifeq ($(MY_USE_TLS),1)
 	LOCAL_STATIC_LIBRARIES += ssl crypto
 endif
-
+ifeq ($(MY_USE_ZRTP),1)
+	LOCAL_STATIC_LIBRARIES += zrtp
+endif
 
 
 include $(BUILD_SHARED_LIBRARY)

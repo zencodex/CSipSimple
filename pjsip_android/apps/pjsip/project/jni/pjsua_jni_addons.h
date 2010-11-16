@@ -26,6 +26,7 @@ PJ_DECL(pj_status_t) send_dtmf_info(int current_call, pj_str_t digits);
 PJ_DECL(pj_str_t) call_dump(pjsua_call_id call_id, pj_bool_t with_media, const char *indent);
 PJ_DECL(pj_bool_t) can_use_tls();
 PJ_DECL(pj_bool_t) can_use_srtp();
+PJ_DECL(pj_bool_t) is_call_secure(pjsua_call_id call_id);
 PJ_DECL(pj_status_t) media_transports_create_ipv6(pjsua_transport_config rtp_cfg);
 PJ_DECL(pj_status_t) csipsimple_init(pjsua_config *ua_cfg,
 				pjsua_logging_config *log_cfg,
