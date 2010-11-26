@@ -1,0 +1,22 @@
+
+JNIEXPORT jint JNI_OnLoad(JavaVM *vm, void *reserved) {
+	JNIEnv *env;
+	jclass k;
+	jint r;
+	//Assume it is c++
+	r = vm->GetEnv ((void **) &env, JNI_VERSION_1_4);
+	k = env->FindClass ("org/pjsip/pjsua/pjsuaJNI");
+
+#if USE_JNI_AUDIO==1
+	android_jvm = vm;
+#endif
+
+	JNINativeMethod methods[] = {
+
+	$defs
+
+	};
+
+	r = env->RegisterNatives (k, methods, NELEM(methods));
+	return JNI_VERSION_1_4;
+}
