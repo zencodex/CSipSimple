@@ -14,6 +14,10 @@ include $(TOP_LOCAL_PATH)/third_party/build/srtp/Android.mk
 ifeq ($(MY_USE_TLS),1)
 	include $(TOP_LOCAL_PATH)/third_party/openssl/Android.mk
 endif
+ifeq ($(MY_USE_ZRTP),1)
+	include $(TOP_LOCAL_PATH)/third_party/build/zrtp/Android.mk
+endif
+
 ##Media third parties
 ifeq ($(MY_USE_ILBC),1)
 	include $(TOP_LOCAL_PATH)/third_party/build/ilbc/Android.mk
