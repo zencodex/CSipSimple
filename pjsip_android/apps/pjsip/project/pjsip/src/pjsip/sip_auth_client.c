@@ -1,4 +1,4 @@
-/* $Id: sip_auth_client.c 3149 2010-04-29 00:03:19Z bennylp $ */
+/* $Id: sip_auth_client.c 3377 2010-12-01 08:53:52Z nanang $ */
 /* 
  * Copyright (C) 2008-2009 Teluu Inc. (http://www.teluu.com)
  * Copyright (C) 2003-2008 Benny Prijono <benny@prijono.org>
@@ -108,6 +108,14 @@ PJ_DEF(int) pjsip_cred_info_cmp(const pjsip_cred_info *cred1,
 
 on_return:
     return result;
+}
+
+PJ_DEF(void) pjsip_auth_clt_pref_dup( pj_pool_t *pool,
+				      pjsip_auth_clt_pref *dst,
+				      const pjsip_auth_clt_pref *src)
+{
+    pj_memcpy(dst, src, sizeof(pjsip_auth_clt_pref));
+    pj_strdup_with_null(pool, &dst->algorithm, &src->algorithm);
 }
 
 

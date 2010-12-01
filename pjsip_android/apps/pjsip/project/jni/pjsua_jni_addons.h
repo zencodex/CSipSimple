@@ -28,6 +28,7 @@ PJ_DECL(pj_bool_t) can_use_tls();
 PJ_DECL(pj_bool_t) can_use_srtp();
 PJ_DECL(pj_bool_t) is_call_secure(pjsua_call_id call_id);
 PJ_DECL(pj_status_t) media_transports_create_ipv6(pjsua_transport_config rtp_cfg);
+PJ_DECL(pj_str_t) get_error_message(int status);
 PJ_DECL(pj_status_t) csipsimple_init(pjsua_config *ua_cfg,
 				pjsua_logging_config *log_cfg,
 				pjsua_media_config *media_cfg);

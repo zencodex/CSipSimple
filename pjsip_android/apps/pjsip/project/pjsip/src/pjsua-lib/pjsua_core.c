@@ -1,4 +1,4 @@
-/* $Id: pjsua_core.c 3330 2010-10-01 02:03:42Z bennylp $ */
+/* $Id: pjsua_core.c 3366 2010-11-16 03:07:46Z bennylp $ */
 /* 
  * Copyright (C) 2008-2009 Teluu Inc. (http://www.teluu.com)
  * Copyright (C) 2003-2008 Benny Prijono <benny@prijono.org>
@@ -183,6 +183,7 @@ PJ_DEF(void) pjsua_acc_config_default(pjsua_acc_config *cfg)
 #endif
     cfg->reg_retry_interval = PJSUA_REG_RETRY_INTERVAL;
     cfg->contact_rewrite_method = PJSUA_CONTACT_REWRITE_METHOD;
+    cfg->use_rfc5626 = PJ_TRUE;
     cfg->reg_use_proxy = PJSUA_REG_USE_OUTBOUND_PROXY |
 			 PJSUA_REG_USE_ACC_PROXY;
 #if defined(PJMEDIA_STREAM_ENABLE_KA) && PJMEDIA_STREAM_ENABLE_KA!=0

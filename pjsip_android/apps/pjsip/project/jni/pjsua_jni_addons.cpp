@@ -319,6 +319,13 @@ PJ_DECL(pj_bool_t) is_call_secure(pjsua_call_id call_id){
 	return result;
 }
 
+//Get error message
+PJ_DECL(pj_str_t) get_error_message(int status) {
+    char errmsg[PJ_ERR_MSG_SIZE];
+    pj_strerror(status, errmsg, sizeof(errmsg));
+    return pj_str(errmsg);
+}
+
 //Wrap start & stop
 PJ_DECL(pj_status_t) csipsimple_init(pjsua_config *ua_cfg,
 				pjsua_logging_config *log_cfg,

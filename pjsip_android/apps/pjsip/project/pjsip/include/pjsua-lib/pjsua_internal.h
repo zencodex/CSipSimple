@@ -1,4 +1,4 @@
-/* $Id: pjsua_internal.h 3349 2010-10-20 05:31:08Z bennylp $ */
+/* $Id: pjsua_internal.h 3374 2010-11-25 09:27:06Z nanang $ */
 /* 
  * Copyright (C) 2008-2009 Teluu Inc. (http://www.teluu.com)
  * Copyright (C) 2003-2008 Benny Prijono <benny@prijono.org>
@@ -95,6 +95,7 @@ typedef struct pjsua_call
 	pj_timer_entry	 reinv_timer;/**< Reinvite retry timer.		    */
 	pj_uint32_t	 sdp_ver;    /**< SDP version of the bad answer     */
 	int		 retry_cnt;  /**< Retry count.			    */
+        pj_bool_t        pending;    /**< Pending until CONFIRMED state     */
     } lock_codec;		     /**< Data for codec locking when answer
 					  contains multiple codecs.	    */
 
@@ -114,7 +115,6 @@ struct pjsua_srv_pres
     int		     expires;	    /**< "expires" value in the request.    */
 };
 
-
 /**
  * Account
  */
@@ -128,6 +128,9 @@ typedef struct pjsua_acc
     pj_str_t	     display;	    /**< Display name, if any.		*/
     pj_str_t	     user_part;	    /**< User part of local URI.	*/
     pj_str_t	     contact;	    /**< Our Contact header.		*/
+    pj_str_t         reg_contact;   /**< Contact header for REGISTER.
+				         It may be different than acc
+				         contact if outbound is used    */
 
     pj_str_t	     srv_domain;    /**< Host part of reg server.	*/
     int		     srv_port;	    /**< Port number of reg server.	*/
@@ -151,6 +154,13 @@ typedef struct pjsua_acc
     pjsip_route_hdr  route_set;	    /**< Complete route set inc. outbnd.*/
     pj_uint32_t	     global_route_crc; /** CRC of global route setting. */
     pj_uint32_t	     local_route_crc;  /** CRC of account route setting.*/
+
+    unsigned         rfc5626_status;/**< SIP outbound status:
+                                           0: not used
+                                           1: requested
+                                           2: acknowledged by servers   */
+    pj_str_t	     rfc5626_instprm;/**< SIP outbound instance param.  */
+    pj_str_t         rfc5626_regprm;/**< SIP outbound reg param.        */
 
     unsigned	     cred_cnt;	    /**< Number of credentials.		*/
     pjsip_cred_info  cred[PJSUA_ACC_MAX_PROXIES]; /**< Complete creds.	*/

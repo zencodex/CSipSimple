@@ -1,4 +1,4 @@
-/* $Id: sip_config.h 3361 2010-11-03 06:48:58Z bennylp $ */
+/* $Id: sip_config.h 3363 2010-11-10 12:13:46Z bennylp $ */
 /* 
  * Copyright (C) 2008-2009 Teluu Inc. (http://www.teluu.com)
  * Copyright (C) 2003-2008 Benny Prijono <benny@prijono.org>
@@ -897,6 +897,24 @@ PJ_INLINE(pjsip_cfg_t*) pjsip_cfg(void)
  */
 #ifndef PJSIP_PRES_DEFAULT_EXPIRES
 #   define PJSIP_PRES_DEFAULT_EXPIRES		600
+#endif
+
+
+/**
+ * Specify the status code value to respond to bad message body in NOTIFY
+ * request for presence. Scenarios that are considered bad include non-
+ * PIDF/XML and non-XPIDF/XML body, multipart message bodies without PIDF/XML
+ * nor XPIDF/XML part, and bad (parsing error) PIDF and X-PIDF bodies
+ * themselves.
+ *
+ * Default value is 488. Application may change this to 200 to ignore the
+ * unrecognised content (this is useful if the application wishes to handle
+ * the content itself). Only non-3xx final response code is allowed here.
+ *
+ * Default: 488 (Not Acceptable Here)
+ */
+#ifndef PJSIP_PRES_BAD_CONTENT_RESPONSE
+#   define PJSIP_PRES_BAD_CONTENT_RESPONSE	488
 #endif
 
 

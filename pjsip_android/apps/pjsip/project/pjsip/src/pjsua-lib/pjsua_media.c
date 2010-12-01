@@ -1,4 +1,4 @@
-/* $Id: pjsua_media.c 3334 2010-10-05 16:32:04Z nanang $ */
+/* $Id: pjsua_media.c 3376 2010-12-01 08:20:28Z nanang $ */
 /* 
  * Copyright (C) 2008-2009 Teluu Inc. (http://www.teluu.com)
  * Copyright (C) 2003-2008 Benny Prijono <benny@prijono.org>
@@ -1261,7 +1261,7 @@ pj_status_t pjsua_media_channel_init(pjsua_call_id call_id,
 	pj_bool_t srtp_active;
 
 #if defined(PJMEDIA_HAS_SRTP) && (PJMEDIA_HAS_SRTP != 0)
-	srtp_active = acc->cfg.use_srtp && srtp != NULL;
+	srtp_active = acc->cfg.use_srtp;
 #else
 	srtp_active = PJ_FALSE;
 #endif
@@ -1313,6 +1313,18 @@ pj_status_t pjsua_media_channel_create_sdp(pjsua_call_id call_id,
      */
     if (call->med_tp == NULL) {
 	return PJ_EBUSY;
+    }
+
+    if (rem_sdp && rem_sdp->media_count != 0) {
+	pj_bool_t srtp_active;
+
+#if defined(PJMEDIA_HAS_SRTP) && (PJMEDIA_HAS_SRTP != 0)
+        srtp_active = pjsua_var.acc[call->acc_id].cfg.use_srtp;
+#else
+	srtp_active = PJ_FALSE;
+#endif
+
+	call->audio_idx = find_audio_index(rem_sdp, srtp_active);
     }
 
     /* Media index must have been determined before */
