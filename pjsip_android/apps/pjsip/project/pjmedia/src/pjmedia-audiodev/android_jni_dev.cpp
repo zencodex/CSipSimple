@@ -807,6 +807,7 @@ static pj_status_t android_create_stream(pjmedia_aud_dev_factory *f,
 	return PJ_SUCCESS;
 
 on_error:
+//TODO : if was set In Call mode should remove this mode here
 	DETACH_JVM(jni_env);
 	pj_pool_release(pool);
 	return PJ_ENOMEM;
