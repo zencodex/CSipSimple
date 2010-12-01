@@ -56,7 +56,9 @@ endif
 ifeq ($(MY_USE_GSM),1)
 	LOCAL_SRC_FILES += $(PJMEDIACODEC_SRC_DIR)/gsm.c 
 endif
-
+ifeq ($(MY_USE_SILK),1)
+	LOCAL_SRC_FILES += $(PJMEDIACODEC_SRC_DIR)/silk.c 
+endif
 
 include $(BUILD_STATIC_LIBRARY)
 
