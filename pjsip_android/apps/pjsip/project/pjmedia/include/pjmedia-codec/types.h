@@ -1,4 +1,4 @@
-/* $Id: types.h 3345 2010-10-14 08:30:57Z bennylp $ */
+/* $Id: types.h 3358 2010-10-28 08:31:42Z nanang $ */
 /* 
  * Copyright (C) 2008-2009 Teluu Inc. (http://www.teluu.com)
  * Copyright (C) 2003-2008 Benny Prijono <benny@prijono.org>
@@ -26,6 +26,7 @@
  */
 
 #include <pjmedia-codec/config.h>
+#include <pjmedia/codec.h>
 
 /**
  * @defgroup pjmedia_codec_types PJMEDIA-CODEC Types and Constants
@@ -94,6 +95,7 @@ enum
     /* Caution!
      * Ensure the value of the last pt above is <= 127.
      */
+    PJMEDIA_RTP_PT_SILK_16,				/**< SILK @ 16KHz	*/
 };
 
 /**
