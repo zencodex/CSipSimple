@@ -1,4 +1,4 @@
-/* $Id: sip_auth.h 3144 2010-04-20 14:36:38Z nanang $ */
+/* $Id: sip_auth.h 3377 2010-12-01 08:53:52Z nanang $ */
 /* 
  * Copyright (C) 2008-2009 Teluu Inc. (http://www.teluu.com)
  * Copyright (C) 2003-2008 Benny Prijono <benny@prijono.org>
@@ -204,6 +204,18 @@ typedef struct pjsip_auth_clt_pref
     pj_str_t	algorithm;
 
 } pjsip_auth_clt_pref;
+
+
+/**
+ * Duplicate a client authentication preference setting.
+ *
+ * @param pool	    The memory pool.
+ * @param dst	    Destination client authentication preference.
+ * @param src	    Source client authentication preference.
+ */
+PJ_DECL(void) pjsip_auth_clt_pref_dup(pj_pool_t *pool,
+				      pjsip_auth_clt_pref *dst,
+				      const pjsip_auth_clt_pref *src);
 
 
 /**
