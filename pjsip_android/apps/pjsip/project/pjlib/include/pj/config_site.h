@@ -355,14 +355,15 @@
 	#define PJMEDIA_CONF_USE_SWITCH_BOARD 0
 
     #define PJ_OS_HAS_CHECK_STACK		0
-    /* Disable floating point support */
-    #define PJ_HAS_FLOATING_POINT		0
+
 
 	#define PJSIP_HAS_DIGEST_MJMD5_AUTH	1
-
 	#define PJ_HAS_IPV6 1
 
 	#define PJ_QOS_IMPLEMENTATION    PJ_QOS_BSD
+
+
+	#define PJSIP_CHECK_VIA_SENT_BY 0
 
 	/*
      * PJMEDIA settings

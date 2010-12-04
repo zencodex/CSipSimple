@@ -1,0 +1,98 @@
+diff --git a/gcc/gcc-4.2.1/gcc/config/arm/eabi.h b/gcc/gcc-4.2.1/gcc/config/arm/eabi.h
+index afe8155..388ad48 100644
+--- a/gcc/gcc-4.2.1/gcc/config/arm/eabi.h
++++ b/gcc/gcc-4.2.1/gcc/config/arm/eabi.h
+@@ -68,7 +68,6 @@
+    default. */
+ #undef ANDROID_CC1_SPEC
+ #define ANDROID_CC1_SPEC \
+-"%{!fexceptions:-fno-exceptions} " \
+ "%{!fno-pic:%{!fno-PIC:-fpic}} " \
+ "%{!fshort-enums:-fno-short-enums} " \
+ "%{!mno-thumb-interwork:-mthumb-interwork}"
+@@ -84,7 +83,7 @@
+ 
+ /* Android uses -fno-rtti by default. */
+ #undef ANDROID_CC1PLUS_SPEC
+-#define ANDROID_CC1PLUS_SPEC "%{!frtti:-fno-rtti}"
++#define ANDROID_CC1PLUS_SPEC ""
+ 
+ /* Default CC1PLUS_SPEC as in gcc.c. */
+ #undef CC1PLUS_DEFAULT_SPEC
+diff --git a/gcc/gcc-4.2.1/libiberty/getpagesize.c b/gcc/gcc-4.2.1/libiberty/getpagesize.c
+index f29f40c..c310b73 100644
+--- a/gcc/gcc-4.2.1/libiberty/getpagesize.c
++++ b/gcc/gcc-4.2.1/libiberty/getpagesize.c
+@@ -60,17 +60,6 @@ BUGS
+ # endif /* PAGESIZE */
+ #endif /* GNU_OUR_PAGESIZE */
+ 
+-/* ANDROID LOCAL BEGIN */
+-/* ANDROID FIXME: The declaration of getpagesize in Bionic's unistd.h
+-   is a static inline is different from one below.  */
+-#ifndef __ANDROID__ 
+-/* ANDROID LOCAL END */
+-int
+-getpagesize (void)
+-{
+-  return (GNU_OUR_PAGESIZE);
+-}
+-#endif /* ANDROID LOCAL */
+ 
+ #else /* VMS */
+ 
+diff --git a/gcc/gcc-4.4.0/gcc/config/arm/eabi.h b/gcc/gcc-4.4.0/gcc/config/arm/eabi.h
+index f398cdd..e6cbfcd 100644
+--- a/gcc/gcc-4.4.0/gcc/config/arm/eabi.h
++++ b/gcc/gcc-4.4.0/gcc/config/arm/eabi.h
+@@ -68,7 +68,6 @@
+    default. */
+ #undef ANDROID_CC1_SPEC
+ #define ANDROID_CC1_SPEC \
+-"%{!fexceptions:-fno-exceptions} " \
+ "%{!fno-pic:%{!fno-PIC:-fpic}} " \
+ "%{!fshort-enums:-fno-short-enums} " \
+ "%{!mno-thumb-interwork:-mthumb-interwork}"
+@@ -84,7 +83,7 @@
+ 
+ /* Android uses -fno-rtti by default. */
+ #undef ANDROID_CC1PLUS_SPEC
+-#define ANDROID_CC1PLUS_SPEC "%{!frtti:-fno-rtti}"
++#define ANDROID_CC1PLUS_SPEC ""
+ 
+ /* Default CC1PLUS_SPEC as in gcc.c. */
+ #undef CC1PLUS_DEFAULT_SPEC
+diff --git a/gcc/gcc-4.4.0/libiberty/getpagesize.c b/gcc/gcc-4.4.0/libiberty/getpagesize.c
+index 1c3a263..6bc4691 100644
+--- a/gcc/gcc-4.4.0/libiberty/getpagesize.c
++++ b/gcc/gcc-4.4.0/libiberty/getpagesize.c
+@@ -60,12 +60,6 @@ BUGS
+ # endif /* PAGESIZE */
+ #endif /* GNU_OUR_PAGESIZE */
+ 
+-int
+-getpagesize (void)
+-{
+-  return (GNU_OUR_PAGESIZE);
+-}
+-
+ #else /* VMS */
+ 
+ #if 0	/* older distributions of gcc-vms are missing <syidef.h> */
+diff --git a/gcc/gcc-4.4.0/libstdc++-v3/configure b/gcc/gcc-4.4.0/libstdc++-v3/configure
+index a0f84bc..da0e7d5 100755
+--- a/gcc/gcc-4.4.0/libstdc++-v3/configure
++++ b/gcc/gcc-4.4.0/libstdc++-v3/configure
+@@ -41940,6 +41940,12 @@ case "${host}" in
+     # This is a freestanding configuration; there is nothing to do here.
+     ;;
+ 
++  # ANDROID LOCAL BEGIN
++  arm*-*-eabi*)
++    # This is a freestanding configuration; there is nothing to do here.
++    ;;
++  # ANDROID LOCAL END
++
+   mips*-sde-elf*)
+     # These definitions are for the SDE C library rather than newlib.
+     SECTION_FLAGS='-ffunction-sections -fdata-sections'

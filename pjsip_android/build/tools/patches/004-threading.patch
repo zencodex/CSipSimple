@@ -1,0 +1,105 @@
+diff --git a/build/Makefile.in b/build/Makefile.in
+index f66edc7..670b620 100644
+--- a/build/Makefile.in
++++ b/build/Makefile.in
+@@ -105,6 +105,8 @@ CFLAGS_FOR_TARGET= -O2 -Os -g
+ CXXFLAGS_FOR_TARGET=$(CFLAGS_FOR_TARGET)
+ LDFLAGS_FOR_TARGET=-mandroid
+ 
++CFLAGS_FOR_TARGET+= -DANDROID -D__ANDROID__
++
+ # Helper
+ prefix-list = $(foreach e, $(2), $(join $1, $e))
+ 
+diff --git a/gcc/gcc-4.2.1/gcc/gthr-posix.h b/gcc/gcc-4.2.1/gcc/gthr-posix.h
+index 47d38a3..a8c4f46 100644
+--- a/gcc/gcc-4.2.1/gcc/gthr-posix.h
++++ b/gcc/gcc-4.2.1/gcc/gthr-posix.h
+@@ -58,6 +58,12 @@ typedef pthread_mutex_t __gthread_recursive_mutex_t;
+ #define __GTHREAD_RECURSIVE_MUTEX_INIT_FUNCTION __gthread_recursive_mutex_init_function
+ #endif
+ 
++#if defined(ANDROID) || defined(__ANDROID__)
++# if defined(GTHREAD_USE_WEAK)
++#  undef GTHREAD_USE_WEAK
++# endif
++#endif
++
+ #if SUPPORTS_WEAK && GTHREAD_USE_WEAK
+ # ifndef __gthrw_pragma
+ #  define __gthrw_pragma(pragma)
+@@ -83,7 +89,9 @@ __gthrw3(pthread_once)
+ __gthrw3(pthread_getspecific)
+ __gthrw3(pthread_setspecific)
+ __gthrw3(pthread_create)
++#if !defined(ANDROID) && !defined(__ANDROID__)
+ __gthrw3(pthread_cancel)
++#endif
+ __gthrw3(pthread_mutex_lock)
+ __gthrw3(pthread_mutex_trylock)
+ __gthrw3(pthread_mutex_unlock)
+@@ -93,7 +101,9 @@ __gthrw(pthread_once)
+ __gthrw(pthread_getspecific)
+ __gthrw(pthread_setspecific)
+ __gthrw(pthread_create)
++#if !defined(ANDROID) && !defined(__ANDROID__)
+ __gthrw(pthread_cancel)
++#endif
+ __gthrw(pthread_mutex_lock)
+ __gthrw(pthread_mutex_trylock)
+ __gthrw(pthread_mutex_unlock)
+@@ -203,7 +213,7 @@ static inline int
+ __gthread_active_p (void)
+ {
+   static void *const __gthread_active_ptr 
+-    = __extension__ (void *) &__gthrw_(pthread_cancel);
++    = __extension__ (void *) &__gthrw_(pthread_create);
+   return __gthread_active_ptr != 0;
+ }
+ 
+diff --git a/gcc/gcc-4.4.0/gcc/gthr-posix.h b/gcc/gcc-4.4.0/gcc/gthr-posix.h
+index 82a3c58..db2575d 100644
+--- a/gcc/gcc-4.4.0/gcc/gthr-posix.h
++++ b/gcc/gcc-4.4.0/gcc/gthr-posix.h
+@@ -65,6 +65,12 @@ typedef struct timespec __gthread_time_t;
+ #define __GTHREAD_COND_INIT PTHREAD_COND_INITIALIZER
+ #define __GTHREAD_TIME_INIT {0,0}
+ 
++#if defined(ANDROID) || defined(__ANDROID__)
++# if defined(GTHREAD_USE_WEAK)
++#  undef GTHREAD_USE_WEAK
++# endif
++#endif
++
+ #if SUPPORTS_WEAK && GTHREAD_USE_WEAK
+ # ifndef __gthrw_pragma
+ #  define __gthrw_pragma(pragma)
+@@ -95,7 +101,9 @@ __gthrw3(pthread_join)
+ __gthrw3(pthread_detach)
+ __gthrw3(pthread_equal)
+ __gthrw3(pthread_self)
++#if !defined(ANDROID) && !defined(__ANDROID__)
+ __gthrw3(pthread_cancel)
++#endif
+ __gthrw3(sched_yield)
+ 
+ __gthrw3(pthread_mutex_lock)
+@@ -124,7 +132,9 @@ __gthrw(pthread_join)
+ __gthrw(pthread_equal)
+ __gthrw(pthread_self)
+ __gthrw(pthread_detach)
++#if !defined(ANDROID) && !defined(__ANDROID__)
+ __gthrw(pthread_cancel)
++#endif
+ __gthrw(sched_yield)
+ 
+ __gthrw(pthread_mutex_lock)
+@@ -238,7 +248,7 @@ static inline int
+ __gthread_active_p (void)
+ {
+   static void *const __gthread_active_ptr 
+-    = __extension__ (void *) &__gthrw_(pthread_cancel);
++    = __extension__ (void *) &__gthrw_(pthread_create);
+   return __gthread_active_ptr != 0;
+ }
+ 

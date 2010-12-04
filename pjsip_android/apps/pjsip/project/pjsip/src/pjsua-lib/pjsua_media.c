@@ -1,4 +1,4 @@
-/* $Id: pjsua_media.c 3376 2010-12-01 08:20:28Z nanang $ */
+/* $Id: pjsua_media.c 3383 2010-12-02 10:41:46Z bennylp $ */
 /* 
  * Copyright (C) 2008-2009 Teluu Inc. (http://www.teluu.com)
  * Copyright (C) 2003-2008 Benny Prijono <benny@prijono.org>
@@ -1325,6 +1325,13 @@ pj_status_t pjsua_media_channel_create_sdp(pjsua_call_id call_id,
 #endif
 
 	call->audio_idx = find_audio_index(rem_sdp, srtp_active);
+	if (call->audio_idx == -1) {
+	    /* No audio in the offer. We can't accept this */
+	    PJ_LOG(4,(THIS_FILE,
+		      "Unable to accept SDP offer without audio for call %d",
+		      call_id));
+	    return PJMEDIA_SDP_EINMEDIA;
+	}
     }
 
     /* Media index must have been determined before */

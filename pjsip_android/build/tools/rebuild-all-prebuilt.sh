@@ -61,6 +61,10 @@ OPTION_TRY_X86=no
 register_option "--try-x86" do_try_x86 "Build experimental x86 toolchain too."
 do_try_x86 () { OPTION_TRY_X86=yes; }
 
+OPTION_REMOVE_BUILD_DIR=yes
+register_option "--remove-build-dir=<yes|no>" do_remove_build_dir "Remove temporary build directory" "$OPTION_REMOVE_BUILD_DIR"
+do_remove_build_dir () { OPTION_REMOVE_BUILD_DIR=$1; }
+
 extract_parameters $@
 
 if [ "$OPTION_PACKAGE" = yes -a -z "$OPTION_NDK_DIR" ] ; then
@@ -151,7 +155,7 @@ fi # ! $TOOLCHAIN_SRC_DIR
 build_toolchain ()
 {
     dump "Building $1 toolchain... (this can be long)"
-    $PROGDIR/build-gcc.sh $FLAGS --build-out=$BUILD_DIR/toolchain-$1 $SRC_DIR $NDK_DIR $1
+    $PROGDIR/build-gcc.sh $FLAGS --build-out=$BUILD_DIR/toolchain-$1 --remove-build-dir=$OPTION_REMOVE_BUILD_DIR $SRC_DIR $NDK_DIR $1
     if [ $? != 0 ] ; then
         dump "ERROR: Could not build $1 toolchain!"
         exit 1
@@ -161,7 +165,7 @@ build_toolchain ()
 build_gdbserver ()
 {
     dump "Build $1 gdbserver..."
-    $PROGDIR/build-gdbserver.sh $FLAGS --build-out=$BUILD_DIR/gdbserver-$1 $SRC_DIR/gdb/gdb-$GDB_VERSION/gdb/gdbserver $NDK_DIR $1
+    $PROGDIR/build-gdbserver.sh $FLAGS --build-out=$BUILD_DIR/gdbserver-$1 --remove-build-dir=$OPTION_REMOVE_BUILD_DIR $SRC_DIR/gdb/gdb-$GDB_VERSION/gdb/gdbserver $NDK_DIR $1
     if [ $? != 0 ] ; then
         dump "ERROR: Could not build $1 toolchain!"
         exit 1
@@ -188,11 +192,35 @@ fi
 #    exit 1
 #fi
 
+# CrystaX BEGIN
+
+# Replace android libstdc++ simulation to GCC's (full) version
+dump "Replacing android libstdc++ simulation to GCC's (full) version"
+/bin/sh $PROGDIR/fix-sysroot.sh
+if [ $? != 0 ] ; then
+    dump "ERROR: Could not fix sysroot!"
+    exit 1
+fi
+
+# Build library containing missing functions
+dump "Build library containing some missing functionality (sysinfo etc)"
+/bin/sh $PROGDIR/build-missing.sh $NDK_DIR
+if [ $? != 0 ] ; then
+    dump "ERROR: Could not build 'missing' library!"
+    exit 1
+fi
+
+# CrystaX END
+
 if [ "$OPTION_PACKAGE" = yes ] ; then
     RELEASE=`date +%Y%m%d`
     dump "Packaging prebuilt binaries..."
     PREBUILT_PACKAGE=/tmp/android-ndk-prebuilt-$RELEASE-$HOST_TAG.tar.bz2
-    cd $NDK_DIR && tar cjf $PREBUILT_PACKAGE *
+    for i in 1 2 3 4 5 ; do
+        rm -f $PREBUILT_PACKAGE
+        cd $NDK_DIR && tar cjf $PREBUILT_PACKAGE * && break
+        sleep 2
+    done
     if [ $? != 0 ] ; then
         dump "ERROR: Could not package prebuilt binaries!"
         exit 1

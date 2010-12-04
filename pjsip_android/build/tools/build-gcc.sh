@@ -41,6 +41,7 @@ OPTION_BUILD_OUT=
 OPTION_PLATFORM=
 OPTION_SYSROOT=
 OPTION_BINUTILS_VERSION=
+OPTION_REMOVE_BUILD_DIR=yes
 
 register_option "--build-out=<path>" do_build_out "Set temporary build directory" "/tmp/<random>"
 register_option "--sysroot=<path>"   do_sysroot   "Specify sysroot directory directly"
@@ -48,6 +49,7 @@ register_option "--platform=<name>"  do_platform  "Specify platform name" "$PLAT
 register_option "--gdb-version=<version>"  do_gdb_version  "Specify gdb version" "$GDB_VERSION"
 register_option "--binutils-version=<version>" do_binutils_version "Specify binutils version" "$BINUTILS_VERSION"
 register_option "-j<number>" do_jobs "Use <number> parallel build jobs" "$JOBS"
+register_option "--remove-build-dir=<yes|no>" do_remove_build_dir "Remove temporary build dir" "$OPTION_REMOVE_BUILD_DIR"
 
 do_build_out ()
 {
@@ -77,6 +79,11 @@ do_binutils_version ()
 do_jobs ()
 {
     JOBS=$1
+}
+
+do_remove_build_dir()
+{
+    OPTION_REMOVE_BUILD_DIR=$1
 }
 
 extract_parameters $@
@@ -178,6 +185,8 @@ $BUILD_SRCDIR/configure --target=$ABI_TOOLCHAIN_PREFIX \
                         --disable-nls \
                         --prefix=$TOOLCHAIN_PATH \
                         --with-sysroot=$SYSROOT \
+                        --enable-libstdc__-v3 \
+                        --enable-threads=posix \
                         --with-binutils-version=$BINUTILS_VERSION \
                         --with-gcc-version=$GCC_VERSION \
                         --with-gdb-version=$GDB_VERSION
@@ -227,6 +236,11 @@ run strip $TOOLCHAIN_PATH/libexec/gcc/*/*/cc1plus
 run strip $TOOLCHAIN_PATH/libexec/gcc/*/*/collect2
 
 dump "Done."
-if [ -n "$OPTION_BUILD_OUT" ] ; then
-    rm -rf $BUILD_OUT
+if [ -n "$OPTION_BUILD_OUT" -a "x$OPTION_REMOVE_BUILD_DIR" = "xyes" ] ; then
+    for i in 1 2 3 4 5 ; do
+        rm -rf $BUILD_OUT && break
+        sleep 2
+    done
 fi
+
+exit 0

@@ -1,4 +1,4 @@
-/* $Id: sip_multipart.c 3342 2010-10-13 11:17:51Z bennylp $ */
+/* $Id: sip_multipart.c 3378 2010-12-02 03:46:11Z nanang $ */
 /* 
  * Copyright (C) 2008-2010 Teluu Inc. (http://www.teluu.com)
  *
@@ -226,11 +226,11 @@ PJ_DEF(pjsip_msg_body*) pjsip_multipart_create( pj_pool_t *pool,
     if (ctype && ctype->type.slen) {
 	pjsip_media_type_cp(pool, &body->content_type, ctype);
     } else {
-	const pj_str_t STR_MULTIPART = {"multipart", 9};
-	const pj_str_t STR_MIXED = { "mixed", 5 };
+	pj_str_t STR_MULTIPART = {"multipart", 9};
+	pj_str_t STR_MIXED = { "mixed", 5 };
 
-	body->content_type.type = STR_MULTIPART;
-	body->content_type.subtype = STR_MIXED;
+        pjsip_media_type_init(&body->content_type,
+                              &STR_MULTIPART, &STR_MIXED);
     }
 
     /* multipart data */

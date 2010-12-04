@@ -3189,7 +3189,7 @@ static pj_status_t lock_codec(pjsua_call *call)
     const pjmedia_sdp_session *local_sdp, *remote_sdp;
     const pjmedia_sdp_media *rem_m, *loc_m;
     unsigned codec_cnt=0, i;
-    pj_time_val delay = {3, 0};
+    pj_time_val delay = {0, 0};
     const pj_str_t st_update = {"UPDATE", 6};
     pj_status_t status;
 
