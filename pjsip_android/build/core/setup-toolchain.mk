@@ -60,7 +60,10 @@ TARGET_CRTBEGIN_STATIC_O  := $(SYSROOT)/usr/lib/crtbegin_static.o
 TARGET_CRTBEGIN_DYNAMIC_O := $(SYSROOT)/usr/lib/crtbegin_dynamic.o
 TARGET_CRTEND_O           := $(SYSROOT)/usr/lib/crtend_android.o
 
-TARGET_PREBUILT_SHARED_LIBRARIES := libc libstdc++ libm
+TARGET_PREBUILT_STATIC_LIBRARIES := libmissing
+TARGET_PREBUILT_STATIC_LIBRARIES := $(TARGET_PREBUILT_STATIC_LIBRARIES:%=$(SYSROOT)/usr/lib/%.a)
+
+TARGET_PREBUILT_SHARED_LIBRARIES := libc libm
 TARGET_PREBUILT_SHARED_LIBRARIES := $(TARGET_PREBUILT_SHARED_LIBRARIES:%=$(SYSROOT)/usr/lib/%.so)
 
 # now call the toolchain-specific setup script
@@ -96,6 +99,7 @@ installed_modules: $(NDK_APP_GDBSETUP)
 
 $(NDK_APP_GDBSETUP)::
 	@ echo "Gdbsetup       : $(PRIVATE_DST)"
+	$(hide) mkdir -p $(shell dirname $(PRIVATE_DST))
 	$(hide) echo "set solib-search-path $(PRIVATE_SOLIB_PATH)" > $(PRIVATE_DST)
 	$(hide) echo "directory $(SYSROOT)/usr/include" >> $(PRIVATE_DST)
 

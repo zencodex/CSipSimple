@@ -27,6 +27,8 @@ OPTION_RELEASE=
 OPTION_GIT=
 OPTION_BRANCH=
 OPTION_PACKAGE=no
+OPTION_OVER_HTTP=no
+OPTION_FOR_DATE=
 
 # the default release name (use today's date)
 RELEASE=`date +%Y%m%d`
@@ -39,11 +41,15 @@ register_option "--branch=<name>" do_branch "Specify release branch" $BRANCH
 register_option "--release=<name>" do_release "Specify release name" $RELEASE
 register_option "--git=<executable>" do_git "Use this version of the git tool" $GITCMD
 register_option "--package" do_package "Create source package in /tmp"
+register_option "--over-http" do_over_http "Download sources over http:// (git:// by default)"
+register_option "--for-date=<date>" do_for_date "Download sources for specified date (latest by default)"
 
 do_branch () { OPTION_BRANCH=$1; }
 do_release () { OPTION_RELEASE=$1; }
 do_git () { OPTION_GIT=$1; }
 do_package () { OPTION_PACKAGE=yes; }
+do_over_http () { OPTION_OVER_HTTP=yes; }
+do_for_date () { OPTION_FOR_DATE=$1; }
 
 PROGRAM_PARAMETERS="<src-dir>"
 PROGRAM_DESCRIPTION=\
@@ -89,7 +95,9 @@ if [ $? != 0 ] ; then
 fi
 
 # prefix used for all clone operations
-GITPREFIX=git://android.git.kernel.org/toolchain
+PROTO_PREFIX=git
+[ "x$OPTION_OVER_HTTP" = "xyes" ] && PROTO_PREFIX=http
+GITPREFIX=$PROTO_PREFIX://android.git.kernel.org/toolchain
 
 toolchain_clone ()
 {
@@ -108,6 +116,9 @@ toolchain_clone ()
             dump "Could not checkout $1 ?"
             exit 1
         fi
+    fi
+    if [ "x$OPTION_FOR_DATE" != "x" ] ; then
+        run git checkout `git rev-list -n 1 --before="$OPTION_FOR_DATE" HEAD`
     fi
     # get rid of .git directory, we won't need it.
     cd ..

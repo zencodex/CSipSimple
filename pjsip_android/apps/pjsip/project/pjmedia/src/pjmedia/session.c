@@ -1,4 +1,4 @@
-/* $Id: session.c 3315 2010-09-22 08:39:03Z nanang $ */
+/* $Id: session.c 3379 2010-12-02 04:13:57Z nanang $ */
 /* 
  * Copyright (C) 2008-2009 Teluu Inc. (http://www.teluu.com)
  * Copyright (C) 2003-2008 Benny Prijono <benny@prijono.org>
@@ -827,7 +827,8 @@ PJ_DEF(pj_status_t) pjmedia_session_enum_streams(const pjmedia_session *session,
 	*count = session->stream_cnt;
 
     for (i=0; i<*count; ++i) {
-	pj_memcpy(&info[i], &session->stream[i], sizeof(pjmedia_stream_info));
+	pj_memcpy(&info[i], &session->stream_info[i], 
+                  sizeof(pjmedia_stream_info));
     }
 
     return PJ_SUCCESS;

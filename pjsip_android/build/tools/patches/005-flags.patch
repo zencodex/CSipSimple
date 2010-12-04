@@ -1,0 +1,13 @@
+diff --git a/build/Makefile.in b/build/Makefile.in
+index 670b620..06c95e9 100644
+--- a/build/Makefile.in
++++ b/build/Makefile.in
+@@ -106,6 +106,8 @@ CXXFLAGS_FOR_TARGET=$(CFLAGS_FOR_TARGET)
+ LDFLAGS_FOR_TARGET=-mandroid
+ 
+ CFLAGS_FOR_TARGET+= -DANDROID -D__ANDROID__
++CFLAGS_FOR_TARGET+= -fexceptions
++CXXFLAGS_FOR_TARGET+= -frtti
+ 
+ # Helper
+ prefix-list = $(foreach e, $(2), $(join $1, $e))

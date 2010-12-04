@@ -50,7 +50,7 @@ TARGET_x86_debug_CFLAGS := $(TARGET_x86_release_CFLAGS) \
 #
 TARGET-process-src-files-tags = \
 $(eval __debug_sources := $(call get-src-files-with-tag,debug)) \
-$(eval __release_sources := $(call get-src-files-without-tag,debug)) \
+$(eval __release_sources := $(call get-sr-files-without-tag,debug)) \
 $(call set-src-files-target-cflags, $(__debug_sources), $(TARGET_x86_debug_CFLAGS)) \
 $(call set-src-files-target-cflags, $(__release_sources),$(TARGET_x86_release_CFLAGS)) \
 $(call set-src-files-text,$(LOCAL_SRC_FILES),x86$(space)$(space)) \
@@ -60,16 +60,19 @@ TARGET_CFLAGS   := $(TARGET_CFLAGS.common)
 
 
 TARGET_CXX      := $(TOOLCHAIN_PREFIX)g++
-TARGET_CXXFLAGS := $(TARGET_CFLAGS.common) -fno-exceptions -fno-rtti
+TARGET_CXXFLAGS := $(TARGET_CFLAGS.common)
 
 TARGET_LD      := $(TOOLCHAIN_PREFIX)ld
-TARGET_LDFLAGS := -rdynamic
+TARGET_LDFLAGS :=
 
 TARGET_AR      := $(TOOLCHAIN_PREFIX)ar
 TARGET_ARFLAGS := crs
 
 TARGET_LIBGCC := $(shell $(TARGET_CC) -print-libgcc-file-name)
 TARGET_LDLIBS := -Wl,-rpath-link=$(SYSROOT)/usr/lib
+
+TARGET_CXXLIBS := $(shell $(TARGET_CXX) -print-file-name=libstdc++.a)
+TARGET_CXXLIBS := $(shell $(TARGET_CXX) -print-file-name=libsupc++.a)
 
 # These flags are used to ensure that a binary doesn't reference undefined
 # flags.
@@ -104,10 +107,13 @@ $(TARGET_CC) \
     $(PRIVATE_WHOLE_STATIC_LIBRARIES) \
     -Wl,--no-whole-archive \
     $(PRIVATE_STATIC_LIBRARIES) \
+    $(TARGET_CXXLIBS) \
     $(TARGET_LIBGCC) \
     $(PRIVATE_SHARED_LIBRARIES) \
     $(PRIVATE_LDFLAGS) \
     $(PRIVATE_LDLIBS) \
+    $(TARGET_CXXLIBS) \
+    $(TARGET_LIBGCC) \
     -o $@
 endef
 
@@ -120,10 +126,13 @@ $(TARGET_CC) \
     $(TARGET_CRTBEGIN_DYNAMIC_O) \
     $(PRIVATE_OBJECTS) \
     $(PRIVATE_STATIC_LIBRARIES) \
+    $(TARGET_CXXLIBS) \
     $(TARGET_LIBGCC) \
     $(PRIVATE_SHARED_LIBRARIES) \
     $(PRIVATE_LDFLAGS) \
     $(PRIVATE_LDLIBS) \
+    $(TARGET_CXXLIBS) \
+    $(TARGET_LIBGCC) \
     $(TARGET_CRTEND_O) \
     -o $@
 endef

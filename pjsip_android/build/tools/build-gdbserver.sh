@@ -41,16 +41,19 @@ JOBS=$HOST_NUM_CPUS
 OPTION_HELP=no
 OPTION_BUILD_OUT=
 OPTION_SYSROOT=
+OPTION_REMOVE_BUILD_DIR=yes
 
 register_option "--build-out=<path>" do_build_out "Set temporary build directory" "/tmp/random"
 register_option "--platform=<name>"  do_platform  "Target specific platform" "$PLATFORM"
 register_option "--sysroot=<path>"   do_sysroot   "Specify sysroot directory directly."
 register_option "-j<number>"         do_jobs      "Use <number> build jobs in parallel" "$JOBS"
+register_option "--remove-build-dir=<yes|no>" do_remove_build_dir "Remove temporary build dir" "$OPTION_REMOVE_BUILD_DIR"
 
 do_build_out () { OPTION_BUILD_OUT=$1; }
 do_platform () { OPTION_PLATFORM=$1; }
 do_sysroot () { OPTION_SYSROOT=$1; }
 do_jobs () { JOBS=$1; }
+do_remove_build_dir () { OPTION_REMOVE_BUILD_DIR=$1; }
 
 extract_parameters $@
 
@@ -121,11 +124,11 @@ INCLUDE_DIRS=\
 -I$SYSROOT/usr/include"
 CRTBEGIN="$SYSROOT/usr/lib/crtbegin_static.o"
 CRTEND="$SYSROOT/usr/lib/crtend_android.o"
-LIBRARY_LDFLAGS="$CRTBEGIN -L$SYSROOT/usr/lib -lc -lm -lgcc $CRTEND "
+LIBRARY_LDFLAGS="$CRTBEGIN -L$SYSROOT/usr/lib -lc -lm -lgcc -lc $CRTEND "
 
 cd $BUILD_OUT &&
 export CC="$TOOLCHAIN_PREFIX-gcc" &&
-export CFLAGS="-O2 -nostdinc -nostdlib -D__ANDROID__ -DANDROID -DSTDC_HEADERS $INCLUDE_DIRS"  &&
+export CFLAGS="-O2 -nostdinc -nostdlib -fno-short-enums -D__ANDROID__ -DANDROID -DSTDC_HEADERS $INCLUDE_DIRS"  &&
 export LDFLAGS="-static -Wl,-z,nocopyreloc -Wl,--no-undefined $LIBRARY_LDFLAGS" &&
 run $SRC_DIR/configure \
 --host=${ABI_CONFIGURE_HOST} \
@@ -162,6 +165,11 @@ if [ $? != 0 ] ; then
 fi
 
 dump "Done."
-if [ -n "$OPTION_BUILD_OUT" ] ; then
-    rm -rf $BUILD_OUT
+if [ -n "$OPTION_BUILD_OUT" -a "x$OPTION_REMOVE_BUILD_DIR" = "xyes" ] ; then
+    for i in 1 2 3 4 5 ; do
+        rm -rf $BUILD_OUT && break
+        sleep 2
+    done
 fi
+
+exit 0
