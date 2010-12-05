@@ -207,7 +207,11 @@ ifneq ($(filter -l%,$(LOCAL_LDLIBS)),)
     LOCAL_LDLIBS := -L$(SYSROOT)/usr/lib $(LOCAL_LDLIBS)
 endif
 
+ifneq ($(TARGET_ARCH_ABI),armv4t)
 $(LOCAL_BUILT_MODULE): PRIVATE_STATIC_LIBRARIES := $(static_libraries) $(TARGET_PREBUILT_STATIC_LIBRARIES)
+else
+$(LOCAL_BUILT_MODULE): PRIVATE_STATIC_LIBRARIES := $(static_libraries)
+endif
 $(LOCAL_BUILT_MODULE): PRIVATE_SHARED_LIBRARIES := $(shared_libraries)
 $(LOCAL_BUILT_MODULE): PRIVATE_OBJECTS          := $(LOCAL_OBJECTS)
 
