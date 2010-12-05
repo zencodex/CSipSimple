@@ -59,11 +59,13 @@ SYSROOT := $(NDK_ROOT)/build/platforms/$(TARGET_PLATFORM)/arch-$(TARGET_ARCH)
 TARGET_CRTBEGIN_STATIC_O  := $(SYSROOT)/usr/lib/crtbegin_static.o
 TARGET_CRTBEGIN_DYNAMIC_O := $(SYSROOT)/usr/lib/crtbegin_dynamic.o
 TARGET_CRTEND_O           := $(SYSROOT)/usr/lib/crtend_android.o
-
-TARGET_PREBUILT_STATIC_LIBRARIES := libmissing
+ifneq ($(TARGET_ARCH_ABI),armv4t)
+TARGET_PREBUILT_STATIC_LIBRARIES := libmissing $(TARGET_ARCH_ABI)
 TARGET_PREBUILT_STATIC_LIBRARIES := $(TARGET_PREBUILT_STATIC_LIBRARIES:%=$(SYSROOT)/usr/lib/%.a)
-
 TARGET_PREBUILT_SHARED_LIBRARIES := libc libm
+else
+TARGET_PREBUILT_SHARED_LIBRARIES := libc libstdc++ libm
+endif
 TARGET_PREBUILT_SHARED_LIBRARIES := $(TARGET_PREBUILT_SHARED_LIBRARIES:%=$(SYSROOT)/usr/lib/%.so)
 
 # now call the toolchain-specific setup script
