@@ -28,7 +28,7 @@ IFS=" "
 
 for abi in $TARGETS; do
 	#Use the supported platform
-	platform="android-4"
+	platform="android-8"
 	if [[ $abi == "armv4t" ]]; then
 		platform="android-3"
 	elif [[ $abi == "x86" ]]; then

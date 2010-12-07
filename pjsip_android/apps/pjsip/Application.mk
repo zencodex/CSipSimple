@@ -5,7 +5,7 @@ APP_OPTIM        := release
 APP_ABI := armeabi armeabi-v7a
 #APP_ABI := armv4t 
 
-MY_USE_G729 := 0
+MY_USE_G729 := 1
 MY_USE_ILBC := 1
 MY_USE_G722 := 1
 MY_USE_SPEEX := 1

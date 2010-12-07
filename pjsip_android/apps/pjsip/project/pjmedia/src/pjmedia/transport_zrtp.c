@@ -644,7 +644,7 @@ static void zrtp_rtpSecretsOn(ZrtpContext* ctx, char* c, char* s, int32_t verifi
     {
         zrtp->userCallback->zrtp_secureOn(zrtp->userCallback->userData, c);
 
-        if (pj_strlen((const pj_str_t*)s) > 0)
+        if (strlen((const pj_str_t*)s) > 0)
         {
             zrtp->userCallback->zrtp_showSAS(zrtp->userCallback->userData, s, verified);
         }
