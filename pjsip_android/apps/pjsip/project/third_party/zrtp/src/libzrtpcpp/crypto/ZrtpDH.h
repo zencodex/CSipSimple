@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2006-2007 Werner Dittmann
+  Copyright (C) 2006-2009 Werner Dittmann
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -23,7 +23,7 @@
 #define _ZRTPDH_H__
 
 #include <stdint.h>
-#include <libzrtpcpp/ZrtpTextData.h>
+#include <libzrtpcpp/ZrtpConfigure.h>
 
 /**
  * Generates a number of random bytes.
@@ -53,10 +53,10 @@ class ZrtpDH {
 
 private:
     void* ctx;
-    SupportedPubKeys pkType;
+    int pkType;
 
 public:
-    ZrtpDH(SupportedPubKeys type);
+    ZrtpDH(const char* type);
     ~ZrtpDH();
 
     /**
@@ -124,7 +124,7 @@ public:
      */
     int32_t checkPubKey(uint8_t* pubKeyBytes) const;
 
-    SupportedPubKeys getDHtype() { return pkType; }
+    const char* getDHtype();
 };
 
 #endif // ZRTPDH_H

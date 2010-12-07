@@ -21,12 +21,15 @@
 
 #include <libzrtpcpp/ZrtpPacketDHPart.h>
 
+#define DH3K 1
+#define DH2K 0
+
 ZrtpPacketDHPart::ZrtpPacketDHPart() {
     DEBUGOUT((fprintf(stdout, "Creating DHPart packet without data and pkt type\n")));
     initialize();
 }
 
-ZrtpPacketDHPart::ZrtpPacketDHPart(SupportedPubKeys pkt) {
+ZrtpPacketDHPart::ZrtpPacketDHPart(const char* pkt) {
     DEBUGOUT((fprintf(stdout, "Creating DHPart packet without data\n")));
     initialize();
     setPubKeyType(pkt);
@@ -44,14 +47,13 @@ void ZrtpPacketDHPart::initialize() {
     setZrtpId();
 }
 
-void ZrtpPacketDHPart::setPubKeyType(SupportedPubKeys pkt) {
-    switch (pkt) {
-	case Dh2048:
-	    dhLength = 256;
-	    break;
-	case Dh3072:
-	    dhLength = 384;
-	    break;
+void ZrtpPacketDHPart::setPubKeyType(const char* pkt) {
+    // Well - the algo type is only 4 char thus cast to int32 and compare
+    if (*(int32_t*)pkt == *(int32_t*)dh2k) {
+        dhLength = 256;
+    }
+    else {
+        dhLength = 384;
     }
     int length = sizeof(DHPartPacket_t) + dhLength + (2 * ZRTP_WORD_SIZE); // HMAC field is 2*ZRTP_WORD_SIZE
     setLength(length / ZRTP_WORD_SIZE);

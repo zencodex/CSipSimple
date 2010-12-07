@@ -48,4 +48,8 @@ LOCAL_SRC_FILES += $(PJSIP_SRC_DIR)/sip_transport_tls_ossl.c
 LOCAL_C_INCLUDES += $(LOCAL_PATH)../third_party/openssl/include/
 endif
 
+ifeq ($(MY_USE_ZRTP),1)
+LOCAL_C_INCLUDES += $(LOCAL_PATH)/../third_party/zrtp/src
+endif
+
 include $(BUILD_STATIC_LIBRARY)

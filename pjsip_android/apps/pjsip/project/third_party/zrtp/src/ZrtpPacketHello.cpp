@@ -24,13 +24,15 @@
 
 ZrtpPacketHello::ZrtpPacketHello() {
     DEBUGOUT((fprintf(stdout, "Creating Hello packet without data\n")));
+}
 
+void ZrtpPacketHello::configureHello(ZrtpConfigure* config) {
     // The NumSupported* data is in ZrtpTextData.h 
-    nHash = NumSupportedHashes;
-    nCipher = NumSupportedSymCiphers;
-    nPubkey = NumSupportedPubKeys;
-    nSas = NumSupportedSASTypes;
-    nAuth = NumSupportedAuthLenghts;
+    nHash = config->getNumConfiguredAlgos(HashAlgorithm);
+    nCipher = config->getNumConfiguredAlgos(CipherAlgorithm);
+    nPubkey = config->getNumConfiguredAlgos(PubKeyAlgorithm);
+    nSas = config->getNumConfiguredAlgos(SasType);
+    nAuth = config->getNumConfiguredAlgos(AuthLength);
 
     // length is fixed Header plus HMAC size (2*ZRTP_WORD_SIZE)
     int32_t length = sizeof(HelloPacket_t) + (2 * ZRTP_WORD_SIZE);
@@ -64,27 +66,32 @@ ZrtpPacketHello::ZrtpPacketHello() {
 
     uint32_t lenField = nHash << 16;
     for (int32_t i = 0; i < nHash; i++) {
-        setHashType(i, (int8_t*)supportedHashes[i]);
+        AlgorithmEnum& hash = config->getAlgoAt(HashAlgorithm, i);
+        setHashType(i, (int8_t*)hash.getName());
     }
 
     lenField |= nCipher << 12;
     for (int32_t i = 0; i < nCipher; i++) {
-        setCipherType(i,  (int8_t*)supportedCipher[i]);
+        AlgorithmEnum& cipher = config->getAlgoAt(CipherAlgorithm, i);
+        setCipherType(i, (int8_t*)cipher.getName());
     }
 
     lenField |= nAuth << 8;
     for (int32_t i = 0; i < nAuth; i++) {
-        setAuthLen(i,  (int8_t*)supportedAuthLen[i]);
+        AlgorithmEnum& length = config->getAlgoAt(AuthLength, i);
+        setAuthLen(i, (int8_t*)length.getName());
     }
 
     lenField |= nPubkey << 4;
     for (int32_t i = 0; i < nPubkey; i++) {
-        setPubKeyType(i,  (int8_t*)supportedPubKey[i]);
+        AlgorithmEnum& pubKey = config->getAlgoAt(PubKeyAlgorithm, i);
+        setPubKeyType(i, (int8_t*)pubKey.getName());
     }
 
     lenField |= nSas;
     for (int32_t i = 0; i < nSas; i++) {
-        setSasType(i,  (int8_t*)supportedSASType[i]);
+        AlgorithmEnum& sas = config->getAlgoAt(SasType, i);
+        setSasType(i, (int8_t*)sas.getName());
     }
     helloHeader->flagLength = htonl(lenField);
 }

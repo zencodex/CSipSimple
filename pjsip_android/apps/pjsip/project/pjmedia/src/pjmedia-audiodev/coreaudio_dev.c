@@ -1,4 +1,4 @@
-/* $Id: coreaudio_dev.c 3335 2010-10-10 15:51:08Z ming $ */
+/* $Id: coreaudio_dev.c 3386 2010-12-05 14:03:31Z ming $ */
 /*
  * Copyright (C) 2008-2010 Teluu Inc. (http://www.teluu.com)
  *
@@ -767,7 +767,8 @@ static void interruptionListener(void *inClientData, UInt32 inInterruption)
 {
     struct coreaudio_stream *strm = ((struct coreaudio_factory*)inClientData)->
 				    stream;
-    pj_assert(strm);
+    if (!strm)
+	return;
 
     PJ_LOG(3, (THIS_FILE, "Session interrupted! --- %s ---",
 	   inInterruption == kAudioSessionBeginInterruption ?

@@ -1189,12 +1189,18 @@ pj_status_t pjsua_media_channel_init(pjsua_call_id call_id,
     pjsua_call *call = &pjsua_var.calls[call_id];
     pj_status_t status;
 
-#if defined(PJMEDIA_HAS_SRTP) && (PJMEDIA_HAS_SRTP != 0)
+#if (defined(PJMEDIA_HAS_SRTP) && (PJMEDIA_HAS_SRTP != 0)) || (defined(PJMEDIA_HAS_ZRTP) && (PJMEDIA_HAS_ZRTP != 0))
     pjsua_acc *acc = &pjsua_var.acc[call->acc_id];
+#endif
+
+#if defined(PJMEDIA_HAS_SRTP) && (PJMEDIA_HAS_SRTP != 0)
     pjmedia_srtp_setting srtp_opt;
     pjmedia_transport *srtp = NULL;
 #endif
 
+#if defined(PJMEDIA_HAS_ZRTP) && (PJMEDIA_HAS_ZRTP != 0)
+    pjmedia_transport *zrtp = NULL;
+#endif
     PJ_UNUSED_ARG(role);
 
     /* Return error if media transport has not been created yet
@@ -1248,6 +1254,33 @@ pj_status_t pjsua_media_channel_init(pjsua_call_id call_id,
 #else
     call->med_orig = call->med_tp;
     PJ_UNUSED_ARG(security_level);
+#endif
+
+#if defined(PJMEDIA_HAS_ZRTP) && (PJMEDIA_HAS_ZRTP != 0)
+    /*
+     * If SRTP and ZRTP are enabled return error. 
+     */
+    if ((acc->cfg.use_srtp != PJMEDIA_SRTP_DISABLED) && (acc->cfg.use_zrtp != PJMEDIA_NO_ZRTP)) {
+        return PJSIP_ESESSIONINSECURE;
+    }
+    //if (acc->cfg.use_zrtp == PJMEDIA_CREATE_ZRTP) {
+    status = pjmedia_transport_zrtp_create(pjsua_var.med_endpt, NULL, 
+                                           call->med_tp,
+                                           &zrtp, PJ_FALSE);
+
+    status = PJ_SUCCESS;
+    if (pjsua_var.ua_cfg.cb.on_zrtp_transport_created)
+        status = pjsua_var.ua_cfg.cb.on_zrtp_transport_created(zrtp, call_id);
+    
+    if (status != PJ_SUCCESS)
+        return status;
+
+    /* Set SRTP as current media transport */
+    call->med_orig = call->med_tp;
+    call->med_tp = zrtp;
+    //}
+#else
+    call->med_orig = call->med_tp;
 #endif
 
     /* Find out which media line in SDP that we support. If we are offerer,

@@ -27,15 +27,7 @@
 void sha256(unsigned char* data, unsigned int dataLength,
             unsigned char* mac)
 {
-    gcry_md_hd_t hd;
-    gcry_error_t err = 0;
-
-    err = gcry_md_open(&hd, GCRY_MD_SHA256, 0);
-    gcry_md_write (hd, data, dataLength);
-
-    uint8_t* p = gcry_md_read (hd, GCRY_MD_SHA256);
-    memcpy(mac, p, SHA256_DIGEST_LENGTH);
-    gcry_md_close (hd);
+    gcry_md_hash_buffer(GCRY_MD_SHA256, mac, data, dataLength);
 }
 
 void sha256(unsigned char* dataChunks[],
