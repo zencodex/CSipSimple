@@ -19,7 +19,11 @@ PJLIB_SRC_DIR := ./
 LOCAL_SRC_FILES := $(PJLIB_SRC_DIR)/ZIDFile.cpp \
 $(PJLIB_SRC_DIR)/ZIDRecord.cpp \
 $(PJLIB_SRC_DIR)/ZrtpCrc32.cpp \
+$(PJLIB_SRC_DIR)/Base32.cpp \
 $(PJLIB_SRC_DIR)/ZRtp.cpp \
+$(PJLIB_SRC_DIR)/ZrtpCallbackWrapper.cpp \
+$(PJLIB_SRC_DIR)/ZrtpCWrapper.cpp \
+$(PJLIB_SRC_DIR)/ZrtpConfigure.cpp \
 $(PJLIB_SRC_DIR)/ZrtpPacketClearAck.cpp \
 $(PJLIB_SRC_DIR)/ZrtpPacketCommit.cpp \
 $(PJLIB_SRC_DIR)/ZrtpPacketConf2Ack.cpp \
@@ -34,17 +38,14 @@ $(PJLIB_SRC_DIR)/ZrtpPacketPingAck.cpp \
 $(PJLIB_SRC_DIR)/ZrtpPacketPing.cpp \
 $(PJLIB_SRC_DIR)/ZrtpStateClass.cpp \
 $(PJLIB_SRC_DIR)/ZrtpTextData.cpp \
-$(PJLIB_SRC_DIR)/libzrtpcpp/crypto/openssl/ZrtpDH.cpp \
 $(PJLIB_SRC_DIR)/libzrtpcpp/crypto/openssl/hmac256.cpp \
+$(PJLIB_SRC_DIR)/libzrtpcpp/crypto/openssl/hmac384.cpp \
 $(PJLIB_SRC_DIR)/libzrtpcpp/crypto/openssl/sha256.cpp \
+$(PJLIB_SRC_DIR)/libzrtpcpp/crypto/openssl/sha384.cpp \
 $(PJLIB_SRC_DIR)/libzrtpcpp/crypto/openssl/AesCFB.cpp \
+$(PJLIB_SRC_DIR)/libzrtpcpp/crypto/openssl/ZrtpDH.cpp \
 $(PJLIB_SRC_DIR)/libzrtpcpp/crypto/openssl/InitializeOpenSSL.cpp
 
-#$(PJLIB_SRC_DIR)/libzrtpcpp/crypto/gcrypt/gcryptZrtpDH.cpp \
-$(PJLIB_SRC_DIR)/libzrtpcpp/crypto/gcrypt/gcrypthmac256.cpp \
-$(PJLIB_SRC_DIR)/libzrtpcpp/crypto/gcrypt/gcryptsha256.cpp \
-$(PJLIB_SRC_DIR)/libzrtpcpp/crypto/gcrypt/gcryptAesCFB.cpp \
-$(PJLIB_SRC_DIR)/libzrtpcpp/crypto/gcrypt/InitializeGcrypt.cpp \
 
 
 

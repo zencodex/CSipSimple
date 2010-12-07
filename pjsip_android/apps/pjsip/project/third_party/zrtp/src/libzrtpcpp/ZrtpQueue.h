@@ -22,6 +22,7 @@
 #include <ccrtp/rtppkt.h>
 #include <libzrtpcpp/ZrtpCallback.h>
 #include <libzrtpcpp/TimeoutProvider.h>
+#include <libzrtpcpp/ZrtpConfigure.h>
 
 class ZrtpUserCallback;
 class ZRtp;
@@ -223,14 +224,19 @@ namespace ost {
          *
          * @param autoEnable
          *     if set to true the method automatically sets enableZrtp to
-         *     true. This enables the ZRTP auto-sense mode.
+         *     true. This enables the ZRTP auto-sense mode. Default is true.
          *
+         * @param config
+         *     this parameter points to ZRTP configuration data. If it is
+         *     NULL then ZrtpQueue uses a default setting. Default is NULL.
+         * 
          * @return 
          *     1 on success, ZRTP processing enabled, -1 on failure,
          *     ZRTP processing disabled.
          *
          */
-        int32_t initialize(const char *zidFilename, bool autoEnable = true);
+        int32_t initialize(const char *zidFilename, bool autoEnable = true, 
+                           ZrtpConfigure* config = NULL);
 
         /*
          * Applications use the following methods to control ZRTP, for example
@@ -444,6 +450,17 @@ namespace ost {
          *     True if multi-stream is used, false otherwise.
          */
         bool isMultiStream();
+
+        /**
+         * Check if the other ZRTP client supports Multi-stream.
+         *
+         * Use this method to check if the other ZRTP client supports
+         * Multi-stream mode.
+         *
+         * @return
+         *     True if multi-stream is available, false otherwise.
+         */
+        bool isMultiStreamAvailable();
 
         /**
          * Accept a PBX enrollment request.
@@ -703,7 +720,7 @@ namespace ost {
 
     private:
         void init();
-        size_t rtpDataPacket(IncomingRTPPkt* packet, int32 rtn, 
+        size_t rtpDataPacket(unsigned char* packet, int32 rtn, 
                              InetHostAddress network_address, 
                              tpport_t transport_port);
 

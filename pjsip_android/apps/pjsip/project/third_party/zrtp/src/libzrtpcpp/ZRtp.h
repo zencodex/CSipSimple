@@ -39,6 +39,10 @@
 #define SHA256_DIGEST_LENGTH 32
 #endif
 
+// Prepare to support digest algorithms up to 512 bit (64 bytes)
+#define MAX_DIGEST_LENGTH       64
+#define IMPL_MAX_DIGEST_LENGTH  64
+
 class ZrtpStateClass;
 class ZrtpDH;
 
@@ -82,7 +86,8 @@ class ZRtp {
      * Constructor intializes all relevant data but does not start the
      * engine.
      */
-    ZRtp(uint8_t* myZid, ZrtpCallback* cb, std::string id);
+    ZRtp(uint8_t* myZid, ZrtpCallback* cb, std::string id, 
+         ZrtpConfigure* config);
 
     /**
      * Destructor cleans up.
@@ -156,7 +161,7 @@ class ZRtp {
      * specification, chapter 4.3 ff
      *
      * @param data
-     *     Points to the srtps secret data.
+     *     Points to the secret data.
      * @param length
      *     Length of the auxilliary secrect in bytes
      */
@@ -169,7 +174,7 @@ class ZRtp {
      * specification, chapter 4.3 ff and 7.3
      *
      * @param data
-     *     Points to the other secret data.
+     *     Points to the other PBX data.
      * @param length
      *     The length in bytes of the data.
      */
@@ -250,7 +255,7 @@ class ZRtp {
     void setMultiStrParams(std::string parameters);
 
     /**
-     * Check if this ZRTP use Multi-stream.
+     * Check if this ZRTP session is a Multi-stream session.
      *
      * Use this method to check if this ZRTP instance uses multi-stream. 
      * Refer to chapters 4.2 and 4.4.2 in the ZRTP.
@@ -259,6 +264,17 @@ class ZRtp {
      *     True if multi-stream is used, false otherwise.
      */
     bool isMultiStream();
+
+    /**
+     * Check if the other ZRTP client supports Multi-stream.
+     *
+     * Use this method to check if the other ZRTP client supports
+     * Multi-stream mode.
+     *
+     * @return
+     *     True if multi-stream is available, false otherwise.
+     */
+    bool isMultiStreamAvailable();
 
     /**
      * Accept a PBX enrollment request.
@@ -426,19 +442,19 @@ private:
      * The SAS hash for signaling and alike. Refer to chapters
      * 4.5 and 7 how sasHash, sasValue and the SAS string are derived.
      */
-    uint8_t sasHash[SHA256_DIGEST_LENGTH];
+    uint8_t sasHash[MAX_DIGEST_LENGTH];
     /**
      * The ids for the retained and other shared secrets
      */
-    uint8_t rs1IDr[SHA256_DIGEST_LENGTH];
-    uint8_t rs2IDr[SHA256_DIGEST_LENGTH];
-    uint8_t auxSecretIDr[SHA256_DIGEST_LENGTH];
-    uint8_t pbxSecretIDr[SHA256_DIGEST_LENGTH];
+    uint8_t rs1IDr[MAX_DIGEST_LENGTH];
+    uint8_t rs2IDr[MAX_DIGEST_LENGTH];
+    uint8_t auxSecretIDr[MAX_DIGEST_LENGTH];
+    uint8_t pbxSecretIDr[MAX_DIGEST_LENGTH];
 
-    uint8_t rs1IDi[SHA256_DIGEST_LENGTH];
-    uint8_t rs2IDi[SHA256_DIGEST_LENGTH];
-    uint8_t auxSecretIDi[SHA256_DIGEST_LENGTH];
-    uint8_t pbxSecretIDi[SHA256_DIGEST_LENGTH];
+    uint8_t rs1IDi[MAX_DIGEST_LENGTH];
+    uint8_t rs2IDi[MAX_DIGEST_LENGTH];
+    uint8_t auxSecretIDi[MAX_DIGEST_LENGTH];
+    uint8_t pbxSecretIDi[MAX_DIGEST_LENGTH];
 
     /**
      * pointers to aux secret storage and length of aux secret
@@ -455,12 +471,12 @@ private:
     /**
      * My hvi
      */
-    uint8_t hvi[SHA256_DIGEST_LENGTH];
+    uint8_t hvi[MAX_DIGEST_LENGTH];
 
     /**
      * The peer's hvi
      */
-    uint8_t peerHvi[SHA256_DIGEST_LENGTH];
+    uint8_t peerHvi[8*ZRTP_WORD_SIZE];
 
     /**
      * Context to compute the SHA256 hash of selected messages.
@@ -470,89 +486,149 @@ private:
     /**
      * Commited Hash, Cipher, and public key algorithms
      */
-    SupportedHashes hash;
-    SupportedSymCiphers cipher;
-    SupportedPubKeys pubKey;
+    AlgorithmEnum* hash;
+    AlgorithmEnum* cipher;
+    AlgorithmEnum* pubKey;
     /**
      * The selected SAS type.
      */
-    SupportedSASTypes sasType;
+    AlgorithmEnum* sasType;
 
     /**
      * The selected SAS type.
      */
-    SupportedAuthLengths authLength;
+    AlgorithmEnum* authLength;
 
     /**
      * The Hash images as defined in chapter 5.1.1 (H0 is a random value,
      * not stored here). Need full SHA 256 lenght to store hash value but
      * only the leftmost 128 bits are used in computations and comparisons.
      */
-    uint8_t H0[SHA256_DIGEST_LENGTH];
-    uint8_t H1[SHA256_DIGEST_LENGTH];
-    uint8_t H2[SHA256_DIGEST_LENGTH];
-    uint8_t H3[SHA256_DIGEST_LENGTH];
-    uint8_t helloHash[SHA256_DIGEST_LENGTH];
+    uint8_t H0[IMPL_MAX_DIGEST_LENGTH];
+    uint8_t H1[IMPL_MAX_DIGEST_LENGTH];
+    uint8_t H2[IMPL_MAX_DIGEST_LENGTH];
+    uint8_t H3[IMPL_MAX_DIGEST_LENGTH];
+    uint8_t helloHash[IMPL_MAX_DIGEST_LENGTH];
 
-    uint8_t peerH0[SHA256_DIGEST_LENGTH];
-    uint8_t peerH1[SHA256_DIGEST_LENGTH];
-    uint8_t peerH2[SHA256_DIGEST_LENGTH];
-    uint8_t peerH3[SHA256_DIGEST_LENGTH];
+    // We get the peer's H? from the message where length is defined as 8 words
+    uint8_t peerH0[8*ZRTP_WORD_SIZE];
+    uint8_t peerH1[8*ZRTP_WORD_SIZE];
+    uint8_t peerH2[8*ZRTP_WORD_SIZE];
+    uint8_t peerH3[8*ZRTP_WORD_SIZE];
 
     /**
      * The SHA256 hash over selected messages
      */
-    uint8_t messageHash[SHA256_DIGEST_LENGTH];
+    uint8_t messageHash[MAX_DIGEST_LENGTH];
     /**
      * The s0
      */
-    uint8_t s0[SHA256_DIGEST_LENGTH];
+    uint8_t s0[MAX_DIGEST_LENGTH];
 
     /**
      * The new Retained Secret
      */
-    uint8_t newRs1[RS_LENGTH];
+    uint8_t newRs1[MAX_DIGEST_LENGTH];
 
     /**
      * The GoClear HMAC keys and confirm HMAC key
      */
-    uint8_t hmacKeyI[SHA256_DIGEST_LENGTH];
-    uint8_t hmacKeyR[SHA256_DIGEST_LENGTH];
+    uint8_t hmacKeyI[MAX_DIGEST_LENGTH];
+    uint8_t hmacKeyR[MAX_DIGEST_LENGTH];
 
     /**
      * The Initiator's srtp key and salt
      */
-    uint8_t srtpKeyI[SHA256_DIGEST_LENGTH];
-    uint8_t srtpSaltI[SHA256_DIGEST_LENGTH];
+    uint8_t srtpKeyI[MAX_DIGEST_LENGTH];
+    uint8_t srtpSaltI[MAX_DIGEST_LENGTH];
 
     /**
      * The Responder's srtp key and salt
      */
-    uint8_t srtpKeyR[SHA256_DIGEST_LENGTH];
-    uint8_t srtpSaltR[SHA256_DIGEST_LENGTH];
+    uint8_t srtpKeyR[MAX_DIGEST_LENGTH];
+    uint8_t srtpSaltR[MAX_DIGEST_LENGTH];
 
     /**
      * The keys used to encrypt/decrypt the confirm message
      */
-    uint8_t zrtpKeyI[SHA256_DIGEST_LENGTH];
-    uint8_t zrtpKeyR[SHA256_DIGEST_LENGTH];
+    uint8_t zrtpKeyI[MAX_DIGEST_LENGTH];
+    uint8_t zrtpKeyR[MAX_DIGEST_LENGTH];
+
+    /**
+     * Pointers to negotiated hash and HMAC functions
+     */
+    void (*hashFunction)(unsigned char *data,
+            unsigned int data_length,
+            unsigned char *digest);
+
+    void (*hashListFunction)(unsigned char *data[],
+            unsigned int data_length[],
+            unsigned char *digest);
+
+    void (*hmacFunction)(uint8_t* key, uint32_t key_length,
+                uint8_t* data, int32_t data_length,
+                uint8_t* mac, uint32_t* mac_length);
+
+    void (*hmacListFunction)( uint8_t* key, uint32_t key_length,
+                           uint8_t* data[], uint32_t data_length[],
+                           uint8_t* mac, uint32_t* mac_length );
+
+    void* (*createHashCtx)();
+
+    void (*closeHashCtx)(void* ctx, unsigned char* digest);
+
+    void (*hashCtxFunction)(void* ctx, unsigned char* data, 
+           unsigned int dataLength);
+
+    void (*hashCtxListFunction)(void* ctx, unsigned char* dataChunks[],
+           unsigned int dataChunkLength[]);
+
+    int32_t hashLength;
+
+    // Funtion pointers to implicit hash and hmac functions
+    void (*hashFunctionImpl)(unsigned char *data,
+            unsigned int data_length,
+            unsigned char *digest);
+
+    void (*hashListFunctionImpl)(unsigned char *data[],
+            unsigned int data_length[],
+            unsigned char *digest);
+
+    void (*hmacFunctionImpl)(uint8_t* key, uint32_t key_length,
+                uint8_t* data, int32_t data_length,
+                uint8_t* mac, uint32_t* mac_length);
+
+    void (*hmacListFunctionImpl)( uint8_t* key, uint32_t key_length,
+                           uint8_t* data[], uint32_t data_length[],
+                           uint8_t* mac, uint32_t* mac_length );
+
+    int32_t hashLengthImpl;
 
     /**
      * The ZRTP Session Key
      * Refer to chapter 5.4.1.4
      */
-    uint8_t zrtpSession[SHA256_DIGEST_LENGTH];
+    uint8_t zrtpSession[MAX_DIGEST_LENGTH];
 
     /**
      * True if this ZRTP instance uses multi-stream mode.
      */
     bool multiStream;
 
+        /**
+     * True if the other ZRTP client supports multi-stream mode.
+     */
+    bool multiStreamAvailable;
+
     /**
      * True if PBX enrollment is enabled.
      */
     bool PBXEnrollment;
 
+    /**
+     * Configuration data which algorithms to use.
+     */
+    ZrtpConfigure configureAlgos;
     /**
      * Pre-initialized packets.
      */
@@ -598,7 +674,7 @@ private:
      *    <code>NumSupportedHashes</code> to signal that no matching Hash algorithm
      *     was found at all.
     */
-    SupportedHashes findBestHash(ZrtpPacketHello *hello);
+    AlgorithmEnum* findBestHash(ZrtpPacketHello *hello);
 
     /**
      * Find the best symmetric cipher algorithm that is offered in Hello.
@@ -615,7 +691,7 @@ private:
      *    <code>NumSupportedSymCiphers</code> to signal that no matching Cipher algorithm
      *    was found at all.
      */
-    SupportedSymCiphers findBestCipher(ZrtpPacketHello *hello,  SupportedPubKeys pk);
+    AlgorithmEnum* findBestCipher(ZrtpPacketHello *hello,  AlgorithmEnum* pk);
 
     /**
      * Find the best Public Key algorithm that is offered in Hello.
@@ -630,7 +706,7 @@ private:
      *    <code>NumSupportedPubKeys</code> to signal that no matching Public Key algorithm
      *    was found at all.
      */
-    SupportedPubKeys findBestPubkey(ZrtpPacketHello *hello);
+    AlgorithmEnum* findBestPubkey(ZrtpPacketHello *hello);
 
     /**
      * Find the best SAS algorithm that is offered in Hello.
@@ -645,7 +721,7 @@ private:
      *    <code>NumSupportedSASTypes</code> to signal that no matching SAS algorithm
      *    was found at all.
      */
-    SupportedSASTypes findBestSASType(ZrtpPacketHello* hello);
+    AlgorithmEnum* findBestSASType(ZrtpPacketHello* hello);
 
     /**
      * Find the best authentication length that is offered in Hello.
@@ -660,7 +736,7 @@ private:
      *    <code>NumSupportedAuthLenghts</code> to signal that no matching length
      *    was found at all.
      */
-    SupportedAuthLengths findBestAuthLen(ZrtpPacketHello* hello);
+    AlgorithmEnum* findBestAuthLen(ZrtpPacketHello* hello);
 
     /**
      * Check if MultiStream mode is offered in Hello.
@@ -684,11 +760,16 @@ private:
 
     void computeSRTPKeys();
 
+    void KDF(uint8_t* key, uint32_t keyLength, uint8_t* label, int32_t labelLength,
+               uint8_t* context, int32_t contextLength, int32_t L, uint8_t* output);
+
     void generateKeysInitiator(ZrtpPacketDHPart *dhPart, ZIDRecord& zidRec);
 
     void generateKeysResponder(ZrtpPacketDHPart *dhPart, ZIDRecord& zidRec);
 
     void generateKeysMultiStream();
+
+    void setNegotiatedHash(AlgorithmEnum* hash);
 
     /*
      * The following methods are helper functions for ZrtpStateClass.

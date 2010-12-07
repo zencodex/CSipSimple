@@ -5,7 +5,7 @@ PJSUA_HEADER=${PJSIP_DIR}/pjsip/include/pjsua-lib/pjsua.h
 ADDONS_HEADER=${PJSIP_DIR}/jni/pjsua_jni_addons.h
 LINUX_INCLUDE=-I /usr/lib/jvm/java-6-sun/include -I /usr/lib/jvm/java-6-sun/include/linux -I ${PJSIP_DIR}/pjsip/include -I ${PJSIP_DIR}/jni/
 LINUX_LIBDIR=
-CFLAGS=-DPJMEDIA_HAS_SRTP=1 -DPJ_HAS_SSL_SOCK=1
+CFLAGS=-DPJMEDIA_HAS_SRTP=1 -DPJ_HAS_SSL_SOCK=1 -DPJMEDIA_HAS_ZRTP=1
 
 all : nativesrc/pjsua_wrap.cpp 
 

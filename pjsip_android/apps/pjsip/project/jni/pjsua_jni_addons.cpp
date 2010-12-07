@@ -319,6 +319,165 @@ PJ_DECL(pj_bool_t) is_call_secure(pjsua_call_id call_id){
 	return result;
 }
 
+
+/*
+ * ZRTP stuff
+ */
+
+#if defined(PJMEDIA_HAS_ZRTP) && PJMEDIA_HAS_ZRTP!=0
+
+char* InfoCodes[] =
+{
+    "EMPTY",
+    "Hello received, preparing a Commit",
+    "Commit: Generated a public DH key",
+    "Responder: Commit received, preparing DHPart1",
+    "DH1Part: Generated a public DH key",
+    "Initiator: DHPart1 received, preparing DHPart2",
+    "Responder: DHPart2 received, preparing Confirm1",
+    "Initiator: Confirm1 received, preparing Confirm2",
+    "Responder: Confirm2 received, preparing Conf2Ack",
+    "At least one retained secrets matches - security OK",
+    "Entered secure state",
+    "No more security for this session"
+};
+
+/**
+ * Sub-codes for Warning
+ */
+char* WarningCodes [] =
+{
+    "EMPTY",
+    "Commit contains an AES256 cipher but does not offer a Diffie-Helman 4096",
+    "Received a GoClear message",
+    "Hello offers an AES256 cipher but does not offer a Diffie-Helman 4096",
+    "No retained shared secrets available - must verify SAS",
+    "Internal ZRTP packet checksum mismatch - packet dropped",
+    "Dropping packet because SRTP authentication failed!",
+    "Dropping packet because SRTP replay check failed!",
+    "Valid retained shared secrets availabe but no matches found - must verify SAS"
+};
+
+/**
+ * Sub-codes for Severe
+ */
+char* SevereCodes[] =
+{
+    "EMPTY",
+    "Hash HMAC check of Hello failed!",
+    "Hash HMAC check of Commit failed!",
+    "Hash HMAC check of DHPart1 failed!",
+    "Hash HMAC check of DHPart2 failed!",
+    "Cannot send data - connection or peer down?",
+    "Internal protocol error occured!",
+    "Cannot start a timer - internal resources exhausted?",
+    "Too much retries during ZRTP negotiation - connection or peer down?"
+};
+
+static void secureOn(void* data, char* cipher)
+{
+    PJ_LOG(3,(THIS_FILE, "Security enabled, cipher: %s", cipher));
+}
+static void secureOff(void* data)
+{
+    PJ_LOG(3,(THIS_FILE, "Security disabled"));
+}
+static void showSAS(void* data, char* sas, int32_t verified)
+{
+    PJ_LOG(3,(THIS_FILE, "SAS data: %s, verified: %d", sas, verified));
+}
+static void confirmGoClear(void* data)
+{
+    PJ_LOG(3,(THIS_FILE, "GoClear????????"));
+}
+static void showMessage(void* data, int32_t sev, int32_t subCode)
+{
+    switch (sev)
+    {
+    case zrtp_Info:
+        PJ_LOG(3,(THIS_FILE, "ZRTP info message: %s", InfoCodes[subCode]));
+        break;
+
+    case zrtp_Warning:
+        PJ_LOG(3,(THIS_FILE, "ZRTP warning message: %s", WarningCodes[subCode]));
+        break;
+
+    case zrtp_Severe:
+        PJ_LOG(3,(THIS_FILE, "ZRTP severe message: %s", SevereCodes[subCode]));
+        break;
+
+    case zrtp_ZrtpError:
+        PJ_LOG(3,(THIS_FILE, "ZRTP Error: severity: %d, subcode: %x", sev, subCode));
+        break;
+    }
+}
+static void zrtpNegotiationFailed(void* data, int32_t severity, int32_t subCode)
+{
+    PJ_LOG(3,(THIS_FILE, "ZRTP failed: %d, subcode: %d", severity, subCode));
+}
+static void zrtpNotSuppOther(void* data)
+{
+    PJ_LOG(3,(THIS_FILE, "ZRTP not supported by other peer"));
+}
+static void zrtpAskEnrollment(void* data, char* info)
+{
+    PJ_LOG(3,(THIS_FILE, "ZRTP - Ask PBX enrollment"));
+}
+static void zrtpInformEnrollment(void* data, char* info)
+{
+    PJ_LOG(3,(THIS_FILE, "ZRTP - Inform PBX enrollement"));
+}
+static void signSAS(void* data, char* sas)
+{
+    PJ_LOG(3,(THIS_FILE, "ZRTP - sign SAS"));
+}
+static int32_t checkSASSignature(void* data, char* sas)
+{
+    PJ_LOG(3,(THIS_FILE, "ZRTP - check SAS signature"));
+}
+
+
+static zrtp_UserCallbacks usercb =
+{
+    &secureOn,
+    &secureOff,
+    &showSAS,
+    &confirmGoClear,
+    &showMessage,
+    &zrtpNegotiationFailed,
+    &zrtpNotSuppOther,
+    &zrtpAskEnrollment,
+    &zrtpInformEnrollment,
+    &signSAS,
+    &checkSASSignature,
+    NULL
+};
+
+/* Initialize the ZRTP transport and the user callbacks */
+pj_status_t on_zrtp_transport_created(pjmedia_transport *tp, pjsua_call_id call_id)
+{
+    PJ_LOG(3,(THIS_FILE, "ZRTP transport created"));
+    usercb.userData = tp;
+
+    /* this is optional but highly recommended to enable the application
+     * to report status information to the user, such as verfication status,
+     * SAS code, etc
+     */
+    pjmedia_transport_zrtp_setUserCallback(tp, &usercb);
+
+    /*
+     * Initialize the transport. Just the filename of the ZID file that holds
+     * our partners ZID, shared data etc. If the files does not exists it will
+     * be created an initialized. The ZRTP configuration is not yet implemented
+     * thus the parameter is NULL.
+     */
+    pjmedia_transport_zrtp_initialize(tp, "/sdcard/simple.zid", PJ_TRUE, NULL);
+    return PJ_SUCCESS;
+}
+#endif
+
+
+
 //Get error message
 PJ_DECL(pj_str_t) get_error_message(int status) {
     char errmsg[PJ_ERR_MSG_SIZE];
@@ -332,6 +491,9 @@ PJ_DECL(pj_status_t) csipsimple_init(pjsua_config *ua_cfg,
 				pjsua_media_config *media_cfg){
 	pj_status_t result;
 	log_cfg->cb = &pj_android_log_msg;
+#if defined(PJMEDIA_HAS_ZRTP) && PJMEDIA_HAS_ZRTP!=0
+	ua_cfg->cb.on_zrtp_transport_created = &on_zrtp_transport_created;
+#endif
 	result = (pj_status_t) pjsua_init(ua_cfg, log_cfg, media_cfg);
 	if(result == PJ_SUCCESS){
 		init_ringback_tone();
@@ -512,5 +674,6 @@ void app_on_call_state(pjsua_call_id call_id, pjsip_event *e) {
 		}
 	}
 }
+
 
 

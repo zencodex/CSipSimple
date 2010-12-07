@@ -305,6 +305,18 @@ typedef struct pjsua_msg_data pjsua_msg_data;
 
 #endif
 
+#if defined(PJMEDIA_HAS_ZRTP) && (PJMEDIA_HAS_ZRTP != 0)
+
+    /**
+     * Default value of ZRTP usage mode.
+     * Valid values are PJMEDIA_NO_ZRTP, PJMEDIA_CREATE_ZRTP
+     */
+#ifndef PJSUA_DEFAULT_USE_ZRTP
+    #define PJSUA_DEFAULT_USE_ZRTP  PJMEDIA_CREATE_ZRTP
+#endif
+    
+#endif
+
 /**
  * Controls whether PJSUA-LIB should add ICE media feature tag
  * parameter (the ";+sip.ice" parameter) to Contact header if ICE
@@ -917,6 +929,34 @@ typedef struct pjsua_callback
      */
     void (*on_ice_transport_error)(int index, pj_ice_strans_op op,
 				   pj_status_t status, void *param);
+
+//#if defined(PJMEDIA_HAS_ZRTP) && (PJMEDIA_HAS_ZRTP != 0)
+    /**
+     * PJSUA-LIB calls this function after it created the ZRTP transport but
+     * before PJSUA-LIB initilizes the ZRTP library. The application may store
+     * the ZRTP transport pointer for later use and may call ZRTP transport 
+     * specific functions to set parameters before PJSUA-LIB initializes ZRTP.
+     *
+     * To set or get ZRTP protocol specific data the application must get the
+     * ZrtpContext first (@c pjmedia_transport_zrtp_getZrtpContext()). Then
+     * application can call ZRTP protocol specific methods. The method names
+     * of the ZRTP specific methods start with @c zrtp_ .
+     *
+     * @param tp
+     *     The ZRTP transport pointer. The application shall not modify the
+     *     contents of this structure directly.
+     * @param call_id
+     *     The call id associated with this ZRTP transport.
+     *
+     * @see pjmedia_transport_zrtp_setEnableZrtp()
+     * @see pjmedia_transport_zrtp_isEnableZrtp()
+     * @see pjmedia_transport_zrtp_setUserCallback
+     * @see pjmedia_transport_zrtp_setLocalSSRC()
+     * @see pjmedia_transport_zrtp_getZrtpContext()
+     */
+    pj_status_t (*on_zrtp_transport_created)(pjmedia_transport *tp, pjsua_call_id call_id);
+
+//#endif
 
 } pjsua_callback;
 
@@ -2417,6 +2457,17 @@ typedef struct pjsua_acc_config
      */
     pj_bool_t	     srtp_optional_dup_offer;
 #endif
+//#if defined(PJMEDIA_HAS_ZRTP) && (PJMEDIA_HAS_ZRTP != 0)
+    /**
+     * Specify whether ZRTP transport should be used for this account.
+     * Valid values are PJMEDIA_NO_ZRTP, PJMEDIA_ZRTP_MANUAL_START, and
+     * PJMEDIA_ZRTP_AUTO_START.
+     *
+     * Default: #PJSUA_DEFAULT_USE_ZRTP
+     */
+    pjmedia_zrtp_use     use_zrtp;
+    
+//#endif
 
     /**
      * Specify interval of auto registration retry upon registration failure

@@ -285,7 +285,9 @@ static struct pjsua_callback wrapper_callback_struct = {
 	NULL, //Typing 2
 	&on_nat_detect_wrapper,
 	NULL, //on_call_redirected
-	NULL
+	NULL, //on_transport_state
+	NULL, //on_ice_transport_error
+	NULL //on_zrtp_transport_created
 };
 
 void setCallbackObject(Callback* callback) {
@@ -1097,6 +1099,26 @@ struct pj_time_val
 
 };
 
+
+/**
+ * ZRTP stuff
+ */
+ 
+ /**
+ * ZRTP option.
+ */
+enum pjmedia_zrtp_use
+{
+    /** When this flag is specified, ZRTP will be disabled. */
+    PJMEDIA_NO_ZRTP  = 1,
+
+    /** When this flag is specified, PJSUA-LIB creates a ZRTP transport
+     * call calls back the applicaion for further process if callback is
+     * set.
+     */
+    PJMEDIA_CREATE_ZRTP  = 2
+    
+};
  
 #define PJSUA_INVALID_ID	    (-1)
 typedef int pjsua_call_id;
@@ -1117,6 +1139,13 @@ typedef struct pjsua_msg_data pjsua_msg_data;
 #ifndef PJSUA_DEFAULT_SRTP_SECURE_SIGNALING
     #define PJSUA_DEFAULT_SRTP_SECURE_SIGNALING 1
 #endif
+#endif
+#if defined(PJMEDIA_HAS_ZRTP) && (PJMEDIA_HAS_ZRTP != 0)
+    
+#ifndef PJSUA_DEFAULT_USE_ZRTP
+    #define PJSUA_DEFAULT_USE_ZRTP  PJMEDIA_CREATE_ZRTP
+#endif
+    
 #endif
 #ifndef PJSUA_ADD_ICE_TAGS
 #   define PJSUA_ADD_ICE_TAGS		1
@@ -1276,6 +1305,10 @@ struct pjsua_callback
     
     void (*on_ice_transport_error)(int index, pj_ice_strans_op op,
 				   pj_status_t status, void *param);
+#if defined(PJMEDIA_HAS_ZRTP) && (PJMEDIA_HAS_ZRTP != 0)
+    
+    pj_status_t (*on_zrtp_transport_created)(pjmedia_transport *tp, pjsua_call_id call_id);
+#endif
 };
 enum pjsua_sip_timer_use
 {
@@ -1641,6 +1674,11 @@ struct pjsua_acc_config
     int		     srtp_secure_signaling;
     
     pj_bool_t	     srtp_optional_dup_offer;
+#endif
+#if defined(PJMEDIA_HAS_ZRTP) && (PJMEDIA_HAS_ZRTP != 0)
+    
+    pjmedia_zrtp_use     use_zrtp;
+    
 #endif
     
     unsigned	     reg_retry_interval;

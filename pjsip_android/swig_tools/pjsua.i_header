@@ -285,7 +285,9 @@ static struct pjsua_callback wrapper_callback_struct = {
 	NULL, //Typing 2
 	&on_nat_detect_wrapper,
 	NULL, //on_call_redirected
-	NULL
+	NULL, //on_transport_state
+	NULL, //on_ice_transport_error
+	NULL //on_zrtp_transport_created
 };
 
 void setCallbackObject(Callback* callback) {
@@ -1095,4 +1097,25 @@ struct pj_time_val
     /** The miliseconds fraction of the time. */
     long    msec;
 
+};
+
+
+/**
+ * ZRTP stuff
+ */
+ 
+ /**
+ * ZRTP option.
+ */
+enum pjmedia_zrtp_use
+{
+    /** When this flag is specified, ZRTP will be disabled. */
+    PJMEDIA_NO_ZRTP  = 1,
+
+    /** When this flag is specified, PJSUA-LIB creates a ZRTP transport
+     * call calls back the applicaion for further process if callback is
+     * set.
+     */
+    PJMEDIA_CREATE_ZRTP  = 2
+    
 };

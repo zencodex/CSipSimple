@@ -485,6 +485,7 @@ void ZrtpStateClass::evAckSent(void) {
 void ZrtpStateClass::evAckDetected(void) {
 
     DEBUGOUT((cout << "Checking for match in AckDetected.\n"));
+    cout << "Checking for match in AckDetected.\n";
 
     char *msg, first, last;
     uint8_t *pkt;
@@ -725,7 +726,6 @@ void ZrtpStateClass::evCommitSent(void) {
             if (!parent->verifyH2(&zpCo)) {
                 return;
             }
-            sentPacket = NULL;
             cancelTimer();         // this cancels the Commit timer T2
 
             // if our hvi is less than peer's hvi: switch to Responder mode and
@@ -791,6 +791,12 @@ void ZrtpStateClass::evCommitSent(void) {
                 if (errorCode != IgnorePacket) {
                     sendErrorPacket(errorCode);
                 }
+                else {
+                    if (startTimer(&T2) <= 0) {
+                        timerFailed(SevereNoTimer);       // switches to state Initial
+                    }
+                }
+
                 return;
             }
             sentPacket = static_cast<ZrtpPacketBase *>(dhPart2);
@@ -809,7 +815,6 @@ void ZrtpStateClass::evCommitSent(void) {
         if (multiStream && (first == 'c' && last == '1')) {
             cancelTimer();
             ZrtpPacketConfirm cpkt(pkt);
-            sentPacket = NULL;
 
             ZrtpPacketConfirm* confirm = parent->prepareConfirm2MultiStream(&cpkt, &errorCode);
 
@@ -819,8 +824,8 @@ void ZrtpStateClass::evCommitSent(void) {
                 return;
             }
             nextState(WaitConfAck);
-
             sentPacket = static_cast<ZrtpPacketBase *>(confirm);
+
             if (!parent->sendPacketZRTP(sentPacket)) {
                 sendFailed();         // returns to state Initial
                 return;
@@ -975,7 +980,6 @@ void ZrtpStateClass::evWaitConfirm1(void) {
         if (first == 'c' && last == '1') {
             cancelTimer();
             ZrtpPacketConfirm cpkt(pkt);
-            sentPacket = NULL;
 
             ZrtpPacketConfirm* confirm = parent->prepareConfirm2(&cpkt, &errorCode);
 
@@ -985,8 +989,8 @@ void ZrtpStateClass::evWaitConfirm1(void) {
                 return;
             }
             nextState(WaitConfAck);
-
             sentPacket = static_cast<ZrtpPacketBase *>(confirm);
+
             if (!parent->sendPacketZRTP(sentPacket)) {
                 sendFailed();         // returns to state Initial
                 return;
@@ -1074,7 +1078,6 @@ void ZrtpStateClass::evWaitConfirm2(void) {
          */
         if (first == 'c' && last == '2') {
             ZrtpPacketConfirm cpkt(pkt);
-            sentPacket = NULL;
             ZrtpPacketConf2Ack* confack = parent->prepareConf2Ack(&cpkt, &errorCode);
 
             // Something went wrong during processing of the confirm2 packet
