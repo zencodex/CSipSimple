@@ -12,8 +12,8 @@
 			},
 			"versions":[
 				{
-					"version" : "0.00-14",
-					"download_url" : "http://csipsimple.googlecode.com/files/android-armeabi-v7a_libpjsipjni-0.00-14.so.gz",
+					"version" : "0.00-16",
+					"download_url" : "http://csipsimple.googlecode.com/files/android-armeabi-v7a_libpjsipjni-0.00-16.so.gz",
 					"changelog" : "Beta release"
 					
 				}
@@ -31,8 +31,8 @@
 			},
 			"versions":[
 				{
-					"version" : "0.00-14",
-					"download_url" : "http://csipsimple.googlecode.com/files/android-armv4t_libpjsipjni-0.00-14.so.gz",
+					"version" : "0.00-16",
+					"download_url" : "http://csipsimple.googlecode.com/files/android-armv4t_libpjsipjni-0.00-16.so.gz",
 					"changelog" : "Beta release"
 				}
 			],
@@ -49,8 +49,8 @@
 			},
 			"versions":[
 				{
-					"version" : "0.00-14",
-					"download_url" : "http://csipsimple.googlecode.com/files/android-armeabi_libpjsipjni-0.00-14.so.gz",
+					"version" : "0.00-16",
+					"download_url" : "http://csipsimple.googlecode.com/files/android-armeabi_libpjsipjni-0.00-16.so.gz",
 					"changelog" : "Beta release"
 					
 				}
