@@ -53,8 +53,7 @@ typedef enum pjsip_cred_data_type
     PJSIP_CRED_DATA_PLAIN_PASSWD=0, /**< Plain text password.		*/
     PJSIP_CRED_DATA_DIGEST	=1, /**< Hashed digest.			*/
 
-    PJSIP_CRED_DATA_EXT_AKA	=16, /**< Extended AKA info is available */
-    PJSIP_CRED_DATA_MJMD5	= 8 /**< MJMD5 authentification type */
+    PJSIP_CRED_DATA_EXT_AKA	=16 /**< Extended AKA info is available */
 
 } pjsip_cred_data_type;
 
@@ -498,7 +497,6 @@ PJ_DECL(pj_status_t) pjsip_auth_srv_challenge( pjsip_auth_srv *auth_srv,
  * @param method	SIP method.
  */
 PJ_DECL(void) pjsip_auth_create_digest(pj_str_t *result,
-		   pj_pool_t *pool,
 				       const pj_str_t *nonce,
 				       const pj_str_t *nc,
 				       const pj_str_t *cnonce,
@@ -506,8 +504,7 @@ PJ_DECL(void) pjsip_auth_create_digest(pj_str_t *result,
 				       const pj_str_t *uri,
 				       const pj_str_t *realm,
 				       const pjsip_cred_info *cred_info,
-				       const pj_str_t *method,
-				       const pj_str_t *cid);
+				       const pj_str_t *method);
 
 /**
  * @}

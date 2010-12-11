@@ -940,7 +940,6 @@ dnl #
 
 dnl # Include SSL support
 AC_SUBST(ac_no_ssl)
-ac_crypto_found=0
 AC_ARG_ENABLE(ssl,
 	      AC_HELP_STRING([--disable-ssl],
 			     [Exclude SSL support the build (default: autodetect)])
@@ -964,37 +963,10 @@ AC_ARG_ENABLE(ssl,
 			# PJSIP_HAS_TLS_TRANSPORT setting follows PJ_HAS_SSL_SOCK
 			#AC_DEFINE(PJSIP_HAS_TLS_TRANSPORT, 1)
 			AC_DEFINE(PJ_HAS_SSL_SOCK, 1)
-            ac_crypto_found=1
 		else
 			AC_MSG_RESULT([** OpenSSL libraries not found, disabling SSL support **])
 		fi
 	      ])
-
-dnl # check ZRTP support and enable only if not disabled and the crypto lib was
-dnl # found - see check for openSSL above
-AC_SUBST(ac_no_zrtp)
-AC_ARG_ENABLE(zrtp,
-          AC_HELP_STRING([--disable-zrtp],
-                 [Exclude ZRTP support the build (default: autodetect)])
-          ,
-          [
-        if test "$enable_zrtp" = "no" -a "x$ac_crypto_found" != "x1"; then
-         [ac_no_zrtp=1]
-         AC_MSG_RESULT([Checking if ZRTP support is disabled... yes])
-            fi
-          ],
-          [
-        AC_MSG_RESULT([checking for GNU ZRTP installations..])
-        AC_SUBST(zrtpcw_h_present)
-        AC_CHECK_HEADER(libzrtpcpp/ZrtpCWrapper.h,[zrtpcw_h_present=1])
-        AC_CHECK_LIB(zrtpcpp, zrtp_CreateWrapper, [libzrtp_present=1 && LIBS="$LIBS -lzrtpcpp"])
-        if test "x$zrtpcw_h_present" = "x1" -a "x$libzrtp_present" = "x1"; then
-            AC_MSG_RESULT([GNU ZRTP library found, ZRTP support enabled])
-            AC_DEFINE(PJMEDIA_HAS_ZRTP, 1)
-        else
-            AC_MSG_RESULT([** GNU ZRTP library not found, disabling ZRTP support **])
-        fi
-          ])
 
 
 dnl ##########################################
