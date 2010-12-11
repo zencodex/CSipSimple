@@ -51,9 +51,8 @@ PJ_DEF(pj_status_t) pjsip_auth_srv_init(  pj_pool_t *pool,
 /* Verify incoming Authorization/Proxy-Authorization header against the 
  * specified credential.
  */
-static pj_status_t pjsip_auth_verify( pj_pool_t *pool, const pjsip_authorization_hdr *hdr,
+static pj_status_t pjsip_auth_verify( const pjsip_authorization_hdr *hdr,
 				      const pj_str_t *method,
-				      const pj_str_t* cid,
 				      const pjsip_cred_info *cred_info )
 {
     if (pj_stricmp(&hdr->scheme, &pjsip_DIGEST_STR) == 0) {
@@ -76,7 +75,6 @@ static pj_status_t pjsip_auth_verify( pj_pool_t *pool, const pjsip_authorization
 
 	/* Create digest for comparison. */
 	pjsip_auth_create_digest(&digest, 
-				 pool,
 				 &hdr->credential.digest.nonce,
 				 &hdr->credential.digest.nc, 
 				 &hdr->credential.digest.cnonce,
@@ -84,8 +82,7 @@ static pj_status_t pjsip_auth_verify( pj_pool_t *pool, const pjsip_authorization
 				 &hdr->credential.digest.uri,
 				 &cred_info->realm,
 				 cred_info, 
-				 method,
-				 cid);
+				 method );
 
 	/* Compare digest. */
 	return (pj_stricmp(&digest, &hdr->credential.digest.response) == 0) ?
@@ -159,7 +156,7 @@ PJ_DEF(pj_status_t) pjsip_auth_srv_verify( pjsip_auth_srv *auth_srv,
     }
 
     /* Authenticate with the specified credential. */
-    status = pjsip_auth_verify(rdata->tp_info.pool, h_auth, &msg->line.req.method.name, &rdata->msg_info.cid->id,
+    status = pjsip_auth_verify(h_auth, &msg->line.req.method.name, 
 			       &cred_info);
     if (status != PJ_SUCCESS) {
 	*status_code = PJSIP_SC_FORBIDDEN;

@@ -55,13 +55,6 @@ APP_THIRD_PARTY_LIB_FILES += $(PJ_DIR)/third_party/lib/libportaudio-$(LIB_SUFFIX
 endif
 endif
 
-############## TODO #############
-# conditional if ZRTP lib available ot not
-APP_THIRD_PARTY_LIBS += -lzsrtp-$(TARGET_NAME)
-APP_THIRD_PARTY_LIB_FILES += $(PJ_DIR)/third_party/lib/libzsrtp-$(LIB_SUFFIX)
-
-APP_THIRD_PARTY_EXT += -lzrtpcpp
-
 # Additional flags
 @ac_build_mak_vars@
 
