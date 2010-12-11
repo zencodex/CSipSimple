@@ -483,8 +483,8 @@ pj_status_t on_zrtp_transport_created(pjmedia_transport *tp, pjsua_call_id call_
 //Get error message
 PJ_DECL(pj_str_t) get_error_message(int status) {
     char errmsg[PJ_ERR_MSG_SIZE];
-    pj_strerror(status, errmsg, sizeof(errmsg));
-    return pj_str(errmsg);
+    return pj_strerror(status, errmsg, sizeof(errmsg));
+
 }
 
 //Wrap start & stop
