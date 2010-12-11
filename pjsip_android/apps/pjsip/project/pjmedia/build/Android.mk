@@ -9,7 +9,6 @@ LOCAL_MODULE    := pjmedia
 
 LOCAL_C_INCLUDES := $(LOCAL_PATH)../pjlib/include/ $(LOCAL_PATH)../pjlib-util/include/ \
 	$(LOCAL_PATH)../pjnath/include/ $(LOCAL_PATH)include/ $(LOCAL_PATH)../ \
-	$(LOCAL_PATH)../jni/ \
 	$(LOCAL_PATH)../third_party/srtp/include $(LOCAL_PATH)../third_party/srtp/include \
 	$(LOCAL_PATH)../third_party/srtp/crypto/include $(LOCAL_PATH)../third_party/build/srtp/ \
 	$(LOCAL_PATH)../third_party/build/speex/  $(LOCAL_PATH)../third_party/speex/include \
@@ -39,8 +38,7 @@ LOCAL_SRC_FILES := $(PJLIB_SRC_DIR)/alaw_ulaw.c $(PJLIB_SRC_DIR)/alaw_ulaw_table
 	$(PJLIB_SRC_DIR)/transport_srtp.c $(PJLIB_SRC_DIR)/transport_udp.c \
 	$(PJLIB_SRC_DIR)/wav_player.c $(PJLIB_SRC_DIR)/wav_playlist.c $(PJLIB_SRC_DIR)/wav_writer.c $(PJLIB_SRC_DIR)/wave.c \
 	$(PJLIB_SRC_DIR)/wsola.c \
-	$(PJMEDIADEV_SRC_DIR)/audiodev.c $(PJMEDIADEV_SRC_DIR)/audiotest.c $(PJMEDIADEV_SRC_DIR)/errno.c \
-    $(PJMEDIADEV_SRC_DIR)/android_jni_dev.cpp 
+	$(PJMEDIADEV_SRC_DIR)/audiodev.c $(PJMEDIADEV_SRC_DIR)/audiotest.c $(PJMEDIADEV_SRC_DIR)/errno.c 
 
 ifeq ($(MY_USE_G729),1)
 	LOCAL_SRC_FILES += $(PJMEDIACODEC_SRC_DIR)/g729.c

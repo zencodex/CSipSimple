@@ -2,6 +2,8 @@
 
 #define THIS_FILE		"pjsua_jni_addons.c"
 
+
+
 /**
  * Get nbr of codecs
  */
@@ -497,7 +499,14 @@ PJ_DECL(pj_status_t) csipsimple_init(pjsua_config *ua_cfg,
 	result = (pj_status_t) pjsua_init(ua_cfg, log_cfg, media_cfg);
 	if(result == PJ_SUCCESS){
 		init_ringback_tone();
+#if PJMEDIA_AUDIO_DEV_HAS_ANDROID
+		pjmedia_aud_register_factory(&pjmedia_android_factory);
+#endif
+
 	}
+
+
+
 	return result;
 }
 
