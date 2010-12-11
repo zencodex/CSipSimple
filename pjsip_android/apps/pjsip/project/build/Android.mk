@@ -53,5 +53,5 @@ endif
 
 
 # pjsip JNI
-include $(TOP_LOCAL_PATH)/jni/Android.mk
+include $(TOP_LOCAL_PATH)/jni/build/Android.mk
 

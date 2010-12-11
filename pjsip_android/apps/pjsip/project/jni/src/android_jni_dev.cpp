@@ -25,19 +25,10 @@
 //This file is a port for android devices
 // It's deeply inspired from port audio
 
-#include <pjmedia-audiodev/audiodev_imp.h>
-#include <pj/assert.h>
-#include <pj/log.h>
-#include <pj/os.h>
-#include <pj/string.h>
-#include <sys/resource.h>
-#include <utils/threads.h>
+
+#include "android_dev.h"
 
 #if PJMEDIA_AUDIO_DEV_HAS_ANDROID
-
-
-#include <jni.h>
-#include "jvm_wrapper.h"
 
 
 #define COMPATIBLE_ALSA 1
@@ -52,14 +43,6 @@ struct android_aud_factory
 	pj_pool_factory *pf;
 	pj_pool_t *pool;
 };
-
-
-/*
- * C compatible declaration of Android factory.
- */
-PJ_BEGIN_DECL
-PJ_DECL(pjmedia_aud_dev_factory*) pjmedia_android_factory(pj_pool_factory *pf);
-PJ_END_DECL
 
 /* 
  * Sound stream descriptor.
@@ -434,8 +417,6 @@ static int PJ_THREAD_FUNC AndroidTrackCallback(void* userData){
 		stream->play_thread_exited = 1;
 		return 0;
 }
-
-
 
 /*
  * Init Android audio driver.

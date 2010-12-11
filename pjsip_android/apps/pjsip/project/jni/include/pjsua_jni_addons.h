@@ -1,13 +1,13 @@
 #ifndef __PJSUA_JNI_ADDONS_H__
 #define __PJSUA_JNI_ADDONS_H__
 
-
+#include <pj/config_site.h>
 #include <pjsua-lib/pjsua.h>
 #include <pjsua-lib/pjsua_internal.h>
-#include <pjmedia-audiodev/audiodev.h>
-#include <pjmedia-audiodev/audiotest.h>
+#include <pjmedia_audiodev.h>
 #include <android/log.h>
 #include <utils/misc.h>
+#include "android_dev.h"
 
 
 void ringback_start();
