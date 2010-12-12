@@ -552,7 +552,7 @@ static pj_status_t android_create_stream(pjmedia_aud_dev_factory *f,
 	pj_pool_t *pool;
 	struct android_aud_stream *stream;
 	pj_status_t status;
-
+	int has_set_in_call = 0;
 
 	PJ_ASSERT_RETURN(play_cb && rec_cb && p_aud_strm, PJ_EINVAL);
 
@@ -632,7 +632,7 @@ static pj_status_t android_create_stream(pjmedia_aud_dev_factory *f,
 		jni_env->CallStaticVoidMethod(stream->ua_class, setincall_method);
 	}
 
-
+	has_set_in_call = 1;
 
 
 	if (stream->dir & PJMEDIA_DIR_CAPTURE) {
@@ -794,7 +794,19 @@ static pj_status_t android_create_stream(pjmedia_aud_dev_factory *f,
 	return PJ_SUCCESS;
 
 on_error:
-//TODO : if was set In Call mode should remove this mode here
+	if(has_set_in_call == 1){
+		//Unset media in call
+		{
+			jmethodID unsetincall_method = jni_env->GetStaticMethodID(stream->ua_class, "unsetAudioInCall", "()V");
+			if(unsetincall_method == 0){
+				DETACH_JVM(jni_env);
+				pj_pool_release(pool);
+				return PJ_ENOMEM;
+			}
+			jni_env->CallStaticVoidMethod(stream->ua_class, unsetincall_method);
+		}
+	}
+
 	DETACH_JVM(jni_env);
 	pj_pool_release(pool);
 	return PJ_ENOMEM;
