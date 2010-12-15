@@ -50,6 +50,8 @@
 /* Include all PJLIB headers. */
 #include <pjlib.h>
 
+/* Include zrtp headers. */
+#include <transport_zrtp.h>
 
 PJ_BEGIN_DECL
 

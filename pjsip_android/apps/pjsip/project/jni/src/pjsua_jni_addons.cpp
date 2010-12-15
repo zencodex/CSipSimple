@@ -346,7 +346,7 @@ PJ_DECL(pj_bool_t) is_call_secure(pjsua_call_id call_id){
 
 #if defined(PJMEDIA_HAS_ZRTP) && PJMEDIA_HAS_ZRTP!=0
 
-char* InfoCodes[] =
+const char* InfoCodes[] =
 {
     "EMPTY",
     "Hello received, preparing a Commit",
@@ -365,7 +365,7 @@ char* InfoCodes[] =
 /**
  * Sub-codes for Warning
  */
-char* WarningCodes [] =
+const char* WarningCodes [] =
 {
     "EMPTY",
     "Commit contains an AES256 cipher but does not offer a Diffie-Helman 4096",
@@ -381,7 +381,7 @@ char* WarningCodes [] =
 /**
  * Sub-codes for Severe
  */
-char* SevereCodes[] =
+const char* SevereCodes[] =
 {
     "EMPTY",
     "Hash HMAC check of Hello failed!",
@@ -491,7 +491,7 @@ pj_status_t on_zrtp_transport_created(pjmedia_transport *tp, pjsua_call_id call_
      * be created an initialized. The ZRTP configuration is not yet implemented
      * thus the parameter is NULL.
      */
-    pjmedia_transport_zrtp_initialize(tp, "/sdcard/simple.zid", PJ_TRUE, NULL);
+    pjmedia_transport_zrtp_initialize(tp, "/sdcard/simple.zid", PJ_TRUE);
     return PJ_SUCCESS;
 }
 #endif

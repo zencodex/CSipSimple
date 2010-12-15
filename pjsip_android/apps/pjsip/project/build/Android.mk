@@ -30,8 +30,7 @@ include $(TOP_LOCAL_PATH)/third_party/build/srtp/Android.mk
 #ZRTP
 ifeq ($(MY_USE_ZRTP),1)
 include $(TOP_LOCAL_PATH)/third_party/openssl/Android.mk
-include $(TOP_LOCAL_PATH)/third_party/build/zrtp/Android.mk
-include $(TOP_LOCAL_PATH)/third_party/build/zsrtp/Android.mk		
+include $(TOP_LOCAL_PATH)/third_party/build/zrtp4pj/Android.mk		
 endif
 
 ##Media third parties
