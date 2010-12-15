@@ -1305,10 +1305,10 @@ struct pjsua_callback
     
     void (*on_ice_transport_error)(int index, pj_ice_strans_op op,
 				   pj_status_t status, void *param);
-#if defined(PJMEDIA_HAS_ZRTP) && (PJMEDIA_HAS_ZRTP != 0)
+//#if defined(PJMEDIA_HAS_ZRTP) && (PJMEDIA_HAS_ZRTP != 0)
     
     pj_status_t (*on_zrtp_transport_created)(pjmedia_transport *tp, pjsua_call_id call_id);
-#endif
+//#endif
 };
 enum pjsua_sip_timer_use
 {
@@ -1675,11 +1675,11 @@ struct pjsua_acc_config
     
     pj_bool_t	     srtp_optional_dup_offer;
 #endif
-#if defined(PJMEDIA_HAS_ZRTP) && (PJMEDIA_HAS_ZRTP != 0)
+//#if defined(PJMEDIA_HAS_ZRTP) && (PJMEDIA_HAS_ZRTP != 0)
     
     pjmedia_zrtp_use     use_zrtp;
     
-#endif
+//#endif
     
     unsigned	     reg_retry_interval;
     

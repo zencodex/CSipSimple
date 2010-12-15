@@ -10,7 +10,9 @@ LOCAL_MODULE := pjsipjni
 
 LOCAL_C_INCLUDES += $(LOCAL_PATH)/../pjsip/include $(LOCAL_PATH)/../pjlib-util/include/ \
 			$(LOCAL_PATH)/../pjlib/include/ $(LOCAL_PATH)/../pjmedia/include \
-			$(LOCAL_PATH)/../pjnath/include $(LOCAL_PATH)/../pjlib/include $(LOCAL_PATH)/include/
+			$(LOCAL_PATH)/../pjnath/include $(LOCAL_PATH)/../pjlib/include $(LOCAL_PATH)/include/ \
+			$(LOCAL_PATH)/../third_party/zrtp4pj/zsrtp/include/
+			
 LOCAL_CFLAGS := $(MY_PJSIP_FLAGS)
 
 JNI_SRC_DIR := src/
@@ -24,9 +26,6 @@ ifeq ($(MY_USE_TLS),1)
 LOCAL_LDLIBS += -ldl 
 endif
 
-ifeq ($(MY_USE_ZRTP),1)
-LOCAL_C_INCLUDES += $(LOCAL_PATH)/../third_party/zrtp/src
-endif
 
 LOCAL_STATIC_LIBRARIES := pjsip pjmedia pjnath pjlib-util pjlib resample srtp 
 ifeq ($(MY_USE_ILBC),1)
@@ -48,7 +47,7 @@ ifeq ($(MY_USE_TLS),1)
 	LOCAL_STATIC_LIBRARIES += ssl crypto
 endif
 ifeq ($(MY_USE_ZRTP),1)
-	LOCAL_STATIC_LIBRARIES += zrtp zsrtp crypto 
+	LOCAL_STATIC_LIBRARIES += zrtp4pj crypto 
 endif
 
 
