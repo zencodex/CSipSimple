@@ -476,6 +476,7 @@ void agc(
  *--------------------------------------------------------------------------*/
 
 #include <strings.h>
+#include <string.h>
 #define Copy(x,y,L)    memcpy((y), (x), (L)*sizeof(Word16))
 #define Set_zero(x, L) bzero((x), (L)*sizeof(Word16))
 
