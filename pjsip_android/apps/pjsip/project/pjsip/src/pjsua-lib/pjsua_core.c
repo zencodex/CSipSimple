@@ -558,7 +558,8 @@ PJ_DEF(pj_status_t) pjsua_reconfigure_logging(const pjsua_logging_config *cfg)
 /* Worker thread function. */
 static int worker_thread(void *arg)
 {
-    enum { TIMEOUT = 10 };
+	//r3gis3r : increased for Galaxy S
+    enum { TIMEOUT = 100 };
 
     PJ_UNUSED_ARG(arg);
 
