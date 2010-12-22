@@ -415,7 +415,7 @@ namespace Swig {
 namespace Swig {
   namespace {
     jclass jclass_pjsuaJNI = NULL;
-    jmethodID director_methids[19];
+    jmethodID director_methids[20];
   }
 }
 
@@ -1106,6 +1106,7 @@ public:
 		const pj_str_t *to, const pj_str_t *contact,
 		pj_bool_t is_typing) {}
 	virtual void on_nat_detect (const pj_stun_nat_detect_result *res) {}
+	virtual void on_mwi_info (pjsua_acc_id acc_id, const pj_str_t *mime_type, const pj_str_t *body) {}
 };
 
 static Callback* registeredCallbackObject = NULL;
@@ -1226,6 +1227,43 @@ void on_typing_wrapper (pjsua_call_id call_id, const pj_str_t *from,
 void on_nat_detect_wrapper (const pj_stun_nat_detect_result *res) {
 	registeredCallbackObject->on_nat_detect(res);
 }
+
+void on_mwi_info_wrapper (pjsua_acc_id acc_id, pjsua_mwi_info *mwi_info) {
+	pj_str_t body;
+	pj_str_t mime_type;
+	char mime_type_c[80];
+	
+	// Ignore empty messages
+	if (!mwi_info->rdata->msg_info.msg->body) {
+		PJ_LOG(4, (THIS_FILE, "MWI info has no body"));
+		return;
+	}
+	
+	// Get the mime type
+	if (mwi_info->rdata->msg_info.ctype) {
+    	const pjsip_ctype_hdr *ctype = mwi_info->rdata->msg_info.ctype;
+    	pj_ansi_snprintf(mime_type_c, sizeof(mime_type_c),
+    		  "%.*s/%.*s",
+              (int)ctype->media.type.slen,
+              ctype->media.type.ptr,
+              (int)ctype->media.subtype.slen,
+              ctype->media.subtype.ptr);
+    }
+    
+	
+	body.ptr = (char *) mwi_info->rdata->msg_info.msg->body->data;
+	body.slen = mwi_info->rdata->msg_info.msg->body->len;
+	
+	// Ignore empty messages
+	if (body.slen == 0){
+		return;
+	}
+	
+	mime_type = pj_str(mime_type_c);
+	
+	registeredCallbackObject->on_mwi_info(acc_id, &mime_type, &body);
+}
+
 }
 
 static struct pjsua_callback wrapper_callback_struct = {
@@ -1254,6 +1292,7 @@ static struct pjsua_callback wrapper_callback_struct = {
 	NULL, //Typing 2
 	&on_nat_detect_wrapper,
 	NULL, //on_call_redirected
+	&on_mwi_info_wrapper,
 	NULL, //on_transport_state
 	NULL, //on_ice_transport_error
 	NULL //on_zrtp_transport_created
@@ -1780,6 +1819,31 @@ void SwigDirector_Callback::on_nat_detect(pj_stun_nat_detect_result const *res) 
   if (swigjobj) jenv->DeleteLocalRef(swigjobj);
 }
 
+void SwigDirector_Callback::on_mwi_info(pjsua_acc_id acc_id, pj_str_t const *mime_type, pj_str_t const *body) {
+  JNIEnvWrapper swigjnienv(this) ;
+  JNIEnv * jenv = swigjnienv.getJNIEnv() ;
+  jobject swigjobj = (jobject) NULL ;
+  jint jacc_id  ;
+  jlong jmime_type = 0 ;
+  jlong jbody = 0 ;
+  
+  if (!swig_override[19]) {
+    Callback::on_mwi_info(acc_id,mime_type,body);
+    return;
+  }
+  swigjobj = swig_get_self(jenv);
+  if (swigjobj && jenv->IsSameObject(swigjobj, NULL) == JNI_FALSE) {
+    jacc_id = (jint) acc_id;
+    *((pj_str_t **)&jmime_type) = (pj_str_t *) mime_type; 
+    *((pj_str_t **)&jbody) = (pj_str_t *) body; 
+    jenv->CallStaticVoidMethod(Swig::jclass_pjsuaJNI, Swig::director_methids[19], swigjobj, jacc_id, jmime_type, jbody);
+    if (jenv->ExceptionOccurred()) return ;
+  } else {
+    SWIG_JavaThrowException(jenv, SWIG_JavaNullPointerException, "null upcall object");
+  }
+  if (swigjobj) jenv->DeleteLocalRef(swigjobj);
+}
+
 void SwigDirector_Callback::swig_connect_director(JNIEnv *jenv, jobject jself, jclass jcls, bool swig_mem_own, bool weak_global) {
   static struct {
     const char *mname;
@@ -1842,6 +1906,9 @@ void SwigDirector_Callback::swig_connect_director(JNIEnv *jenv, jobject jself, j
     },
     {
       "on_nat_detect", "(Lorg/pjsip/pjsua/SWIGTYPE_p_pj_stun_nat_detect_result;)V", NULL 
+    },
+    {
+      "on_mwi_info", "(ILorg/pjsip/pjsua/pj_str_t;Lorg/pjsip/pjsua/pj_str_t;)V", NULL 
     }
   };
   
@@ -1854,7 +1921,7 @@ void SwigDirector_Callback::swig_connect_director(JNIEnv *jenv, jobject jself, j
       baseclass = (jclass) jenv->NewGlobalRef(baseclass);
     }
     bool derived = (jenv->IsSameObject(baseclass, jcls) ? false : true);
-    for (int i = 0; i < 19; ++i) {
+    for (int i = 0; i < 20; ++i) {
       if (!methods[i].base_methid) {
         methods[i].base_methid = jenv->GetMethodID(baseclass, methods[i].mname, methods[i].mdesc);
         if (!methods[i].base_methid) return;
@@ -2627,6 +2694,44 @@ SWIGEXPORT void JNICALL Java_org_pjsip_pjsua_pjsuaJNI_Callback_1on_1nat_1detectS
   arg1 = *(Callback **)&jarg1; 
   arg2 = *(pj_stun_nat_detect_result **)&jarg2; 
   (arg1)->Callback::on_nat_detect((pj_stun_nat_detect_result const *)arg2);
+}
+
+
+SWIGEXPORT void JNICALL Java_org_pjsip_pjsua_pjsuaJNI_Callback_1on_1mwi_1info(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_, jint jarg2, jlong jarg3, jobject jarg3_, jlong jarg4, jobject jarg4_) {
+  Callback *arg1 = (Callback *) 0 ;
+  pjsua_acc_id arg2 ;
+  pj_str_t *arg3 = (pj_str_t *) 0 ;
+  pj_str_t *arg4 = (pj_str_t *) 0 ;
+  
+  (void)jenv;
+  (void)jcls;
+  (void)jarg1_;
+  (void)jarg3_;
+  (void)jarg4_;
+  arg1 = *(Callback **)&jarg1; 
+  arg2 = (pjsua_acc_id)jarg2; 
+  arg3 = *(pj_str_t **)&jarg3; 
+  arg4 = *(pj_str_t **)&jarg4; 
+  (arg1)->on_mwi_info(arg2,(pj_str_t const *)arg3,(pj_str_t const *)arg4);
+}
+
+
+SWIGEXPORT void JNICALL Java_org_pjsip_pjsua_pjsuaJNI_Callback_1on_1mwi_1infoSwigExplicitCallback(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_, jint jarg2, jlong jarg3, jobject jarg3_, jlong jarg4, jobject jarg4_) {
+  Callback *arg1 = (Callback *) 0 ;
+  pjsua_acc_id arg2 ;
+  pj_str_t *arg3 = (pj_str_t *) 0 ;
+  pj_str_t *arg4 = (pj_str_t *) 0 ;
+  
+  (void)jenv;
+  (void)jcls;
+  (void)jarg1_;
+  (void)jarg3_;
+  (void)jarg4_;
+  arg1 = *(Callback **)&jarg1; 
+  arg2 = (pjsua_acc_id)jarg2; 
+  arg3 = *(pj_str_t **)&jarg3; 
+  arg4 = *(pj_str_t **)&jarg4; 
+  (arg1)->Callback::on_mwi_info(arg2,(pj_str_t const *)arg3,(pj_str_t const *)arg4);
 }
 
 
@@ -15790,7 +15895,7 @@ SWIGEXPORT void JNICALL Java_org_pjsip_pjsua_pjsuaJNI_swig_1module_1init(JNIEnv 
   static struct {
     const char *method;
     const char *signature;
-  } methods[19] = {
+  } methods[20] = {
     {
       "SwigDirector_Callback_on_call_state", "(Lorg/pjsip/pjsua/Callback;IJ)V" 
     },
@@ -15847,6 +15952,9 @@ SWIGEXPORT void JNICALL Java_org_pjsip_pjsua_pjsuaJNI_swig_1module_1init(JNIEnv 
     },
     {
       "SwigDirector_Callback_on_nat_detect", "(Lorg/pjsip/pjsua/Callback;J)V" 
+    },
+    {
+      "SwigDirector_Callback_on_mwi_info", "(Lorg/pjsip/pjsua/Callback;IJJ)V" 
     }
   };
   Swig::jclass_pjsuaJNI = (jclass) jenv->NewGlobalRef(jcls);
@@ -15862,6 +15970,7 @@ SWIGEXPORT void JNICALL Java_org_pjsip_pjsua_pjsuaJNI_swig_1module_1init(JNIEnv 
 }
 #endif
 
+JavaVM *android_jvm;
 
 JNIEXPORT jint JNI_OnLoad(JavaVM *vm, void *reserved) {
 	JNIEnv *env;
@@ -15871,9 +15980,7 @@ JNIEXPORT jint JNI_OnLoad(JavaVM *vm, void *reserved) {
 	r = vm->GetEnv ((void **) &env, JNI_VERSION_1_4);
 	k = env->FindClass ("org/pjsip/pjsua/pjsuaJNI");
 
-#if USE_JNI_AUDIO==1
 	android_jvm = vm;
-#endif
 
 	JNINativeMethod methods[] = {
 
@@ -15917,6 +16024,8 @@ JNIEXPORT jint JNI_OnLoad(JavaVM *vm, void *reserved) {
 {"Callback_on_typingSwigExplicitCallback", "(JLorg/pjsip/pjsua/Callback;IJLorg/pjsip/pjsua/pj_str_t;JLorg/pjsip/pjsua/pj_str_t;JLorg/pjsip/pjsua/pj_str_t;I)V", (void*)& Java_org_pjsip_pjsua_pjsuaJNI_Callback_1on_1typingSwigExplicitCallback},
 {"Callback_on_nat_detect", "(JLorg/pjsip/pjsua/Callback;J)V", (void*)& Java_org_pjsip_pjsua_pjsuaJNI_Callback_1on_1nat_1detect},
 {"Callback_on_nat_detectSwigExplicitCallback", "(JLorg/pjsip/pjsua/Callback;J)V", (void*)& Java_org_pjsip_pjsua_pjsuaJNI_Callback_1on_1nat_1detectSwigExplicitCallback},
+{"Callback_on_mwi_info", "(JLorg/pjsip/pjsua/Callback;IJLorg/pjsip/pjsua/pj_str_t;JLorg/pjsip/pjsua/pj_str_t;)V", (void*)& Java_org_pjsip_pjsua_pjsuaJNI_Callback_1on_1mwi_1info},
+{"Callback_on_mwi_infoSwigExplicitCallback", "(JLorg/pjsip/pjsua/Callback;IJLorg/pjsip/pjsua/pj_str_t;JLorg/pjsip/pjsua/pj_str_t;)V", (void*)& Java_org_pjsip_pjsua_pjsuaJNI_Callback_1on_1mwi_1infoSwigExplicitCallback},
 {"new_Callback", "()J", (void*)& Java_org_pjsip_pjsua_pjsuaJNI_new_1Callback},
 {"Callback_director_connect", "(Lorg/pjsip/pjsua/Callback;JZZ)V", (void*)& Java_org_pjsip_pjsua_pjsuaJNI_Callback_1director_1connect},
 {"Callback_change_ownership", "(Lorg/pjsip/pjsua/Callback;JZ)V", (void*)& Java_org_pjsip_pjsua_pjsuaJNI_Callback_1change_1ownership},
