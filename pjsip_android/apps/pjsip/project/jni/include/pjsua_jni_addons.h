@@ -9,7 +9,6 @@
 #include <utils/misc.h>
 #include "android_dev.h"
 
-
 void ringback_start();
 void ring_stop(pjsua_call_id call_id);
 void init_ringback_tone();

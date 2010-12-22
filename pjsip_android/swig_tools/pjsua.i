@@ -137,6 +137,7 @@ public:
 		const pj_str_t *to, const pj_str_t *contact,
 		pj_bool_t is_typing) {}
 	virtual void on_nat_detect (const pj_stun_nat_detect_result *res) {}
+	virtual void on_mwi_info (pjsua_acc_id acc_id, const pj_str_t *mime_type, const pj_str_t *body) {}
 };
 
 static Callback* registeredCallbackObject = NULL;
@@ -257,6 +258,43 @@ void on_typing_wrapper (pjsua_call_id call_id, const pj_str_t *from,
 void on_nat_detect_wrapper (const pj_stun_nat_detect_result *res) {
 	registeredCallbackObject->on_nat_detect(res);
 }
+
+void on_mwi_info_wrapper (pjsua_acc_id acc_id, pjsua_mwi_info *mwi_info) {
+	pj_str_t body;
+	pj_str_t mime_type;
+	char mime_type_c[80];
+	
+	// Ignore empty messages
+	if (!mwi_info->rdata->msg_info.msg->body) {
+		PJ_LOG(4, (THIS_FILE, "MWI info has no body"));
+		return;
+	}
+	
+	// Get the mime type
+	if (mwi_info->rdata->msg_info.ctype) {
+    	const pjsip_ctype_hdr *ctype = mwi_info->rdata->msg_info.ctype;
+    	pj_ansi_snprintf(mime_type_c, sizeof(mime_type_c),
+    		  "%.*s/%.*s",
+              (int)ctype->media.type.slen,
+              ctype->media.type.ptr,
+              (int)ctype->media.subtype.slen,
+              ctype->media.subtype.ptr);
+    }
+    
+	
+	body.ptr = (char *) mwi_info->rdata->msg_info.msg->body->data;
+	body.slen = mwi_info->rdata->msg_info.msg->body->len;
+	
+	// Ignore empty messages
+	if (body.slen == 0){
+		return;
+	}
+	
+	mime_type = pj_str(mime_type_c);
+	
+	registeredCallbackObject->on_mwi_info(acc_id, &mime_type, &body);
+}
+
 }
 
 static struct pjsua_callback wrapper_callback_struct = {
@@ -285,6 +323,7 @@ static struct pjsua_callback wrapper_callback_struct = {
 	NULL, //Typing 2
 	&on_nat_detect_wrapper,
 	NULL, //on_call_redirected
+	&on_mwi_info_wrapper,
 	NULL, //on_transport_state
 	NULL, //on_ice_transport_error
 	NULL //on_zrtp_transport_created
@@ -367,6 +406,7 @@ public:
 		const pj_str_t *to, const pj_str_t *contact,
 		pj_bool_t is_typing);
 	virtual void on_nat_detect (const pj_stun_nat_detect_result *res);
+	virtual void on_mwi_info (pjsua_acc_id acc_id, const pj_str_t *mime_type, const pj_str_t *body);
 };
 
 %constant struct pjsua_callback* WRAPPER_CALLBACK_STRUCT = &wrapper_callback_struct;
