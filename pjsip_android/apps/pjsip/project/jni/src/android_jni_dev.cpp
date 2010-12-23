@@ -694,11 +694,11 @@ static pj_status_t android_create_stream(pjmedia_aud_dev_factory *f,
 		}
 
 		//Not sure that's a good idea
-		/*
+
 		if(inputBuffSizePlay < 2*2*1024*param->clock_rate/8000){
 			inputBuffSizePlay = 2*2*1024*param->clock_rate/8000;
 		}
-		*/
+
 
 		//inputBuffSizePlay = inputBuffSizePlay << 1;
 		PJ_LOG(3, (THIS_FILE, "Min play buffer %d", inputBuffSizePlay));
