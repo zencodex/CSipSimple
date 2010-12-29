@@ -190,6 +190,15 @@ pj_status_t pjsua_media_subsys_init(const pjsua_media_config *cfg)
     }
 #endif /* PJMEDIA_HAS_G729_CODEC */
 
+#if PJMEDIA_HAS_SILK_CODEC
+    /* Register SILK */
+    status = pjmedia_codec_silk_init(pjsua_var.med_endpt);
+    if (status != PJ_SUCCESS) {
+	pjsua_perror(THIS_FILE, "Error initializing Silk codec",
+		     status);
+	return status;
+    }
+#endif /* PJMEDIA_HAS_SILK_CODEC */
 
 #if PJMEDIA_HAS_INTEL_IPP
     /* Register IPP codecs */
@@ -738,6 +747,10 @@ pj_status_t pjsua_media_subsys_destroy(void)
 #if PJMEDIA_HAS_G729_CODEC
     pjmedia_codec_g729_deinit();
 #endif /* PJMEDIA_HAS_G729_CODEC */
+
+#	if PJMEDIA_HAS_SILK_CODEC
+	    pjmedia_codec_silk_deinit();
+#	endif /* PJMEDIA_HAS_SILK_CODEC */
 
 #	if PJMEDIA_HAS_L16_CODEC
 	    pjmedia_codec_l16_deinit();

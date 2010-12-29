@@ -95,7 +95,9 @@ enum
     /* Caution!
      * Ensure the value of the last pt above is <= 127.
      */
-    PJMEDIA_RTP_PT_SILK_16,				/**< SILK @ 16KHz	*/
+    PJMEDIA_RTP_PT_SILK_NB,				/**< SILK @ 8KHz	*/
+    PJMEDIA_RTP_PT_SILK_WB,				/**< SILK @ 16KHz	*/
+    PJMEDIA_RTP_PT_SILK_UWB,			/**< SILK @ 32KHz	*/
 };
 
 /**
