@@ -2431,6 +2431,11 @@ PJ_DEF(pj_status_t) pjsua_acc_create_uac_contact( pj_pool_t *pool,
 
 
     /* Create the contact header */
+	pj_str_t user_tmp;
+	user_tmp.ptr = (char*)pj_pool_alloc(pool, PJSIP_MAX_URL_SIZE);
+    const pjsip_parser_const_t *pc = pjsip_parser_const();
+	pj_strncpy_escape(&user_tmp, &acc->user_part, PJSIP_MAX_URL_SIZE, &pc->pjsip_USER_SPEC);
+
     contact->ptr = (char*)pj_pool_alloc(pool, PJSIP_MAX_URL_SIZE);
     contact->slen = pj_ansi_snprintf(contact->ptr, PJSIP_MAX_URL_SIZE,
 				     "%.*s%s<%s:%.*s%s%s%.*s%s:%d%s%.*s%s>%.*s",
@@ -2438,8 +2443,8 @@ PJ_DEF(pj_status_t) pjsua_acc_create_uac_contact( pj_pool_t *pool,
 				     acc->display.ptr,
 				     (acc->display.slen?" " : ""),
 				     (secure ? PJSUA_SECURE_SCHEME : "sip"),
-				     (int)acc->user_part.slen,
-				     acc->user_part.ptr,
+				     (int)user_tmp.slen,
+				     user_tmp.ptr,
 				     (acc->user_part.slen?"@":""),
 				     beginquote,
 				     (int)local_addr.slen,
