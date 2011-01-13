@@ -186,7 +186,7 @@ PJ_DEF(pj_status_t) pjmedia_codec_silk_init(pjmedia_endpt *endpt)
 				    &silk_factory.mutex);
     if (status != PJ_SUCCESS)
 	goto on_error;
-    PJ_LOG(4, (THIS_FILE, "Init silk"));
+    PJ_LOG(5, (THIS_FILE, "Init silk"));
 
     /* Initialize default Speex parameter. */
     silk_factory.silk_param[PARAM_NB].enabled = 1; //((options & PJMEDIA_SILK_NO_NB) == 0);
@@ -217,7 +217,7 @@ PJ_DEF(pj_status_t) pjmedia_codec_silk_init(pjmedia_endpt *endpt)
 	return PJ_EINVALIDOP;
     }
 
-    PJ_LOG(4, (THIS_FILE, "Init silk > DONE"));
+    PJ_LOG(5, (THIS_FILE, "Init silk > DONE"));
 
     /* Register codec factory to endpoint. */
     status = pjmedia_codec_mgr_register_factory(codec_mgr,
@@ -326,7 +326,7 @@ static pj_status_t silk_default_attr( pjmedia_codec_factory *factory,
 				      pjmedia_codec_param *attr )
 {
     PJ_UNUSED_ARG(factory);
-    PJ_LOG(4, (THIS_FILE, "silk default attr"));
+    PJ_LOG(5, (THIS_FILE, "silk default attr"));
     pj_bzero(attr, sizeof(pjmedia_codec_param));
     attr->info.channel_cnt = 1;
 
@@ -372,7 +372,7 @@ static pj_status_t silk_enum_codecs(pjmedia_codec_factory *factory,
 {
     unsigned max;
     int i;  /* Must be signed */
-    PJ_LOG(4, (THIS_FILE, "silk enum codecs"));
+    PJ_LOG(5, (THIS_FILE, "silk enum codecs"));
 
     PJ_UNUSED_ARG(factory);
     PJ_ASSERT_RETURN(codecs && *count > 0, PJ_EINVAL);
@@ -382,11 +382,11 @@ static pj_status_t silk_enum_codecs(pjmedia_codec_factory *factory,
 
     for (i=PJ_ARRAY_SIZE(silk_factory.silk_param)-1; i>=0 && *count<max; --i) {
 
-        PJ_LOG(4, (THIS_FILE, "silk add codecs"));
+        PJ_LOG(5, (THIS_FILE, "silk add codecs"));
     	if (!silk_factory.silk_param[i].enabled){
     	    continue;
     	}
-    	PJ_LOG(4, (THIS_FILE, "Add codec %d", silk_factory.silk_param[i].clock_rate));
+    	PJ_LOG(5, (THIS_FILE, "Add codec %d", silk_factory.silk_param[i].clock_rate));
 
     	pj_bzero(&codecs[*count], sizeof(pjmedia_codec_info));
     	codecs[*count].encoding_name = pj_str("SILK");
@@ -519,7 +519,7 @@ static pj_status_t silk_codec_open(pjmedia_codec *codec,
 
     params = silk_factory.silk_param[id];
 
-    PJ_LOG(4, (THIS_FILE, "Open silk codec @ %d", params.clock_rate));
+    PJ_LOG(5, (THIS_FILE, "Open silk codec @ %d", params.clock_rate));
     /* default settings */
 	SKP_int32 API_fs_Hz = params.clock_rate;
 	SKP_int32 max_internal_fs_Hz = params.clock_rate;
@@ -763,7 +763,7 @@ static pj_status_t  silk_codec_recover(pjmedia_codec *codec,
     int ret;
     PJ_ASSERT_RETURN(output, PJ_EINVAL);
 
-    PJ_LOG(4, (THIS_FILE, "Recover silk frame"));
+    PJ_LOG(5, (THIS_FILE, "Recover silk frame"));
 
     /* Decode */
 	ret = SKP_Silk_SDK_Decode( silk->psDec, &silk->dec, 1, NULL, 0, output->buf, &nBytes );
