@@ -434,4 +434,9 @@
 
 	#define PJ_STUN_KEEP_ALIVE_SEC 40
 
+	/* Fix google voice problem with RTP DTMF events */
+	#define PJMEDIA_RTP_PT_TELEPHONE_EVENTS          101
+	#define PJMEDIA_RTP_PT_TELEPHONE_EVENTS_STR      "101"
+
+
 #endif
