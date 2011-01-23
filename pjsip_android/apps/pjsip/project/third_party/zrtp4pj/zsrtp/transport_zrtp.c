@@ -478,21 +478,33 @@ static int32_t zrtp_srtpSecretsReady(ZrtpContext* ctx, C_SrtpSecret_t* secrets, 
 
     ZsrtpContext* recvCryptoContext;
     ZsrtpContext* senderCryptoContext;
+    int cipher;
+    int authn;
 
-    if (part == ForSender)
-    {
+    if (secrets->authAlgorithm == zrtp_Sha1)
+        authn = SrtpAuthenticationSha1Hmac;
+
+    if (secrets->authAlgorithm == zrtp_Skein)
+        authn = SrtpAuthenticationSkeinHmac;
+
+    if (secrets->symEncAlgorithm == zrtp_Aes)
+        cipher = SrtpEncryptionAESCM;
+
+    if (secrets->symEncAlgorithm == zrtp_TwoFish)
+        cipher = SrtpEncryptionTWOCM;
+
+    if (part == ForSender) {
         // To encrypt packets: intiator uses initiator keys,
         // responder uses responder keys
         // Create a "half baked" crypto context first and store it. This is
         // the main crypto context for the sending part of the connection.
-        if (secrets->role == Initiator)
-        {
+        if (secrets->role == Initiator) {
             senderCryptoContext = zsrtp_CreateWrapper(
                                       0,
                                       0,
                                       0L,                                      // keyderivation << 48,
-                                      SrtpEncryptionAESCM,                     // encryption algo
-                                      SrtpAuthenticationSha1Hmac,              // authtentication algo
+                                      cipher,                                  // encryption algo
+                                      authn,                                   // authtentication algo
                                       (unsigned char*)secrets->keyInitiator,   // Master Key
                                       secrets->initKeyLen / 8,                 // Master Key length
                                       (unsigned char*)secrets->saltInitiator,  // Master Salt
@@ -502,14 +514,13 @@ static int32_t zrtp_srtpSecretsReady(ZrtpContext* ctx, C_SrtpSecret_t* secrets, 
                                       secrets->initSaltLen / 8,                // session salt len
                                       secrets->srtpAuthTagLen / 8);            // authentication tag lenA
         }
-        else
-        {
+        else {
             senderCryptoContext = zsrtp_CreateWrapper(
                                       0,
                                       0,
                                       0L,                                      // keyderivation << 48,
-                                      SrtpEncryptionAESCM,                     // encryption algo
-                                      SrtpAuthenticationSha1Hmac,              // authtentication algo
+                                      cipher,                                  // encryption algo
+                                      authn,                                   // authtentication algo
                                       (unsigned char*)secrets->keyResponder,   // Master Key
                                       secrets->respKeyLen / 8,                 // Master Key length
                                       (unsigned char*)secrets->saltResponder,  // Master Salt
@@ -519,8 +530,7 @@ static int32_t zrtp_srtpSecretsReady(ZrtpContext* ctx, C_SrtpSecret_t* secrets, 
                                       secrets->respSaltLen / 8,                // session salt len
                                       secrets->srtpAuthTagLen / 8);            // authentication tag len
         }
-        if (senderCryptoContext == NULL)
-        {
+        if (senderCryptoContext == NULL) {
             return 0;
         }
         // Create a SRTP crypto context for real SSRC sender stream.
@@ -532,19 +542,17 @@ static int32_t zrtp_srtpSecretsReady(ZrtpContext* ctx, C_SrtpSecret_t* secrets, 
         zsrtp_deriveSrtpKeys(senderCryptoContext, 0L);
         zrtp->srtpSend = senderCryptoContext;
     }
-    if (part == ForReceiver)
-    {
+    if (part == ForReceiver) {
         // To decrypt packets: intiator uses responder keys,
         // responder initiator keys
         // See comment above.
-        if (secrets->role == Initiator)
-        {
+        if (secrets->role == Initiator) {
             recvCryptoContext = zsrtp_CreateWrapper(
                                     0,
                                     0,
                                     0L,                                      // keyderivation << 48,
-                                    SrtpEncryptionAESCM,                     // encryption algo
-                                    SrtpAuthenticationSha1Hmac,              // authtication algo
+                                    cipher,                                  // encryption algo
+                                    authn,                                   // authtentication algo
                                     (unsigned char*)secrets->keyResponder,   // Master Key
                                     secrets->respKeyLen / 8,                 // Master Key length
                                     (unsigned char*)secrets->saltResponder,  // Master Salt
@@ -554,14 +562,13 @@ static int32_t zrtp_srtpSecretsReady(ZrtpContext* ctx, C_SrtpSecret_t* secrets, 
                                     secrets->respSaltLen / 8,                // session salt len
                                     secrets->srtpAuthTagLen / 8);            // authentication tag len
         }
-        else
-        {
+        else {
             recvCryptoContext = zsrtp_CreateWrapper(
                                     0,
                                     0,
                                     0L,                                      // keyderivation << 48,
-                                    SrtpEncryptionAESCM,                     // encryption algo
-                                    SrtpAuthenticationSha1Hmac,              // authtication algo
+                                    cipher,                                  // encryption algo
+                                    authn,                                   // authtentication algo
                                     (unsigned char*)secrets->keyInitiator,   // Master Key
                                     secrets->initKeyLen / 8,                 // Master Key length
                                     (unsigned char*)secrets->saltInitiator,  // Master Salt
@@ -571,8 +578,7 @@ static int32_t zrtp_srtpSecretsReady(ZrtpContext* ctx, C_SrtpSecret_t* secrets, 
                                     secrets->initSaltLen / 8,                // session salt len
                                     secrets->srtpAuthTagLen / 8);            // authentication tag len
         }
-        if (recvCryptoContext == NULL)
-        {
+        if (recvCryptoContext == NULL) {
             return 0;
         }
         // Create a SRTP crypto context for real SSRC input stream.
@@ -584,8 +590,7 @@ static int32_t zrtp_srtpSecretsReady(ZrtpContext* ctx, C_SrtpSecret_t* secrets, 
         // key derivation rate is 0 (disabled). For ZRTP this is the
         // case: the key derivation is defined as 2^48
         // which is effectively 0.
-        if (zrtp->peerSSRC != 0)
-        {
+        if (zrtp->peerSSRC != 0) {
             zsrtp_newCryptoContextForSSRC(recvCryptoContext, zrtp->peerSSRC, 0, 0L);
             zsrtp_deriveSrtpKeys(recvCryptoContext, 0L);
             zrtp->srtpReceive = recvCryptoContext;
@@ -786,14 +791,14 @@ static pj_status_t transport_get_info(pjmedia_transport *tp,
 
     PJ_ASSERT_RETURN(tp && info, PJ_EINVAL);
     PJ_ASSERT_RETURN(info->specific_info_cnt <
-            PJMEDIA_TRANSPORT_SPECIFIC_INFO_MAXCNT, PJ_ETOOMANY);
-             
+                     PJMEDIA_TRANSPORT_SPECIFIC_INFO_MAXCNT, PJ_ETOOMANY);
+
     zrtp_info.active = zrtp_inState(zrtp->zrtpCtx, SecureState) ? PJ_TRUE : PJ_FALSE;
-    
+
     spc_info_idx = info->specific_info_cnt++;
     info->spc_info[spc_info_idx].type = PJMEDIA_TRANSPORT_TYPE_ZRTP;
 
-    pj_memcpy(&info->spc_info[spc_info_idx].buffer, &zrtp_info, 
+    pj_memcpy(&info->spc_info[spc_info_idx].buffer, &zrtp_info,
               sizeof(zrtp_info));
 
     return pjmedia_transport_get_info(zrtp->slave_tp, info);

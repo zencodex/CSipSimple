@@ -1,4 +1,4 @@
-/* $Id: config.h 3316 2010-09-22 13:11:11Z ming $ */
+/* $Id: config.h 3408 2011-01-21 07:15:22Z bennylp $ */
 /* 
  * Copyright (C) 2008-2009 Teluu Inc. (http://www.teluu.com)
  * Copyright (C) 2003-2008 Benny Prijono <benny@prijono.org>
@@ -85,14 +85,6 @@
      * Linux kernel
      */
 #  include <pj/compat/os_linux_kernel.h>
-
-#elif defined(PJ_LINUX) || defined(linux) || defined(__linux)
-    /*
-     * Linux
-     */
-#   undef PJ_LINUX
-#   define PJ_LINUX	    1
-#   include <pj/compat/os_linux.h>
 #elif defined(PJ_ANDROID) && PJ_ANDROID!=0
     /*
      * Android
@@ -100,8 +92,13 @@
 #   undef PJ_ANDROID
 #   define PJ_ANDROID   1
 #   include <pj/compat/os_android.h>
-
-
+#elif defined(PJ_LINUX) || defined(linux) || defined(__linux)
+	/*
+     * Linux
+     */
+#   undef PJ_LINUX
+#   define PJ_LINUX	    1
+#   include <pj/compat/os_linux.h>
 #elif defined(PJ_PALMOS) && PJ_PALMOS!=0
     /*
      * Palm

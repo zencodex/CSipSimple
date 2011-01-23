@@ -161,4 +161,4 @@ define cmd-build-static-library
 $(TARGET_AR) $(TARGET_ARFLAGS) $@ $(PRIVATE_OBJECTS)
 endef
 
-cmd-strip = $(TOOLCHAIN_PREFIX)strip --strip-debug $1
+cmd-strip = $(TOOLCHAIN_PREFIX)strip --strip-debug --strip-unneeded $1

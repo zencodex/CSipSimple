@@ -49,7 +49,9 @@ endif
 ifeq ($(MY_USE_SILK),1)
 	include $(TOP_LOCAL_PATH)/third_party/build/silk/Android.mk
 endif
-
+ifeq ($(MY_USE_CODEC2),1)
+	include $(TOP_LOCAL_PATH)/third_party/build/codec2/Android.mk
+endif
 
 # pjsip JNI
 include $(TOP_LOCAL_PATH)/jni/build/Android.mk

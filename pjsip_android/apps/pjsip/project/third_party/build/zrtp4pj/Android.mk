@@ -15,7 +15,6 @@ LOCAL_C_INCLUDES += $(LOCAL_PATH)/include \
 		    $(LOCAL_PATH)/../../../pjlib-util/include \
 		    $(LOCAL_PATH)/../../../pjmedia/include  \
 		    $(LOCAL_PATH)/../../openssl/include 
-			
 
 LOCAL_CFLAGS := $(MY_PJSIP_FLAGS)
 PJLIB_SRC_DIR := 

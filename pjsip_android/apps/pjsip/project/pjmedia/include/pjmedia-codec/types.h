@@ -101,12 +101,21 @@ enum
     PJMEDIA_RTP_PT_G7221_RSV1,			/**< G722.1 reserve	    */
     PJMEDIA_RTP_PT_G7221_RSV2,			/**< G722.1 reserve	    */
 #endif
+
+#if ( defined(PJMEDIA_HAS_SILK_CODEC) && PJMEDIA_HAS_SILK_CODEC!=0 )
+    PJMEDIA_RTP_PT_SILK_NB,				/**< SILK @ 8KHz	*/
+    PJMEDIA_RTP_PT_SILK_WB,				/**< SILK @ 16KHz	*/
+    PJMEDIA_RTP_PT_SILK_UWB,			/**< SILK @ 24KHz	*/
+#endif
+
+#if ( defined(PJMEDIA_HAS_CODEC2_CODEC) && PJMEDIA_HAS_CODEC2_CODEC!=0 )
+    PJMEDIA_RTP_PT_CODEC2,
+#endif
+
+
     /* Caution!
      * Ensure the value of the last pt above is <= 127.
      */
-    PJMEDIA_RTP_PT_SILK_NB,				/**< SILK @ 8KHz	*/
-    PJMEDIA_RTP_PT_SILK_WB,				/**< SILK @ 16KHz	*/
-    PJMEDIA_RTP_PT_SILK_UWB,			/**< SILK @ 32KHz	*/
 };
 
 /**

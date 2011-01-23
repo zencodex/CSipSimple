@@ -27,7 +27,7 @@
 
 
 #if defined(PJMEDIA_HAS_SILK_CODEC) && (PJMEDIA_HAS_SILK_CODEC!=0)
-#include "../../third_party/silk/interface/SKP_Silk_SDK_API.h"
+#include "SKP_Silk_SDK_API.h"
 
 /* Define codec specific settings */
 #define MAX_BYTES_PER_FRAME     250 // Equals peak bitrate of 100 kbps
@@ -201,14 +201,14 @@ PJ_DEF(pj_status_t) pjmedia_codec_silk_init(pjmedia_endpt *endpt)
 	silk_factory.silk_param[PARAM_WB].clock_rate = 16000;
 	silk_factory.silk_param[PARAM_WB].packet_size_ms = FRAME_LENGTH_MS;
 	silk_factory.silk_param[PARAM_WB].complexity = 2;
-	silk_factory.silk_param[PARAM_WB].bitrate = 20000;
+	silk_factory.silk_param[PARAM_WB].bitrate = 30000;
 
 	silk_factory.silk_param[PARAM_UWB].enabled = 1; //((options & PJMEDIA_SILK_NO_UWB) == 0);
 	silk_factory.silk_param[PARAM_UWB].pt = PJMEDIA_RTP_PT_SILK_UWB;
 	silk_factory.silk_param[PARAM_UWB].clock_rate = 24000;
 	silk_factory.silk_param[PARAM_UWB].packet_size_ms = FRAME_LENGTH_MS;
 	silk_factory.silk_param[PARAM_UWB].complexity = 2;
-	silk_factory.silk_param[PARAM_UWB].bitrate = 20000;
+	silk_factory.silk_param[PARAM_UWB].bitrate = 40000;
 
 
     /* Get the codec manager. */

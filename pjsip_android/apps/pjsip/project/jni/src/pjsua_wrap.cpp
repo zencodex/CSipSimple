@@ -15889,6 +15889,20 @@ SWIGEXPORT jint JNICALL Java_org_pjsip_pjsua_pjsuaJNI_csipsimple_1destroy(JNIEnv
 }
 
 
+SWIGEXPORT jint JNICALL Java_org_pjsip_pjsua_pjsuaJNI_send_1keep_1alive(JNIEnv *jenv, jclass jcls, jint jarg1) {
+  jint jresult = 0 ;
+  int arg1 ;
+  pj_status_t result;
+  
+  (void)jenv;
+  (void)jcls;
+  arg1 = (int)jarg1; 
+  result = (pj_status_t)send_keep_alive(arg1);
+  jresult = (jint)result; 
+  return jresult;
+}
+
+
 SWIGEXPORT void JNICALL Java_org_pjsip_pjsua_pjsuaJNI_swig_1module_1init(JNIEnv *jenv, jclass jcls) {
   int i;
   
@@ -16897,10 +16911,11 @@ JNIEXPORT jint JNI_OnLoad(JavaVM *vm, void *reserved) {
 {"media_transports_create_ipv6", "(JLorg/pjsip/pjsua/pjsua_transport_config;)I", (void*)& Java_org_pjsip_pjsua_pjsuaJNI_media_1transports_1create_1ipv6},
 {"get_error_message", "(I)J", (void*)& Java_org_pjsip_pjsua_pjsuaJNI_get_1error_1message},
 {"csipsimple_init", "(JLorg/pjsip/pjsua/pjsua_config;JLorg/pjsip/pjsua/pjsua_logging_config;JLorg/pjsip/pjsua/pjsua_media_config;)I", (void*)& Java_org_pjsip_pjsua_pjsuaJNI_csipsimple_1init},
-{"csipsimple_destroy", "()I", (void*)& Java_org_pjsip_pjsua_pjsuaJNI_csipsimple_1destroy}
+{"csipsimple_destroy", "()I", (void*)& Java_org_pjsip_pjsua_pjsuaJNI_csipsimple_1destroy},
+{"send_keep_alive", "(I)I", (void*)& Java_org_pjsip_pjsua_pjsuaJNI_send_1keep_1alive}
 
 	};
 
-	r = env->RegisterNatives (k, methods, NELEM(methods));
+	r = env->RegisterNatives (k, methods, (int) (sizeof(methods) / sizeof(methods[0])) );
 	return JNI_VERSION_1_4;
 }
