@@ -1,0 +1,10 @@
+*~
+*.a
+*.o
+*.tmp
+*.depend
+*.kdev*
+*.tag
+build.mak
+build/zsrtp/docs/html
+

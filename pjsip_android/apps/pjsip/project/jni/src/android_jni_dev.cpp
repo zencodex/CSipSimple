@@ -175,7 +175,7 @@ static int PJ_THREAD_FUNC AndroidRecorderCallback(void* userData){
 
 
 	//start recording
-	setpriority(PRIO_PROCESS, 0, ANDROID_PRIORITY_AUDIO);
+	setpriority(PRIO_PROCESS, 0, -16 /*ANDROID_PRIORITY_AUDIO*/);
 
 	buf = jni_env->GetByteArrayElements(inputBuffer, 0);
 
@@ -335,7 +335,7 @@ static int PJ_THREAD_FUNC AndroidTrackCallback(void* userData){
 
 	buf = jni_env->GetByteArrayElements(outputBuffer, 0);
 
-	setpriority(PRIO_PROCESS, 0, ANDROID_PRIORITY_AUDIO);
+	setpriority(PRIO_PROCESS, 0, -16 /*ANDROID_PRIORITY_AUDIO*/);
 
 	//start playing
 	jni_env->CallVoidMethod(stream->track, play_method);

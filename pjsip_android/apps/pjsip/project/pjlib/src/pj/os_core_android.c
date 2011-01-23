@@ -43,7 +43,6 @@
 #include <errno.h>	    // errno
 
 #include <pthread.h>
-#include <utils/threads.h>
 
 #define THIS_FILE   "os_core_android.c"
 
@@ -326,7 +325,7 @@ PJ_DEF(int) pj_thread_get_prio_max(pj_thread_t *thread)
     int rc;
 
     //A maximum we can afford is the user audio normal priority (less than the HeapWorker)
-    return ANDROID_PRIORITY_URGENT_AUDIO;
+    return -16/*ANDROID_PRIORITY_URGENT_AUDIO*/;
 /*
     rc = pthread_getschedparam(thread->thread, &policy, &param);
     if (rc != 0)

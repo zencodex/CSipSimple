@@ -86,7 +86,7 @@ TARGETS := libzsrtp
 all: $(TARGETS)
 
 doc:
-	cd .. && doxygen docs/doxygen.cfg
+	doxygen docs/doxygen.cfg
 
 dep: depend
 distclean: realclean

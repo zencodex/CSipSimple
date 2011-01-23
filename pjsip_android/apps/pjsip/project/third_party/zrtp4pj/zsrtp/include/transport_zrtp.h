@@ -31,7 +31,6 @@
 
 /**
  * @defgroup PJMEDIA_TRANSPORT_ZRTP ZRTP Transport Adapter
- * @ingroup PJMEDIA_TRANSPORT
  * @brief This the ZRTP transport adapter.
  * @{
  *
@@ -185,7 +184,7 @@ typedef enum pjmedia_zrtp_use
      * set.
      */
     PJMEDIA_CREATE_ZRTP  = 2
-    
+
 } pjmedia_zrtp_use;
 
 /**
@@ -201,6 +200,195 @@ typedef struct pjmedia_zrtp_info
 
 } pjmedia_zrtp_info;
 
+/**
+ * Application callback methods.
+ *
+ * The RTP stack specific part of GNU ZRTP uses these callback methods
+ * to report ZRTP events to the application. Thus the application that
+ * instantiates the RTP stack shall implement these methods and show these
+ * inforemation to the user.
+ *
+ * <b>CAVEAT</b><br/>
+ * All user callback methods run in the context of the RTP thread. Thus
+ * it is of paramount importance to keep the execution time of the methods
+ * as short as possible.
+ *
+ * @author Werner Dittmann <Werner.Dittmann@t-online.de>
+ */
+typedef struct zrtp_UserCallbacks
+{
+    /**
+     * Inform user interface that security is active now.
+     *
+     * ZRTP calls this method if the sender and the receiver are
+     * in secure mode now.
+     *
+     * @param data
+     *    The pointer user data
+     * @param cipher
+     *    Name and mode of cipher used to encrypt the SRTP stream
+     */
+    void (*zrtp_secureOn)(void* data, char* cipher);
+
+    /**
+     * Inform user interface that security is not active any more.
+     *
+     * ZRTP calls this method if either the sender or the receiver
+     * left secure mode.
+     *
+     * @param data
+     *    The pointer user data
+     */
+    void (*zrtp_secureOff)(void* data);
+
+    /**
+     * Show the Short Authentication String (SAS) on user interface.
+     *
+     * ZRTP calls this method to display the SAS and inform about the SAS
+     * verification status. The user interface shall enable a SAS verfication
+     * button (or similar UI element). The user shall click on this UI
+     * element after he/she confirmed the SAS code with the partner.
+     *
+     * @param data
+     *    The pointer user data
+     * @param sas
+     *     The string containing the SAS.
+     * @param verified
+     *    If <code>verified</code> is true then SAS was verified by both
+     *    parties during a previous call, otherwise it is set to false.
+     */
+    void (*zrtp_showSAS)(void* data, char* sas, int32_t verified);
+
+    /**
+     * Inform the user that ZRTP received "go clear" message from its peer.
+     *
+     * On receipt of a go clear message the user is requested to confirm
+     * a switch to unsecure (clear) modus. Until the user confirms ZRTP
+     * (and the underlying RTP) does not send any data.
+     * 
+     * @param data
+     *    The pointer user data
+     */
+    void (*zrtp_confirmGoClear)(void* data);
+
+    /**
+     * Show some information to user.
+     *
+     * ZRTP calls this method to display some information to the user.
+     * Along with the message ZRTP provides a severity indicator that
+     * defines: Info, Warning, Error, and Alert. Refer to the <code>
+     * MessageSeverity</code> enum in <code>ZrtpCodes.h</code>. The
+     * UI may use this indicator to highlight messages or alike.
+     *
+     * @param data
+     *    The pointer user data
+     * @param sev
+     *     Severity of the message.
+     * @param subCode
+     *     The subcode identifying the reason.
+     */
+    void (*zrtp_showMessage)(void* data, int32_t sev, int32_t subCode);
+
+    /**
+     * ZRTP transport calls this if the negotiation failed.
+     *
+     * ZRTPQueue calls this method in case ZRTP negotiation failed. The
+     * parameters show the severity as well as some explanatory text.
+     * Refer to the <code>MessageSeverity</code> enum above.
+     *
+     * @param data
+     *    The pointer user data
+     * @param severity
+     *     This defines the message's severity
+     * @param subCode
+     *     The subcode identifying the reason.
+     */
+    void (*zrtp_zrtpNegotiationFailed)(void* data, int32_t severity, int32_t subCode);
+
+    /**
+     * ZRTP transport calls this method if the other side does not support ZRTP.
+     *
+     * If the other side does not answer the ZRTP <em>Hello</em> packets then
+     * ZRTP calls this method.
+     *
+     * @param data
+     *    The pointer user data
+     */
+    void (*zrtp_zrtpNotSuppOther)(void* data);
+
+    /**
+     * ZRTP transport calls this method to inform about a PBX enrollment request.
+     *
+     * Please refer to chapter 8.3 ff to get more details about PBX enrollment
+     * and SAS relay.
+     *
+     * @param data
+     *    The pointer user data
+     * @param info
+     *    Give some information to the user about the PBX requesting an
+     *    enrollment.
+     */
+    void (*zrtp_zrtpAskEnrollment)(void* data, char* info);
+
+    /**
+     * ZRTP transport calls this method to inform about PBX enrollment result.
+     *
+     * Informs the use about the acceptance or denial of an PBX enrollment
+     * request
+     *
+     * @param data
+     *    The pointer user data
+     * @param info
+     *    Give some information to the user about the result of an
+     *    enrollment.
+     */
+    void (*zrtp_zrtpInformEnrollment)(void* data, char* info);
+
+    /**
+     * ZRTP transport calls this method to request a SAS signature.
+     *
+     * After ZRTP core was able to compute the Short Authentication String
+     * (SAS) it calls this method. The client may now use an approriate
+     * method to sign the SAS. The client may use
+     * setSignatureData() of ZrtpQueue to store the signature
+     * data an enable signature transmission to the other peer. Refer
+     * to chapter 8.2 of ZRTP specification.
+     *
+     * @param data
+     *    The pointer user data
+     * @param sas
+     *    The SAS string to sign.
+     * @see ZrtpQueue#setSignatureData
+     *
+     */
+    void (*zrtp_signSAS)(void* data, char* sas);
+
+    /**
+     * ZRTP transport calls this method to request a SAS signature check.
+     *
+     * After ZRTP received a SAS signature in one of the Confirm packets it
+     * call this method. The client may use <code>getSignatureLength()</code>
+     * and <code>getSignatureData()</code>of ZrtpQueue to get the signature
+     * data and perform the signature check. Refer to chapter 8.2 of ZRTP
+     * specification.
+     *
+     * If the signature check fails the client may return false to ZRTP. In
+     * this case ZRTP signals an error to the other peer and terminates
+     * the ZRTP handshake.
+     *
+     * @param data
+     *    The pointer user data
+     * @param sas
+     *    The SAS string that was signed by the other peer.
+     * @return
+     *    true if the signature was ok, false otherwise.
+     *
+     */
+    int32_t (*zrtp_checkSASSignature)(void* data, char* sas);
+
+    void* userData;  /*!< Point to some user data, for example to store some context */
+} zrtp_UserCallbacks;
+
 
 /**
  * Create the transport adapter, specifying the underlying transport to be
@@ -212,7 +400,7 @@ typedef struct pjmedia_zrtp_info
  * @param transport The underlying media transport to send and receive
  *          RTP/RTCP packets.
  * @param p_tp      Pointer to receive the media transport instance.
- * 
+ *
  * @param close_slave
  *          Close the slave transport on transport_destroy. PJSUA-LIB
  *          sets this to PJ_FALSE because it takes care of this.

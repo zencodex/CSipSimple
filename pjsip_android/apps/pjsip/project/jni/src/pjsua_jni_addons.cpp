@@ -536,6 +536,45 @@ PJ_DECL(pj_status_t) csipsimple_destroy(void){
 }
 
 
+
+// Manage keep alive
+PJ_DECL(pj_status_t) send_keep_alive(int acc_id) {
+	pjsua_acc *acc;
+	pjsip_tpselector tp_sel;
+	pj_status_t status;
+
+
+	PJSUA_LOCK();
+
+
+	acc = &pjsua_var.acc[acc_id];
+
+	/* Select the transport to send the packet */
+	pj_bzero(&tp_sel, sizeof(tp_sel));
+	tp_sel.type = PJSIP_TPSELECTOR_TRANSPORT;
+	tp_sel.u.transport = acc->ka_transport;
+
+	PJ_LOG(5,(THIS_FILE,
+		  "Sending %d bytes keep-alive packet for acc %d",
+		  acc->cfg.ka_data.slen, acc->index));
+
+	/* Send raw packet */
+	status = pjsip_tpmgr_send_raw(pjsip_endpt_get_tpmgr(pjsua_var.endpt),
+				  PJSIP_TRANSPORT_UDP, &tp_sel,
+				  NULL, acc->cfg.ka_data.ptr,
+				  acc->cfg.ka_data.slen,
+				  &acc->ka_target, acc->ka_target_len,
+				  NULL, NULL);
+    PJSUA_UNLOCK();
+
+	return status;
+}
+
+
+
+
+
+
 // Android app glue
 
 #define LOGV(...) __android_log_print(ANDROID_LOG_VERBOSE, "libpjsip", __VA_ARGS__)
@@ -609,7 +648,7 @@ void init_ringback_tone(){
 	pjmedia_tone_desc tone[RINGBACK_CNT];
 	unsigned i;
 
-	app_config.pool = pjsua_pool_create("pjsua-app", 1000, 1000);
+	app_config.pool = pjsua_pool_create("pjsua-jni", 1000, 1000);
 	app_config.ringback_slot=PJSUA_INVALID_ID;
 	app_config.ringback_on = PJ_FALSE;
 	app_config.ringback_cnt = 0;
@@ -656,6 +695,11 @@ void destroy_ringback_tone(){
 		pjmedia_port_destroy(app_config.ringback_port);
 		app_config.ringback_port = NULL;
 	}
+
+    if (app_config.pool) {
+	pj_pool_release(app_config.pool);
+	app_config.pool = NULL;
+    }
 }
 
 void app_on_call_state(pjsua_call_id call_id, pjsip_event *e) {
@@ -703,6 +747,5 @@ void app_on_call_state(pjsua_call_id call_id, pjsip_event *e) {
 		}
 	}
 }
-
 
 

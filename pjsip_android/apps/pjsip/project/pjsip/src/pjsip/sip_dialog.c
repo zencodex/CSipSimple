@@ -1,4 +1,4 @@
-/* $Id: sip_dialog.c 3200 2010-06-09 07:35:26Z nanang $ */
+/* $Id: sip_dialog.c 3397 2010-12-15 08:11:28Z bennylp $ */
 /* 
  * Copyright (C) 2008-2009 Teluu Inc. (http://www.teluu.com)
  * Copyright (C) 2003-2008 Benny Prijono <benny@prijono.org>
@@ -1773,6 +1773,7 @@ void pjsip_dlg_on_rx_response( pjsip_dialog *dlg, pjsip_rx_data *rdata )
 	 ||
 	(dlg->role==PJSIP_ROLE_UAC &&
 	 !dlg->uac_has_2xx &&
+	 res_code > 100 &&
 	 res_code/100 <= 2 &&
 	 pjsip_method_creates_dialog(&rdata->msg_info.cseq->method) &&
 	 pj_strcmp(&dlg->remote.info->tag, &rdata->msg_info.to->tag)))

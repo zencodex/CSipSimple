@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2006-2009 Werner Dittmann
+  Copyright (C) 2006-2010 Werner Dittmann
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -21,6 +21,14 @@
 
 #ifndef _ZRTPTEXTDATA_H_
 #define _ZRTPTEXTDATA_H_
+
+/**
+ * @file ZrtpTextData.h
+ * @brief The ZRTP ASCII texts - extern references
+ *  
+ * @ingroup GNU_ZRTP
+ * @{
+ */
 
 #include <libzrtpcpp/ZrtpConfigure.h>
 
@@ -79,7 +87,12 @@ extern char s384[];
 extern const char* mandatoryHash;
 
 extern char aes3[];
+extern char aes2[];
 extern char aes1[];
+extern char two3[];
+extern char two2[];
+extern char two1[];
+
 extern const char* mandatoryCipher;
 
 extern char dh2k[];
@@ -95,7 +108,13 @@ extern const char* mandatorySasType;
 
 extern char hs32[];
 extern char hs80[];
+extern char sk32[];
+extern char sk64[];
 extern const char* mandatoryAuthLen_1;
 extern const char* mandatoryAuthLen_2;
+
+/**
+ * @}
+ */
 #endif     // _ZRTPTEXTDATA_H_
 

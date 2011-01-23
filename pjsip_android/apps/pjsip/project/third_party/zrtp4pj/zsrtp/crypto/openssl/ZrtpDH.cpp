@@ -47,7 +47,7 @@
 #include <libzrtpcpp/crypto/ZrtpDH.h>
 #include <libzrtpcpp/ZrtpTextData.h>
 
-extern void initializeOpenSSL();
+// extern void initializeOpenSSL();
 
 static BIGNUM* bnP2048 = NULL;
 static BIGNUM* bnP3072 = NULL;

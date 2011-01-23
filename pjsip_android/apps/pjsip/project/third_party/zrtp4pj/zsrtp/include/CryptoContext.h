@@ -21,18 +21,27 @@
 #ifndef CRYPTOCONTEXT_H
 #define CRYPTOCONTEXT_H
 
+/**
+ * @file CryptoContext.h
+ * @brief The C++ SRTP implementation
+ * @ingroup Z_SRTP
+ * @{
+ */
+
 #include <stdint.h>
 #include <crypto/AesSrtp.h>
 
 #define REPLAY_WINDOW_SIZE 64
 
-const int SrtpAuthenticationNull     = 0;
-const int SrtpAuthenticationSha1Hmac = 1;
+const int SrtpAuthenticationNull      = 0;
+const int SrtpAuthenticationSha1Hmac  = 1;
+const int SrtpAuthenticationSkeinHmac = 2;
 
 const int SrtpEncryptionNull  = 0;
 const int SrtpEncryptionAESCM = 1;
 const int SrtpEncryptionAESF8 = 2;
-
+const int SrtpEncryptionTWOCM = 3;
+const int SrtpEncryptionTWOF8 = 4;
 
 /**
  * The implementation for a SRTP cryptographic context.
@@ -386,6 +395,9 @@ private:
     AesSrtp* f8AesCipher;
 };
 
+/**
+ * @}
+ */
 #endif
 
 /** EMACS **

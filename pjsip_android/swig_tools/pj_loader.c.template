@@ -16,6 +16,6 @@ JNIEXPORT jint JNI_OnLoad(JavaVM *vm, void *reserved) {
 
 	};
 
-	r = env->RegisterNatives (k, methods, NELEM(methods));
+	r = env->RegisterNatives (k, methods, (int) (sizeof(methods) / sizeof(methods[0])));
 	return JNI_VERSION_1_4;
 }

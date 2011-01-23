@@ -20,6 +20,14 @@
 #ifndef ZSRTPCWRAPPER_H
 #define ZSRTPCWRAPPER_H
 
+/**
+ * @file ZsrtpCWrapper.h
+ * @brief C-to-C++ wrapper for the C++ based SRTP implementation
+ * @defgroup Z_SRTP SRTP implementation for ZRTP including C-to-C++ wrapper
+ * @ingroup PJMEDIA_TRANSPORT_ZRTP
+ * @{
+ */
+
 #include <stdint.h>
 
 /*
@@ -27,10 +35,15 @@
  */
 #define SrtpAuthenticationNull      0
 #define SrtpAuthenticationSha1Hmac  1
+#define SrtpAuthenticationSkeinHmac 2
+
 
 #define SrtpEncryptionNull    0
 #define SrtpEncryptionAESCM   1
 #define SrtpEncryptionAESF8   2
+#define SrtpEncryptionTWOCM   3
+#define SrtpEncryptionTWOF8   4
+
 
 #ifdef __cplusplus
 extern "C"
@@ -45,7 +58,7 @@ extern "C"
     } ZsrtpContext;
 
     /**
-     * Constructor for an active SRTP cryptographic context.
+     * Create a ZSRTP wrapper fir a SRTP cryptographic context.
      *
      * This constructor creates an active SRTP cryptographic context were
      * algorithms are enabled, keys are computed and so on. This SRTP
@@ -117,6 +130,9 @@ extern "C"
      * @param tagLength
      *    The length is bytes of the authentication tag that SRTP appends
      *    to the RTP packet. Refer to chapter 4.2. in the RFC 3711.
+     * 
+     * @returns
+     *     Pointer to a new ZSRTP wrapper context.
      */
 
     ZsrtpContext* zsrtp_CreateWrapper(uint32_t ssrc, int32_t roc,
@@ -132,6 +148,12 @@ extern "C"
                                       int32_t  skeyl,
                                       int32_t  tagLength);
 
+    /**
+     * Destroy a ZSRTP wrapper Context
+     * 
+     * @param ctx
+     *     A ZSRTP wrapper context.
+     */
     void zsrtp_DestroyWrapper (ZsrtpContext* ctx);
 
     /**
@@ -156,6 +178,9 @@ extern "C"
      *
      * @param newLength
      *     The new length of the RTP data buffer including authentication code
+     * 
+     * @returns
+     *     0 if no active SRTP crypto context, 1 if data is encrypted.
      */
     int32_t zsrtp_protect(ZsrtpContext* ctx, uint8_t* buffer, int32_t length,
                           int32_t* newLength);
@@ -182,6 +207,10 @@ extern "C"
      *
      * @param newLength
      *     The new length of the RTP data buffer excluding authentication code
+     * 
+     * @returns
+     *     0 if no active SRTP crypto context, 1 if data is decrypted,
+     *     -1 if data authentication failed, -2 if SRTP replay check failed
      */
     int32_t zsrtp_unprotect(ZsrtpContext* ctx, uint8_t* buffer, int32_t length,
                             int32_t* newLength);
@@ -225,5 +254,7 @@ extern "C"
 #ifdef __cplusplus
 }
 #endif
-
+/**
+ * @}
+ */
 #endif

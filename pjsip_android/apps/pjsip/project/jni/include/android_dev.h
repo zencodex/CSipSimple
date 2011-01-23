@@ -25,7 +25,7 @@
 #include <pj/os.h>
 #include <pj/string.h>
 #include <sys/resource.h>
-#include <utils/threads.h>
+//#include <utils/threads.h>
 #include <jni.h>
 #include <jvm_wrapper.h>
 

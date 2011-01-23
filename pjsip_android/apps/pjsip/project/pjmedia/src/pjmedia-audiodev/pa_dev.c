@@ -1,4 +1,4 @@
-/* $Id: pa_dev.c 3058 2010-01-13 16:28:15Z bennylp $ */
+/* $Id: pa_dev.c 3404 2011-01-13 16:42:21Z ming $ */
 /* 
  * Copyright (C) 2008-2009 Teluu Inc. (http://www.teluu.com)
  * Copyright (C) 2003-2008 Benny Prijono <benny@prijono.org>
@@ -185,6 +185,7 @@ static int PaRecorderCallback(const void *input,
      */
     if (stream->rec_thread_initialized == 0 || !pj_thread_is_registered()) 
     {
+	pj_bzero(stream->rec_thread_desc, sizeof(pj_thread_desc));
 	status = pj_thread_register("pa_rec", stream->rec_thread_desc, 
 				    &stream->rec_thread);
 	stream->rec_thread_initialized = 1;
@@ -297,6 +298,7 @@ static int PaPlayerCallback( const void *input,
      */
     if (stream->play_thread_initialized == 0 || !pj_thread_is_registered()) 
     {
+	pj_bzero(stream->play_thread_desc, sizeof(pj_thread_desc));
 	status = pj_thread_register("portaudio", stream->play_thread_desc,
 				    &stream->play_thread);
 	stream->play_thread_initialized = 1;
