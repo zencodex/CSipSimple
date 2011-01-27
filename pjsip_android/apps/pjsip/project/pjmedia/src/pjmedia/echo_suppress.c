@@ -90,11 +90,13 @@ PJ_INLINE(float) FABS(float val)
 
 
 #if defined(PJ_HAS_FLOATING_POINT) && PJ_HAS_FLOATING_POINT!=0
+#warning HAS FLOATING POINT SUPPORT
     typedef float pj_ufloat_t;
 #   define pj_ufloat_from_float(f)	(f)
 #   define pj_ufloat_mul_u(val1, f)	((val1) * (f))
 #   define pj_ufloat_mul_i(val1, f)	((val1) * (f))
 #else
+#warning NO FLOAT
     typedef pj_uint32_t pj_ufloat_t;
 
     pj_ufloat_t pj_ufloat_from_float(float f)
