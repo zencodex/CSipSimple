@@ -2,10 +2,10 @@ LOCAL_PATH := $(call my-dir)
 TOP_LOCAL_PATH := $(call my-dir)/../
 
 #Add target arm version
-ifeq ($(TARGET_ARCH_ABI),armeabi-v7a)
-MY_PJSIP_FLAGS := $(BASE_PJSIP_FLAGS) -DPJ_HAS_FLOATING_POINT=1
-else
+ifeq ($(TARGET_ARCH_ABI),armeabi)
 MY_PJSIP_FLAGS := $(BASE_PJSIP_FLAGS) -DPJ_HAS_FLOATING_POINT=0
+else
+MY_PJSIP_FLAGS := $(BASE_PJSIP_FLAGS) -DPJ_HAS_FLOATING_POINT=1
 endif
 
 # Pjsip
