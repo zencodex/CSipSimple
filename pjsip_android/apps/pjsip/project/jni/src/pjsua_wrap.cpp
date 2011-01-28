@@ -1125,6 +1125,14 @@ void on_incoming_call_wrapper (pjsua_acc_id acc_id, pjsua_call_id call_id,
 void on_call_tsx_state_wrapper (pjsua_call_id call_id, 
 		pjsip_transaction *tsx,
 		pjsip_event *e) {
+
+	//Workaround for cancelling
+	/*
+	if (tsx->method.id==PJSIP_CANCEL_METHOD){
+		if (tsx->role==PJSIP_ROLE_UAS) {
+			pjsua_call_hangup(call_id,0, NULL, NULL);
+		}       
+	}*/
 	registeredCallbackObject->on_call_tsx_state(call_id, tsx, e);
 }
     
@@ -16916,6 +16924,6 @@ JNIEXPORT jint JNI_OnLoad(JavaVM *vm, void *reserved) {
 
 	};
 
-	r = env->RegisterNatives (k, methods, (int) (sizeof(methods) / sizeof(methods[0])) );
+	r = env->RegisterNatives (k, methods, (int) (sizeof(methods) / sizeof(methods[0])));
 	return JNI_VERSION_1_4;
 }
