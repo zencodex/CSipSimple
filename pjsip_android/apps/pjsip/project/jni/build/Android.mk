@@ -26,7 +26,7 @@ ifeq ($(MY_USE_TLS),1)
 LOCAL_LDLIBS += -ldl 
 endif
 
-LOCAL_LDFLAGS := -Wl,-Map=moblox.map,--cref,--gc-section 
+#LOCAL_LDFLAGS := -Wl,-Map=moblox.map,--cref,--gc-section 
 
 LOCAL_STATIC_LIBRARIES := pjsip pjmedia pjnath pjlib-util pjlib resample srtp 
 ifeq ($(MY_USE_ILBC),1)
