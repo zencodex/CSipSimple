@@ -1540,6 +1540,9 @@ static void update_keep_alive(pjsua_acc *acc, pj_bool_t start,
 	    return;
 	}
 
+	//we don't want to use this anymore return right now
+	return;
+
 	/* Setup and start the timer */
 	acc->ka_timer.cb = &keep_alive_timer_cb;
 	acc->ka_timer.user_data = (void*)acc;
