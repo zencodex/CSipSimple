@@ -48,10 +48,7 @@ ifeq ($(MY_USE_CODEC2),1)
 	LOCAL_STATIC_LIBRARIES += codec2
 endif
 ifeq ($(MY_USE_TLS),1)
-	LOCAL_STATIC_LIBRARIES += ssl crypto
-endif
-ifeq ($(MY_USE_ZRTP),1)
-	LOCAL_STATIC_LIBRARIES += zrtp4pj crypto 
+	LOCAL_STATIC_LIBRARIES += ssl zrtp4pj crypto 
 endif
 
 

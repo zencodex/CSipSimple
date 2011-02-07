@@ -387,7 +387,8 @@ static int PJ_THREAD_FUNC AndroidTrackCallback(void* userData){
 
 		if(status < 0){
 			PJ_LOG(1, (THIS_FILE, "Error while writing %d ", status));
-			goto on_finish;
+			//goto on_finish;
+			continue;
 		}else if(size != status){
 			PJ_LOG(2, (THIS_FILE, "Not everything written"));
 		}
