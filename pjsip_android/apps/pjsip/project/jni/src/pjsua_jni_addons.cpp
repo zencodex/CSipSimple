@@ -786,7 +786,7 @@ PJ_DECL(pj_status_t) set_turn_cfg(pjsua_media_config *media_cfg, pj_str_t userna
 
 	 if (data.slen) {
 		 media_cfg->turn_auth_cred.data.static_cred.data_type = PJ_STUN_PASSWD_PLAIN;
-		 media_cfg->turn_auth_cred.data.static_cred.data = pj_str(data);
+		 media_cfg->turn_auth_cred.data.static_cred.data = data;
 	 }
 }
 
