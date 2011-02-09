@@ -15911,6 +15911,39 @@ SWIGEXPORT jint JNICALL Java_org_pjsip_pjsua_pjsuaJNI_send_1keep_1alive(JNIEnv *
 }
 
 
+SWIGEXPORT jint JNICALL Java_org_pjsip_pjsua_pjsuaJNI_set_1turn_1cfg(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_, jlong jarg2, jobject jarg2_, jlong jarg3, jobject jarg3_) {
+  jint jresult = 0 ;
+  pjsua_media_config *arg1 = (pjsua_media_config *) 0 ;
+  pj_str_t arg2 ;
+  pj_str_t arg3 ;
+  pj_str_t *argp2 ;
+  pj_str_t *argp3 ;
+  pj_status_t result;
+  
+  (void)jenv;
+  (void)jcls;
+  (void)jarg1_;
+  (void)jarg2_;
+  (void)jarg3_;
+  arg1 = *(pjsua_media_config **)&jarg1; 
+  argp2 = *(pj_str_t **)&jarg2; 
+  if (!argp2) {
+    SWIG_JavaThrowException(jenv, SWIG_JavaNullPointerException, "Attempt to dereference null pj_str_t");
+    return 0;
+  }
+  arg2 = *argp2; 
+  argp3 = *(pj_str_t **)&jarg3; 
+  if (!argp3) {
+    SWIG_JavaThrowException(jenv, SWIG_JavaNullPointerException, "Attempt to dereference null pj_str_t");
+    return 0;
+  }
+  arg3 = *argp3; 
+  result = (pj_status_t)set_turn_cfg(arg1,arg2,arg3);
+  jresult = (jint)result; 
+  return jresult;
+}
+
+
 SWIGEXPORT void JNICALL Java_org_pjsip_pjsua_pjsuaJNI_swig_1module_1init(JNIEnv *jenv, jclass jcls) {
   int i;
   
@@ -16920,7 +16953,8 @@ JNIEXPORT jint JNI_OnLoad(JavaVM *vm, void *reserved) {
 {"get_error_message", "(I)J", (void*)& Java_org_pjsip_pjsua_pjsuaJNI_get_1error_1message},
 {"csipsimple_init", "(JLorg/pjsip/pjsua/pjsua_config;JLorg/pjsip/pjsua/pjsua_logging_config;JLorg/pjsip/pjsua/pjsua_media_config;)I", (void*)& Java_org_pjsip_pjsua_pjsuaJNI_csipsimple_1init},
 {"csipsimple_destroy", "()I", (void*)& Java_org_pjsip_pjsua_pjsuaJNI_csipsimple_1destroy},
-{"send_keep_alive", "(I)I", (void*)& Java_org_pjsip_pjsua_pjsuaJNI_send_1keep_1alive}
+{"send_keep_alive", "(I)I", (void*)& Java_org_pjsip_pjsua_pjsuaJNI_send_1keep_1alive},
+{"set_turn_cfg", "(JLorg/pjsip/pjsua/pjsua_media_config;JLorg/pjsip/pjsua/pj_str_t;JLorg/pjsip/pjsua/pj_str_t;)I", (void*)& Java_org_pjsip_pjsua_pjsuaJNI_set_1turn_1cfg}
 
 	};
 

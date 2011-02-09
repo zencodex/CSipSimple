@@ -14,6 +14,8 @@ void init_ringback_tone();
 void destroy_ringback_tone();
 void app_on_call_state(pjsua_call_id call_id, pjsip_event *e);
 static void pj_android_log_msg(int level, const char *data, int len);
+static pj_bool_t on_rx_request_tcp_hack(pjsip_rx_data *rdata);
+
 
 PJ_BEGIN_DECL
 
@@ -32,6 +34,7 @@ PJ_DECL(pj_status_t) csipsimple_init(pjsua_config *ua_cfg,
 				pjsua_media_config *media_cfg);
 PJ_DECL(pj_status_t) csipsimple_destroy(void);
 PJ_DECL(pj_status_t) send_keep_alive(int acc_id);
+PJ_DECL(pj_status_t) set_turn_cfg(pjsua_media_config *media_cfg, pj_str_t username, pj_str_t data);
 PJ_END_DECL
 
 #endif

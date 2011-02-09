@@ -340,6 +340,20 @@ PJ_DECL(pj_bool_t) is_call_secure(pjsua_call_id call_id){
 }
 
 
+
+static pj_bool_t on_rx_request_tcp_hack(pjsip_rx_data *rdata) {
+	 PJ_LOG(3,(THIS_FILE, "CB TCP HACK"));
+	if (strstr(pj_strbuf(&rdata->msg_info.msg->line.req.method.name), "INVITE")) {
+		 PJ_LOG(3,(THIS_FILE, "We have an invite here"));
+
+	}
+
+	return PJ_FALSE;
+
+}
+
+
+
 /*
  * ZRTP stuff
  */
@@ -523,7 +537,21 @@ PJ_DECL(pj_status_t) csipsimple_init(pjsua_config *ua_cfg,
 		pjmedia_aud_register_factory(&pjmedia_android_factory);
 #endif
 
+
+	    // Registering module for tcp hack
+	    static pjsip_module tcp_hack_mod; // cannot be a stack variable
+
+	    memset(&tcp_hack_mod, 0, sizeof(tcp_hack_mod));
+	    tcp_hack_mod.id = -1;
+	    tcp_hack_mod.priority = PJSIP_MOD_PRIORITY_UA_PROXY_LAYER - 1;
+	    tcp_hack_mod.on_rx_response = &on_rx_request_tcp_hack;
+	    tcp_hack_mod.name = pj_str("TCP-Hack");
+
+	    result = pjsip_endpt_register_module(pjsip_ua_get_endpt(pjsip_ua_instance()), &tcp_hack_mod);
+
+
 	}
+
 
 
 
@@ -749,4 +777,16 @@ void app_on_call_state(pjsua_call_id call_id, pjsip_event *e) {
 	}
 }
 
+
+
+PJ_DECL(pj_status_t) set_turn_cfg(pjsua_media_config *media_cfg, pj_str_t username, pj_str_t data){
+	media_cfg->turn_auth_cred.type = PJ_STUN_AUTH_CRED_STATIC;
+	media_cfg->turn_auth_cred.data.static_cred.realm = pj_str("*");
+	media_cfg->turn_auth_cred.data.static_cred.username = username;
+
+	 if (data.slen) {
+		 media_cfg->turn_auth_cred.data.static_cred.data_type = PJ_STUN_PASSWD_PLAIN;
+		 media_cfg->turn_auth_cred.data.static_cred.data = pj_str(data);
+	 }
+}
 
