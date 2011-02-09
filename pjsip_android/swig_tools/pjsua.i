@@ -1168,6 +1168,7 @@ enum pjmedia_zrtp_use
     PJMEDIA_CREATE_ZRTP  = 2
     
 };
+
  
 #define PJSUA_INVALID_ID	    (-1)
 typedef int pjsua_call_id;
@@ -2590,3 +2591,4 @@ PJ_DECL(pj_status_t) csipsimple_init(pjsua_config *ua_cfg,
 				pjsua_media_config *media_cfg);
 PJ_DECL(pj_status_t) csipsimple_destroy(void);
 PJ_DECL(pj_status_t) send_keep_alive(int acc_id);
+PJ_DECL(pj_status_t) set_turn_cfg(pjsua_media_config *media_cfg, pj_str_t username, pj_str_t data);
