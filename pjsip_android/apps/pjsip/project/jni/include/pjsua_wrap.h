@@ -44,12 +44,15 @@ public:
     virtual void on_typing(pjsua_call_id call_id, pj_str_t const *from, pj_str_t const *to, pj_str_t const *contact, pj_bool_t is_typing);
     virtual void on_nat_detect(pj_stun_nat_detect_result const *res);
     virtual void on_mwi_info(pjsua_acc_id acc_id, pj_str_t const *mime_type, pj_str_t const *body);
+    virtual void on_zrtp_show_sas(pj_str_t const *sas, int verified);
+    virtual void on_zrtp_secure_on(pj_str_t const *cipher);
+    virtual void on_zrtp_secure_off();
 public:
     bool swig_overrides(int n) {
-      return (n < 20 ? swig_override[n] : false);
+      return (n < 23 ? swig_override[n] : false);
     }
 protected:
-    bool swig_override[20];
+    bool swig_override[23];
 };
 
 

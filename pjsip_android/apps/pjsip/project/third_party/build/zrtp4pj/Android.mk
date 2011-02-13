@@ -29,6 +29,15 @@ LOCAL_SRC_FILES := crypto/openssl/AesSrtp.cpp \
     crypto/openssl/sha384.cpp \
     crypto/openssl/AesCFB.cpp
 
+#skeinmac 
+LOCAL_SRC_FILES += crypto/skein.c crypto/skein_block.c crypto/skeinApi.c \
+	crypto/macSkein.cpp
+
+#twofish 
+LOCAL_SRC_FILES += crypto/twofish.c \
+	crypto/twofish_cfb.c \
+	crypto/TwoCFB.cpp
+
 # zrtpobj
 LOCAL_SRC_FILES += zrtp/ZrtpCallbackWrapper.cpp \
     zrtp/ZIDFile.cpp \

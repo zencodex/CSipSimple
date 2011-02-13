@@ -1,6 +1,6 @@
 # Adapt this path to your pjproject path
 
-export PJDIR := ~/devhome/pjproject-1.8.5
+export PJDIR := ~/devhome/pjproject.git
 
 include $(PJDIR)/build.mak
 include $(PJDIR)/build/common.mak
@@ -20,20 +20,27 @@ export _CFLAGS 	:= $(CC_INC). $(CC_INC)../../zsrtp/include \
 		   $(CC_INC)$(PJDIR)/pjlib-util/include \
 		   $(CC_INC)$(PJDIR)/pjmedia/include \
 		   $(CC_CFLAGS) $(OS_CFLAGS) $(HOST_CFLAGS) $(M_CFLAGS) \
-		   $(CFLAGS) 
+		   $(CFLAGS)  -fno-strict-aliasing
 export _CXXFLAGS:= $(_CFLAGS) $(CC_CXXFLAGS) $(OS_CXXFLAGS) $(M_CXXFLAGS) \
 		   $(HOST_CXXFLAGS) $(CXXFLAGS)
 export _LDFLAGS := $(CC_LDFLAGS) $(OS_LDFLAGS) $(M_LDFLAGS) $(HOST_LDFLAGS) \
 		   $(LDFLAGS) 
 
-ciphersossl = crypto/openssl/AesSrtp.o crypto/openssl/hmac.o \
+ciphersossl = crypto/openssl/AesSrtp.o \
+    crypto/openssl/hmac.o \
     crypto/openssl/ZrtpDH.o \
     crypto/openssl/hmac256.o \
     crypto/openssl/sha256.o \
     crypto/openssl/hmac384.o \
     crypto/openssl/sha384.o \
-    crypto/openssl/AesCFB.o 
+    crypto/openssl/AesCFB.o
 
+skeinmac = crypto/skein.o crypto/skein_block.o crypto/skeinApi.o \
+    crypto/macSkein.o
+
+twofish = crypto/twofish.o \
+	crypto/twofish_cfb.o \
+	crypto/TwoCFB.o
 
 # Gcrypt support currently not tested
 #ciphersgcrypt = crypto/gcrypt/gcryptAesSrtp.o crypto/gcrypt/gcrypthmac.o \
@@ -66,10 +73,10 @@ srtpobj = srtp/ZsrtpCWrapper.o srtp/CryptoContext.o
 
 transportobj = transport_zrtp.o
 
-cryptobj =  $(ciphersossl)
+cryptobj =  $(ciphersossl) $(skeinmac) $(twofish)
 
 export ZSRTP_SRCDIR = ../../zsrtp
-export ZSRTP_OBJS = $(zrtpobj) $(cryptobj) $(srtpobj) $(srtpobj) $(transportobj)
+export ZSRTP_OBJS = $(zrtpobj) $(cryptobj) $(srtpobj) $(transportobj)
 export ZSRTP_CFLAGS = $(_CFLAGS)
 export ZSRTP_CXXFLAGS = $(_CXXFLAGS)
 
@@ -97,7 +104,7 @@ libzsrtp:
 	rm -f build.mak
 	$(MAKE) -f $(RULES_MAK) APP=ZSRTP app=libzsrtp $(ZSRTP_LIB)
 	echo 'export PJ_CFLAGS := $(PJ_CFLAGS)' -I`pwd`/../../zsrtp/include >> build.mak
-	echo 'export PJ_LDFLAGS := $(PJ_LDFLAGS)' -L`pwd`/../../lib/ >> build.mak
+	echo 'export PJ_LDFLAGS := $(PJ_LDFLAGS)' -L`pwd`/../../lib >> build.mak
 	echo  export PJ_LDLIBS := -lzsrtp-$(TARGET_NAME) $(PJ_LDLIBS) >> build.mak
 
 clean print_lib:

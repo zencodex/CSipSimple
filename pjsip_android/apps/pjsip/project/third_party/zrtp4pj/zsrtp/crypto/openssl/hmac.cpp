@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2005, 2004 Erik Eliasson, Johan Bilien
+  Copyright (C) 2005, 2004, 2010, Erik Eliasson, Johan Bilien, Werner Dittmann
 
   This library is free software; you can redistribute it and/or
   modify it under the terms of the GNU Lesser General Public
@@ -32,6 +32,7 @@
 /*
  * Authors: Erik Eliasson <eliasson@it.kth.se>
  *          Johan Bilien <jobi@via.ecp.fr>
+ *          Werner Dittmann
  */
 
 #include <stdint.h>
@@ -63,3 +64,43 @@ void hmac_sha1( uint8_t* key, int32_t key_length,
     HMAC_CTX_cleanup( &ctx );
 }
 
+void* createSha1HmacContext(uint8_t* key, int32_t key_length)
+{
+    HMAC_CTX* ctx = (HMAC_CTX*)malloc(sizeof(HMAC_CTX));
+    
+    HMAC_CTX_init(ctx);
+    HMAC_Init_ex(ctx, key, key_length, EVP_sha1(), NULL);
+    return ctx;
+}
+
+void hmacSha1Ctx(void* ctx, const uint8_t* data, uint32_t data_length,
+                uint8_t* mac, int32_t* mac_length)
+{
+    HMAC_CTX* pctx = (HMAC_CTX*)ctx;
+    
+    HMAC_Init_ex(pctx, NULL, 0, NULL, NULL );
+    HMAC_Update(pctx, data, data_length );
+    HMAC_Final(pctx, mac, reinterpret_cast<uint32_t*>(mac_length) );
+}
+
+void hmacSha1Ctx(void* ctx, const uint8_t* data[], uint32_t data_length[],
+                uint8_t* mac, int32_t* mac_length )
+{
+    HMAC_CTX* pctx = (HMAC_CTX*)ctx;
+    
+    HMAC_Init_ex(pctx, NULL, 0, NULL, NULL );
+    while (*data) {
+        HMAC_Update(pctx, *data, *data_length);
+        data++;
+        data_length++;
+    }
+    HMAC_Final(pctx, mac, reinterpret_cast<uint32_t*>(mac_length) );
+}
+
+void freeSha1HmacContext(void* ctx)
+{
+    if (ctx) {
+        HMAC_CTX_cleanup((HMAC_CTX*)ctx);
+        free(ctx);
+    }
+}
