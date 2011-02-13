@@ -17,12 +17,9 @@ LOCAL_CFLAGS := $(MY_PJSIP_FLAGS)
 
 JNI_SRC_DIR := src/
 
-LOCAL_SRC_FILES := $(JNI_SRC_DIR)/pjsua_wrap.cpp $(JNI_SRC_DIR)/pjsua_jni_addons.c 
+LOCAL_SRC_FILES := $(JNI_SRC_DIR)/pjsua_wrap.cpp $(JNI_SRC_DIR)/pjsua_jni_addons.c $(JNI_SRC_DIR)/zrtp_android.c
 
 
-ifeq ($(MY_USE_TLS),1)
-LOCAL_SRC_FILES += $(JNI_SRC_DIR)/zrtp_android.c
-endif
 
 	
 ifeq ($(MY_ANDROID_DEV),1)

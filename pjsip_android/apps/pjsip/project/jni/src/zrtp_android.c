@@ -168,4 +168,8 @@ PJ_DECL(void) jzrtp_SASVerified() {
 
 // * @see zrtp_SASVerified()
 // * @see zrtp_resetSASVerified()
+#else
+PJ_DECL(void) jzrtp_SASVerified() {
+	//TODO : log
+}
 #endif
