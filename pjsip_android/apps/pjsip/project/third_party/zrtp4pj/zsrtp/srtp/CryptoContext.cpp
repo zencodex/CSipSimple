@@ -25,9 +25,11 @@
 
 #include <string.h>
 #include <arpa/inet.h>
+#include <stdio.h>
 
 #include <CryptoContext.h>
 #include <crypto/hmac.h>
+#include <crypto/macSkein.h>
 
 
 CryptoContext::CryptoContext( uint32_t ssrc,
@@ -48,7 +50,7 @@ CryptoContext::CryptoContext( uint32_t ssrc,
         roc(roc),guessed_roc(0),s_l(0),key_deriv_rate(key_deriv_rate),
         replay_window(0),
         master_key_srtp_use_nb(0), master_key_srtcp_use_nb(0), seqNumSet(false),
-        aesCipher(NULL), f8AesCipher(NULL)
+        cipher(NULL), f8Cipher(NULL)
 {
     this->ealg = ealg;
     this->aalg = aalg;
@@ -71,16 +73,27 @@ CryptoContext::CryptoContext( uint32_t ssrc,
         n_s = 0;
         k_s = NULL;
         break;
+        
+    case SrtpEncryptionTWOF8:
+        f8Cipher = new AesSrtp(SrtpEncryptionTWOCM);
+
+    case SrtpEncryptionTWOCM:
+        n_e = ekeyl;
+        k_e = new uint8_t[n_e];
+        n_s = skeyl;
+        k_s = new uint8_t[n_s];
+        cipher = new AesSrtp(SrtpEncryptionTWOCM);
+        break;
 
     case SrtpEncryptionAESF8:
-        f8AesCipher = new AesSrtp();
+        f8Cipher = new AesSrtp(SrtpEncryptionAESCM);
 
     case SrtpEncryptionAESCM:
         n_e = ekeyl;
         k_e = new uint8_t[n_e];
         n_s = skeyl;
         k_s = new uint8_t[n_s];
-        aesCipher = new AesSrtp();
+        cipher = new AesSrtp(SrtpEncryptionAESCM);
         break;
     }
 
@@ -92,6 +105,7 @@ CryptoContext::CryptoContext( uint32_t ssrc,
         break;
 
     case SrtpAuthenticationSha1Hmac:
+    case SrtpAuthenticationSkeinHmac:
         n_a = akeyl;
         k_a = new uint8_t[n_a];
         this->tagLength = tagLength;
@@ -127,13 +141,24 @@ CryptoContext::~CryptoContext() {
         n_a = 0;
         delete [] k_a;
     }
-    if (aesCipher != NULL) {
-        delete aesCipher;
-        aesCipher = NULL;
+    if (cipher != NULL) {
+        delete cipher;
+        cipher = NULL;
     }
-    if (f8AesCipher != NULL) {
-        delete f8AesCipher;
-        f8AesCipher = NULL;
+    if (f8Cipher != NULL) {
+        delete f8Cipher;
+        f8Cipher = NULL;
+    }
+    if (macCtx != NULL) {
+        switch(aalg) {
+        case SrtpAuthenticationSha1Hmac:
+            freeSha1HmacContext(macCtx);
+            break;
+
+        case SrtpAuthenticationSkeinHmac:
+            freeSkeinMacContext(macCtx);
+            break;
+        }
     }
 }
 
@@ -142,7 +167,7 @@ void CryptoContext::srtpEncrypt(uint8_t* pkt, uint8_t* payload, uint32_t paylen,
     if (ealg == SrtpEncryptionNull) {
         return;
     }
-    if (ealg == SrtpEncryptionAESCM) {
+    if (ealg == SrtpEncryptionAESCM || ealg == SrtpEncryptionTWOCM) {
 
         /* Compute the CM IV (refer to chapter 4.1.1 in RFC 3711):
          *
@@ -165,10 +190,10 @@ void CryptoContext::srtpEncrypt(uint8_t* pkt, uint8_t* payload, uint32_t paylen,
         }
         iv[14] = iv[15] = 0;
 
-        aesCipher->ctr_encrypt(payload, paylen, iv);
+        cipher->ctr_encrypt(payload, paylen, iv);
     }
 
-    if (ealg == SrtpEncryptionAESF8) {
+    if (ealg == SrtpEncryptionAESF8 || ealg == SrtpEncryptionTWOF8) {
 
         /* Create the F8 IV (refer to chapter 4.1.2.2 in RFC 3711):
          *
@@ -187,8 +212,8 @@ void CryptoContext::srtpEncrypt(uint8_t* pkt, uint8_t* payload, uint32_t paylen,
         // set ROC in network order into IV
         ui32p[3] = htonl(roc);
 
-        aesCipher->f8_encrypt(payload, paylen,
-                              iv, k_e, n_e, k_s, n_s, f8AesCipher);
+        cipher->f8_encrypt(payload, paylen,
+                              iv, k_e, n_e, k_s, n_s, f8Cipher);
     }
 }
 
@@ -199,26 +224,37 @@ void CryptoContext::srtpAuthenticate(uint8_t* pkt, uint32_t pktlen, uint32_t roc
     if (aalg == SrtpAuthenticationNull) {
         return;
     }
-    int32_t tag_length;
+    int32_t macL;
 
-    if (aalg == SrtpAuthenticationSha1Hmac) {
-        unsigned char temp[20];
-        const unsigned char* chunks[3];
-        unsigned int chunkLength[3];
-        uint32_t beRoc = htonl(roc);
+    unsigned char temp[20];
+    const unsigned char* chunks[3];
+    unsigned int chunkLength[3];
+    uint32_t beRoc = htonl(roc);
 
-        chunks[0] = pkt;
-        chunkLength[0] = pktlen;
+    chunks[0] = pkt;
+    chunkLength[0] = pktlen;
 
-        chunks[1] = (unsigned char *)&beRoc;
-        chunkLength[1] = 4;
-        chunks[2] = NULL;
-        hmac_sha1( k_a, n_a,
-                   chunks,           // data chunks to hash
-                   chunkLength,      // length of the data to hash
-                   temp, &tag_length );
+    chunks[1] = (unsigned char *)&beRoc;
+    chunkLength[1] = 4;
+    chunks[2] = NULL;
+
+    switch (aalg) {
+    case SrtpAuthenticationSha1Hmac:
+        hmacSha1Ctx(macCtx,
+                    chunks,           // data chunks to hash
+                    chunkLength,      // length of the data to hash
+                    temp, &macL);
         /* truncate the result */
         memcpy(tag, temp, getTagLength());
+        break;
+    case SrtpAuthenticationSkeinHmac:
+        macSkeinCtx(macCtx,
+                    chunks,           // data chunks to hash
+                    chunkLength,      // length of the data to hash
+                    temp);
+        /* truncate the result */
+        memcpy(tag, temp, getTagLength());
+        break;
     }
 }
 
@@ -264,25 +300,34 @@ void CryptoContext::deriveSrtpKeys(uint64_t index)
     uint8_t iv[16];
 
     // prepare AES cipher to compute derived keys.
-    aesCipher->setNewKey(master_key, master_key_length);
+    cipher->setNewKey(master_key, master_key_length);
 
     // compute the session encryption key
     uint64_t label = 0;
     computeIv(iv, label, index, key_deriv_rate, master_salt);
-    aesCipher->get_ctr_cipher_stream(k_e, n_e, iv);
+    cipher->get_ctr_cipher_stream(k_e, n_e, iv);
 
     // compute the session authentication key
     label = 0x01;
     computeIv(iv, label, index, key_deriv_rate, master_salt);
-    aesCipher->get_ctr_cipher_stream(k_a, n_a, iv);
-
+    cipher->get_ctr_cipher_stream(k_a, n_a, iv);
+    // Initialize MAC context with the derived key
+    switch (aalg) {
+    case SrtpAuthenticationSha1Hmac:
+        macCtx = createSha1HmacContext(k_a, n_a);
+        break;
+    case SrtpAuthenticationSkeinHmac:
+        // Skein MAC uses number of bits as MAC size, not just bytes
+        macCtx = createSkeinMacContext(k_a, n_a, tagLength*8, Skein512);
+        break;
+    }
     // compute the session salt
     label = 0x02;
     computeIv(iv, label, index, key_deriv_rate, master_salt);
-    aesCipher->get_ctr_cipher_stream(k_s, n_s, iv);
+    cipher->get_ctr_cipher_stream(k_s, n_s, iv);
 
     // as last step prepare AES cipher with derived key.
-    aesCipher->setNewKey(k_e, n_e);
+    cipher->setNewKey(k_e, n_e);
 }
 
 /* Based on the algorithm provided in Appendix A - draft-ietf-srtp-05.txt */

@@ -1262,11 +1262,13 @@ PJ_DEF(pj_status_t) pjsua_call_get_info( pjsua_call_id call_id,
 
     pj_bzero(info, sizeof(*info));
 
+    PJ_LOG(4,(THIS_FILE, ">>> get call info"));
+
     status = acquire_call("pjsua_call_get_info()", call_id, &call, &dlg);
     if (status != PJ_SUCCESS) {
 	return status;
     }
-
+    PJ_LOG(4,(THIS_FILE, ">>> acquire is done"));
     /* id and role */
     info->id = call_id;
     info->role = call->inv->role;
@@ -1360,7 +1362,7 @@ PJ_DEF(pj_status_t) pjsua_call_get_info( pjsua_call_id call_id,
 	pj_gettimeofday(&info->total_duration);
 	PJ_TIME_VAL_SUB(info->total_duration, call->start_time);
     }
-
+    PJ_LOG(4,(THIS_FILE, "<<< acquire release"));
     pjsip_dlg_dec_lock(dlg);
 
     return PJ_SUCCESS;

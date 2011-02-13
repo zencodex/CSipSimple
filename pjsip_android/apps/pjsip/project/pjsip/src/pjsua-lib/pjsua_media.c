@@ -1290,7 +1290,7 @@ pj_status_t pjsua_media_channel_init(pjsua_call_id call_id,
     if ((acc->cfg.use_srtp != PJMEDIA_SRTP_DISABLED) && (acc->cfg.use_zrtp != PJMEDIA_NO_ZRTP)) {
         return PJSIP_ESESSIONINSECURE;
     }
-    //if (acc->cfg.use_zrtp == PJMEDIA_CREATE_ZRTP) {
+    if (acc->cfg.use_zrtp == PJMEDIA_CREATE_ZRTP) {
     status = pjmedia_transport_zrtp_create(pjsua_var.med_endpt, NULL, 
                                            call->med_tp,
                                            &zrtp, PJ_FALSE);
@@ -1305,7 +1305,7 @@ pj_status_t pjsua_media_channel_init(pjsua_call_id call_id,
     /* Set SRTP as current media transport */
     call->med_orig = call->med_tp;
     call->med_tp = zrtp;
-    //}
+    }
 #else
     call->med_orig = call->med_tp;
 #endif

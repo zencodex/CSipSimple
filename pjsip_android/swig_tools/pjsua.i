@@ -73,7 +73,8 @@ JAVA_ARRAYSOFCLASSES(pj_str_t)
 %header %{
 
 #include <pjsua-lib/pjsua.h>
-#include <pjsua_jni_addons.h>
+#include "pjsua_jni_addons.h"
+#include "zrtp_android.h"
 
 // LOGGING
 #define THIS_FILE	"pjsua_wrap.cpp"
@@ -138,6 +139,10 @@ public:
 		pj_bool_t is_typing) {}
 	virtual void on_nat_detect (const pj_stun_nat_detect_result *res) {}
 	virtual void on_mwi_info (pjsua_acc_id acc_id, const pj_str_t *mime_type, const pj_str_t *body) {}
+	
+	virtual void on_zrtp_show_sas (const pj_str_t *sas, int verified) {}
+	virtual void on_zrtp_secure_on (const pj_str_t *cipher) {}
+	virtual void on_zrtp_secure_off () {}
 };
 
 static Callback* registeredCallbackObject = NULL;
@@ -304,6 +309,21 @@ void on_mwi_info_wrapper (pjsua_acc_id acc_id, pjsua_mwi_info *mwi_info) {
 	registeredCallbackObject->on_mwi_info(acc_id, &mime_type, &body);
 }
 
+
+void on_zrtp_show_sas_wrapper(void* data, char* sas, int verified){
+	pj_str_t sas_string = pj_str(sas);
+	registeredCallbackObject->on_zrtp_show_sas(&sas_string, verified);
+}
+
+void on_zrtp_secure_on_wrapper(void* data, char* cipher){
+	pj_str_t cipher_string = pj_str(cipher);
+	registeredCallbackObject->on_zrtp_secure_on(&cipher_string);
+}
+
+void on_zrtp_secure_off_wrapper(void* data) {
+	registeredCallbackObject->on_zrtp_secure_off();
+}
+
 }
 
 static struct pjsua_callback wrapper_callback_struct = {
@@ -416,6 +436,11 @@ public:
 		pj_bool_t is_typing);
 	virtual void on_nat_detect (const pj_stun_nat_detect_result *res);
 	virtual void on_mwi_info (pjsua_acc_id acc_id, const pj_str_t *mime_type, const pj_str_t *body);
+	
+	
+	virtual void on_zrtp_show_sas (const pj_str_t *sas, int verified);
+	virtual void on_zrtp_secure_on (const pj_str_t *cipher);
+	virtual void on_zrtp_secure_off ();
 };
 
 %constant struct pjsua_callback* WRAPPER_CALLBACK_STRUCT = &wrapper_callback_struct;
@@ -1149,25 +1174,6 @@ struct pj_time_val
 };
 
 
-/**
- * ZRTP stuff
- */
- 
- /**
- * ZRTP option.
- */
-enum pjmedia_zrtp_use
-{
-    /** When this flag is specified, ZRTP will be disabled. */
-    PJMEDIA_NO_ZRTP  = 1,
-
-    /** When this flag is specified, PJSUA-LIB creates a ZRTP transport
-     * call calls back the applicaion for further process if callback is
-     * set.
-     */
-    PJMEDIA_CREATE_ZRTP  = 2
-    
-};
 
  
 #define PJSUA_INVALID_ID	    (-1)
@@ -2592,3 +2598,14 @@ PJ_DECL(pj_status_t) csipsimple_init(pjsua_config *ua_cfg,
 PJ_DECL(pj_status_t) csipsimple_destroy(void);
 PJ_DECL(pj_status_t) send_keep_alive(int acc_id);
 PJ_DECL(pj_status_t) set_turn_cfg(pjsua_media_config *media_cfg, pj_str_t username, pj_str_t data);
+#ifndef __PJMEDIA_TRANSPORT_ZRTP_H__
+ 
+enum pjmedia_zrtp_use
+{
+    
+    PJMEDIA_NO_ZRTP  = 1,
+    
+    PJMEDIA_CREATE_ZRTP  = 2
+};
+#endif
+PJ_DECL(void) jzrtp_SASVerified();

@@ -6,8 +6,10 @@
 #include <pjsua-lib/pjsua_internal.h>
 #include <pjmedia_audiodev.h>
 #include <android/log.h>
-#include "android_dev.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
 void ringback_start();
 void ring_stop(pjsua_call_id call_id);
 void init_ringback_tone();
@@ -15,7 +17,9 @@ void destroy_ringback_tone();
 void app_on_call_state(pjsua_call_id call_id, pjsip_event *e);
 static void pj_android_log_msg(int level, const char *data, int len);
 static pj_bool_t on_rx_request_tcp_hack(pjsip_rx_data *rdata);
-
+#ifdef __cplusplus
+}
+#endif
 
 PJ_BEGIN_DECL
 

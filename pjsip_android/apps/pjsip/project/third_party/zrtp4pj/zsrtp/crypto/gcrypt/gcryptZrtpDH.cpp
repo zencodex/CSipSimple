@@ -171,7 +171,6 @@ ZrtpDH::ZrtpDH(const char* type){
     }
     else {
         fprintf(stderr, "Unknown pubkey algo: %d\n", pkType);
-        exit(1);
     }
     ctx = static_cast<void*>(new gcryptCtx);
     gcryptCtx* tmpCtx = static_cast<gcryptCtx*>(ctx);
@@ -202,8 +201,8 @@ ZrtpDH::ZrtpDH(const char* type){
         gcry_mpi_randomize(tmpCtx->privKey, 256, GCRY_STRONG_RANDOM);
     }
     else if (pkType == DH2K) {
-        tmpCtx->privKey = gcry_mpi_new(256);
-        gcry_mpi_randomize(tmpCtx->privKey, 256, GCRY_STRONG_RANDOM);
+        tmpCtx->privKey = gcry_mpi_new(512);
+        gcry_mpi_randomize(tmpCtx->privKey, 512, GCRY_STRONG_RANDOM);
     }
 //    else {
 //        tmpCtx->privKey = gcry_mpi_new(512);
@@ -234,14 +233,14 @@ int32_t ZrtpDH::computeSecretKey(uint8_t *pubKeyBytes, uint8_t *secret) {
     gcry_mpi_scan(&pubKeyOther, GCRYMPI_FMT_USG, pubKeyBytes, length, NULL);
 
     if (pkType == DH2K) {
-	gcry_mpi_powm(sec, pubKeyOther, tmpCtx->privKey, bnP2048);
+        gcry_mpi_powm(sec, pubKeyOther, tmpCtx->privKey, bnP2048);
     }
     else if (pkType == DH3K) {
-	gcry_mpi_powm(sec, pubKeyOther, tmpCtx->privKey, bnP3072);
+        gcry_mpi_powm(sec, pubKeyOther, tmpCtx->privKey, bnP3072);
     }
     else {
 //	gcry_mpi_powm(sec, pubKeyOther, tmpCtx->privKey, bnP4096);
-	return 0;
+        return 0;
     }
     gcry_mpi_release(pubKeyOther);
 
@@ -258,10 +257,10 @@ int32_t ZrtpDH::generatePublicKey()
 
     tmpCtx->pubKey = gcry_mpi_new(0);
     if (pkType == DH2K) {
-	gcry_mpi_powm(tmpCtx->pubKey, two, tmpCtx->privKey, bnP2048);
+        gcry_mpi_powm(tmpCtx->pubKey, two, tmpCtx->privKey, bnP2048);
     }
     else if (pkType == DH3K) {
-	gcry_mpi_powm(tmpCtx->pubKey, two, tmpCtx->privKey, bnP3072);
+        gcry_mpi_powm(tmpCtx->pubKey, two, tmpCtx->privKey, bnP3072);
     }
     else {
 //	gcry_mpi_powm(tmpCtx->pubKey, two, tmpCtx->privKey, bnP4096);

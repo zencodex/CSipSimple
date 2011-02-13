@@ -142,7 +142,7 @@ static int32_t zrtp_cancelTimer(ZrtpContext* ctx) ;
 static void zrtp_sendInfo(ZrtpContext* ctx, int32_t severity, int32_t subCode) ;
 static int32_t zrtp_srtpSecretsReady(ZrtpContext* ctx, C_SrtpSecret_t* secrets, int32_t part) ;
 static void zrtp_srtpSecretsOff(ZrtpContext* ctx, int32_t part) ;
-static void zrtp_rtpSecretsOn(ZrtpContext* ctx, char* c, char* s, int32_t verified) ;
+static void zrtp_srtpSecretsOn(ZrtpContext* ctx, char* c, char* s, int32_t verified) ;
 static void zrtp_handleGoClear(ZrtpContext* ctx) ;
 static void zrtp_zrtpNegotiationFailed(ZrtpContext* ctx, int32_t severity, int32_t subCode) ;
 static void zrtp_zrtpNotSuppOther(ZrtpContext* ctx) ;
@@ -162,7 +162,7 @@ static zrtp_Callbacks c_callbacks =
     &zrtp_sendInfo,
     &zrtp_srtpSecretsReady,
     &zrtp_srtpSecretsOff,
-    &zrtp_rtpSecretsOn,
+    &zrtp_srtpSecretsOn,
     &zrtp_handleGoClear,
     &zrtp_zrtpNegotiationFailed,
     &zrtp_zrtpNotSuppOther,
@@ -480,12 +480,17 @@ static int32_t zrtp_srtpSecretsReady(ZrtpContext* ctx, C_SrtpSecret_t* secrets, 
     ZsrtpContext* senderCryptoContext;
     int cipher;
     int authn;
+    int authKeyLen;
 
-    if (secrets->authAlgorithm == zrtp_Sha1)
+    if (secrets->authAlgorithm == zrtp_Sha1) {
         authn = SrtpAuthenticationSha1Hmac;
+        authKeyLen = 20;
+    }
 
-    if (secrets->authAlgorithm == zrtp_Skein)
+    if (secrets->authAlgorithm == zrtp_Skein) {
         authn = SrtpAuthenticationSkeinHmac;
+        authKeyLen = 32;
+    }
 
     if (secrets->symEncAlgorithm == zrtp_Aes)
         cipher = SrtpEncryptionAESCM;
@@ -500,7 +505,7 @@ static int32_t zrtp_srtpSecretsReady(ZrtpContext* ctx, C_SrtpSecret_t* secrets, 
         // the main crypto context for the sending part of the connection.
         if (secrets->role == Initiator) {
             senderCryptoContext = zsrtp_CreateWrapper(
-                                      0,
+                                      zrtp->localSSRC,
                                       0,
                                       0L,                                      // keyderivation << 48,
                                       cipher,                                  // encryption algo
@@ -510,13 +515,13 @@ static int32_t zrtp_srtpSecretsReady(ZrtpContext* ctx, C_SrtpSecret_t* secrets, 
                                       (unsigned char*)secrets->saltInitiator,  // Master Salt
                                       secrets->initSaltLen / 8,                // Master Salt length
                                       secrets->initKeyLen / 8,                 // encryption keyl
-                                      20,                                      // authentication key len
+                                      authKeyLen,                              // authentication key len
                                       secrets->initSaltLen / 8,                // session salt len
                                       secrets->srtpAuthTagLen / 8);            // authentication tag lenA
         }
         else {
             senderCryptoContext = zsrtp_CreateWrapper(
-                                      0,
+                                      zrtp->localSSRC,
                                       0,
                                       0L,                                      // keyderivation << 48,
                                       cipher,                                  // encryption algo
@@ -526,7 +531,7 @@ static int32_t zrtp_srtpSecretsReady(ZrtpContext* ctx, C_SrtpSecret_t* secrets, 
                                       (unsigned char*)secrets->saltResponder,  // Master Salt
                                       secrets->respSaltLen / 8,                // Master Salt length
                                       secrets->respKeyLen / 8,                 // encryption keyl
-                                      20,                                      // authentication key len
+                                      authKeyLen,                              // authentication key len
                                       secrets->respSaltLen / 8,                // session salt len
                                       secrets->srtpAuthTagLen / 8);            // authentication tag len
         }
@@ -538,7 +543,6 @@ static int32_t zrtp_srtpSecretsReady(ZrtpContext* ctx, C_SrtpSecret_t* secrets, 
         // key derivation rate is 0 (disabled). For ZRTP this is the
         // case: the key derivation is defined as 2^48
         // which is effectively 0.
-        zsrtp_newCryptoContextForSSRC(senderCryptoContext, zrtp->localSSRC, 0, 0L);
         zsrtp_deriveSrtpKeys(senderCryptoContext, 0L);
         zrtp->srtpSend = senderCryptoContext;
     }
@@ -548,7 +552,7 @@ static int32_t zrtp_srtpSecretsReady(ZrtpContext* ctx, C_SrtpSecret_t* secrets, 
         // See comment above.
         if (secrets->role == Initiator) {
             recvCryptoContext = zsrtp_CreateWrapper(
-                                    0,
+                                    zrtp->peerSSRC,
                                     0,
                                     0L,                                      // keyderivation << 48,
                                     cipher,                                  // encryption algo
@@ -558,13 +562,13 @@ static int32_t zrtp_srtpSecretsReady(ZrtpContext* ctx, C_SrtpSecret_t* secrets, 
                                     (unsigned char*)secrets->saltResponder,  // Master Salt
                                     secrets->respSaltLen / 8,                // Master Salt length
                                     secrets->respKeyLen / 8,                 // encryption keyl
-                                    20,                                      // authentication key len
+                                    authKeyLen,                              // authentication key len
                                     secrets->respSaltLen / 8,                // session salt len
                                     secrets->srtpAuthTagLen / 8);            // authentication tag len
         }
         else {
             recvCryptoContext = zsrtp_CreateWrapper(
-                                    0,
+                                    zrtp->peerSSRC,
                                     0,
                                     0L,                                      // keyderivation << 48,
                                     cipher,                                  // encryption algo
@@ -574,7 +578,7 @@ static int32_t zrtp_srtpSecretsReady(ZrtpContext* ctx, C_SrtpSecret_t* secrets, 
                                     (unsigned char*)secrets->saltInitiator,  // Master Salt
                                     secrets->initSaltLen / 8,                // Master Salt length
                                     secrets->initKeyLen / 8,                 // encryption keyl
-                                    20,                                      // authentication key len
+                                    authKeyLen,                              // authentication key len
                                     secrets->initSaltLen / 8,                // session salt len
                                     secrets->srtpAuthTagLen / 8);            // authentication tag len
         }
@@ -590,11 +594,8 @@ static int32_t zrtp_srtpSecretsReady(ZrtpContext* ctx, C_SrtpSecret_t* secrets, 
         // key derivation rate is 0 (disabled). For ZRTP this is the
         // case: the key derivation is defined as 2^48
         // which is effectively 0.
-        if (zrtp->peerSSRC != 0) {
-            zsrtp_newCryptoContextForSSRC(recvCryptoContext, zrtp->peerSSRC, 0, 0L);
-            zsrtp_deriveSrtpKeys(recvCryptoContext, 0L);
-            zrtp->srtpReceive = recvCryptoContext;
-        }
+        zsrtp_deriveSrtpKeys(recvCryptoContext, 0L);
+        zrtp->srtpReceive = recvCryptoContext;
     }
     return 1;
 }
@@ -619,7 +620,7 @@ static void zrtp_srtpSecretsOff(ZrtpContext* ctx, int32_t part)
     }
 }
 
-static void zrtp_rtpSecretsOn(ZrtpContext* ctx, char* c, char* s, int32_t verified)
+static void zrtp_srtpSecretsOn(ZrtpContext* ctx, char* c, char* s, int32_t verified)
 {
     struct tp_zrtp *zrtp = (struct tp_zrtp*)ctx->userData;
 
@@ -828,15 +829,25 @@ static void transport_rtp_cb(void *user_data, void *pkt, pj_ssize_t size)
         else
         {
             rc = zsrtp_unprotect(zrtp->srtpReceive, pkt, size, &newLen);
-            zrtp->unprotect++;
             if (rc == 1)
             {
+                zrtp->unprotect++;
                 zrtp->stream_rtp_cb(zrtp->stream_user_data, pkt,
                                     newLen);
                 zrtp->unprotect_err = 0;
             }
             else
             {
+                if (rc == -1) {
+                    zrtp->userCallback->zrtp_showMessage(zrtp->userCallback->userData,
+                                                         zrtp_Warning, 
+                                                         zrtp_WarningSRTPauthError);
+                }
+                else {
+                    zrtp->userCallback->zrtp_showMessage(zrtp->userCallback->userData,
+                                                         zrtp_Warning,
+                                                         zrtp_WarningSRTPreplayError);
+                }
                 zrtp->unprotect_err = rc;
             }
         }

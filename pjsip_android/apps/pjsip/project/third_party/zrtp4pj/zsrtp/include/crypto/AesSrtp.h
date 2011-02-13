@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2005, 2004 Erik Eliasson, Johan Bilien
+  Copyright (C) 2005, 2004, 2010 Erik Eliasson, Johan Bilien, Werner Dittmann
 
   This library is free software; you can redistribute it and/or
   modify it under the terms of the GNU Lesser General Public
@@ -43,9 +43,10 @@
  */
 
 #include <stdint.h>
+#include <CryptoContext.h>
 
-#ifndef AES_BLOCK_SIZE
-#define AES_BLOCK_SIZE 16
+#ifndef SRTP_BLOCK_SIZE
+#define SRTP_BLOCK_SIZE 16
 #endif
 
 typedef struct _f8_ctx {
@@ -75,7 +76,7 @@ typedef struct _f8_ctx {
  */
 class AesSrtp {
 public:
-    AesSrtp();
+    AesSrtp(int algo = SrtpEncryptionAESCM);
     
     /**
      * Constructor that initializes key data
@@ -85,7 +86,7 @@ public:
      * @param key_length
      *     Number of key bytes.
      */
-    AesSrtp(uint8_t* key, int32_t key_length);
+    AesSrtp(uint8_t* key, int32_t key_length, int algo = SrtpEncryptionAESCM);
     
     ~AesSrtp();
 
@@ -269,6 +270,7 @@ private:
 		     int32_t length,
 		     uint8_t* out);
     void* key;
+    int32_t algorithm;
 };
 
 /**

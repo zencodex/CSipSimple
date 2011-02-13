@@ -20,18 +20,17 @@ LOCAL_SHARED_LIBRARIES := ssl crypto
 
 LOCAL_C_INCLUDES := $(LOCAL_PATH)/../ $(LOCAL_PATH)/../include/
 
-LOCAL_CFLAGS := -DMONOLITH
+LOCAL_CFLAGS := -DMONOLITH -DOPENSSL_NO_ECDSA 
 
-LOCAL_CFLAGS += -DOPENSSL_NO_ECDH
 
 include $(LOCAL_PATH)/../android-config.mk
 
 
 # These flags omit whole features from the commandline "openssl".
 # However, portions of these features are actually turned on.
-LOCAL_CFLAGS += -DOPENSSL_NO_EC -DOPENSSL_NO_ECDSA -DOPENSSL_NO_DTLS1
+LOCAL_CFLAGS +=   -DOPENSSL_NO_DTLS1
 
-
+#LOCAL_CFLAGS +=  -DOPENSSL_NO_EC -DOPENSSL_NO_ECDH
 
 LOCAL_MODULE_TAGS := optional
 

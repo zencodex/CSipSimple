@@ -867,13 +867,6 @@ static pj_status_t strm_start(pjmedia_aud_stream *s)
 
 	JNIEnv *jni_env = 0;
 	ATTACH_JVM(jni_env);
-	/*
-	jint attachResult = stream->jvm->AttachCurrentThread(&jni_env,NULL);
-	if (attachResult != 0) {
-		PJ_LOG(1, (THIS_FILE, "Not able to attach the jvm"));
-		return PJ_ENOMEM;
-	}
-	*/
 
 	//Set media in call
 	/*
