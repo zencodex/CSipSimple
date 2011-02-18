@@ -140,9 +140,14 @@ public:
 	virtual void on_nat_detect (const pj_stun_nat_detect_result *res) {}
 	virtual void on_mwi_info (pjsua_acc_id acc_id, const pj_str_t *mime_type, const pj_str_t *body) {}
 	
+	
+	virtual void on_setup_audio () {}
+	virtual void on_teardown_audio () {}
+	
 	virtual void on_zrtp_show_sas (const pj_str_t *sas, int verified) {}
 	virtual void on_zrtp_secure_on (const pj_str_t *cipher) {}
 	virtual void on_zrtp_secure_off () {}
+	
 };
 
 static Callback* registeredCallbackObject = NULL;
@@ -310,6 +315,14 @@ void on_mwi_info_wrapper (pjsua_acc_id acc_id, pjsua_mwi_info *mwi_info) {
 }
 
 
+void on_setup_audio_wrapper () {
+	registeredCallbackObject->on_setup_audio();
+}
+
+void on_teardown_audio_wrapper () {
+	registeredCallbackObject->on_teardown_audio();
+}
+
 void on_zrtp_show_sas_wrapper(void* data, char* sas, int verified){
 	pj_str_t sas_string = pj_str(sas);
 	registeredCallbackObject->on_zrtp_show_sas(&sas_string, verified);
@@ -437,6 +450,8 @@ public:
 	virtual void on_nat_detect (const pj_stun_nat_detect_result *res);
 	virtual void on_mwi_info (pjsua_acc_id acc_id, const pj_str_t *mime_type, const pj_str_t *body);
 	
+	virtual void on_setup_audio();
+	virtual void on_teardown_audio();
 	
 	virtual void on_zrtp_show_sas (const pj_str_t *sas, int verified);
 	virtual void on_zrtp_secure_on (const pj_str_t *cipher);
