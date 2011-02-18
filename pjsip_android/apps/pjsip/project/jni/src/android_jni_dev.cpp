@@ -20,11 +20,17 @@
 
 #include "android_dev.h"
 
+
 #if PJMEDIA_AUDIO_DEV_HAS_ANDROID
 
-
+#define USE_CSIPSIMPLE 1
 #define COMPATIBLE_ALSA 1
 
+extern "C" {
+//Should not be done there.
+void on_setup_audio_wrapper();
+void on_teardown_audio_wrapper();
+}
 
 #define THIS_FILE	"android_jni_dev.cpp"
 #define DRIVER_NAME	"ANDROID"
@@ -76,7 +82,6 @@ struct android_aud_stream
 
 //	pj_sem_t *audio_launch_sem;
 
-	jclass ua_class;
 
 
 
@@ -545,7 +550,6 @@ static pj_status_t android_create_stream(pjmedia_aud_dev_factory *f,
 	pj_pool_t *pool;
 	struct android_aud_stream *stream;
 	pj_status_t status;
-	int has_set_in_call = 0;
 
 	PJ_ASSERT_RETURN(play_cb && rec_cb && p_aud_strm, PJ_EINVAL);
 
@@ -608,24 +612,6 @@ static pj_status_t android_create_stream(pjmedia_aud_dev_factory *f,
 
 	PJ_LOG(3, (THIS_FILE, "Sample format is : %d for %d ", sampleFormat, param->bits_per_sample));
 
-
-	stream->ua_class = (jclass)jni_env->NewGlobalRef(jni_env->FindClass("com/csipsimple/service/SipService"));
-	if (stream->ua_class == 0) {
-		PJ_LOG(1, (THIS_FILE, "Not able to find sipservice class"));
-		goto on_error;
-	}
-
-	//Set media in call
-	{
-
-		jmethodID setincall_method = jni_env->GetStaticMethodID(stream->ua_class, "setAudioInCall", "()V");
-		if(setincall_method == 0){
-			goto on_error;
-		}
-		jni_env->CallStaticVoidMethod(stream->ua_class, setincall_method);
-	}
-
-	has_set_in_call = 1;
 
 
 	if (stream->dir & PJMEDIA_DIR_CAPTURE) {
@@ -787,18 +773,6 @@ static pj_status_t android_create_stream(pjmedia_aud_dev_factory *f,
 	return PJ_SUCCESS;
 
 on_error:
-	if(has_set_in_call == 1){
-		//Unset media in call
-		{
-			jmethodID unsetincall_method = jni_env->GetStaticMethodID(stream->ua_class, "unsetAudioInCall", "()V");
-			if(unsetincall_method == 0){
-				DETACH_JVM(jni_env);
-				pj_pool_release(pool);
-				return PJ_ENOMEM;
-			}
-			jni_env->CallStaticVoidMethod(stream->ua_class, unsetincall_method);
-		}
-	}
 
 	DETACH_JVM(jni_env);
 	pj_pool_release(pool);
@@ -862,23 +836,17 @@ static pj_status_t strm_start(pjmedia_aud_stream *s)
 {
 	struct android_aud_stream *stream = (struct android_aud_stream*)s;
 
+	int has_set_in_call = 0;
+
 	PJ_LOG(4,(THIS_FILE, "Starting %s stream..", stream->name.ptr));
 	stream->quit_flag = 0;
 
 	JNIEnv *jni_env = 0;
 	ATTACH_JVM(jni_env);
 
-	//Set media in call
-	/*
-	{
 
-		jmethodID setincall_method = jni_env->GetStaticMethodID(stream->ua_class, "setAudioInCall", "()V");
-		if(setincall_method == 0){
-			return PJ_ENOMEM;
-		}
-		jni_env->CallStaticVoidMethod(stream->ua_class, setincall_method);
-	}
-	*/
+	on_setup_audio_wrapper();
+	has_set_in_call = 1;
 
 
 	pj_status_t status;
@@ -907,6 +875,9 @@ static pj_status_t strm_start(pjmedia_aud_stream *s)
 	status = PJ_SUCCESS;
 
 on_error:
+	if(has_set_in_call == 1){
+		on_teardown_audio_wrapper();
+	}
 	DETACH_JVM(jni_env);
 	if(status != PJ_SUCCESS){
 		strm_destroy(&stream->base);
@@ -968,14 +939,7 @@ static pj_status_t strm_stop(pjmedia_aud_stream *s)
 
 
 	//Unset media in call
-	{
-		jmethodID unsetincall_method = jni_env->GetStaticMethodID(stream->ua_class, "unsetAudioInCall", "()V");
-		if(unsetincall_method == 0){
-			DETACH_JVM(jni_env);
-			return PJ_ENOMEM;
-		}
-		jni_env->CallStaticVoidMethod(stream->ua_class, unsetincall_method);
-	}
+	on_teardown_audio_wrapper();
 
 	PJ_LOG(4,(THIS_FILE, "Stopping Done"));
 
