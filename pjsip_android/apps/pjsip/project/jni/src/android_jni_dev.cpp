@@ -19,18 +19,13 @@
 // It's deeply inspired from port audio
 
 #include "android_dev.h"
-
+#include "audio_dev_wrap.h"
 
 #if PJMEDIA_AUDIO_DEV_HAS_ANDROID
 
 #define USE_CSIPSIMPLE 1
 #define COMPATIBLE_ALSA 1
 
-extern "C" {
-//Should not be done there.
-void on_setup_audio_wrapper();
-void on_teardown_audio_wrapper();
-}
 
 #define THIS_FILE	"android_jni_dev.cpp"
 #define DRIVER_NAME	"ANDROID"
@@ -550,6 +545,7 @@ static pj_status_t android_create_stream(pjmedia_aud_dev_factory *f,
 	pj_pool_t *pool;
 	struct android_aud_stream *stream;
 	pj_status_t status;
+	int has_set_in_call = 0;
 
 	PJ_ASSERT_RETURN(play_cb && rec_cb && p_aud_strm, PJ_EINVAL);
 
@@ -593,6 +589,9 @@ static pj_status_t android_create_stream(pjmedia_aud_dev_factory *f,
 	ATTACH_JVM(jni_env);
 	jmethodID constructor_method=0, get_min_buffer_size_method = 0;
 
+
+	on_setup_audio_wrapper();
+	has_set_in_call = 1;
 
 /*
 	if (attachResult != 0) {
@@ -774,6 +773,9 @@ static pj_status_t android_create_stream(pjmedia_aud_dev_factory *f,
 
 on_error:
 
+	if(has_set_in_call == 1){
+		on_teardown_audio_wrapper();
+	}
 	DETACH_JVM(jni_env);
 	pj_pool_release(pool);
 	return PJ_ENOMEM;
@@ -836,7 +838,6 @@ static pj_status_t strm_start(pjmedia_aud_stream *s)
 {
 	struct android_aud_stream *stream = (struct android_aud_stream*)s;
 
-	int has_set_in_call = 0;
 
 	PJ_LOG(4,(THIS_FILE, "Starting %s stream..", stream->name.ptr));
 	stream->quit_flag = 0;
@@ -845,8 +846,6 @@ static pj_status_t strm_start(pjmedia_aud_stream *s)
 	ATTACH_JVM(jni_env);
 
 
-	on_setup_audio_wrapper();
-	has_set_in_call = 1;
 
 
 	pj_status_t status;
@@ -875,9 +874,6 @@ static pj_status_t strm_start(pjmedia_aud_stream *s)
 	status = PJ_SUCCESS;
 
 on_error:
-	if(has_set_in_call == 1){
-		on_teardown_audio_wrapper();
-	}
 	DETACH_JVM(jni_env);
 	if(status != PJ_SUCCESS){
 		strm_destroy(&stream->base);
