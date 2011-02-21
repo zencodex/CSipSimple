@@ -6,6 +6,11 @@ http://openssl.org/news/secadv_20090107.txt, and some backported OpenSSL code
 in crypto/0.9.9-dev.
 
 
+2009-09-09 Added blowfish and engine support
+           fries@desert.lnp.org
+
+
+
 Porting New Versions of OpenSSL
 ---
 
