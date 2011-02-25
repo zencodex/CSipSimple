@@ -9896,6 +9896,40 @@ SWIGEXPORT jlong JNICALL Java_org_pjsip_pjsua_pjsuaJNI_pjsua_1acc_1config_1reg_1
 }
 
 
+SWIGEXPORT void JNICALL Java_org_pjsip_pjsua_pjsuaJNI_pjsua_1acc_1config_1sub_1hdr_1list_1set(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_, jlong jarg2) {
+  pjsua_acc_config *arg1 = (pjsua_acc_config *) 0 ;
+  pjsip_hdr arg2 ;
+  pjsip_hdr *argp2 ;
+  
+  (void)jenv;
+  (void)jcls;
+  (void)jarg1_;
+  arg1 = *(pjsua_acc_config **)&jarg1; 
+  argp2 = *(pjsip_hdr **)&jarg2; 
+  if (!argp2) {
+    SWIG_JavaThrowException(jenv, SWIG_JavaNullPointerException, "Attempt to dereference null pjsip_hdr");
+    return ;
+  }
+  arg2 = *argp2; 
+  if (arg1) (arg1)->sub_hdr_list = arg2;
+}
+
+
+SWIGEXPORT jlong JNICALL Java_org_pjsip_pjsua_pjsuaJNI_pjsua_1acc_1config_1sub_1hdr_1list_1get(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_) {
+  jlong jresult = 0 ;
+  pjsua_acc_config *arg1 = (pjsua_acc_config *) 0 ;
+  pjsip_hdr result;
+  
+  (void)jenv;
+  (void)jcls;
+  (void)jarg1_;
+  arg1 = *(pjsua_acc_config **)&jarg1; 
+  result =  ((arg1)->sub_hdr_list);
+  *(pjsip_hdr **)&jresult = new pjsip_hdr((const pjsip_hdr &)result); 
+  return jresult;
+}
+
+
 SWIGEXPORT void JNICALL Java_org_pjsip_pjsua_pjsuaJNI_pjsua_1acc_1config_1mwi_1enabled_1set(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_, jint jarg2) {
   pjsua_acc_config *arg1 = (pjsua_acc_config *) 0 ;
   pj_bool_t arg2 ;
@@ -16866,6 +16900,8 @@ JNIEXPORT jint JNI_OnLoad(JavaVM *vm, void *reserved) {
 {"pjsua_acc_config_reg_uri_get", "(JLorg/pjsip/pjsua/pjsua_acc_config;)J", (void*)& Java_org_pjsip_pjsua_pjsuaJNI_pjsua_1acc_1config_1reg_1uri_1get},
 {"pjsua_acc_config_reg_hdr_list_set", "(JLorg/pjsip/pjsua/pjsua_acc_config;J)V", (void*)& Java_org_pjsip_pjsua_pjsuaJNI_pjsua_1acc_1config_1reg_1hdr_1list_1set},
 {"pjsua_acc_config_reg_hdr_list_get", "(JLorg/pjsip/pjsua/pjsua_acc_config;)J", (void*)& Java_org_pjsip_pjsua_pjsuaJNI_pjsua_1acc_1config_1reg_1hdr_1list_1get},
+{"pjsua_acc_config_sub_hdr_list_set", "(JLorg/pjsip/pjsua/pjsua_acc_config;J)V", (void*)& Java_org_pjsip_pjsua_pjsuaJNI_pjsua_1acc_1config_1sub_1hdr_1list_1set},
+{"pjsua_acc_config_sub_hdr_list_get", "(JLorg/pjsip/pjsua/pjsua_acc_config;)J", (void*)& Java_org_pjsip_pjsua_pjsuaJNI_pjsua_1acc_1config_1sub_1hdr_1list_1get},
 {"pjsua_acc_config_mwi_enabled_set", "(JLorg/pjsip/pjsua/pjsua_acc_config;I)V", (void*)& Java_org_pjsip_pjsua_pjsuaJNI_pjsua_1acc_1config_1mwi_1enabled_1set},
 {"pjsua_acc_config_mwi_enabled_get", "(JLorg/pjsip/pjsua/pjsua_acc_config;)I", (void*)& Java_org_pjsip_pjsua_pjsuaJNI_pjsua_1acc_1config_1mwi_1enabled_1get},
 {"pjsua_acc_config_publish_enabled_set", "(JLorg/pjsip/pjsua/pjsua_acc_config;I)V", (void*)& Java_org_pjsip_pjsua_pjsuaJNI_pjsua_1acc_1config_1publish_1enabled_1set},

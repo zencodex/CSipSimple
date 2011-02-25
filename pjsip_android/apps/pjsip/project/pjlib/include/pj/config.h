@@ -99,6 +99,7 @@
 #   undef PJ_LINUX
 #   define PJ_LINUX	    1
 #   include <pj/compat/os_linux.h>
+
 #elif defined(PJ_PALMOS) && PJ_PALMOS!=0
     /*
      * Palm

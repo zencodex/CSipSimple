@@ -1,4 +1,4 @@
-/* $Id: pjsua_core.c 3366 2010-11-16 03:07:46Z bennylp $ */
+/* $Id: pjsua_core.c 3412 2011-02-11 07:39:14Z ming $ */
 /* 
  * Copyright (C) 2008-2009 Teluu Inc. (http://www.teluu.com)
  * Copyright (C) 2003-2008 Benny Prijono <benny@prijono.org>
@@ -190,6 +190,7 @@ PJ_DEF(void) pjsua_acc_config_default(pjsua_acc_config *cfg)
     cfg->use_stream_ka = (PJMEDIA_STREAM_ENABLE_KA != 0);
 #endif
     pj_list_init(&cfg->reg_hdr_list);
+    pj_list_init(&cfg->sub_hdr_list);
     cfg->call_hold_type = PJSUA_CALL_HOLD_TYPE_DEFAULT;
 }
 

@@ -1531,7 +1531,6 @@ static void update_keep_alive(pjsua_acc *acc, pj_bool_t start,
 	 * Note that this applies only for UDP. For TCP/TLS, the keep-alive
 	 * is done by the transport layer.
 	 */
-
 	if (/*pjsua_var.stun_srv.ipv4.sin_family == 0 ||*/
 	    acc->cfg.ka_interval == 0 ||
 	    param->rdata->tp_info.transport->key.type != PJSIP_TRANSPORT_UDP)

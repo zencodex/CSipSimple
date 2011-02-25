@@ -1,4 +1,4 @@
-/* $Id: coreaudio_dev.c 3406 2011-01-20 03:32:14Z ming $ */
+/* $Id: coreaudio_dev.c 3413 2011-02-15 05:33:23Z ming $ */
 /*
  * Copyright (C) 2008-2010 Teluu Inc. (http://www.teluu.com)
  *
@@ -125,6 +125,8 @@ struct coreaudio_stream
     unsigned		 	 resample_buf_size;
 };
 
+/* Static variable */
+static struct coreaudio_factory *cf_instance = NULL;
 
 /* Prototypes */
 static pj_status_t ca_factory_init(pjmedia_aud_dev_factory *f);
@@ -234,7 +236,7 @@ static pj_status_t ca_factory_init(pjmedia_aud_dev_factory *f)
 #if COREAUDIO_MAC
     desc.componentSubType = kAudioUnitSubType_HALOutput;
 #else
-    desc.componentSubType = kAudioUnitSubType_VoiceProcessingIO;
+    desc.componentSubType = kAudioUnitSubType_RemoteIO;
 #endif
     desc.componentManufacturer = kAudioUnitManufacturer_Apple;
     desc.componentFlags = 0;
@@ -286,7 +288,7 @@ static pj_status_t ca_factory_init(pjmedia_aud_dev_factory *f)
     }
 
     /* Initialize the Audio Session */
-    ostatus = AudioSessionInitialize(NULL, NULL, interruptionListener, cf);
+    ostatus = AudioSessionInitialize(NULL, NULL, interruptionListener, NULL);
     if (ostatus != kAudioSessionNoError) {
 	PJ_LOG(4, (THIS_FILE,
 		   "Error: cannot initialize audio session services (%i)",
@@ -313,6 +315,8 @@ static pj_status_t ca_factory_init(pjmedia_aud_dev_factory *f)
 		   "Error: cannot listen for audio route change "
 		   "notifications (%i)", ostatus));
     }
+    
+    cf_instance = cf;
 #endif
 
     PJ_LOG(4, (THIS_FILE, "core audio initialized"));
@@ -334,13 +338,16 @@ static pj_status_t ca_factory_destroy(pjmedia_aud_dev_factory *f)
     AudioSessionRemovePropertyListenerWithUserData(
         kAudioSessionProperty_AudioRouteChange, propListener, cf);
 #endif
-
+    
     if (cf->pool) {
 	pj_pool_release(cf->pool);
 	cf->pool = NULL;
     }
 
     if (cf->mutex) {
+	pj_mutex_lock(cf->mutex);
+	cf_instance = NULL;
+	pj_mutex_unlock(cf->mutex);
 	pj_mutex_destroy(cf->mutex);
 	cf->mutex = NULL;
     }
@@ -660,9 +667,10 @@ OSStatus resampleProc(AudioConverterRef             inAudioConverter,
 	*ioNumberDataPackets = strm->resample_buf_size;
 
     ioData->mNumberBuffers = 1;
-    ioData->mBuffers[0].mNumberChannels = 1;
+    ioData->mBuffers[0].mNumberChannels = strm->streamFormat.mChannelsPerFrame;
     ioData->mBuffers[0].mData = strm->resample_buf_ptr;
     ioData->mBuffers[0].mDataByteSize = *ioNumberDataPackets *
+					strm->streamFormat.mChannelsPerFrame *
 					strm->param.bits_per_sample >> 3;
 
     return noErr;
@@ -725,7 +733,8 @@ static OSStatus resample_callback(void                       *inRefCon,
 
     if (nsamples >= resampleSize) {
 	pjmedia_frame frame;
-	UInt32 resampleOutput = strm->param.samples_per_frame;
+	UInt32 resampleOutput = strm->param.samples_per_frame /
+				strm->streamFormat.mChannelsPerFrame;
 	AudioBufferList ab;
 
 	frame.type = PJMEDIA_FRAME_TYPE_AUDIO;
@@ -735,7 +744,7 @@ static OSStatus resample_callback(void                       *inRefCon,
 	frame.bit_info = 0;
 	
 	ab.mNumberBuffers = 1;
-	ab.mBuffers[0].mNumberChannels = 1;
+	ab.mBuffers[0].mNumberChannels = strm->streamFormat.mChannelsPerFrame;
 	ab.mBuffers[0].mData = strm->rec_buf;
 	ab.mBuffers[0].mDataByteSize = frame.size;
 
@@ -778,7 +787,8 @@ static OSStatus resample_callback(void                       *inRefCon,
 	    /* Do the resample */
 	    strm->resample_buf_ptr = input;
 	    ab.mBuffers[0].mDataByteSize = frame.size;
-	    resampleOutput = strm->param.samples_per_frame;
+	    resampleOutput = strm->param.samples_per_frame /
+			     strm->streamFormat.mChannelsPerFrame;
 	    ostatus = AudioConverterFillComplexBuffer(strm->resample,
 						      resampleProc,
 						      strm,
@@ -1049,8 +1059,6 @@ static void propListener(void 			*inClientData,
 {
     struct coreaudio_factory *cf = (struct coreaudio_factory*)inClientData;
     struct stream_list *it, *itBegin;
-    pj_status_t status;
-    OSStatus ostatus;
     CFDictionaryRef routeDictionary;
     CFNumberRef reason;
     SInt32 reasonVal;
@@ -1066,14 +1074,8 @@ static void propListener(void 			*inClientData,
 		 CFSTR(kAudioSession_AudioRouteChangeKey_Reason));
     CFNumberGetValue(reason, kCFNumberSInt32Type, &reasonVal);
 
-    if (reasonVal == kAudioSessionRouteChangeReason_CategoryChange) {
-	PJ_LOG(3, (THIS_FILE, "audio route changed due to category change, "
-		   "ignoring..."));
-	return;
-    }
-    if (reasonVal == kAudioSessionRouteChangeReason_Override) {
-	PJ_LOG(3, (THIS_FILE, "audio route changed due to user override, "
-		   "ignoring..."));
+    if (reasonVal != kAudioSessionRouteChangeReason_OldDeviceUnavailable) {
+	PJ_LOG(3, (THIS_FILE, "ignoring audio route change..."));
 	return;
     }
 
@@ -1082,83 +1084,67 @@ static void propListener(void 			*inClientData,
     pj_mutex_lock(cf->mutex);
     itBegin = &cf->streams;
     for (it = itBegin->next; it != itBegin; it = it->next) {
-	pj_bool_t running = it->stream->running;
-
 	if (it->stream->interrupted)
 	    continue;
 
+	/* This does not seem necessary anymore. Just make sure	
+	 * that your application can receive remote control
+	 * events by adding the code:
+	 *     [[UIApplication sharedApplication] 
+	 *      beginReceivingRemoteControlEvents];
+	 * Otherwise audio route change (such as headset plug/unplug)
+	 * will not be processed while your application is in the 
+	 * background mode.
+	 */
+	/*
 	status = ca_stream_stop((pjmedia_aud_stream *)it->stream);
-
-	ostatus = AudioUnitUninitialize(it->stream->io_units[0]);
-	ostatus = AudioComponentInstanceDispose(it->stream->io_units[0]);
-
-	status = create_audio_unit(it->stream->cf->io_comp, 0,
-				   it->stream->param.dir,
-				   it->stream, &it->stream->io_units[0]);
-	if (status != PJ_SUCCESS) {
-	    PJ_LOG(3, (THIS_FILE,
-		       "Error: failed to create a replacement audio unit (%i)",
-		       status));
-	    continue;
-	}
-
-	if (running) {
-	    status = ca_stream_start((pjmedia_aud_stream *)it->stream);
-	}
+	status = ca_stream_start((pjmedia_aud_stream *)it->stream);
 	if (status != PJ_SUCCESS) {
 	    PJ_LOG(3, (THIS_FILE,
 		       "Error: failed to restart the audio unit (%i)",
 		       status));
 	    continue;
 	}
-	PJ_LOG(3, (THIS_FILE, "core audio unit successfully reinstantiated"));
+	PJ_LOG(3, (THIS_FILE, "core audio unit successfully restarted"));
+	*/
     }
     pj_mutex_unlock(cf->mutex);
 }
 
 static void interruptionListener(void *inClientData, UInt32 inInterruption)
 {
-    struct coreaudio_factory *cf = (struct coreaudio_factory*)inClientData;
     struct stream_list *it, *itBegin;
     pj_status_t status;
-    OSStatus ostatus;
-    pj_assert(cf);
 
     PJ_LOG(3, (THIS_FILE, "Session interrupted! --- %s ---",
 	   inInterruption == kAudioSessionBeginInterruption ?
 	   "Begin Interruption" : "End Interruption"));
 
-    pj_mutex_lock(cf->mutex);
-    itBegin = &cf->streams;
+    if (!cf_instance)
+	return;
+    
+    pj_mutex_lock(cf_instance->mutex);
+    itBegin = &cf_instance->streams;
     for (it = itBegin->next; it != itBegin; it = it->next) {
-	if (!it->stream->running)
-	    continue;
-
 	if (inInterruption == kAudioSessionEndInterruption &&
 	    it->stream->interrupted == PJ_TRUE)
 	{
-	    ostatus = AudioUnitUninitialize(it->stream->io_units[0]);
-	    ostatus = AudioComponentInstanceDispose(it->stream->io_units[0]);
-
-	    status = create_audio_unit(it->stream->cf->io_comp, 0,
-				       it->stream->param.dir,
-				       it->stream, &it->stream->io_units[0]);
-	    if (status != PJ_SUCCESS) {
-		PJ_LOG(3, (THIS_FILE,
-			   "Error: failed to create a replacement "
-			   "audio unit (%i)", ostatus));
-		continue;
-	    }
-
+	    /* Make sure that your application can receive remote control
+	     * events by adding the code:
+	     *     [[UIApplication sharedApplication] 
+	     *      beginReceivingRemoteControlEvents];
+	     * Otherwise audio unit will fail to restart while your
+	     * application is in the background mode.
+	     */
 	    status = ca_stream_start((pjmedia_aud_stream*)it->stream);
 	    if (status != PJ_SUCCESS) {
 		PJ_LOG(3, (THIS_FILE,
 			   "Error: failed to restart the audio unit (%i)",
-			   ostatus));
-		       continue;
+			   status));
+		continue;
 	    }
-	    PJ_LOG(3, (THIS_FILE, "core audio unit successfully "
-		       "reinstantiated"));
+	    PJ_LOG(3, (THIS_FILE, "core audio unit successfully resumed"
+		       " after interruption"));
 	} else if (inInterruption == kAudioSessionBeginInterruption &&
 		   it->stream->running == PJ_TRUE)
 	{
@@ -1166,7 +1152,7 @@ static void interruptionListener(void *inClientData, UInt32 inInterruption)
 	    it->stream->interrupted = PJ_TRUE;
 	}
     }
-    pj_mutex_unlock(cf->mutex);
+    pj_mutex_unlock(cf_instance->mutex);
 }
 
 #endif
@@ -1521,6 +1507,10 @@ static pj_status_t ca_factory_create_stream(pjmedia_aud_dev_factory *f,
 	ca_stream_set_cap(&strm->base,
 		          PJMEDIA_AUD_DEV_CAP_EC,
 		          &param->ec_enabled);
+    } else {
+	pj_bool_t ec = PJ_FALSE;
+	ca_stream_set_cap(&strm->base,
+		          PJMEDIA_AUD_DEV_CAP_EC, &ec);
     }
 
     strm->io_units[0] = strm->io_units[1] = NULL;
@@ -1953,8 +1943,6 @@ static pj_status_t ca_stream_start(pjmedia_aud_stream *strm)
     struct coreaudio_stream *stream = (struct coreaudio_stream*)strm;
     OSStatus ostatus;
     UInt32 i;
-    pj_bool_t should_activate;
-    struct stream_list *it, *itBegin;
 
     if (stream->running)
 	return PJ_SUCCESS;
@@ -1971,6 +1959,10 @@ static pj_status_t ca_stream_start(pjmedia_aud_stream *strm)
 	    return PJMEDIA_AUDIODEV_ERRNO_FROM_COREAUDIO(ostatus);
     }
 
+#if !COREAUDIO_MAC
+    AudioSessionSetActive(true);
+#endif
+    
     for (i = 0; i < 2; i++) {
 	if (stream->io_units[i] == NULL) break;
 	ostatus = AudioOutputUnitStart(stream->io_units[i]);
@@ -1981,29 +1973,7 @@ static pj_status_t ca_stream_start(pjmedia_aud_stream *strm)
 	}
     }
 
-    /*
-     * Make sure this stream is not in the list of running streams.
-     * If this is the 1st stream that is running we need to activate
-     * the audio session.
-     */
-    pj_mutex_lock(stream->cf->mutex);
-    pj_assert(!pj_list_empty(&stream->cf->streams));
-    pj_assert(!pj_list_empty(&stream->list_entry));
-    should_activate = PJ_TRUE;
-    itBegin = &stream->cf->streams;
-    for (it = itBegin->next; it != itBegin; it = it->next) {
-	if (it->stream->running) {
-	    should_activate = PJ_FALSE;
-	    break;
-	}
-    }
     stream->running = PJ_TRUE;
-    pj_mutex_unlock(stream->cf->mutex);
-
-#if !COREAUDIO_MAC
-    if (should_activate)
-	AudioSessionSetActive(true);
-#endif
 
     PJ_LOG(4, (THIS_FILE, "core audio stream started"));
 
@@ -2032,11 +2002,7 @@ static pj_status_t ca_stream_stop(pjmedia_aud_stream *strm)
 	}
     }
 
-    /*
-     * Make sure this stream is not in the list of running streams.
-     * If this is the 1st stream that is running we need to activate
-     * the audio session.
-     */
+    /* Check whether we need to deactivate the audio session. */
     pj_mutex_lock(stream->cf->mutex);
     pj_assert(!pj_list_empty(&stream->cf->streams));
     pj_assert(!pj_list_empty(&stream->list_entry));
