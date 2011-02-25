@@ -1,4 +1,4 @@
-/* $Id: g722.c 3250 2010-08-05 10:41:48Z nanang $ */
+/* $Id: g722.c 3416 2011-02-18 09:34:28Z nanang $ */
 /* 
  * Copyright (C) 2008-2009 Teluu Inc. (http://www.teluu.com)
  * Copyright (C) 2003-2008 Benny Prijono <benny@prijono.org>
@@ -38,9 +38,9 @@
 #define THIS_FILE   "g722.c"
 
 /* Defines */
-#define PTIME			(20)
+#define PTIME			(10)
 #define SAMPLES_PER_FRAME	(16000 * PTIME /1000)
-#define FRAME_LEN		(160)
+#define FRAME_LEN		(80)
 #define PLC_DISABLED		0
 
 /* Tracing */
@@ -291,7 +291,7 @@ static pj_status_t g722_default_attr( pjmedia_codec_factory *factory,
     attr->info.frm_ptime = PTIME;
     attr->info.pt = PJMEDIA_RTP_PT_G722;
 
-    attr->setting.frm_per_pkt = 1;
+    attr->setting.frm_per_pkt = 2;
     attr->setting.vad = 1;
     attr->setting.plc = 1;
 

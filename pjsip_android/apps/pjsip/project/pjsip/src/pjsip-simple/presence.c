@@ -1,4 +1,4 @@
-/* $Id: presence.c 3363 2010-11-10 12:13:46Z bennylp $ */
+/* $Id: presence.c 3412 2011-02-11 07:39:14Z ming $ */
 /* 
  * Copyright (C) 2008-2009 Teluu Inc. (http://www.teluu.com)
  * Copyright (C) 2003-2008 Benny Prijono <benny@prijono.org>
@@ -352,6 +352,16 @@ PJ_DEF(pj_status_t) pjsip_pres_initiate( pjsip_evsub *sub,
 {
     return pjsip_evsub_initiate(sub, &pjsip_subscribe_method, expires, 
 				p_tdata);
+}
+
+
+/*
+ * Add custom headers.
+ */
+PJ_DEF(pj_status_t) pjsip_pres_add_header( pjsip_evsub *sub,
+					   const pjsip_hdr *hdr_list )
+{
+    return pjsip_evsub_add_header( sub, hdr_list );
 }
 
 

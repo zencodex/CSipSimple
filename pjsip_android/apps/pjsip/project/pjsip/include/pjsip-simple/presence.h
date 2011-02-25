@@ -1,4 +1,4 @@
-/* $Id: presence.h 3337 2010-10-12 11:35:55Z bennylp $ */
+/* $Id: presence.h 3412 2011-02-11 07:39:14Z ming $ */
 /* 
  * Copyright (C) 2008-2009 Teluu Inc. (http://www.teluu.com)
  * Copyright (C) 2003-2008 Benny Prijono <benny@prijono.org>
@@ -180,6 +180,18 @@ PJ_DECL(pj_status_t) pjsip_pres_initiate( pjsip_evsub *sub,
 					  pj_int32_t expires,
 					  pjsip_tx_data **p_tdata);
 
+
+/**
+ * Add a list of headers to the subscription instance. The list of headers
+ * will be added to outgoing presence subscription requests.
+ *
+ * @param sub		Subscription instance.
+ * @param hdr_list	List of headers to be added.
+ *
+ * @return		PJ_SUCCESS on success.
+ */
+PJ_DECL(pj_status_t) pjsip_pres_add_header( pjsip_evsub *sub,
+					    const pjsip_hdr *hdr_list );
 
 
 /**

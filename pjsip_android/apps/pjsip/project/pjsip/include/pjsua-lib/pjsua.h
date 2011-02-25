@@ -1,4 +1,4 @@
-/* $Id: pjsua.h 3366 2010-11-16 03:07:46Z bennylp $ */
+/* $Id: pjsua.h 3412 2011-02-11 07:39:14Z ming $ */
 /* 
  * Copyright (C) 2008-2009 Teluu Inc. (http://www.teluu.com)
  * Copyright (C) 2003-2008 Benny Prijono <benny@prijono.org>
@@ -2179,6 +2179,12 @@ typedef struct pjsua_acc_config
      * request.
      */
     pjsip_hdr	    reg_hdr_list;
+
+    /** 
+     * The optional custom SIP headers to be put in the presence
+     * subscription request.
+     */
+    pjsip_hdr	    sub_hdr_list;
 
     /**
      * Subscribe to message waiting indication events (RFC 3842).

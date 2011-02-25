@@ -1,4 +1,4 @@
-/* $Id: pjsua_pres.c 3339 2010-10-12 12:45:15Z bennylp $ */
+/* $Id: pjsua_pres.c 3412 2011-02-11 07:39:14Z ming $ */
 /* 
  * Copyright (C) 2008-2009 Teluu Inc. (http://www.teluu.com)
  * Copyright (C) 2003-2008 Benny Prijono <benny@prijono.org>
@@ -890,6 +890,7 @@ static pj_bool_t pres_on_rx_request(pjsip_rx_data *rdata)
     else
 	uapres->remote[status] = '\0';
 
+    pjsip_evsub_add_header(sub, &acc->cfg.sub_hdr_list);
     pjsip_evsub_set_mod_data(sub, pjsua_var.mod.id, uapres);
 
     /* Add server subscription to the list: */

@@ -1,4 +1,4 @@
-/* $Id: ipp_codecs.c 3288 2010-08-18 15:08:30Z nanang $ */
+/* $Id: ipp_codecs.c 3417 2011-02-22 07:31:01Z nanang $ */
 /* 
  * Copyright (C) 2008-2009 Teluu Inc. (http://www.teluu.com)
  * Copyright (C) 2003-2008 Benny Prijono <benny@prijono.org>
@@ -1618,7 +1618,9 @@ static pj_status_t  ipp_codec_recover(pjmedia_codec *codec,
 #   pragma comment( lib, "ippcore.lib")
 #   pragma comment( lib, "ipps.lib")
 #   pragma comment( lib, "ippsc.lib")
-#   pragma comment( lib, "ippsr.lib")
+#   if defined(IPP_VERSION_MAJOR) && IPP_VERSION_MAJOR<=6
+#	pragma comment( lib, "ippsr.lib")
+#   endif
 //#   pragma comment( lib, "ippcorel.lib")
 //#   pragma comment( lib, "ippsemerged.lib")
 //#   pragma comment( lib, "ippsmerged.lib")
