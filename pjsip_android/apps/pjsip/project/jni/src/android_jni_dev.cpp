@@ -590,7 +590,10 @@ static pj_status_t android_create_stream(pjmedia_aud_dev_factory *f,
 	jmethodID constructor_method=0, get_min_buffer_size_method = 0;
 
 
-	on_setup_audio_wrapper();
+	status = on_setup_audio_wrapper(param->clock_rate);
+	if(status != PJ_SUCCESS){
+		return PJMEDIA_EAUD_INVOP;
+	}
 	has_set_in_call = 1;
 
 /*

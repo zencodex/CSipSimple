@@ -141,7 +141,7 @@ public:
 	virtual void on_mwi_info (pjsua_acc_id acc_id, const pj_str_t *mime_type, const pj_str_t *body) {}
 	
 	
-	virtual void on_setup_audio () {}
+	virtual pj_status_t on_setup_audio (int clock_rate) {}
 	virtual void on_teardown_audio () {}
 	
 	virtual void on_zrtp_show_sas (const pj_str_t *sas, int verified) {}
@@ -315,8 +315,8 @@ void on_mwi_info_wrapper (pjsua_acc_id acc_id, pjsua_mwi_info *mwi_info) {
 }
 
 
-void on_setup_audio_wrapper () {
-	registeredCallbackObject->on_setup_audio();
+pj_status_t on_setup_audio_wrapper (int clock_rate) {
+	return registeredCallbackObject->on_setup_audio(clock_rate);
 }
 
 void on_teardown_audio_wrapper () {
@@ -450,7 +450,7 @@ public:
 	virtual void on_nat_detect (const pj_stun_nat_detect_result *res);
 	virtual void on_mwi_info (pjsua_acc_id acc_id, const pj_str_t *mime_type, const pj_str_t *body);
 	
-	virtual void on_setup_audio();
+	virtual pj_status_t on_setup_audio(int clock_rate);
 	virtual void on_teardown_audio();
 	
 	virtual void on_zrtp_show_sas (const pj_str_t *sas, int verified);
