@@ -50,9 +50,10 @@
     /* Fine tune Speex's default settings for best performance/quality */
     #define PJMEDIA_CODEC_SPEEX_DEFAULT_QUALITY 5
 
-    /* For CPU reason, disable speex AEC and use the echo suppressor. */
-   // #define PJMEDIA_HAS_SPEEX_AEC		0
-
+    /* If no floating point, no speex AEC and use the echo suppressor. */
+    #define PJMEDIA_HAS_SPEEX_AEC		PJ_HAS_FLOATING_POINT
+	/* If no floating point, no iLBC codec. */
+	#define PJMEDIA_HAS_ILBC_CODEC PJ_HAS_FLOATING_POINT
 
     /* Previously, resampling is disabled due to performance reason and
      * this condition prevented some 'light' wideband codecs (e.g: G722.1)
