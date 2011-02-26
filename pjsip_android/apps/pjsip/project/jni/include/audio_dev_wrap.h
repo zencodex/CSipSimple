@@ -13,7 +13,7 @@
 PJ_BEGIN_DECL
 
 //Should not be done there.
-PJ_DECL(void) on_setup_audio_wrapper();
+PJ_DECL(pj_status_t) on_setup_audio_wrapper(int clock_rate);
 PJ_DECL(void) on_teardown_audio_wrapper();
 
 PJ_END_DECL

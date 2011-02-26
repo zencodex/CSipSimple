@@ -445,7 +445,10 @@ static pj_status_t opensl_create_stream(pjmedia_aud_dev_factory *f,
 			param->channel_count));
 
 
-	on_setup_audio_wrapper();
+	status = on_setup_audio_wrapper(param->clock_rate);
+	if(status != PJ_SUCCESS){
+		return PJMEDIA_EAUD_INVOP;
+	}
 	has_set_in_call = 1;
 
 
