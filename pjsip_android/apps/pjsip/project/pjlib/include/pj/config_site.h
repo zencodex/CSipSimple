@@ -53,7 +53,10 @@
     /* If no floating point, no speex AEC and use the echo suppressor. */
     #define PJMEDIA_HAS_SPEEX_AEC		PJ_HAS_FLOATING_POINT
 	/* If no floating point, no iLBC codec. */
-	#define PJMEDIA_HAS_ILBC_CODEC PJ_HAS_FLOATING_POINT
+#if defined(PJMEDIA_HAS_ILBC_CODEC) && PJMEDIA_HAS_ILBC_CODEC == 1
+	#undef PJMEDIA_HAS_ILBC_CODEC
+	#define PJMEDIA_HAS_ILBC_CODEC 		PJ_HAS_FLOATING_POINT
+#endif
 
     /* Previously, resampling is disabled due to performance reason and
      * this condition prevented some 'light' wideband codecs (e.g: G722.1)
