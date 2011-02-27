@@ -645,10 +645,12 @@ static pj_status_t android_create_stream(pjmedia_aud_dev_factory *f,
 		if(inputBuffSizeRec <= 4096){
 			inputBuffSizeRec = 4096 * 3/2;
 		}
+		int frameSizeInBytes = (param->bits_per_sample == 8) ? 1 : 2;
+		if ( inputBuffSizeRec % frameSizeInBytes != 0 ){
+			inputBuffSizeRec ++;
+		}
 
 		PJ_LOG(3, (THIS_FILE, "Min record buffer %d", inputBuffSizeRec));
-
-
 
 		if(inputBuffSizeRec > inputBuffSize){
 			inputBuffSize = inputBuffSizeRec;
@@ -688,10 +690,13 @@ static pj_status_t android_create_stream(pjmedia_aud_dev_factory *f,
 			inputBuffSizePlay = 2*2*1024*param->clock_rate/8000;
 		}
 
+		int frameSizeInBytes = (param->bits_per_sample == 8) ? 1 : 2;
+		if ( inputBuffSizePlay % frameSizeInBytes != 0 ){
+			inputBuffSizePlay ++;
+		}
 
 		//inputBuffSizePlay = inputBuffSizePlay << 1;
 		PJ_LOG(3, (THIS_FILE, "Min play buffer %d", inputBuffSizePlay));
-
 
 		if(inputBuffSizePlay > inputBuffSize){
 			inputBuffSize = inputBuffSizePlay;
@@ -723,10 +728,7 @@ static pj_status_t android_create_stream(pjmedia_aud_dev_factory *f,
 			PJ_LOG(1, (THIS_FILE, "Not able to instantiate record class"));
 			goto on_error;
 		}
-
-		//TODO check if initialized properly
-
-		PJ_LOG(3, (THIS_FILE, "We have the instance done"));
+		PJ_LOG(3, (THIS_FILE, "We have capture the instance done"));
 
 	}
 
@@ -760,7 +762,7 @@ static pj_status_t android_create_stream(pjmedia_aud_dev_factory *f,
 
 		//TODO check if initialized properly
 
-		PJ_LOG(3, (THIS_FILE, "We have the instance done"));
+		PJ_LOG(3, (THIS_FILE, "We have the track instance done"));
 
 	}
 
