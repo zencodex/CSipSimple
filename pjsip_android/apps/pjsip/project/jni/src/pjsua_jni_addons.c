@@ -465,7 +465,6 @@ PJ_DECL(pj_status_t) send_keep_alive(int acc_id) {
 
 
 
-
 // Android app glue
 
 #define LOGV(...) __android_log_print(ANDROID_LOG_VERBOSE, "libpjsip", __VA_ARGS__)
@@ -652,3 +651,15 @@ PJ_DECL(pj_status_t) set_turn_cfg(pjsua_media_config *media_cfg, pj_str_t userna
 	 }
 }
 
+
+PJ_DECL(void) set_use_compact_form(pj_bool_t use_compact_form) {
+	extern pj_bool_t pjsip_use_compact_form;
+	extern pj_bool_t pjsip_include_allow_hdr_in_dlg;
+	extern pj_bool_t pjmedia_add_rtpmap_for_static_pt;
+
+	pjsip_use_compact_form = use_compact_form ? PJ_TRUE : PJ_FALSE;
+	/* do not transmit Allow header */
+	pjsip_include_allow_hdr_in_dlg = use_compact_form ? PJ_FALSE : PJ_TRUE;
+	/* Do not include rtpmap for static payload types (<96) */
+	pjmedia_add_rtpmap_for_static_pt = use_compact_form ? PJ_FALSE : PJ_TRUE;
+}
