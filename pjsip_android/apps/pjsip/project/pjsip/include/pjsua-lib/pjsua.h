@@ -1,4 +1,4 @@
-/* $Id: pjsua.h 3412 2011-02-11 07:39:14Z ming $ */
+/* $Id: pjsua.h 3441 2011-03-15 03:20:37Z ming $ */
 /* 
  * Copyright (C) 2008-2009 Teluu Inc. (http://www.teluu.com)
  * Copyright (C) 2003-2008 Benny Prijono <benny@prijono.org>
@@ -2309,6 +2309,14 @@ typedef struct pjsua_acc_config
      * default interval will be used (PJSUA_REG_INTERVAL, 300 seconds).
      */
     unsigned	    reg_timeout;
+
+    /**
+     * Specify the number of seconds to refresh the client registration
+     * before the registration expires.
+     *
+     * Default: PJSIP_REGISTER_CLIENT_DELAY_BEFORE_REFRESH, 5 seconds
+     */
+    unsigned	    reg_delay_before_refresh;
 
     /**
      * Specify the maximum time to wait for unregistration requests to

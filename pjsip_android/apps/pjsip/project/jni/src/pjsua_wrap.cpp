@@ -2053,7 +2053,7 @@ void SwigDirector_Callback::swig_connect_director(JNIEnv *jenv, jobject jself, j
       "on_typing", "(ILorg/pjsip/pjsua/pj_str_t;Lorg/pjsip/pjsua/pj_str_t;Lorg/pjsip/pjsua/pj_str_t;I)V", NULL 
     },
     {
-      "on_nat_detect", "(Lorg/pjsip/pjsua/SWIGTYPE_p_pj_stun_nat_detect_result;)V", NULL 
+      "on_nat_detect", "(Lorg/pjsip/pjsua/pj_stun_nat_detect_result;)V", NULL 
     },
     {
       "on_mwi_info", "(ILorg/pjsip/pjsua/pj_str_t;Lorg/pjsip/pjsua/pj_str_t;)V", NULL 
@@ -2834,26 +2834,28 @@ SWIGEXPORT void JNICALL Java_org_pjsip_pjsua_pjsuaJNI_Callback_1on_1typingSwigEx
 }
 
 
-SWIGEXPORT void JNICALL Java_org_pjsip_pjsua_pjsuaJNI_Callback_1on_1nat_1detect(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_, jlong jarg2) {
+SWIGEXPORT void JNICALL Java_org_pjsip_pjsua_pjsuaJNI_Callback_1on_1nat_1detect(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_, jlong jarg2, jobject jarg2_) {
   Callback *arg1 = (Callback *) 0 ;
   pj_stun_nat_detect_result *arg2 = (pj_stun_nat_detect_result *) 0 ;
   
   (void)jenv;
   (void)jcls;
   (void)jarg1_;
+  (void)jarg2_;
   arg1 = *(Callback **)&jarg1; 
   arg2 = *(pj_stun_nat_detect_result **)&jarg2; 
   (arg1)->on_nat_detect((pj_stun_nat_detect_result const *)arg2);
 }
 
 
-SWIGEXPORT void JNICALL Java_org_pjsip_pjsua_pjsuaJNI_Callback_1on_1nat_1detectSwigExplicitCallback(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_, jlong jarg2) {
+SWIGEXPORT void JNICALL Java_org_pjsip_pjsua_pjsuaJNI_Callback_1on_1nat_1detectSwigExplicitCallback(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_, jlong jarg2, jobject jarg2_) {
   Callback *arg1 = (Callback *) 0 ;
   pj_stun_nat_detect_result *arg2 = (pj_stun_nat_detect_result *) 0 ;
   
   (void)jenv;
   (void)jcls;
   (void)jarg1_;
+  (void)jarg2_;
   arg1 = *(Callback **)&jarg1; 
   arg2 = *(pj_stun_nat_detect_result **)&jarg2; 
   (arg1)->Callback::on_nat_detect((pj_stun_nat_detect_result const *)arg2);
@@ -6131,6 +6133,170 @@ SWIGEXPORT void JNICALL Java_org_pjsip_pjsua_pjsuaJNI_delete_1pj_1time_1val(JNIE
   (void)jenv;
   (void)jcls;
   arg1 = *(pj_time_val **)&jarg1; 
+  delete arg1;
+}
+
+
+SWIGEXPORT void JNICALL Java_org_pjsip_pjsua_pjsuaJNI_pj_1stun_1nat_1detect_1result_1status_1set(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_, jint jarg2) {
+  pj_stun_nat_detect_result *arg1 = (pj_stun_nat_detect_result *) 0 ;
+  pj_status_t arg2 ;
+  
+  (void)jenv;
+  (void)jcls;
+  (void)jarg1_;
+  arg1 = *(pj_stun_nat_detect_result **)&jarg1; 
+  arg2 = (pj_status_t)jarg2; 
+  if (arg1) (arg1)->status = arg2;
+}
+
+
+SWIGEXPORT jint JNICALL Java_org_pjsip_pjsua_pjsuaJNI_pj_1stun_1nat_1detect_1result_1status_1get(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_) {
+  jint jresult = 0 ;
+  pj_stun_nat_detect_result *arg1 = (pj_stun_nat_detect_result *) 0 ;
+  pj_status_t result;
+  
+  (void)jenv;
+  (void)jcls;
+  (void)jarg1_;
+  arg1 = *(pj_stun_nat_detect_result **)&jarg1; 
+  result = (pj_status_t) ((arg1)->status);
+  jresult = (jint)result; 
+  return jresult;
+}
+
+
+SWIGEXPORT void JNICALL Java_org_pjsip_pjsua_pjsuaJNI_pj_1stun_1nat_1detect_1result_1status_1text_1set(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_, jstring jarg2) {
+  pj_stun_nat_detect_result *arg1 = (pj_stun_nat_detect_result *) 0 ;
+  char *arg2 = (char *) 0 ;
+  
+  (void)jenv;
+  (void)jcls;
+  (void)jarg1_;
+  arg1 = *(pj_stun_nat_detect_result **)&jarg1; 
+  arg2 = 0;
+  if (jarg2) {
+    arg2 = (char *)jenv->GetStringUTFChars(jarg2, 0);
+    if (!arg2) return ;
+  }
+  {
+    if (arg2) {
+      arg1->status_text = (char const *) (new char[strlen((const char *)arg2)+1]);
+      strcpy((char *)arg1->status_text, (const char *)arg2);
+    } else {
+      arg1->status_text = 0;
+    }
+  }
+  if (arg2) jenv->ReleaseStringUTFChars(jarg2, (const char *)arg2);
+}
+
+
+SWIGEXPORT jstring JNICALL Java_org_pjsip_pjsua_pjsuaJNI_pj_1stun_1nat_1detect_1result_1status_1text_1get(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_) {
+  jstring jresult = 0 ;
+  pj_stun_nat_detect_result *arg1 = (pj_stun_nat_detect_result *) 0 ;
+  char *result = 0 ;
+  
+  (void)jenv;
+  (void)jcls;
+  (void)jarg1_;
+  arg1 = *(pj_stun_nat_detect_result **)&jarg1; 
+  result = (char *) ((arg1)->status_text);
+  if (result) jresult = jenv->NewStringUTF((const char *)result);
+  return jresult;
+}
+
+
+SWIGEXPORT void JNICALL Java_org_pjsip_pjsua_pjsuaJNI_pj_1stun_1nat_1detect_1result_1nat_1type_1set(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_, jlong jarg2) {
+  pj_stun_nat_detect_result *arg1 = (pj_stun_nat_detect_result *) 0 ;
+  pj_stun_nat_type arg2 ;
+  pj_stun_nat_type *argp2 ;
+  
+  (void)jenv;
+  (void)jcls;
+  (void)jarg1_;
+  arg1 = *(pj_stun_nat_detect_result **)&jarg1; 
+  argp2 = *(pj_stun_nat_type **)&jarg2; 
+  if (!argp2) {
+    SWIG_JavaThrowException(jenv, SWIG_JavaNullPointerException, "Attempt to dereference null pj_stun_nat_type");
+    return ;
+  }
+  arg2 = *argp2; 
+  if (arg1) (arg1)->nat_type = arg2;
+}
+
+
+SWIGEXPORT jlong JNICALL Java_org_pjsip_pjsua_pjsuaJNI_pj_1stun_1nat_1detect_1result_1nat_1type_1get(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_) {
+  jlong jresult = 0 ;
+  pj_stun_nat_detect_result *arg1 = (pj_stun_nat_detect_result *) 0 ;
+  pj_stun_nat_type result;
+  
+  (void)jenv;
+  (void)jcls;
+  (void)jarg1_;
+  arg1 = *(pj_stun_nat_detect_result **)&jarg1; 
+  result =  ((arg1)->nat_type);
+  *(pj_stun_nat_type **)&jresult = new pj_stun_nat_type((const pj_stun_nat_type &)result); 
+  return jresult;
+}
+
+
+SWIGEXPORT void JNICALL Java_org_pjsip_pjsua_pjsuaJNI_pj_1stun_1nat_1detect_1result_1nat_1type_1name_1set(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_, jstring jarg2) {
+  pj_stun_nat_detect_result *arg1 = (pj_stun_nat_detect_result *) 0 ;
+  char *arg2 = (char *) 0 ;
+  
+  (void)jenv;
+  (void)jcls;
+  (void)jarg1_;
+  arg1 = *(pj_stun_nat_detect_result **)&jarg1; 
+  arg2 = 0;
+  if (jarg2) {
+    arg2 = (char *)jenv->GetStringUTFChars(jarg2, 0);
+    if (!arg2) return ;
+  }
+  {
+    if (arg2) {
+      arg1->nat_type_name = (char const *) (new char[strlen((const char *)arg2)+1]);
+      strcpy((char *)arg1->nat_type_name, (const char *)arg2);
+    } else {
+      arg1->nat_type_name = 0;
+    }
+  }
+  if (arg2) jenv->ReleaseStringUTFChars(jarg2, (const char *)arg2);
+}
+
+
+SWIGEXPORT jstring JNICALL Java_org_pjsip_pjsua_pjsuaJNI_pj_1stun_1nat_1detect_1result_1nat_1type_1name_1get(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_) {
+  jstring jresult = 0 ;
+  pj_stun_nat_detect_result *arg1 = (pj_stun_nat_detect_result *) 0 ;
+  char *result = 0 ;
+  
+  (void)jenv;
+  (void)jcls;
+  (void)jarg1_;
+  arg1 = *(pj_stun_nat_detect_result **)&jarg1; 
+  result = (char *) ((arg1)->nat_type_name);
+  if (result) jresult = jenv->NewStringUTF((const char *)result);
+  return jresult;
+}
+
+
+SWIGEXPORT jlong JNICALL Java_org_pjsip_pjsua_pjsuaJNI_new_1pj_1stun_1nat_1detect_1result(JNIEnv *jenv, jclass jcls) {
+  jlong jresult = 0 ;
+  pj_stun_nat_detect_result *result = 0 ;
+  
+  (void)jenv;
+  (void)jcls;
+  result = (pj_stun_nat_detect_result *)new pj_stun_nat_detect_result();
+  *(pj_stun_nat_detect_result **)&jresult = result; 
+  return jresult;
+}
+
+
+SWIGEXPORT void JNICALL Java_org_pjsip_pjsua_pjsuaJNI_delete_1pj_1stun_1nat_1detect_1result(JNIEnv *jenv, jclass jcls, jlong jarg1) {
+  pj_stun_nat_detect_result *arg1 = (pj_stun_nat_detect_result *) 0 ;
+  
+  (void)jenv;
+  (void)jcls;
+  arg1 = *(pj_stun_nat_detect_result **)&jarg1; 
   delete arg1;
 }
 
@@ -16436,8 +16602,8 @@ JNIEXPORT jint JNI_OnLoad(JavaVM *vm, void *reserved) {
 {"Callback_on_pager_status2SwigExplicitCallback", "(JLorg/pjsip/pjsua/Callback;IJLorg/pjsip/pjsua/pj_str_t;JLorg/pjsip/pjsua/pj_str_t;IJLorg/pjsip/pjsua/pj_str_t;JJ)V", (void*)& Java_org_pjsip_pjsua_pjsuaJNI_Callback_1on_1pager_1status2SwigExplicitCallback},
 {"Callback_on_typing", "(JLorg/pjsip/pjsua/Callback;IJLorg/pjsip/pjsua/pj_str_t;JLorg/pjsip/pjsua/pj_str_t;JLorg/pjsip/pjsua/pj_str_t;I)V", (void*)& Java_org_pjsip_pjsua_pjsuaJNI_Callback_1on_1typing},
 {"Callback_on_typingSwigExplicitCallback", "(JLorg/pjsip/pjsua/Callback;IJLorg/pjsip/pjsua/pj_str_t;JLorg/pjsip/pjsua/pj_str_t;JLorg/pjsip/pjsua/pj_str_t;I)V", (void*)& Java_org_pjsip_pjsua_pjsuaJNI_Callback_1on_1typingSwigExplicitCallback},
-{"Callback_on_nat_detect", "(JLorg/pjsip/pjsua/Callback;J)V", (void*)& Java_org_pjsip_pjsua_pjsuaJNI_Callback_1on_1nat_1detect},
-{"Callback_on_nat_detectSwigExplicitCallback", "(JLorg/pjsip/pjsua/Callback;J)V", (void*)& Java_org_pjsip_pjsua_pjsuaJNI_Callback_1on_1nat_1detectSwigExplicitCallback},
+{"Callback_on_nat_detect", "(JLorg/pjsip/pjsua/Callback;JLorg/pjsip/pjsua/pj_stun_nat_detect_result;)V", (void*)& Java_org_pjsip_pjsua_pjsuaJNI_Callback_1on_1nat_1detect},
+{"Callback_on_nat_detectSwigExplicitCallback", "(JLorg/pjsip/pjsua/Callback;JLorg/pjsip/pjsua/pj_stun_nat_detect_result;)V", (void*)& Java_org_pjsip_pjsua_pjsuaJNI_Callback_1on_1nat_1detectSwigExplicitCallback},
 {"Callback_on_mwi_info", "(JLorg/pjsip/pjsua/Callback;IJLorg/pjsip/pjsua/pj_str_t;JLorg/pjsip/pjsua/pj_str_t;)V", (void*)& Java_org_pjsip_pjsua_pjsuaJNI_Callback_1on_1mwi_1info},
 {"Callback_on_mwi_infoSwigExplicitCallback", "(JLorg/pjsip/pjsua/Callback;IJLorg/pjsip/pjsua/pj_str_t;JLorg/pjsip/pjsua/pj_str_t;)V", (void*)& Java_org_pjsip_pjsua_pjsuaJNI_Callback_1on_1mwi_1infoSwigExplicitCallback},
 {"Callback_on_setup_audio", "(JLorg/pjsip/pjsua/Callback;I)I", (void*)& Java_org_pjsip_pjsua_pjsuaJNI_Callback_1on_1setup_1audio},
@@ -16677,6 +16843,16 @@ JNIEXPORT jint JNI_OnLoad(JavaVM *vm, void *reserved) {
 {"pj_time_val_msec_get", "(JLorg/pjsip/pjsua/pj_time_val;)I", (void*)& Java_org_pjsip_pjsua_pjsuaJNI_pj_1time_1val_1msec_1get},
 {"new_pj_time_val", "()J", (void*)& Java_org_pjsip_pjsua_pjsuaJNI_new_1pj_1time_1val},
 {"delete_pj_time_val", "(J)V", (void*)& Java_org_pjsip_pjsua_pjsuaJNI_delete_1pj_1time_1val},
+{"pj_stun_nat_detect_result_status_set", "(JLorg/pjsip/pjsua/pj_stun_nat_detect_result;I)V", (void*)& Java_org_pjsip_pjsua_pjsuaJNI_pj_1stun_1nat_1detect_1result_1status_1set},
+{"pj_stun_nat_detect_result_status_get", "(JLorg/pjsip/pjsua/pj_stun_nat_detect_result;)I", (void*)& Java_org_pjsip_pjsua_pjsuaJNI_pj_1stun_1nat_1detect_1result_1status_1get},
+{"pj_stun_nat_detect_result_status_text_set", "(JLorg/pjsip/pjsua/pj_stun_nat_detect_result;Ljava/lang/String;)V", (void*)& Java_org_pjsip_pjsua_pjsuaJNI_pj_1stun_1nat_1detect_1result_1status_1text_1set},
+{"pj_stun_nat_detect_result_status_text_get", "(JLorg/pjsip/pjsua/pj_stun_nat_detect_result;)Ljava/lang/String;", (void*)& Java_org_pjsip_pjsua_pjsuaJNI_pj_1stun_1nat_1detect_1result_1status_1text_1get},
+{"pj_stun_nat_detect_result_nat_type_set", "(JLorg/pjsip/pjsua/pj_stun_nat_detect_result;J)V", (void*)& Java_org_pjsip_pjsua_pjsuaJNI_pj_1stun_1nat_1detect_1result_1nat_1type_1set},
+{"pj_stun_nat_detect_result_nat_type_get", "(JLorg/pjsip/pjsua/pj_stun_nat_detect_result;)J", (void*)& Java_org_pjsip_pjsua_pjsuaJNI_pj_1stun_1nat_1detect_1result_1nat_1type_1get},
+{"pj_stun_nat_detect_result_nat_type_name_set", "(JLorg/pjsip/pjsua/pj_stun_nat_detect_result;Ljava/lang/String;)V", (void*)& Java_org_pjsip_pjsua_pjsuaJNI_pj_1stun_1nat_1detect_1result_1nat_1type_1name_1set},
+{"pj_stun_nat_detect_result_nat_type_name_get", "(JLorg/pjsip/pjsua/pj_stun_nat_detect_result;)Ljava/lang/String;", (void*)& Java_org_pjsip_pjsua_pjsuaJNI_pj_1stun_1nat_1detect_1result_1nat_1type_1name_1get},
+{"new_pj_stun_nat_detect_result", "()J", (void*)& Java_org_pjsip_pjsua_pjsuaJNI_new_1pj_1stun_1nat_1detect_1result},
+{"delete_pj_stun_nat_detect_result", "(J)V", (void*)& Java_org_pjsip_pjsua_pjsuaJNI_delete_1pj_1stun_1nat_1detect_1result},
 {"PJSUA_INVALID_ID_get", "()I", (void*)& Java_org_pjsip_pjsua_pjsuaJNI_PJSUA_1INVALID_1ID_1get},
 {"PJSUA_ACC_MAX_PROXIES_get", "()I", (void*)& Java_org_pjsip_pjsua_pjsuaJNI_PJSUA_1ACC_1MAX_1PROXIES_1get},
 {"PJSUA_DEFAULT_SRTP_SECURE_SIGNALING_get", "()I", (void*)& Java_org_pjsip_pjsua_pjsuaJNI_PJSUA_1DEFAULT_1SRTP_1SECURE_1SIGNALING_1get},

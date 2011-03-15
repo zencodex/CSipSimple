@@ -1,4 +1,4 @@
-/* $Id: presence.c 3412 2011-02-11 07:39:14Z ming $ */
+/* $Id: presence.c 3443 2011-03-15 05:09:29Z ming $ */
 /* 
  * Copyright (C) 2008-2009 Teluu Inc. (http://www.teluu.com)
  * Copyright (C) 2003-2008 Benny Prijono <benny@prijono.org>
@@ -701,7 +701,7 @@ static pj_status_t pres_process_rx_notify( pjsip_pres *pres,
 {
     const pj_str_t STR_MULTIPART = { "multipart", 9 };
     pjsip_ctype_hdr *ctype_hdr;
-    pj_status_t status;
+    pj_status_t status = PJ_SUCCESS;
 
     *p_st_text = NULL;
 

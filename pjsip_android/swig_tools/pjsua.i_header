@@ -1189,3 +1189,34 @@ struct pj_time_val
 };
 
 
+
+//pjnat/include/nat_detect.h
+/**
+ * This structure contains the result of NAT classification function.
+ */
+struct pj_stun_nat_detect_result
+{
+    /**
+     * Status of the detection process. If this value is not PJ_SUCCESS,
+     * the detection has failed and \a nat_type field will contain
+     * PJ_STUN_NAT_TYPE_UNKNOWN.
+     */
+    pj_status_t		 status;
+
+    /**
+     * The text describing the status, if the status is not PJ_SUCCESS.
+     */
+    const char		*status_text;
+
+    /**
+     * This contains the NAT type as detected by the detection procedure.
+     * This value is only valid when the \a status is PJ_SUCCESS.
+     */
+    pj_stun_nat_type	 nat_type;
+
+    /**
+     * Text describing that NAT type.
+     */
+    const char		*nat_type_name;
+
+} ;

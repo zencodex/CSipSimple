@@ -1,4 +1,4 @@
-/* $Id: pjsua_core.c 3412 2011-02-11 07:39:14Z ming $ */
+/* $Id: pjsua_core.c 3441 2011-03-15 03:20:37Z ming $ */
 /* 
  * Copyright (C) 2008-2009 Teluu Inc. (http://www.teluu.com)
  * Copyright (C) 2003-2008 Benny Prijono <benny@prijono.org>
@@ -166,6 +166,7 @@ PJ_DEF(void) pjsua_acc_config_default(pjsua_acc_config *cfg)
     pj_bzero(cfg, sizeof(*cfg));
 
     cfg->reg_timeout = PJSUA_REG_INTERVAL;
+    cfg->reg_delay_before_refresh = PJSIP_REGISTER_CLIENT_DELAY_BEFORE_REFRESH;
     cfg->unreg_timeout = PJSUA_UNREG_TIMEOUT;
     pjsip_publishc_opt_default(&cfg->publish_opt);
     cfg->unpublish_max_wait_time_msec = PJSUA_UNPUBLISH_MAX_WAIT_TIME_MSEC;
@@ -702,6 +703,15 @@ PJ_DEF(pj_status_t) pjsua_init( const pjsua_config *ua_cfg,
 	    return status;
     }
 
+#if defined(PJ_IPHONE_OS_HAS_MULTITASKING_SUPPORT) && \
+    PJ_IPHONE_OS_HAS_MULTITASKING_SUPPORT != 0
+    if (!(pj_get_sys_info()->flags & PJ_SYS_HAS_IOS_BG)) {
+	PJ_LOG(5, (THIS_FILE, "Device does not support "
+			      "background mode"));
+	pj_activesock_enable_iphone_os_bg(PJ_FALSE);
+    }
+#endif
+
     /* If nameserver is configured, create DNS resolver instance and
      * set it to be used by SIP resolver.
      */
@@ -918,7 +928,7 @@ PJ_DEF(pj_status_t) pjsua_init( const pjsua_config *ua_cfg,
     /* Done! */
 
     PJ_LOG(3,(THIS_FILE, "pjsua version %s for %s initialized", 
-			 pj_get_version(), PJ_OS_NAME));
+			 pj_get_version(), pj_get_sys_info()->info.ptr));
 
     return PJ_SUCCESS;
 

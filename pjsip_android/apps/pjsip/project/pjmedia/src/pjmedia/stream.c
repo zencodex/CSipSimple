@@ -1,4 +1,4 @@
-/* $Id: stream.c 3416 2011-02-18 09:34:28Z nanang $ */
+/* $Id: stream.c 3442 2011-03-15 05:07:01Z ming $ */
 /* 
  * Copyright (C) 2008-2009 Teluu Inc. (http://www.teluu.com)
  * Copyright (C) 2003-2008 Benny Prijono <benny@prijono.org>
@@ -2458,6 +2458,14 @@ PJ_DEF(pj_status_t) pjmedia_stream_destroy( pjmedia_stream *stream )
     return PJ_SUCCESS;
 }
 
+
+/*
+ * Get the last frame frame type retreived from the jitter buffer.
+ */
+PJ_DEF(char) pjmedia_stream_get_last_jb_frame_type(pjmedia_stream *stream)
+{
+    return stream->jb_last_frm;
+}
 
 
 /*

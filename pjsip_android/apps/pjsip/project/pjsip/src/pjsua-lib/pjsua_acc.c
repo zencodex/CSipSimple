@@ -1,4 +1,4 @@
-/* $Id: pjsua_acc.c 3377 2010-12-01 08:53:52Z nanang $ */
+/* $Id: pjsua_acc.c 3444 2011-03-15 10:49:59Z ming $ */
 /* 
  * Copyright (C) 2008-2009 Teluu Inc. (http://www.teluu.com)
  * Copyright (C) 2003-2008 Benny Prijono <benny@prijono.org>
@@ -99,6 +99,7 @@ PJ_DEF(void) pjsua_acc_config_dup( pj_pool_t *pool,
 	pj_strdup_with_null(pool, &dst->proxy[i], &src->proxy[i]);
 
     dst->reg_timeout = src->reg_timeout;
+    dst->reg_delay_before_refresh = src->reg_delay_before_refresh;
     dst->cred_count = src->cred_count;
 
     for (i=0; i<src->cred_count; ++i) {
@@ -392,11 +393,15 @@ PJ_DEF(pj_status_t) pjsua_acc_add( const pjsua_acc_config *cfg,
     /* Copy config */
     pjsua_acc_config_dup(acc->pool, &pjsua_var.acc[id].cfg, cfg);
     
-    /* Normalize registration timeout */
-    if (pjsua_var.acc[id].cfg.reg_uri.slen &&
-	pjsua_var.acc[id].cfg.reg_timeout == 0)
-    {
-	pjsua_var.acc[id].cfg.reg_timeout = PJSUA_REG_INTERVAL;
+    /* Normalize registration timeout and refresh delay */
+    if (pjsua_var.acc[id].cfg.reg_uri.slen) {
+        if (pjsua_var.acc[id].cfg.reg_timeout == 0) {
+            pjsua_var.acc[id].cfg.reg_timeout = PJSUA_REG_INTERVAL;
+        }
+        if (pjsua_var.acc[id].cfg.reg_delay_before_refresh == 0) {
+            pjsua_var.acc[id].cfg.reg_delay_before_refresh =
+                PJSIP_REGISTER_CLIENT_DELAY_BEFORE_REFRESH;
+        }
     }
 
     /* Get CRC of account proxy setting */
@@ -944,10 +949,22 @@ PJ_DEF(pj_status_t) pjsua_acc_modify( pjsua_acc_id acc_id,
     acc->cfg.allow_contact_rewrite = cfg->allow_contact_rewrite;
     acc->cfg.reg_retry_interval = cfg->reg_retry_interval;
     acc->cfg.drop_calls_on_reg_fail = cfg->drop_calls_on_reg_fail;
+    if (acc->cfg.reg_delay_before_refresh != cfg->reg_delay_before_refresh) {
+        acc->cfg.reg_delay_before_refresh = cfg->reg_delay_before_refresh;
+        pjsip_regc_set_delay_before_refresh(acc->regc,
+                                            cfg->reg_delay_before_refresh);
+    }
 
-    /* Normalize registration timeout */
-    if (acc->cfg.reg_uri.slen && acc->cfg.reg_timeout == 0)
-	acc->cfg.reg_timeout = PJSUA_REG_INTERVAL;
+    /* Normalize registration timeout and refresh delay */
+    if (acc->cfg.reg_uri.slen ) {
+        if (acc->cfg.reg_timeout == 0) {
+            acc->cfg.reg_timeout = PJSUA_REG_INTERVAL;
+        }
+        if (acc->cfg.reg_delay_before_refresh == 0) {
+	    acc->cfg.reg_delay_before_refresh =
+                PJSIP_REGISTER_CLIENT_DELAY_BEFORE_REFRESH;
+        }
+    }
 
     /* Registrar URI */
     if (pj_strcmp(&acc->cfg.reg_uri, &cfg->reg_uri)) {
@@ -1487,6 +1504,7 @@ static void keep_alive_timer_cb(pj_timer_heap_t *th, pj_timer_entry *te)
 		pjsua_perror(THIS_FILE, "Error starting keep-alive timer", status);
 		}
     }
+
     PJSUA_UNLOCK();
 }
 
@@ -1821,6 +1839,10 @@ static pj_status_t pjsua_regc_init(int acc_id)
     if (acc->cred_cnt) {
 	pjsip_regc_set_credentials( acc->regc, acc->cred_cnt, acc->cred);
     }
+
+    /* Set delay before registration refresh */
+    pjsip_regc_set_delay_before_refresh(acc->regc,
+                                        acc->cfg.reg_delay_before_refresh);
 
     /* Set authentication preference */
     pjsip_regc_set_prefs(acc->regc, &acc->cfg.auth_pref);

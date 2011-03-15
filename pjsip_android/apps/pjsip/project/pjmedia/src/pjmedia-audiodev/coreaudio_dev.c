@@ -1,4 +1,4 @@
-/* $Id: coreaudio_dev.c 3413 2011-02-15 05:33:23Z ming $ */
+/* $Id: coreaudio_dev.c 3438 2011-03-11 06:57:24Z ming $ */
 /*
  * Copyright (C) 2008-2010 Teluu Inc. (http://www.teluu.com)
  *
@@ -178,7 +178,8 @@ static pjmedia_aud_dev_factory_op factory_op =
     &ca_factory_get_dev_count,
     &ca_factory_get_dev_info,
     &ca_factory_default_param,
-    &ca_factory_create_stream
+    &ca_factory_create_stream,
+    &ca_factory_refresh
 };
 
 static pjmedia_aud_stream_op stream_op =
@@ -291,7 +292,7 @@ static pj_status_t ca_factory_init(pjmedia_aud_dev_factory *f)
     ostatus = AudioSessionInitialize(NULL, NULL, interruptionListener, NULL);
     if (ostatus != kAudioSessionNoError) {
 	PJ_LOG(4, (THIS_FILE,
-		   "Error: cannot initialize audio session services (%i)",
+		   "Warning: cannot initialize audio session services (%i)",
 		   ostatus));
     }
 
@@ -302,7 +303,7 @@ static pj_status_t ca_factory_init(pjmedia_aud_dev_factory *f)
 				      &audioCategory);
     if (ostatus != kAudioSessionNoError) {
 	PJ_LOG(4, (THIS_FILE,
-		   "Error: cannot set the audio session category (%i)",
+		   "Warning: cannot set the audio session category (%i)",
 		   ostatus));
     }
 
@@ -312,7 +313,7 @@ static pj_status_t ca_factory_init(pjmedia_aud_dev_factory *f)
 		  propListener, cf);
     if (ostatus != kAudioSessionNoError) {
 	PJ_LOG(4, (THIS_FILE,
-		   "Error: cannot listen for audio route change "
+		   "Warning: cannot listen for audio route change "
 		   "notifications (%i)", ostatus));
     }
     

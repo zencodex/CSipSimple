@@ -1,4 +1,4 @@
-/* $Id: symb_aps_dev.cpp 3136 2010-04-12 10:42:23Z nanang $ */
+/* $Id: symb_aps_dev.cpp 3438 2011-03-11 06:57:24Z ming $ */
 /* 
  * Copyright (C) 2008-2009 Teluu Inc. (http://www.teluu.com)
  * Copyright (C) 2003-2008 Benny Prijono <benny@prijono.org>
@@ -120,6 +120,7 @@ struct aps_stream
 /* Prototypes */
 static pj_status_t factory_init(pjmedia_aud_dev_factory *f);
 static pj_status_t factory_destroy(pjmedia_aud_dev_factory *f);
+static pj_status_t factory_refresh(pjmedia_aud_dev_factory *f);
 static unsigned    factory_get_dev_count(pjmedia_aud_dev_factory *f);
 static pj_status_t factory_get_dev_info(pjmedia_aud_dev_factory *f, 
 					unsigned index,
@@ -155,7 +156,8 @@ static pjmedia_aud_dev_factory_op factory_op =
     &factory_get_dev_count,
     &factory_get_dev_info,
     &factory_default_param,
-    &factory_create_stream
+    &factory_create_stream,
+    &factory_refresh
 };
 
 static pjmedia_aud_stream_op stream_op = 
@@ -1442,6 +1444,13 @@ static pj_status_t factory_destroy(pjmedia_aud_dev_factory *f)
     PJ_LOG(4, (THIS_FILE, "APS destroyed"));
     
     return PJ_SUCCESS;
+}
+
+/* API: refresh the device list */
+static pj_status_t factory_refresh(pjmedia_aud_dev_factory *f)
+{
+    PJ_UNUSED_ARG(f);
+    return PJ_ENOTSUP;
 }
 
 /* API: get number of devices */

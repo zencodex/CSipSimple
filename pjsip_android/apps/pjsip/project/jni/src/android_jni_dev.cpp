@@ -85,6 +85,7 @@ struct android_aud_stream
 /* Factory prototypes */
 static pj_status_t android_init(pjmedia_aud_dev_factory *f);
 static pj_status_t android_destroy(pjmedia_aud_dev_factory *f);
+static pj_status_t android_refresh(pjmedia_aud_dev_factory *f);
 static unsigned android_get_dev_count(pjmedia_aud_dev_factory *f);
 static pj_status_t android_get_dev_info(pjmedia_aud_dev_factory *f,
 		unsigned index,
@@ -119,7 +120,8 @@ static pjmedia_aud_dev_factory_op android_op =
 	&android_get_dev_count,
 	&android_get_dev_info,
 	&android_default_param,
-	&android_create_stream
+	&android_create_stream,
+    &android_refresh
 };
 
 static pjmedia_aud_stream_op android_strm_op =
@@ -440,6 +442,15 @@ static pj_status_t android_init(pjmedia_aud_dev_factory *f)
 
 	return PJ_SUCCESS;
 }
+
+
+/* API: refresh the list of devices */
+static pj_status_t android_refresh(pjmedia_aud_dev_factory *f)
+{
+    PJ_UNUSED_ARG(f);
+    return PJ_SUCCESS;
+}
+
 
 /* API: Destroy factory */
 static pj_status_t android_destroy(pjmedia_aud_dev_factory *f)

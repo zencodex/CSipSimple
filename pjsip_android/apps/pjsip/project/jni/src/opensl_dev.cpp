@@ -89,6 +89,7 @@ struct opensl_aud_stream
 /* Factory prototypes */
 static pj_status_t opensl_init(pjmedia_aud_dev_factory *f);
 static pj_status_t opensl_destroy(pjmedia_aud_dev_factory *f);
+static pj_status_t opensl_refresh(pjmedia_aud_dev_factory *f);
 static unsigned opensl_get_dev_count(pjmedia_aud_dev_factory *f);
 static pj_status_t opensl_get_dev_info(pjmedia_aud_dev_factory *f,
 		unsigned index,
@@ -123,7 +124,8 @@ static pjmedia_aud_dev_factory_op opensl_op =
 	&opensl_get_dev_count,
 	&opensl_get_dev_info,
 	&opensl_default_param,
-	&opensl_create_stream
+	&opensl_create_stream,
+    &opensl_refresh
 };
 
 static pjmedia_aud_stream_op opensl_strm_op =
@@ -253,10 +255,20 @@ static pj_status_t opensl_init(pjmedia_aud_dev_factory *f) {
 
 	SLresult result;
 
+	/* Create OpenSL ES engine in thread-safe mode */
+	SLEngineOption EngineOption[] = {(SLuint32)	SL_ENGINEOPTION_THREADSAFE, (SLuint32) SL_BOOLEAN_TRUE};
+
+	//For future use
+	const SLInterfaceID ids[2] = {SL_IID_AUDIODECODERCAPABILITIES, SL_IID_AUDIOENCODERCAPABILITIES};
+	const SLboolean req[2] = { SL_BOOLEAN_FALSE, SL_BOOLEAN_FALSE};
+
+
     // create engine
-    result = slCreateEngine(&pa->engineObject, 0, NULL, 0, NULL, NULL);
-    //FIXME
-    assert(SL_RESULT_SUCCESS == result);
+    result = slCreateEngine(&pa->engineObject, 1, EngineOption, 2, ids, req);
+    if(result != SL_RESULT_SUCCESS){
+		PJ_LOG(1, (THIS_FILE, "Can't create engine %d ", result));
+		return opensl_to_pj_error(result);
+	}
 
     // realize the engine
     result = (*pa->engineObject)->Realize(pa->engineObject, SL_BOOLEAN_FALSE);
@@ -273,6 +285,14 @@ static pj_status_t opensl_init(pjmedia_aud_dev_factory *f) {
 		(*pa->engineObject)->Destroy(pa->engineObject);
 		return opensl_to_pj_error(result);
 	}
+
+//FOR future use
+//    //Get the audio cap interface
+//	result = (*pa->engineObject)->GetInterface(pa->engineObject, SL_IID_AUDIODECODERCAPABILITIES, &pa->decCaps);
+//	if(result != SL_RESULT_SUCCESS){
+//		PJ_LOG(1, (THIS_FILE, "Can't get decoder caps iface - %d", result));
+//	}
+
 
     result = (*pa->engineEngine)->CreateOutputMix(pa->engineEngine, &pa->outputMixObject, 0, NULL, NULL);
     if(result != SL_RESULT_SUCCESS){
@@ -320,6 +340,14 @@ static pj_status_t opensl_destroy(pjmedia_aud_dev_factory *f) {
 	return PJ_SUCCESS;
 }
 
+
+/* API: refresh the list of devices */
+static pj_status_t opensl_refresh(pjmedia_aud_dev_factory *f)
+{
+    PJ_UNUSED_ARG(f);
+    return PJ_SUCCESS;
+}
+
 /* API: Get device count. */
 static unsigned opensl_get_dev_count(pjmedia_aud_dev_factory *f) {
 	PJ_LOG(4,(THIS_FILE, "Get dev count"));
@@ -333,7 +361,10 @@ static pj_status_t opensl_get_dev_info(pjmedia_aud_dev_factory *f,
 		unsigned index,
 		pjmedia_aud_dev_info *info) {
 
-	PJ_UNUSED_ARG(f);
+	struct opensl_aud_factory *pa = (struct opensl_aud_factory*)f;
+	SLresult result;
+
+
 	PJ_LOG(4,(THIS_FILE, "Get dev info"));
 
 	pj_bzero(info, sizeof(*info));
@@ -523,6 +554,7 @@ static pj_status_t opensl_create_stream(pjmedia_aud_dev_factory *f,
 			assert(SL_RESULT_SUCCESS == result);
 
 
+
 		}
 
 
@@ -545,6 +577,18 @@ static pj_status_t opensl_create_stream(pjmedia_aud_dev_factory *f,
 				goto on_error;
 			}
 
+
+			SLAndroidConfigurationItf recorderConfig;
+			result = (*stream->recorderObject)->GetInterface(stream->recorderObject, SL_IID_ANDROIDCONFIGURATION, &recorderConfig);
+			if(result != SL_RESULT_SUCCESS){
+				PJ_LOG(2, (THIS_FILE, "Can't get recorder config iface"));
+				goto on_error;
+			}
+			SLint32 streamType = SL_ANDROID_RECORDING_PRESET_GENERIC;//0x7;
+			result = (*recorderConfig)->SetConfiguration(recorderConfig, SL_ANDROID_KEY_RECORDING_PRESET, &streamType, sizeof(SLint32));
+
+
+
 			// realize the recorder
 			result = (*stream->recorderObject)->Realize(stream->recorderObject, SL_BOOLEAN_FALSE);
 			if(result != SL_RESULT_SUCCESS){
@@ -553,7 +597,7 @@ static pj_status_t opensl_create_stream(pjmedia_aud_dev_factory *f,
 			}
 
 
-			// get the play interface
+			// get the record interface
 			result = (*stream->recorderObject)->GetInterface(stream->recorderObject, SL_IID_RECORD, &stream->recorderRecord);
 			if(result != SL_RESULT_SUCCESS){
 				PJ_LOG(1, (THIS_FILE, "Can't get record iface"));
@@ -567,10 +611,15 @@ static pj_status_t opensl_create_stream(pjmedia_aud_dev_factory *f,
 				goto on_error;
 			}
 
+
+
+
 			// register callback on the buffer queue
 			result = (*stream->recorderBufferQueue)->RegisterCallback(stream->recorderBufferQueue, bqRecorderCallback, (void *) stream);
 			assert(SL_RESULT_SUCCESS == result);
 		}
+
+
 
 	}
 

@@ -1,4 +1,4 @@
-/* $Id: audiodev_imp.h 2506 2009-03-12 18:11:37Z bennylp $ */
+/* $Id: audiodev_imp.h 3438 2011-03-11 06:57:24Z ming $ */
 /* 
  * Copyright (C) 2008-2009 Teluu Inc. (http://www.teluu.com)
  * Copyright (C) 2003-2008 Benny Prijono <benny@prijono.org>
@@ -91,6 +91,13 @@ typedef struct pjmedia_aud_dev_factory_op
 				 pjmedia_aud_play_cb play_cb,
 				 void *user_data,
 				 pjmedia_aud_stream **p_aud_strm);
+
+    /**
+     * Refresh the list of audio devices installed in the system.
+     *
+     * @param f		The audio device factory.
+     */
+    pj_status_t (*refresh)(pjmedia_aud_dev_factory *f);
 
 } pjmedia_aud_dev_factory_op;
 

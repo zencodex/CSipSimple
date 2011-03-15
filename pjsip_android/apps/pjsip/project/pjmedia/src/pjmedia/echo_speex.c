@@ -1,4 +1,4 @@
-/* $Id: echo_speex.c 2394 2008-12-23 17:27:53Z bennylp $ */
+/* $Id: echo_speex.c 3443 2011-03-15 05:09:29Z ming $ */
 /* 
  * Copyright (C) 2008-2009 Teluu Inc. (http://www.teluu.com)
  * Copyright (C) 2003-2008 Benny Prijono <benny@prijono.org>
@@ -23,6 +23,9 @@
 #include <pj/assert.h>
 #include <pj/log.h>
 #include <pj/pool.h>
+
+#if defined(PJMEDIA_HAS_SPEEX_AEC) && PJMEDIA_HAS_SPEEX_AEC != 0
+
 #include <speex/speex_echo.h>
 #include <speex/speex_preprocess.h>
 
@@ -185,3 +188,4 @@ PJ_DEF(pj_status_t) speex_aec_cancel_echo( void *state,
 
 }
 
+#endif
