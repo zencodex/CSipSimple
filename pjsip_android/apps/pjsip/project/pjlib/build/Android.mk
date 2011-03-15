@@ -21,6 +21,7 @@ LOCAL_SRC_FILES := $(PJLIB_SRC_DIR)/addr_resolv_sock.c \
 	$(PJLIB_SRC_DIR)/guid_simple.c \
 	$(PJLIB_SRC_DIR)/log.c \
 	$(PJLIB_SRC_DIR)/log_writer_stdout.c \
+	$(PJLIB_SRC_DIR)/os_info.c \
 	$(PJLIB_SRC_DIR)/os_core_android.c \
 	$(PJLIB_SRC_DIR)/os_error_unix.c \
 	$(PJLIB_SRC_DIR)/os_time_common.c \

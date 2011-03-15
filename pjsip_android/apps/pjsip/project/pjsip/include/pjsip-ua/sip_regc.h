@@ -1,4 +1,4 @@
-/* $Id: sip_regc.h 3128 2010-03-30 11:13:59Z nanang $ */
+/* $Id: sip_regc.h 3441 2011-03-15 03:20:37Z ming $ */
 /* 
  * Copyright (C) 2008-2009 Teluu Inc. (http://www.teluu.com)
  * Copyright (C) 2003-2008 Benny Prijono <benny@prijono.org>
@@ -189,6 +189,20 @@ PJ_DECL(pj_status_t) pjsip_regc_init(pjsip_regc *regc,
 				     int ccnt,
 				     const pj_str_t contact[],
 				     pj_uint32_t expires);
+
+/**
+ * Set the number of seconds to refresh the client registration before
+ * the registration expires.
+ *
+ * @param regc	    The registration structure.
+ * @param delay     The number of seconds to refresh the client
+ *                  registration before the registration expires.
+ *
+ * @return	    PJ_SUCCESS on success.
+ */
+PJ_DECL(pj_status_t)
+pjsip_regc_set_delay_before_refresh( pjsip_regc *regc,
+				     pj_uint32_t delay );
 
 
 /**

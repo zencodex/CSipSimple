@@ -185,6 +185,7 @@ esac
 
 AC_CHECK_HEADER(fcntl.h,[AC_DEFINE(PJ_HAS_FCNTL_H,1)])
 AC_CHECK_HEADER(linux/socket.h,[AC_DEFINE(PJ_HAS_LINUX_SOCKET_H,1)])
+AC_CHECK_HEADER(limits.h,[AC_DEFINE(PJ_HAS_LIMITS_H,1)])
 AC_CHECK_HEADER(malloc.h,[AC_DEFINE(PJ_HAS_MALLOC_H,1)])
 AC_CHECK_HEADER(netdb.h,[AC_DEFINE(PJ_HAS_NETDB_H,1)])
 AC_CHECK_HEADER(netinet/in_systm.h,[AC_DEFINE(PJ_HAS_NETINET_IN_SYSTM_H,1)])
@@ -219,6 +220,7 @@ AC_CHECK_HEADER(sys/timeb.h,[AC_DEFINE(PJ_HAS_SYS_TIMEB_H,1)])
 AC_CHECK_HEADER(sys/types.h,[AC_DEFINE(PJ_HAS_SYS_TYPES_H,1)])
 AC_CHECK_HEADER(sys/filio.h,[AC_DEFINE(PJ_HAS_SYS_FILIO_H,1)])
 AC_CHECK_HEADER(sys/sockio.h,[AC_DEFINE(PJ_HAS_SYS_SOCKIO_H,1)])
+AC_CHECK_HEADER(sys/utsname.h,[AC_DEFINE(PJ_HAS_SYS_UTSNAME_H,1)])
 AC_CHECK_HEADER(time.h,[AC_DEFINE(PJ_HAS_TIME_H,1)])
 AC_CHECK_HEADER(unistd.h,[AC_DEFINE(PJ_HAS_UNISTD_H,1)])
 AC_CHECK_HEADER(winsock.h,[AC_DEFINE(PJ_HAS_WINSOCK_H,1)])
@@ -408,6 +410,11 @@ case $target in
 	;;
   *)
 	ac_os_objs="$ac_os_objs file_access_unistd.o file_io_ansi.o os_core_unix.o os_error_unix.o os_time_unix.o os_timestamp_posix.o"
+	case $target in
+	  arm-apple-darwin*)
+		ac_os_objs="$ac_os_objs os_info_iphone.o"
+		;;
+	esac
 	# UUID
 	if test "$ac_has_uuid_lib" = "1" -a "$ac_has_uuid_h" = "1"; then
 		ac_os_objs="$ac_os_objs guid_uuid.o"
@@ -533,7 +540,7 @@ if test "$enable_sound" = "no"; then
 else
  case $target in
   arm-apple-darwin*)
-	LIBS="$LIBS -framework CoreAudio -framework CoreFoundation -framework AudioToolbox -framework CFNetwork"
+	LIBS="$LIBS -framework CoreAudio -framework CoreFoundation -framework AudioToolbox -framework CFNetwork -framework UIKit"
 	AC_MSG_RESULT([Checking sound device backend... AudioUnit])
 	;;
   *darwin*)

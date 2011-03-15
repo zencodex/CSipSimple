@@ -1,4 +1,4 @@
-/* $Id: audiodev.c 3262 2010-08-11 06:03:47Z bennylp $ */
+/* $Id: audiodev.c 3440 2011-03-15 03:16:33Z ming $ */
 /* 
  * Copyright (C) 2008-2009 Teluu Inc. (http://www.teluu.com)
  * Copyright (C) 2003-2008 Benny Prijono <benny@prijono.org>
@@ -250,23 +250,27 @@ PJ_DEF(pj_status_t) pjmedia_aud_param_get_cap( const pjmedia_aud_param *param,
 }
 
 /* Internal: init driver */
-static pj_status_t init_driver(unsigned drv_idx)
+static pj_status_t init_driver(unsigned drv_idx, pj_bool_t refresh)
 {
     struct driver *drv = &aud_subsys.drv[drv_idx];
     pjmedia_aud_dev_factory *f;
     unsigned i, dev_cnt;
     pj_status_t status;
 
-    /* Create the factory */
-    f = (*drv->create)(aud_subsys.pf);
-    if (!f)
-	return PJ_EUNKNOWN;
+    if (!refresh) {
+	/* Create the factory */
+	f = (*drv->create)(aud_subsys.pf);
+	if (!f)
+	    return PJ_EUNKNOWN;
 
-    /* Call factory->init() */
-    status = f->op->init(f);
-    if (status != PJ_SUCCESS) {
-	f->op->destroy(f);
-	return status;
+	/* Call factory->init() */
+	status = f->op->init(f);
+	if (status != PJ_SUCCESS) {
+	    f->op->destroy(f);
+	    return status;
+	}
+    } else {
+	f = drv->f;
     }
 
     /* Get number of devices */
@@ -407,7 +411,7 @@ PJ_DEF(pj_status_t) pjmedia_aud_subsys_init(pj_pool_factory *pf)
 
     /* Initialize each factory and build the device ID list */
     for (i=0; i<aud_subsys.drv_cnt; ++i) {
-	status = init_driver(i);
+	status = init_driver(i, PJ_FALSE);
 	if (status != PJ_SUCCESS) {
 	    deinit_driver(i);
 	    continue;
@@ -427,7 +431,7 @@ pjmedia_aud_register_factory(pjmedia_aud_dev_factory_create_func_ptr adf)
 	return PJMEDIA_EAUD_INIT;
 
     aud_subsys.drv[aud_subsys.drv_cnt].create = adf;
-    status = init_driver(aud_subsys.drv_cnt);
+    status = init_driver(aud_subsys.drv_cnt, PJ_FALSE);
     if (status == PJ_SUCCESS) {
 	aud_subsys.drv_cnt++;
     } else {
@@ -488,6 +492,27 @@ PJ_DEF(pj_status_t) pjmedia_aud_subsys_shutdown(void)
     }
 
     aud_subsys.pf = NULL;
+    return PJ_SUCCESS;
+}
+
+/* API: Refresh the list of sound devices installed in the system. */
+PJ_DEF(pj_status_t) pjmedia_aud_dev_refresh(void)
+{
+    unsigned i;
+    
+    aud_subsys.dev_cnt = 0;
+    for (i=0; i<aud_subsys.drv_cnt; ++i) {
+	struct driver *drv = &aud_subsys.drv[i];
+	
+	if (drv->f && drv->f->op->refresh) {
+	    pj_status_t status = drv->f->op->refresh(drv->f);
+	    if (status != PJ_SUCCESS) {
+		PJ_PERROR(4, (THIS_FILE, status, "Unable to refresh device "
+						 "list for %s", drv->name));
+	    }
+	}
+	init_driver(i, PJ_TRUE);
+    }
     return PJ_SUCCESS;
 }
 

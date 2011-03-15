@@ -1,4 +1,4 @@
-/* $Id: config.h 3408 2011-01-21 07:15:22Z bennylp $ */
+/* $Id: config.h 3423 2011-02-28 07:44:19Z bennylp $ */
 /* 
  * Copyright (C) 2008-2009 Teluu Inc. (http://www.teluu.com)
  * Copyright (C) 2003-2008 Benny Prijono <benny@prijono.org>
@@ -1124,6 +1124,30 @@
 #endif
 
 PJ_BEGIN_DECL
+
+/** PJLIB version major number. */
+#define PJ_VERSION_NUM_MAJOR	1
+
+/** PJLIB version minor number. */
+#define PJ_VERSION_NUM_MINOR	8
+
+/** PJLIB version revision number. */
+#define PJ_VERSION_NUM_REV	10
+
+/**
+ * Extra suffix for the version (e.g. "-trunk"), or empty for
+ * web release version.
+ */
+#define PJ_VERSION_NUM_EXTRA	"-trunk"
+
+/**
+ * PJLIB version number consists of three bytes with the following format:
+ * 0xMMIIRR00, where MM: major number, II: minor number, RR: revision
+ * number, 00: always zero for now.
+ */
+#define PJ_VERSION_NUM	((PJ_VERSION_NUM_MAJOR << 24) |	\
+			 (PJ_VERSION_NUM_MINOR << 16) | \
+			 (PJ_VERSION_NUM_REV << 8))
 
 /**
  * PJLIB version string constant. @see pj_get_version()
