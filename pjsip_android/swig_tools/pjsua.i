@@ -1221,7 +1221,424 @@ struct pj_stun_nat_detect_result
 
 } ;
 
- 
+%rename(logging_config_default) pjsua_logging_config_default;
+%javamethodmodifiers pjsua_logging_config_default(pjsua_logging_config *cfg) "public synchronized";
+%rename(logging_config_dup) pjsua_logging_config_dup;
+%javamethodmodifiers pjsua_logging_config_dup(pj_pool_t *pool,
+				       pjsua_logging_config *dst,
+				       const pjsua_logging_config *src) "public synchronized";
+%rename(config_default) pjsua_config_default;
+%javamethodmodifiers pjsua_config_default(pjsua_config *cfg) "public synchronized";
+%rename(config_dup) pjsua_config_dup;
+%javamethodmodifiers pjsua_config_dup(pj_pool_t *pool,
+			       pjsua_config *dst,
+			       const pjsua_config *src) "public synchronized";
+%rename(msg_data_init) pjsua_msg_data_init;
+%javamethodmodifiers pjsua_msg_data_init(pjsua_msg_data *msg_data) "public synchronized";
+%rename(create) pjsua_create;
+%javamethodmodifiers pjsua_create(void) "public synchronized";
+%rename(start) pjsua_start;
+%javamethodmodifiers pjsua_start(void) "public synchronized";
+%rename(handle_events) pjsua_handle_events;
+%javamethodmodifiers pjsua_handle_events(unsigned msec_timeout) "public synchronized";
+%rename(pool_create) pjsua_pool_create;
+%javamethodmodifiers pjsua_pool_create(const char *name, pj_size_t init_size,
+				      pj_size_t increment) "public synchronized";
+%rename(reconfigure_logging) pjsua_reconfigure_logging;
+%javamethodmodifiers pjsua_reconfigure_logging(const pjsua_logging_config *c) "public synchronized";
+%rename(get_pjsip_endpt) pjsua_get_pjsip_endpt;
+%javamethodmodifiers pjsua_get_pjsip_endpt(void) "public synchronized";
+%rename(get_pjmedia_endpt) pjsua_get_pjmedia_endpt;
+%javamethodmodifiers pjsua_get_pjmedia_endpt(void) "public synchronized";
+%rename(get_pool_factory) pjsua_get_pool_factory;
+%javamethodmodifiers pjsua_get_pool_factory(void) "public synchronized";
+%rename(detect_nat_type) pjsua_detect_nat_type;
+%javamethodmodifiers pjsua_detect_nat_type(void) "public synchronized";
+%rename(get_nat_type) pjsua_get_nat_type;
+%javamethodmodifiers pjsua_get_nat_type(pj_stun_nat_type *type) "public synchronized";
+%rename(resolve_stun_servers) pjsua_resolve_stun_servers;
+%javamethodmodifiers pjsua_resolve_stun_servers(unsigned count,
+						pj_str_t srv[],
+						pj_bool_t wait,
+						void *token,
+						pj_stun_resolve_cb cb) "public synchronized";
+%rename(cancel_stun_resolution) pjsua_cancel_stun_resolution;
+%javamethodmodifiers pjsua_cancel_stun_resolution(void *token,
+						  pj_bool_t notify_cb) "public synchronized";
+%rename(verify_sip_url) pjsua_verify_sip_url;
+%javamethodmodifiers pjsua_verify_sip_url(const char *url) "public synchronized";
+%rename(verify_url) pjsua_verify_url;
+%javamethodmodifiers pjsua_verify_url(const char *url) "public synchronized";
+%rename(schedule_timer) pjsua_schedule_timer;
+%javamethodmodifiers pjsua_schedule_timer(pj_timer_entry *entry,
+					  const pj_time_val *delay) "public synchronized";
+%rename(cancel_timer) pjsua_cancel_timer;
+%javamethodmodifiers pjsua_cancel_timer(pj_timer_entry *entry) "public synchronized";
+%rename(perror) pjsua_perror;
+%javamethodmodifiers pjsua_perror(const char *sender, const char *title, 
+			   pj_status_t status) "public synchronized";
+%rename(dump) pjsua_dump;
+%javamethodmodifiers pjsua_dump(pj_bool_t detail) "public synchronized";
+%rename(transport_config_default) pjsua_transport_config_default;
+%javamethodmodifiers pjsua_transport_config_default(pjsua_transport_config *cfg) "public synchronized";
+%rename(transport_config_dup) pjsua_transport_config_dup;
+%javamethodmodifiers pjsua_transport_config_dup(pj_pool_t *pool,
+					 pjsua_transport_config *dst,
+					 const pjsua_transport_config *src) "public synchronized";
+%rename(transport_create) pjsua_transport_create;
+%javamethodmodifiers pjsua_transport_create(pjsip_transport_type_e type,
+					    const pjsua_transport_config *cfg,
+					    pjsua_transport_id *p_id) "public synchronized";
+%rename(transport_register) pjsua_transport_register;
+%javamethodmodifiers pjsua_transport_register(pjsip_transport *tp,
+					      pjsua_transport_id *p_id) "public synchronized";
+%rename(enum_transports) pjsua_enum_transports;
+%javamethodmodifiers pjsua_enum_transports( pjsua_transport_id id[],
+					    unsigned *count ) "public synchronized";
+%rename(transport_get_info) pjsua_transport_get_info;
+%javamethodmodifiers pjsua_transport_get_info(pjsua_transport_id id,
+					      pjsua_transport_info *info) "public synchronized";
+%rename(transport_set_enable) pjsua_transport_set_enable;
+%javamethodmodifiers pjsua_transport_set_enable(pjsua_transport_id id,
+						pj_bool_t enabled) "public synchronized";
+%rename(transport_close) pjsua_transport_close;
+%javamethodmodifiers pjsua_transport_close( pjsua_transport_id id,
+					    pj_bool_t force ) "public synchronized";
+%rename(acc_config_default) pjsua_acc_config_default;
+%javamethodmodifiers pjsua_acc_config_default(pjsua_acc_config *cfg) "public synchronized";
+%rename(acc_config_dup) pjsua_acc_config_dup;
+%javamethodmodifiers pjsua_acc_config_dup(pj_pool_t *pool,
+				   pjsua_acc_config *dst,
+				   const pjsua_acc_config *src) "public synchronized";
+%rename(acc_get_count) pjsua_acc_get_count;
+%javamethodmodifiers pjsua_acc_get_count(void) "public synchronized";
+%rename(acc_is_valid) pjsua_acc_is_valid;
+%javamethodmodifiers pjsua_acc_is_valid(pjsua_acc_id acc_id) "public synchronized";
+%rename(acc_set_default) pjsua_acc_set_default;
+%javamethodmodifiers pjsua_acc_set_default(pjsua_acc_id acc_id) "public synchronized";
+%rename(acc_get_default) pjsua_acc_get_default;
+%javamethodmodifiers pjsua_acc_get_default(void) "public synchronized";
+%rename(acc_add) pjsua_acc_add;
+%javamethodmodifiers pjsua_acc_add(const pjsua_acc_config *acc_cfg,
+				   pj_bool_t is_default,
+				   pjsua_acc_id *p_acc_id) "public synchronized";
+%rename(acc_add_local) pjsua_acc_add_local;
+%javamethodmodifiers pjsua_acc_add_local(pjsua_transport_id tid,
+					 pj_bool_t is_default,
+					 pjsua_acc_id *p_acc_id) "public synchronized";
+%rename(acc_set_user_data) pjsua_acc_set_user_data;
+%javamethodmodifiers pjsua_acc_set_user_data(pjsua_acc_id acc_id,
+					     void *user_data) "public synchronized";
+%rename(acc_get_user_data) pjsua_acc_get_user_data;
+%javamethodmodifiers pjsua_acc_get_user_data(pjsua_acc_id acc_id) "public synchronized";
+%rename(acc_del) pjsua_acc_del;
+%javamethodmodifiers pjsua_acc_del(pjsua_acc_id acc_id) "public synchronized";
+%rename(acc_modify) pjsua_acc_modify;
+%javamethodmodifiers pjsua_acc_modify(pjsua_acc_id acc_id,
+				      const pjsua_acc_config *acc_cfg) "public synchronized";
+%rename(acc_set_online_status) pjsua_acc_set_online_status;
+%javamethodmodifiers pjsua_acc_set_online_status(pjsua_acc_id acc_id,
+						 pj_bool_t is_online) "public synchronized";
+%rename(acc_set_online_status2) pjsua_acc_set_online_status2;
+%javamethodmodifiers pjsua_acc_set_online_status2(pjsua_acc_id acc_id,
+						  pj_bool_t is_online,
+						  const pjrpid_element *pr) "public synchronized";
+%rename(acc_set_registration) pjsua_acc_set_registration;
+%javamethodmodifiers pjsua_acc_set_registration(pjsua_acc_id acc_id, 
+						pj_bool_t renew) "public synchronized";
+%rename(acc_get_info) pjsua_acc_get_info;
+%javamethodmodifiers pjsua_acc_get_info(pjsua_acc_id acc_id,
+					pjsua_acc_info *info) "public synchronized";
+%rename(enum_accs) pjsua_enum_accs;
+%javamethodmodifiers pjsua_enum_accs(pjsua_acc_id ids[],
+				     unsigned *count ) "public synchronized";
+%rename(acc_enum_info) pjsua_acc_enum_info;
+%javamethodmodifiers pjsua_acc_enum_info( pjsua_acc_info info[],
+					  unsigned *count ) "public synchronized";
+%rename(acc_find_for_outgoing) pjsua_acc_find_for_outgoing;
+%javamethodmodifiers pjsua_acc_find_for_outgoing(const pj_str_t *url) "public synchronized";
+%rename(acc_find_for_incoming) pjsua_acc_find_for_incoming;
+%javamethodmodifiers pjsua_acc_find_for_incoming(pjsip_rx_data *rdata) "public synchronized";
+%rename(acc_create_request) pjsua_acc_create_request;
+%javamethodmodifiers pjsua_acc_create_request(pjsua_acc_id acc_id,
+					      const pjsip_method *method,
+					      const pj_str_t *target,
+					      pjsip_tx_data **p_tdata) "public synchronized";
+%rename(acc_create_uac_contact) pjsua_acc_create_uac_contact;
+%javamethodmodifiers pjsua_acc_create_uac_contact( pj_pool_t *pool,
+						   pj_str_t *contact,
+						   pjsua_acc_id acc_id,
+						   const pj_str_t *uri) "public synchronized";
+%rename(acc_create_uas_contact) pjsua_acc_create_uas_contact;
+%javamethodmodifiers pjsua_acc_create_uas_contact( pj_pool_t *pool,
+						   pj_str_t *contact,
+						   pjsua_acc_id acc_id,
+						   pjsip_rx_data *rdata ) "public synchronized";
+%rename(acc_set_transport) pjsua_acc_set_transport;
+%javamethodmodifiers pjsua_acc_set_transport(pjsua_acc_id acc_id,
+					     pjsua_transport_id tp_id) "public synchronized";
+%rename(call_get_max_count) pjsua_call_get_max_count;
+%javamethodmodifiers pjsua_call_get_max_count(void) "public synchronized";
+%rename(call_get_count) pjsua_call_get_count;
+%javamethodmodifiers pjsua_call_get_count(void) "public synchronized";
+%rename(enum_calls) pjsua_enum_calls;
+%javamethodmodifiers pjsua_enum_calls(pjsua_call_id ids[],
+				      unsigned *count) "public synchronized";
+%rename(call_make_call) pjsua_call_make_call;
+%javamethodmodifiers pjsua_call_make_call(pjsua_acc_id acc_id,
+					  const pj_str_t *dst_uri,
+					  unsigned options,
+					  void *user_data,
+					  const pjsua_msg_data *msg_data,
+					  pjsua_call_id *p_call_id) "public synchronized";
+%rename(call_is_active) pjsua_call_is_active;
+%javamethodmodifiers pjsua_call_is_active(pjsua_call_id call_id) "public synchronized";
+%rename(call_has_media) pjsua_call_has_media;
+%javamethodmodifiers pjsua_call_has_media(pjsua_call_id call_id) "public synchronized";
+%rename(call_get_media_session) pjsua_call_get_media_session;
+%javamethodmodifiers pjsua_call_get_media_session(pjsua_call_id call_id) "public synchronized";
+%rename(call_get_media_transport) pjsua_call_get_media_transport;
+%javamethodmodifiers pjsua_call_get_media_transport(pjsua_call_id cid) "public synchronized";
+%rename(call_get_conf_port) pjsua_call_get_conf_port;
+%javamethodmodifiers pjsua_call_get_conf_port(pjsua_call_id call_id) "public synchronized";
+%rename(call_get_info) pjsua_call_get_info;
+%javamethodmodifiers pjsua_call_get_info(pjsua_call_id call_id,
+					 pjsua_call_info *info) "public synchronized";
+%rename(call_remote_has_cap) pjsua_call_remote_has_cap;
+%javamethodmodifiers pjsua_call_remote_has_cap(
+						    pjsua_call_id call_id,
+						    int htype,
+						    const pj_str_t *hname,
+						    const pj_str_t *token) "public synchronized";
+%rename(call_set_user_data) pjsua_call_set_user_data;
+%javamethodmodifiers pjsua_call_set_user_data(pjsua_call_id call_id,
+					      void *user_data) "public synchronized";
+%rename(call_get_user_data) pjsua_call_get_user_data;
+%javamethodmodifiers pjsua_call_get_user_data(pjsua_call_id call_id) "public synchronized";
+%rename(call_get_rem_nat_type) pjsua_call_get_rem_nat_type;
+%javamethodmodifiers pjsua_call_get_rem_nat_type(pjsua_call_id call_id,
+						 pj_stun_nat_type *p_type) "public synchronized";
+%rename(call_answer) pjsua_call_answer;
+%javamethodmodifiers pjsua_call_answer(pjsua_call_id call_id, 
+				       unsigned code,
+				       const pj_str_t *reason,
+				       const pjsua_msg_data *msg_data) "public synchronized";
+%rename(call_hangup) pjsua_call_hangup;
+%javamethodmodifiers pjsua_call_hangup(pjsua_call_id call_id,
+				       unsigned code,
+				       const pj_str_t *reason,
+				       const pjsua_msg_data *msg_data) "public synchronized";
+%rename(call_process_redirect) pjsua_call_process_redirect;
+%javamethodmodifiers pjsua_call_process_redirect(pjsua_call_id call_id,
+						 pjsip_redirect_op cmd) "public synchronized";
+%rename(call_set_hold) pjsua_call_set_hold;
+%javamethodmodifiers pjsua_call_set_hold(pjsua_call_id call_id,
+					 const pjsua_msg_data *msg_data) "public synchronized";
+%rename(call_reinvite) pjsua_call_reinvite;
+%javamethodmodifiers pjsua_call_reinvite(pjsua_call_id call_id,
+					 pj_bool_t unhold,
+					 const pjsua_msg_data *msg_data) "public synchronized";
+%rename(call_update) pjsua_call_update;
+%javamethodmodifiers pjsua_call_update(pjsua_call_id call_id,
+				       unsigned options,
+				       const pjsua_msg_data *msg_data) "public synchronized";
+%rename(call_xfer) pjsua_call_xfer;
+%javamethodmodifiers pjsua_call_xfer(pjsua_call_id call_id, 
+				     const pj_str_t *dest,
+				     const pjsua_msg_data *msg_data) "public synchronized";
+%rename(call_xfer_replaces) pjsua_call_xfer_replaces;
+%javamethodmodifiers pjsua_call_xfer_replaces(pjsua_call_id call_id, 
+					      pjsua_call_id dest_call_id,
+					      unsigned options,
+					      const pjsua_msg_data *msg_data) "public synchronized";
+%rename(call_dial_dtmf) pjsua_call_dial_dtmf;
+%javamethodmodifiers pjsua_call_dial_dtmf(pjsua_call_id call_id, 
+					  const pj_str_t *digits) "public synchronized";
+%rename(call_send_im) pjsua_call_send_im;
+%javamethodmodifiers pjsua_call_send_im( pjsua_call_id call_id, 
+					 const pj_str_t *mime_type,
+					 const pj_str_t *content,
+					 const pjsua_msg_data *msg_data,
+					 void *user_data) "public synchronized";
+%rename(call_send_typing_ind) pjsua_call_send_typing_ind;
+%javamethodmodifiers pjsua_call_send_typing_ind(pjsua_call_id call_id, 
+						pj_bool_t is_typing,
+						const pjsua_msg_data*msg_data) "public synchronized";
+%rename(call_send_request) pjsua_call_send_request;
+%javamethodmodifiers pjsua_call_send_request(pjsua_call_id call_id,
+					     const pj_str_t *method,
+					     const pjsua_msg_data *msg_data) "public synchronized";
+%rename(call_hangup_all) pjsua_call_hangup_all;
+%javamethodmodifiers pjsua_call_hangup_all(void) "public synchronized";
+%rename(call_dump) pjsua_call_dump;
+%javamethodmodifiers pjsua_call_dump(pjsua_call_id call_id, 
+				     pj_bool_t with_media, 
+				     char *buffer, 
+				     unsigned maxlen,
+				     const char *indent) "public synchronized";
+%rename(buddy_config_default) pjsua_buddy_config_default;
+%javamethodmodifiers pjsua_buddy_config_default(pjsua_buddy_config *cfg) "public synchronized";
+%rename(get_buddy_count) pjsua_get_buddy_count;
+%javamethodmodifiers pjsua_get_buddy_count(void) "public synchronized";
+%rename(buddy_is_valid) pjsua_buddy_is_valid;
+%javamethodmodifiers pjsua_buddy_is_valid(pjsua_buddy_id buddy_id) "public synchronized";
+%rename(enum_buddies) pjsua_enum_buddies;
+%javamethodmodifiers pjsua_enum_buddies(pjsua_buddy_id ids[],
+					unsigned *count) "public synchronized";
+%rename(buddy_find) pjsua_buddy_find;
+%javamethodmodifiers pjsua_buddy_find(const pj_str_t *uri) "public synchronized";
+%rename(buddy_get_info) pjsua_buddy_get_info;
+%javamethodmodifiers pjsua_buddy_get_info(pjsua_buddy_id buddy_id,
+					  pjsua_buddy_info *info) "public synchronized";
+%rename(buddy_set_user_data) pjsua_buddy_set_user_data;
+%javamethodmodifiers pjsua_buddy_set_user_data(pjsua_buddy_id buddy_id,
+					       void *user_data) "public synchronized";
+%rename(buddy_get_user_data) pjsua_buddy_get_user_data;
+%javamethodmodifiers pjsua_buddy_get_user_data(pjsua_buddy_id buddy_id) "public synchronized";
+%rename(buddy_add) pjsua_buddy_add;
+%javamethodmodifiers pjsua_buddy_add(const pjsua_buddy_config *buddy_cfg,
+				     pjsua_buddy_id *p_buddy_id) "public synchronized";
+%rename(buddy_del) pjsua_buddy_del;
+%javamethodmodifiers pjsua_buddy_del(pjsua_buddy_id buddy_id) "public synchronized";
+%rename(buddy_subscribe_pres) pjsua_buddy_subscribe_pres;
+%javamethodmodifiers pjsua_buddy_subscribe_pres(pjsua_buddy_id buddy_id,
+						pj_bool_t subscribe) "public synchronized";
+%rename(buddy_update_pres) pjsua_buddy_update_pres;
+%javamethodmodifiers pjsua_buddy_update_pres(pjsua_buddy_id buddy_id) "public synchronized";
+%rename(pres_notify) pjsua_pres_notify;
+%javamethodmodifiers pjsua_pres_notify(pjsua_acc_id acc_id,
+				       pjsua_srv_pres *srv_pres,
+				       pjsip_evsub_state state,
+				       const pj_str_t *state_str,
+				       const pj_str_t *reason,
+				       pj_bool_t with_body,
+				       const pjsua_msg_data *msg_data) "public synchronized";
+%rename(pres_dump) pjsua_pres_dump;
+%javamethodmodifiers pjsua_pres_dump(pj_bool_t verbose) "public synchronized";
+%rename(im_send) pjsua_im_send;
+%javamethodmodifiers pjsua_im_send(pjsua_acc_id acc_id, 
+				   const pj_str_t *to,
+				   const pj_str_t *mime_type,
+				   const pj_str_t *content,
+				   const pjsua_msg_data *msg_data,
+				   void *user_data) "public synchronized";
+%rename(im_typing) pjsua_im_typing;
+%javamethodmodifiers pjsua_im_typing(pjsua_acc_id acc_id, 
+				     const pj_str_t *to, 
+				     pj_bool_t is_typing,
+				     const pjsua_msg_data *msg_data) "public synchronized";
+%rename(media_config_default) pjsua_media_config_default;
+%javamethodmodifiers pjsua_media_config_default(pjsua_media_config *cfg) "public synchronized";
+%rename(conf_get_max_ports) pjsua_conf_get_max_ports;
+%javamethodmodifiers pjsua_conf_get_max_ports(void) "public synchronized";
+%rename(conf_get_active_ports) pjsua_conf_get_active_ports;
+%javamethodmodifiers pjsua_conf_get_active_ports(void) "public synchronized";
+%rename(enum_conf_ports) pjsua_enum_conf_ports;
+%javamethodmodifiers pjsua_enum_conf_ports(pjsua_conf_port_id id[],
+					   unsigned *count) "public synchronized";
+%rename(conf_get_port_info) pjsua_conf_get_port_info;
+%javamethodmodifiers pjsua_conf_get_port_info( pjsua_conf_port_id port_id,
+					       pjsua_conf_port_info *info) "public synchronized";
+%rename(conf_add_port) pjsua_conf_add_port;
+%javamethodmodifiers pjsua_conf_add_port(pj_pool_t *pool,
+					 pjmedia_port *port,
+					 pjsua_conf_port_id *p_id) "public synchronized";
+%rename(conf_remove_port) pjsua_conf_remove_port;
+%javamethodmodifiers pjsua_conf_remove_port(pjsua_conf_port_id port_id) "public synchronized";
+%rename(conf_connect) pjsua_conf_connect;
+%javamethodmodifiers pjsua_conf_connect(pjsua_conf_port_id source,
+					pjsua_conf_port_id sink) "public synchronized";
+%rename(conf_disconnect) pjsua_conf_disconnect;
+%javamethodmodifiers pjsua_conf_disconnect(pjsua_conf_port_id source,
+					   pjsua_conf_port_id sink) "public synchronized";
+%rename(conf_adjust_tx_level) pjsua_conf_adjust_tx_level;
+%javamethodmodifiers pjsua_conf_adjust_tx_level(pjsua_conf_port_id slot,
+						float level) "public synchronized";
+%rename(conf_adjust_rx_level) pjsua_conf_adjust_rx_level;
+%javamethodmodifiers pjsua_conf_adjust_rx_level(pjsua_conf_port_id slot,
+						float level) "public synchronized";
+%rename(conf_get_signal_level) pjsua_conf_get_signal_level;
+%javamethodmodifiers pjsua_conf_get_signal_level(pjsua_conf_port_id slot,
+						 unsigned *tx_level,
+						 unsigned *rx_level) "public synchronized";
+%rename(player_create) pjsua_player_create;
+%javamethodmodifiers pjsua_player_create(const pj_str_t *filename,
+					 unsigned options,
+					 pjsua_player_id *p_id) "public synchronized";
+%rename(playlist_create) pjsua_playlist_create;
+%javamethodmodifiers pjsua_playlist_create(const pj_str_t file_names[],
+					   unsigned file_count,
+					   const pj_str_t *label,
+					   unsigned options,
+					   pjsua_player_id *p_id) "public synchronized";
+%rename(player_get_conf_port) pjsua_player_get_conf_port;
+%javamethodmodifiers pjsua_player_get_conf_port(pjsua_player_id id) "public synchronized";
+%rename(player_get_port) pjsua_player_get_port;
+%javamethodmodifiers pjsua_player_get_port(pjsua_player_id id,
+					   pjmedia_port **p_port) "public synchronized";
+%rename(player_set_pos) pjsua_player_set_pos;
+%javamethodmodifiers pjsua_player_set_pos(pjsua_player_id id,
+					  pj_uint32_t samples) "public synchronized";
+%rename(player_destroy) pjsua_player_destroy;
+%javamethodmodifiers pjsua_player_destroy(pjsua_player_id id) "public synchronized";
+%rename(recorder_create) pjsua_recorder_create;
+%javamethodmodifiers pjsua_recorder_create(const pj_str_t *filename,
+					   unsigned enc_type,
+					   void *enc_param,
+					   pj_ssize_t max_size,
+					   unsigned options,
+					   pjsua_recorder_id *p_id) "public synchronized";
+%rename(recorder_get_conf_port) pjsua_recorder_get_conf_port;
+%javamethodmodifiers pjsua_recorder_get_conf_port(pjsua_recorder_id id) "public synchronized";
+%rename(recorder_get_port) pjsua_recorder_get_port;
+%javamethodmodifiers pjsua_recorder_get_port(pjsua_recorder_id id,
+					     pjmedia_port **p_port) "public synchronized";
+%rename(recorder_destroy) pjsua_recorder_destroy;
+%javamethodmodifiers pjsua_recorder_destroy(pjsua_recorder_id id) "public synchronized";
+%rename(enum_aud_devs) pjsua_enum_aud_devs;
+%javamethodmodifiers pjsua_enum_aud_devs(pjmedia_aud_dev_info info[],
+					 unsigned *count) "public synchronized";
+%rename(enum_snd_devs) pjsua_enum_snd_devs;
+%javamethodmodifiers pjsua_enum_snd_devs(pjmedia_snd_dev_info info[],
+					 unsigned *count) "public synchronized";
+%rename(get_snd_dev) pjsua_get_snd_dev;
+%javamethodmodifiers pjsua_get_snd_dev(int *capture_dev,
+				       int *playback_dev) "public synchronized";
+%rename(set_snd_dev) pjsua_set_snd_dev;
+%javamethodmodifiers pjsua_set_snd_dev(int capture_dev,
+				       int playback_dev) "public synchronized";
+%rename(set_null_snd_dev) pjsua_set_null_snd_dev;
+%javamethodmodifiers pjsua_set_null_snd_dev(void) "public synchronized";
+%rename(set_no_snd_dev) pjsua_set_no_snd_dev;
+%javamethodmodifiers pjsua_set_no_snd_dev(void) "public synchronized";
+%rename(set_ec) pjsua_set_ec;
+%javamethodmodifiers pjsua_set_ec(unsigned tail_ms, unsigned options) "public synchronized";
+%rename(get_ec_tail) pjsua_get_ec_tail;
+%javamethodmodifiers pjsua_get_ec_tail(unsigned *p_tail_ms) "public synchronized";
+%rename(snd_is_active) pjsua_snd_is_active;
+%javamethodmodifiers pjsua_snd_is_active(void) "public synchronized";
+%rename(snd_set_setting) pjsua_snd_set_setting;
+%javamethodmodifiers pjsua_snd_set_setting(pjmedia_aud_dev_cap cap,
+					   const void *pval,
+					   pj_bool_t keep) "public synchronized";
+%rename(snd_get_setting) pjsua_snd_get_setting;
+%javamethodmodifiers pjsua_snd_get_setting(pjmedia_aud_dev_cap cap,
+					   void *pval) "public synchronized";
+%rename(enum_codecs) pjsua_enum_codecs;
+%javamethodmodifiers pjsua_enum_codecs( pjsua_codec_info id[],
+				        unsigned *count ) "public synchronized";
+%rename(codec_set_priority) pjsua_codec_set_priority;
+%javamethodmodifiers pjsua_codec_set_priority( const pj_str_t *codec_id,
+					       pj_uint8_t priority ) "public synchronized";
+%rename(codec_get_param) pjsua_codec_get_param;
+%javamethodmodifiers pjsua_codec_get_param( const pj_str_t *codec_id,
+					    pjmedia_codec_param *param ) "public synchronized";
+%rename(codec_set_param) pjsua_codec_set_param;
+%javamethodmodifiers pjsua_codec_set_param( const pj_str_t *codec_id,
+					    const pjmedia_codec_param *param) "public synchronized";
+%rename(media_transports_create) pjsua_media_transports_create;
+%javamethodmodifiers pjsua_media_transports_create(const pjsua_transport_config *cfg) "public synchronized";
+
 #define PJSUA_INVALID_ID	    (-1)
 typedef int pjsua_call_id;
 typedef int pjsua_acc_id;
@@ -1243,11 +1660,9 @@ typedef struct pjsua_msg_data pjsua_msg_data;
 #endif
 #endif
 #if defined(PJMEDIA_HAS_ZRTP) && (PJMEDIA_HAS_ZRTP != 0)
-    
 #ifndef PJSUA_DEFAULT_USE_ZRTP
     #define PJSUA_DEFAULT_USE_ZRTP  PJMEDIA_CREATE_ZRTP
 #endif
-    
 #endif
 #ifndef PJSUA_ADD_ICE_TAGS
 #   define PJSUA_ADD_ICE_TAGS		1
@@ -1255,90 +1670,62 @@ typedef struct pjsua_msg_data pjsua_msg_data;
 #ifndef PJSUA_ACQUIRE_CALL_TIMEOUT
 #   define PJSUA_ACQUIRE_CALL_TIMEOUT 2000
 #endif
-struct pjsua_logging_config
+typedef struct pjsua_logging_config
 {
-    
     pj_bool_t	msg_logging;
-    
     unsigned	level;
-    
     unsigned	console_level;
-    
     unsigned	decor;
-    
     pj_str_t	log_filename;
-    
     unsigned	log_file_flags;
-    
     void       (*cb)(int level, const char *data, int len);
-};
-%rename(logging_config_default) pjsua_logging_config_default;
-%javamethodmodifiers pjsua_logging_config_default(pjsua_logging_config *cfg) "public synchronized";
+} pjsua_logging_config;
 PJ_DECL(void) pjsua_logging_config_default(pjsua_logging_config *cfg);
-%rename(logging_config_dup) pjsua_logging_config_dup;
-%javamethodmodifiers pjsua_logging_config_dup(pj_pool_t *pool,
-				       pjsua_logging_config *dst,
-				       const pjsua_logging_config *src) "public synchronized";
 PJ_DECL(void) pjsua_logging_config_dup(pj_pool_t *pool,
 				       pjsua_logging_config *dst,
 				       const pjsua_logging_config *src);
-struct pjsua_mwi_info
+typedef struct pjsua_mwi_info
 {
     pjsip_evsub	    *evsub;	
     pjsip_rx_data   *rdata;	
-};
-struct pjsua_reg_info
+} pjsua_mwi_info;
+typedef struct pjsua_reg_info
 {
     struct pjsip_regc_cbparam	*cbparam;   
-};
-struct pjsua_callback
+} pjsua_reg_info;
+typedef struct pjsua_callback
 {
-    
     void (*on_call_state)(pjsua_call_id call_id, pjsip_event *e);
-    
     void (*on_incoming_call)(pjsua_acc_id acc_id, pjsua_call_id call_id,
 			     pjsip_rx_data *rdata);
-    
     void (*on_call_tsx_state)(pjsua_call_id call_id, 
 			      pjsip_transaction *tsx,
 			      pjsip_event *e);
-    
     void (*on_call_media_state)(pjsua_call_id call_id);
- 
-    
     void (*on_stream_created)(pjsua_call_id call_id, 
 			      pjmedia_session *sess,
                               unsigned stream_idx, 
 			      pjmedia_port **p_port);
-    
     void (*on_stream_destroyed)(pjsua_call_id call_id,
                                 pjmedia_session *sess, 
 				unsigned stream_idx);
-    
     void (*on_dtmf_digit)(pjsua_call_id call_id, int digit);
-    
     void (*on_call_transfer_request)(pjsua_call_id call_id,
 				     const pj_str_t *dst,
 				     pjsip_status_code *code);
-    
     void (*on_call_transfer_status)(pjsua_call_id call_id,
 				    int st_code,
 				    const pj_str_t *st_text,
 				    pj_bool_t final,
 				    pj_bool_t *p_cont);
-    
     void (*on_call_replace_request)(pjsua_call_id call_id,
 				    pjsip_rx_data *rdata,
 				    int *st_code,
 				    pj_str_t *st_text);
-    
     void (*on_call_replaced)(pjsua_call_id old_call_id,
 			     pjsua_call_id new_call_id);
-    
     void (*on_reg_state)(pjsua_acc_id acc_id);
-    
     void (*on_reg_state2)(pjsua_acc_id acc_id, pjsua_reg_info *info);
-    
     void (*on_incoming_subscribe)(pjsua_acc_id acc_id,
 				  pjsua_srv_pres *srv_pres,
 				  pjsua_buddy_id buddy_id,
@@ -1347,35 +1734,28 @@ struct pjsua_callback
 				  pjsip_status_code *code,
 				  pj_str_t *reason,
 				  pjsua_msg_data *msg_data);
-    
     void (*on_srv_subscribe_state)(pjsua_acc_id acc_id,
 				   pjsua_srv_pres *srv_pres,
 				   const pj_str_t *remote_uri,
 				   pjsip_evsub_state state,
 				   pjsip_event *event);
-    
     void (*on_buddy_state)(pjsua_buddy_id buddy_id);
-    
     void (*on_buddy_evsub_state)(pjsua_buddy_id buddy_id,
 				 pjsip_evsub *sub,
 				 pjsip_event *event);
-    
     void (*on_pager)(pjsua_call_id call_id, const pj_str_t *from,
 		     const pj_str_t *to, const pj_str_t *contact,
 		     const pj_str_t *mime_type, const pj_str_t *body);
-    
     void (*on_pager2)(pjsua_call_id call_id, const pj_str_t *from,
 		      const pj_str_t *to, const pj_str_t *contact,
 		      const pj_str_t *mime_type, const pj_str_t *body,
 		      pjsip_rx_data *rdata, pjsua_acc_id acc_id);
-    
     void (*on_pager_status)(pjsua_call_id call_id,
 			    const pj_str_t *to,
 			    const pj_str_t *body,
 			    void *user_data,
 			    pjsip_status_code status,
 			    const pj_str_t *reason);
-    
     void (*on_pager_status2)(pjsua_call_id call_id,
 			     const pj_str_t *to,
 			     const pj_str_t *body,
@@ -1385,285 +1765,147 @@ struct pjsua_callback
 			     pjsip_tx_data *tdata,
 			     pjsip_rx_data *rdata,
 			     pjsua_acc_id acc_id);
-    
     void (*on_typing)(pjsua_call_id call_id, const pj_str_t *from,
 		      const pj_str_t *to, const pj_str_t *contact,
 		      pj_bool_t is_typing);
-    
     void (*on_typing2)(pjsua_call_id call_id, const pj_str_t *from,
 		       const pj_str_t *to, const pj_str_t *contact,
 		       pj_bool_t is_typing, pjsip_rx_data *rdata,
 		       pjsua_acc_id acc_id);
-    
     void (*on_nat_detect)(const pj_stun_nat_detect_result *res);
-    
     pjsip_redirect_op (*on_call_redirected)(pjsua_call_id call_id, 
 					    const pjsip_uri *target,
 					    const pjsip_event *e);
-    
     void (*on_mwi_info)(pjsua_acc_id acc_id, pjsua_mwi_info *mwi_info);
-    
     pjsip_tp_state_callback on_transport_state;
-    
     void (*on_ice_transport_error)(int index, pj_ice_strans_op op,
 				   pj_status_t status, void *param);
 //#if defined(PJMEDIA_HAS_ZRTP) && (PJMEDIA_HAS_ZRTP != 0)
-    
     pj_status_t (*on_zrtp_transport_created)(pjmedia_transport *tp, pjsua_call_id call_id);
 //#endif
-};
-enum pjsua_sip_timer_use
+} pjsua_callback;
+typedef enum pjsua_sip_timer_use
 {
-    
     PJSUA_SIP_TIMER_INACTIVE,
-    
     PJSUA_SIP_TIMER_OPTIONAL,
-    
     PJSUA_SIP_TIMER_REQUIRED,
-    
     PJSUA_SIP_TIMER_ALWAYS
-};
-struct pjsua_config
+} pjsua_sip_timer_use;
+typedef struct pjsua_config
 {
-    
     unsigned	    max_calls;
-    
     unsigned	    thread_cnt;
-    
     unsigned	    nameserver_count;
-    
     pj_str_t	    nameserver[4];
-    
     pj_bool_t	    force_lr;
-    
     unsigned	    outbound_proxy_cnt;
-    
     pj_str_t	    outbound_proxy[4];
-    
     pj_str_t	    stun_domain;
-    
     pj_str_t	    stun_host;
-    
     unsigned	    stun_srv_cnt;
-    
     pj_str_t	    stun_srv[8];
-    
     pj_bool_t	    stun_ignore_failure;
-    
     int		    nat_type_in_sdp;
-    
     pj_bool_t	    require_100rel;
-    
     pjsua_sip_timer_use use_timer;
-    
     pj_bool_t	    enable_unsolicited_mwi;
-    
     pjsip_timer_setting timer_setting;
-    
     unsigned	    cred_count;
-    
     pjsip_cred_info cred_info[PJSUA_ACC_MAX_PROXIES];
-    
     pjsua_callback  cb;
-    
     pj_str_t	    user_agent;
 #if defined(PJMEDIA_HAS_SRTP) && (PJMEDIA_HAS_SRTP != 0)
-    
     pjmedia_srtp_use	use_srtp;
-    
     int		     srtp_secure_signaling;
-    
     pj_bool_t	     srtp_optional_dup_offer;
 #endif
-    
     pj_bool_t	     hangup_forked_call;
-};
-%rename(config_default) pjsua_config_default;
-%javamethodmodifiers pjsua_config_default(pjsua_config *cfg) "public synchronized";
+} pjsua_config;
 PJ_DECL(void) pjsua_config_default(pjsua_config *cfg);
 #define pjsip_cred_dup	pjsip_cred_info_dup
-%rename(config_dup) pjsua_config_dup;
-%javamethodmodifiers pjsua_config_dup(pj_pool_t *pool,
-			       pjsua_config *dst,
-			       const pjsua_config *src) "public synchronized";
 PJ_DECL(void) pjsua_config_dup(pj_pool_t *pool,
 			       pjsua_config *dst,
 			       const pjsua_config *src);
 struct pjsua_msg_data
 {
-    
     pjsip_hdr	hdr_list;
-    
     pj_str_t	content_type;
-    
     pj_str_t	msg_body;
-    
     pjsip_media_type  multipart_ctype;
-    
     pjsip_multipart_part multipart_parts;
 };
-%rename(msg_data_init) pjsua_msg_data_init;
-%javamethodmodifiers pjsua_msg_data_init(pjsua_msg_data *msg_data) "public synchronized";
 PJ_DECL(void) pjsua_msg_data_init(pjsua_msg_data *msg_data);
-%rename(create) pjsua_create;
-%javamethodmodifiers pjsua_create(void) "public synchronized";
 PJ_DECL(pj_status_t) pjsua_create(void);
-%rename(start) pjsua_start;
-%javamethodmodifiers pjsua_start(void) "public synchronized";
 PJ_DECL(pj_status_t) pjsua_start(void);
-%rename(handle_events) pjsua_handle_events;
-%javamethodmodifiers pjsua_handle_events(unsigned msec_timeout) "public synchronized";
 PJ_DECL(int) pjsua_handle_events(unsigned msec_timeout);
-%rename(pool_create) pjsua_pool_create;
-%javamethodmodifiers pjsua_pool_create(const char *name, pj_size_t init_size,
-				      pj_size_t increment) "public synchronized";
 PJ_DECL(pj_pool_t*) pjsua_pool_create(const char *name, pj_size_t init_size,
 				      pj_size_t increment);
-%rename(reconfigure_logging) pjsua_reconfigure_logging;
-%javamethodmodifiers pjsua_reconfigure_logging(const pjsua_logging_config *c) "public synchronized";
 PJ_DECL(pj_status_t) pjsua_reconfigure_logging(const pjsua_logging_config *c);
-%rename(get_pjsip_endpt) pjsua_get_pjsip_endpt;
-%javamethodmodifiers pjsua_get_pjsip_endpt(void) "public synchronized";
 PJ_DECL(pjsip_endpoint*) pjsua_get_pjsip_endpt(void);
-%rename(get_pjmedia_endpt) pjsua_get_pjmedia_endpt;
-%javamethodmodifiers pjsua_get_pjmedia_endpt(void) "public synchronized";
 PJ_DECL(pjmedia_endpt*) pjsua_get_pjmedia_endpt(void);
-%rename(get_pool_factory) pjsua_get_pool_factory;
-%javamethodmodifiers pjsua_get_pool_factory(void) "public synchronized";
 PJ_DECL(pj_pool_factory*) pjsua_get_pool_factory(void);
-struct pj_stun_resolve_result
+typedef struct pj_stun_resolve_result
 {
-    
     void	    *token;
-    
     pj_status_t	     status;
-    
     pj_str_t	     name;
-    
     pj_sockaddr	     addr;
-};
+} pj_stun_resolve_result;
 typedef void (*pj_stun_resolve_cb)(const pj_stun_resolve_result *result);
-%rename(detect_nat_type) pjsua_detect_nat_type;
-%javamethodmodifiers pjsua_detect_nat_type(void) "public synchronized";
 PJ_DECL(pj_status_t) pjsua_detect_nat_type(void);
-%rename(get_nat_type) pjsua_get_nat_type;
-%javamethodmodifiers pjsua_get_nat_type(pj_stun_nat_type *type) "public synchronized";
 PJ_DECL(pj_status_t) pjsua_get_nat_type(pj_stun_nat_type *type);
-%rename(resolve_stun_servers) pjsua_resolve_stun_servers;
-%javamethodmodifiers pjsua_resolve_stun_servers(unsigned count,
-						pj_str_t srv[],
-						pj_bool_t wait,
-						void *token,
-						pj_stun_resolve_cb cb) "public synchronized";
 PJ_DECL(pj_status_t) pjsua_resolve_stun_servers(unsigned count,
 						pj_str_t srv[],
 						pj_bool_t wait,
 						void *token,
 						pj_stun_resolve_cb cb);
-%rename(cancel_stun_resolution) pjsua_cancel_stun_resolution;
-%javamethodmodifiers pjsua_cancel_stun_resolution(void *token,
-						  pj_bool_t notify_cb) "public synchronized";
 PJ_DECL(pj_status_t) pjsua_cancel_stun_resolution(void *token,
 						  pj_bool_t notify_cb);
-%rename(verify_sip_url) pjsua_verify_sip_url;
-%javamethodmodifiers pjsua_verify_sip_url(const char *url) "public synchronized";
 PJ_DECL(pj_status_t) pjsua_verify_sip_url(const char *url);
-%rename(verify_url) pjsua_verify_url;
-%javamethodmodifiers pjsua_verify_url(const char *url) "public synchronized";
 PJ_DECL(pj_status_t) pjsua_verify_url(const char *url);
-%rename(schedule_timer) pjsua_schedule_timer;
-%javamethodmodifiers pjsua_schedule_timer(pj_timer_entry *entry,
-					  const pj_time_val *delay) "public synchronized";
 PJ_DECL(pj_status_t) pjsua_schedule_timer(pj_timer_entry *entry,
 					  const pj_time_val *delay);
-%rename(cancel_timer) pjsua_cancel_timer;
-%javamethodmodifiers pjsua_cancel_timer(pj_timer_entry *entry) "public synchronized";
 PJ_DECL(void) pjsua_cancel_timer(pj_timer_entry *entry);
-%rename(perror) pjsua_perror;
-%javamethodmodifiers pjsua_perror(const char *sender, const char *title, 
-			   pj_status_t status) "public synchronized";
 PJ_DECL(void) pjsua_perror(const char *sender, const char *title, 
 			   pj_status_t status);
-%rename(dump) pjsua_dump;
-%javamethodmodifiers pjsua_dump(pj_bool_t detail) "public synchronized";
 PJ_DECL(void) pjsua_dump(pj_bool_t detail);
 typedef int pjsua_transport_id;
-struct pjsua_transport_config
+typedef struct pjsua_transport_config
 {
-    
     unsigned		port;
-    
     pj_str_t		public_addr;
-    
     pj_str_t		bound_addr;
-    
     pjsip_tls_setting	tls_setting;
-    
     pj_qos_type		qos_type;
-    
     pj_qos_params	qos_params;
-};
-%rename(transport_config_default) pjsua_transport_config_default;
-%javamethodmodifiers pjsua_transport_config_default(pjsua_transport_config *cfg) "public synchronized";
+} pjsua_transport_config;
 PJ_DECL(void) pjsua_transport_config_default(pjsua_transport_config *cfg);
-%rename(transport_config_dup) pjsua_transport_config_dup;
-%javamethodmodifiers pjsua_transport_config_dup(pj_pool_t *pool,
-					 pjsua_transport_config *dst,
-					 const pjsua_transport_config *src) "public synchronized";
 PJ_DECL(void) pjsua_transport_config_dup(pj_pool_t *pool,
 					 pjsua_transport_config *dst,
 					 const pjsua_transport_config *src);
-struct pjsua_transport_info
+typedef struct pjsua_transport_info
 {
-    
     pjsua_transport_id	    id;
-    
     pjsip_transport_type_e  type;
-    
     pj_str_t		    type_name;
-    
     pj_str_t		    info;
-    
     unsigned		    flag;
-    
     unsigned		    addr_len;
-    
     pj_sockaddr		    local_addr;
-    
     pjsip_host_port	    local_name;
-    
     unsigned		    usage_count;
-};
-%rename(transport_create) pjsua_transport_create;
-%javamethodmodifiers pjsua_transport_create(pjsip_transport_type_e type,
-					    const pjsua_transport_config *cfg,
-					    pjsua_transport_id *p_id) "public synchronized";
+} pjsua_transport_info;
 PJ_DECL(pj_status_t) pjsua_transport_create(pjsip_transport_type_e type,
 					    const pjsua_transport_config *cfg,
 					    pjsua_transport_id *p_id);
-%rename(transport_register) pjsua_transport_register;
-%javamethodmodifiers pjsua_transport_register(pjsip_transport *tp,
-					      pjsua_transport_id *p_id) "public synchronized";
 PJ_DECL(pj_status_t) pjsua_transport_register(pjsip_transport *tp,
 					      pjsua_transport_id *p_id);
-%rename(enum_transports) pjsua_enum_transports;
-%javamethodmodifiers pjsua_enum_transports( pjsua_transport_id id[],
-					    unsigned *count ) "public synchronized";
 PJ_DECL(pj_status_t) pjsua_enum_transports( pjsua_transport_id id[],
 					    unsigned *count );
-%rename(transport_get_info) pjsua_transport_get_info;
-%javamethodmodifiers pjsua_transport_get_info(pjsua_transport_id id,
-					      pjsua_transport_info *info) "public synchronized";
 PJ_DECL(pj_status_t) pjsua_transport_get_info(pjsua_transport_id id,
 					      pjsua_transport_info *info);
-%rename(transport_set_enable) pjsua_transport_set_enable;
-%javamethodmodifiers pjsua_transport_set_enable(pjsua_transport_id id,
-						pj_bool_t enabled) "public synchronized";
 PJ_DECL(pj_status_t) pjsua_transport_set_enable(pjsua_transport_id id,
 						pj_bool_t enabled);
-%rename(transport_close) pjsua_transport_close;
-%javamethodmodifiers pjsua_transport_close( pjsua_transport_id id,
-					    pj_bool_t force ) "public synchronized";
 PJ_DECL(pj_status_t) pjsua_transport_close( pjsua_transport_id id,
 					    pj_bool_t force );
 #ifndef PJSUA_MAX_ACC
@@ -1695,312 +1937,159 @@ PJ_DECL(pj_status_t) pjsua_transport_close( pjsua_transport_id id,
 #endif
 #define PJSUA_REG_USE_OUTBOUND_PROXY		1
 #define PJSUA_REG_USE_ACC_PROXY			2
-enum pjsua_call_hold_type
+typedef enum pjsua_call_hold_type
 {
-    
     PJSUA_CALL_HOLD_TYPE_RFC3264,
-    
     PJSUA_CALL_HOLD_TYPE_RFC2543
-};
+} pjsua_call_hold_type;
 #ifndef PJSUA_CALL_HOLD_TYPE_DEFAULT
 #   define PJSUA_CALL_HOLD_TYPE_DEFAULT		PJSUA_CALL_HOLD_TYPE_RFC3264
 #endif
-struct pjsua_acc_config
+typedef struct pjsua_acc_config
 {
-    
     void	   *user_data;
-    
     int		    priority;
-    
     pj_str_t	    id;
-    
     pj_str_t	    reg_uri;
-    
     pjsip_hdr	    reg_hdr_list;
-    
     pjsip_hdr	    sub_hdr_list;
-    
     pj_bool_t	    mwi_enabled;
-    
     pj_bool_t	    publish_enabled;
-    
     pjsip_publishc_opt	publish_opt;
-    
     unsigned	    unpublish_max_wait_time_msec;
-    
     pjsip_auth_clt_pref auth_pref;
-    
     pj_str_t	    pidf_tuple_id;
-    
     pj_str_t	    force_contact;
-    
     pj_str_t	    contact_params;
-    
     pj_str_t	    contact_uri_params;
-    
     pj_bool_t	    require_100rel;
-    
     pjsua_sip_timer_use use_timer;
-    
     pjsip_timer_setting timer_setting;
-    
     unsigned	    proxy_cnt;
-    
     pj_str_t	    proxy[PJSUA_ACC_MAX_PROXIES];
-    
     unsigned	    reg_timeout;
-    
+    unsigned	    reg_delay_before_refresh;
     unsigned	    unreg_timeout;
-    
     unsigned	    cred_count;
-    
     pjsip_cred_info cred_info[PJSUA_ACC_MAX_PROXIES];
-    
     pjsua_transport_id  transport_id;
-    
     pj_bool_t allow_contact_rewrite;
-    
     int		     contact_rewrite_method;
-    
     unsigned	     use_rfc5626;
-    
     pj_str_t	     rfc5626_instance_id;
-    
     pj_str_t	     rfc5626_reg_id;
-    
     unsigned	     ka_interval;
-    
     pj_str_t	     ka_data;
 #if defined(PJMEDIA_HAS_SRTP) && (PJMEDIA_HAS_SRTP != 0)
-    
     pjmedia_srtp_use	use_srtp;
-    
     int		     srtp_secure_signaling;
-    
     pj_bool_t	     srtp_optional_dup_offer;
 #endif
 //#if defined(PJMEDIA_HAS_ZRTP) && (PJMEDIA_HAS_ZRTP != 0)
-    
     pjmedia_zrtp_use     use_zrtp;
-    
 //#endif
-    
     unsigned	     reg_retry_interval;
-    
     pj_bool_t	     drop_calls_on_reg_fail;
-    
     unsigned	     reg_use_proxy;
 #if defined(PJMEDIA_STREAM_ENABLE_KA) && (PJMEDIA_STREAM_ENABLE_KA != 0)
-    
     pj_bool_t	     use_stream_ka;
 #endif
-    
     pjsua_call_hold_type call_hold_type;
-};
-%rename(acc_config_default) pjsua_acc_config_default;
-%javamethodmodifiers pjsua_acc_config_default(pjsua_acc_config *cfg) "public synchronized";
+} pjsua_acc_config;
 PJ_DECL(void) pjsua_acc_config_default(pjsua_acc_config *cfg);
-%rename(acc_config_dup) pjsua_acc_config_dup;
-%javamethodmodifiers pjsua_acc_config_dup(pj_pool_t *pool,
-				   pjsua_acc_config *dst,
-				   const pjsua_acc_config *src) "public synchronized";
 PJ_DECL(void) pjsua_acc_config_dup(pj_pool_t *pool,
 				   pjsua_acc_config *dst,
 				   const pjsua_acc_config *src);
-struct pjsua_acc_info
+typedef struct pjsua_acc_info
 {
-    
     pjsua_acc_id	id;
-    
     pj_bool_t		is_default;
-    
     pj_str_t		acc_uri;
-    
     pj_bool_t		has_registration;
-    
     int			expires;
-    
     pjsip_status_code	status;
-    
     pj_status_t	        reg_last_err;
-    
     pj_str_t		status_text;
-    
     pj_bool_t		online_status;
-    
     pj_str_t		online_status_text;
-    
     pjrpid_element	rpid;
-    
     char		buf_[PJ_ERR_MSG_SIZE];
-};
-%rename(acc_get_count) pjsua_acc_get_count;
-%javamethodmodifiers pjsua_acc_get_count(void) "public synchronized";
+} pjsua_acc_info;
 PJ_DECL(unsigned) pjsua_acc_get_count(void);
-%rename(acc_is_valid) pjsua_acc_is_valid;
-%javamethodmodifiers pjsua_acc_is_valid(pjsua_acc_id acc_id) "public synchronized";
 PJ_DECL(pj_bool_t) pjsua_acc_is_valid(pjsua_acc_id acc_id);
-%rename(acc_set_default) pjsua_acc_set_default;
-%javamethodmodifiers pjsua_acc_set_default(pjsua_acc_id acc_id) "public synchronized";
 PJ_DECL(pj_status_t) pjsua_acc_set_default(pjsua_acc_id acc_id);
-%rename(acc_get_default) pjsua_acc_get_default;
-%javamethodmodifiers pjsua_acc_get_default(void) "public synchronized";
 PJ_DECL(pjsua_acc_id) pjsua_acc_get_default(void);
-%rename(acc_add) pjsua_acc_add;
-%javamethodmodifiers pjsua_acc_add(const pjsua_acc_config *acc_cfg,
-				   pj_bool_t is_default,
-				   pjsua_acc_id *p_acc_id) "public synchronized";
 PJ_DECL(pj_status_t) pjsua_acc_add(const pjsua_acc_config *acc_cfg,
 				   pj_bool_t is_default,
 				   pjsua_acc_id *p_acc_id);
-%rename(acc_add_local) pjsua_acc_add_local;
-%javamethodmodifiers pjsua_acc_add_local(pjsua_transport_id tid,
-					 pj_bool_t is_default,
-					 pjsua_acc_id *p_acc_id) "public synchronized";
 PJ_DECL(pj_status_t) pjsua_acc_add_local(pjsua_transport_id tid,
 					 pj_bool_t is_default,
 					 pjsua_acc_id *p_acc_id);
-%rename(acc_set_user_data) pjsua_acc_set_user_data;
-%javamethodmodifiers pjsua_acc_set_user_data(pjsua_acc_id acc_id,
-					     void *user_data) "public synchronized";
 PJ_DECL(pj_status_t) pjsua_acc_set_user_data(pjsua_acc_id acc_id,
 					     void *user_data);
-%rename(acc_get_user_data) pjsua_acc_get_user_data;
-%javamethodmodifiers pjsua_acc_get_user_data(pjsua_acc_id acc_id) "public synchronized";
 PJ_DECL(void*) pjsua_acc_get_user_data(pjsua_acc_id acc_id);
-%rename(acc_del) pjsua_acc_del;
-%javamethodmodifiers pjsua_acc_del(pjsua_acc_id acc_id) "public synchronized";
 PJ_DECL(pj_status_t) pjsua_acc_del(pjsua_acc_id acc_id);
-%rename(acc_modify) pjsua_acc_modify;
-%javamethodmodifiers pjsua_acc_modify(pjsua_acc_id acc_id,
-				      const pjsua_acc_config *acc_cfg) "public synchronized";
 PJ_DECL(pj_status_t) pjsua_acc_modify(pjsua_acc_id acc_id,
 				      const pjsua_acc_config *acc_cfg);
-%rename(acc_set_online_status) pjsua_acc_set_online_status;
-%javamethodmodifiers pjsua_acc_set_online_status(pjsua_acc_id acc_id,
-						 pj_bool_t is_online) "public synchronized";
 PJ_DECL(pj_status_t) pjsua_acc_set_online_status(pjsua_acc_id acc_id,
 						 pj_bool_t is_online);
-%rename(acc_set_online_status2) pjsua_acc_set_online_status2;
-%javamethodmodifiers pjsua_acc_set_online_status2(pjsua_acc_id acc_id,
-						  pj_bool_t is_online,
-						  const pjrpid_element *pr) "public synchronized";
 PJ_DECL(pj_status_t) pjsua_acc_set_online_status2(pjsua_acc_id acc_id,
 						  pj_bool_t is_online,
 						  const pjrpid_element *pr);
-%rename(acc_set_registration) pjsua_acc_set_registration;
-%javamethodmodifiers pjsua_acc_set_registration(pjsua_acc_id acc_id, 
-						pj_bool_t renew) "public synchronized";
 PJ_DECL(pj_status_t) pjsua_acc_set_registration(pjsua_acc_id acc_id, 
 						pj_bool_t renew);
-%rename(acc_get_info) pjsua_acc_get_info;
-%javamethodmodifiers pjsua_acc_get_info(pjsua_acc_id acc_id,
-					pjsua_acc_info *info) "public synchronized";
 PJ_DECL(pj_status_t) pjsua_acc_get_info(pjsua_acc_id acc_id,
 					pjsua_acc_info *info);
-%rename(enum_accs) pjsua_enum_accs;
-%javamethodmodifiers pjsua_enum_accs(pjsua_acc_id ids[],
-				     unsigned *count ) "public synchronized";
 PJ_DECL(pj_status_t) pjsua_enum_accs(pjsua_acc_id ids[],
 				     unsigned *count );
-%rename(acc_enum_info) pjsua_acc_enum_info;
-%javamethodmodifiers pjsua_acc_enum_info( pjsua_acc_info info[],
-					  unsigned *count ) "public synchronized";
 PJ_DECL(pj_status_t) pjsua_acc_enum_info( pjsua_acc_info info[],
 					  unsigned *count );
-%rename(acc_find_for_outgoing) pjsua_acc_find_for_outgoing;
-%javamethodmodifiers pjsua_acc_find_for_outgoing(const pj_str_t *url) "public synchronized";
 PJ_DECL(pjsua_acc_id) pjsua_acc_find_for_outgoing(const pj_str_t *url);
-%rename(acc_find_for_incoming) pjsua_acc_find_for_incoming;
-%javamethodmodifiers pjsua_acc_find_for_incoming(pjsip_rx_data *rdata) "public synchronized";
 PJ_DECL(pjsua_acc_id) pjsua_acc_find_for_incoming(pjsip_rx_data *rdata);
-%rename(acc_create_request) pjsua_acc_create_request;
-%javamethodmodifiers pjsua_acc_create_request(pjsua_acc_id acc_id,
-					      const pjsip_method *method,
-					      const pj_str_t *target,
-					      pjsip_tx_data **p_tdata) "public synchronized";
 PJ_DECL(pj_status_t) pjsua_acc_create_request(pjsua_acc_id acc_id,
 					      const pjsip_method *method,
 					      const pj_str_t *target,
 					      pjsip_tx_data **p_tdata);
-%rename(acc_create_uac_contact) pjsua_acc_create_uac_contact;
-%javamethodmodifiers pjsua_acc_create_uac_contact( pj_pool_t *pool,
-						   pj_str_t *contact,
-						   pjsua_acc_id acc_id,
-						   const pj_str_t *uri) "public synchronized";
 PJ_DECL(pj_status_t) pjsua_acc_create_uac_contact( pj_pool_t *pool,
 						   pj_str_t *contact,
 						   pjsua_acc_id acc_id,
 						   const pj_str_t *uri);
-							   
-%rename(acc_create_uas_contact) pjsua_acc_create_uas_contact;
-%javamethodmodifiers pjsua_acc_create_uas_contact( pj_pool_t *pool,
-						   pj_str_t *contact,
-						   pjsua_acc_id acc_id,
-						   pjsip_rx_data *rdata ) "public synchronized";
 PJ_DECL(pj_status_t) pjsua_acc_create_uas_contact( pj_pool_t *pool,
 						   pj_str_t *contact,
 						   pjsua_acc_id acc_id,
 						   pjsip_rx_data *rdata );
-							   
-%rename(acc_set_transport) pjsua_acc_set_transport;
-%javamethodmodifiers pjsua_acc_set_transport(pjsua_acc_id acc_id,
-					     pjsua_transport_id tp_id) "public synchronized";
 PJ_DECL(pj_status_t) pjsua_acc_set_transport(pjsua_acc_id acc_id,
 					     pjsua_transport_id tp_id);
 #ifndef PJSUA_MAX_CALLS
 #   define PJSUA_MAX_CALLS	    32
 #endif
-enum pjsua_call_media_status
+typedef enum pjsua_call_media_status
 {
-    
     PJSUA_CALL_MEDIA_NONE,
-    
     PJSUA_CALL_MEDIA_ACTIVE,
-    
     PJSUA_CALL_MEDIA_LOCAL_HOLD,
-    
     PJSUA_CALL_MEDIA_REMOTE_HOLD,
-    
     PJSUA_CALL_MEDIA_ERROR
-};
-struct pjsua_call_info
+} pjsua_call_media_status;
+typedef struct pjsua_call_info
 {
-    
     pjsua_call_id	id;
-    
     pjsip_role_e	role;
-    
     pjsua_acc_id	acc_id;
-    
     pj_str_t		local_info;
-    
     pj_str_t		local_contact;
-    
     pj_str_t		remote_info;
-    
     pj_str_t		remote_contact;
-    
     pj_str_t		call_id;
-    
     pjsip_inv_state	state;
-    
     pj_str_t		state_text;
-    
     pjsip_status_code	last_status;
-    
     pj_str_t		last_status_text;
-    
     pjsua_call_media_status media_status;
-    
     pjmedia_dir		media_dir;
-    
     pjsua_conf_port_id	conf_slot;
-    
     pj_time_val		connect_duration;
-    
     pj_time_val		total_duration;
-    
     struct {
 	char	local_info[128];
 	char	local_contact[128];
@@ -2009,173 +2098,74 @@ struct pjsua_call_info
 	char	call_id[128];
 	char	last_status_text[128];
     } buf_;
-};
-%rename(call_get_max_count) pjsua_call_get_max_count;
-%javamethodmodifiers pjsua_call_get_max_count(void) "public synchronized";
+} pjsua_call_info;
 PJ_DECL(unsigned) pjsua_call_get_max_count(void);
-%rename(call_get_count) pjsua_call_get_count;
-%javamethodmodifiers pjsua_call_get_count(void) "public synchronized";
 PJ_DECL(unsigned) pjsua_call_get_count(void);
-%rename(enum_calls) pjsua_enum_calls;
-%javamethodmodifiers pjsua_enum_calls(pjsua_call_id ids[],
-				      unsigned *count) "public synchronized";
 PJ_DECL(pj_status_t) pjsua_enum_calls(pjsua_call_id ids[],
 				      unsigned *count);
-%rename(call_make_call) pjsua_call_make_call;
-%javamethodmodifiers pjsua_call_make_call(pjsua_acc_id acc_id,
-					  const pj_str_t *dst_uri,
-					  unsigned options,
-					  void *user_data,
-					  const pjsua_msg_data *msg_data,
-					  pjsua_call_id *p_call_id) "public synchronized";
 PJ_DECL(pj_status_t) pjsua_call_make_call(pjsua_acc_id acc_id,
 					  const pj_str_t *dst_uri,
 					  unsigned options,
 					  void *user_data,
 					  const pjsua_msg_data *msg_data,
 					  pjsua_call_id *p_call_id);
-%rename(call_is_active) pjsua_call_is_active;
-%javamethodmodifiers pjsua_call_is_active(pjsua_call_id call_id) "public synchronized";
 PJ_DECL(pj_bool_t) pjsua_call_is_active(pjsua_call_id call_id);
-%rename(call_has_media) pjsua_call_has_media;
-%javamethodmodifiers pjsua_call_has_media(pjsua_call_id call_id) "public synchronized";
 PJ_DECL(pj_bool_t) pjsua_call_has_media(pjsua_call_id call_id);
-%rename(call_get_media_session) pjsua_call_get_media_session;
-%javamethodmodifiers pjsua_call_get_media_session(pjsua_call_id call_id) "public synchronized";
 PJ_DECL(pjmedia_session*) pjsua_call_get_media_session(pjsua_call_id call_id);
-%rename(call_get_media_transport) pjsua_call_get_media_transport;
-%javamethodmodifiers pjsua_call_get_media_transport(pjsua_call_id cid) "public synchronized";
 PJ_DECL(pjmedia_transport*) pjsua_call_get_media_transport(pjsua_call_id cid);
-%rename(call_get_conf_port) pjsua_call_get_conf_port;
-%javamethodmodifiers pjsua_call_get_conf_port(pjsua_call_id call_id) "public synchronized";
 PJ_DECL(pjsua_conf_port_id) pjsua_call_get_conf_port(pjsua_call_id call_id);
-%rename(call_get_info) pjsua_call_get_info;
-%javamethodmodifiers pjsua_call_get_info(pjsua_call_id call_id,
-					 pjsua_call_info *info) "public synchronized";
 PJ_DECL(pj_status_t) pjsua_call_get_info(pjsua_call_id call_id,
 					 pjsua_call_info *info);
-%rename(call_remote_has_cap) pjsua_call_remote_has_cap;
-%javamethodmodifiers pjsua_call_remote_has_cap(
-						    pjsua_call_id call_id,
-						    int htype,
-						    const pj_str_t *hname,
-						    const pj_str_t *token) "public synchronized";
 PJ_DECL(pjsip_dialog_cap_status) pjsua_call_remote_has_cap(
 						    pjsua_call_id call_id,
 						    int htype,
 						    const pj_str_t *hname,
 						    const pj_str_t *token);
-%rename(call_set_user_data) pjsua_call_set_user_data;
-%javamethodmodifiers pjsua_call_set_user_data(pjsua_call_id call_id,
-					      void *user_data) "public synchronized";
 PJ_DECL(pj_status_t) pjsua_call_set_user_data(pjsua_call_id call_id,
 					      void *user_data);
-%rename(call_get_user_data) pjsua_call_get_user_data;
-%javamethodmodifiers pjsua_call_get_user_data(pjsua_call_id call_id) "public synchronized";
 PJ_DECL(void*) pjsua_call_get_user_data(pjsua_call_id call_id);
-%rename(call_get_rem_nat_type) pjsua_call_get_rem_nat_type;
-%javamethodmodifiers pjsua_call_get_rem_nat_type(pjsua_call_id call_id,
-						 pj_stun_nat_type *p_type) "public synchronized";
 PJ_DECL(pj_status_t) pjsua_call_get_rem_nat_type(pjsua_call_id call_id,
 						 pj_stun_nat_type *p_type);
-%rename(call_answer) pjsua_call_answer;
-%javamethodmodifiers pjsua_call_answer(pjsua_call_id call_id, 
-				       unsigned code,
-				       const pj_str_t *reason,
-				       const pjsua_msg_data *msg_data) "public synchronized";
 PJ_DECL(pj_status_t) pjsua_call_answer(pjsua_call_id call_id, 
 				       unsigned code,
 				       const pj_str_t *reason,
 				       const pjsua_msg_data *msg_data);
-%rename(call_hangup) pjsua_call_hangup;
-%javamethodmodifiers pjsua_call_hangup(pjsua_call_id call_id,
-				       unsigned code,
-				       const pj_str_t *reason,
-				       const pjsua_msg_data *msg_data) "public synchronized";
 PJ_DECL(pj_status_t) pjsua_call_hangup(pjsua_call_id call_id,
 				       unsigned code,
 				       const pj_str_t *reason,
 				       const pjsua_msg_data *msg_data);
-%rename(call_process_redirect) pjsua_call_process_redirect;
-%javamethodmodifiers pjsua_call_process_redirect(pjsua_call_id call_id,
-						 pjsip_redirect_op cmd) "public synchronized";
 PJ_DECL(pj_status_t) pjsua_call_process_redirect(pjsua_call_id call_id,
 						 pjsip_redirect_op cmd);
-%rename(call_set_hold) pjsua_call_set_hold;
-%javamethodmodifiers pjsua_call_set_hold(pjsua_call_id call_id,
-					 const pjsua_msg_data *msg_data) "public synchronized";
 PJ_DECL(pj_status_t) pjsua_call_set_hold(pjsua_call_id call_id,
 					 const pjsua_msg_data *msg_data);
-%rename(call_reinvite) pjsua_call_reinvite;
-%javamethodmodifiers pjsua_call_reinvite(pjsua_call_id call_id,
-					 pj_bool_t unhold,
-					 const pjsua_msg_data *msg_data) "public synchronized";
 PJ_DECL(pj_status_t) pjsua_call_reinvite(pjsua_call_id call_id,
 					 pj_bool_t unhold,
 					 const pjsua_msg_data *msg_data);
-%rename(call_update) pjsua_call_update;
-%javamethodmodifiers pjsua_call_update(pjsua_call_id call_id,
-				       unsigned options,
-				       const pjsua_msg_data *msg_data) "public synchronized";
 PJ_DECL(pj_status_t) pjsua_call_update(pjsua_call_id call_id,
 				       unsigned options,
 				       const pjsua_msg_data *msg_data);
-%rename(call_xfer) pjsua_call_xfer;
-%javamethodmodifiers pjsua_call_xfer(pjsua_call_id call_id, 
-				     const pj_str_t *dest,
-				     const pjsua_msg_data *msg_data) "public synchronized";
 PJ_DECL(pj_status_t) pjsua_call_xfer(pjsua_call_id call_id, 
 				     const pj_str_t *dest,
 				     const pjsua_msg_data *msg_data);
 #define PJSUA_XFER_NO_REQUIRE_REPLACES	1
-%rename(call_xfer_replaces) pjsua_call_xfer_replaces;
-%javamethodmodifiers pjsua_call_xfer_replaces(pjsua_call_id call_id, 
-					      pjsua_call_id dest_call_id,
-					      unsigned options,
-					      const pjsua_msg_data *msg_data) "public synchronized";
 PJ_DECL(pj_status_t) pjsua_call_xfer_replaces(pjsua_call_id call_id, 
 					      pjsua_call_id dest_call_id,
 					      unsigned options,
 					      const pjsua_msg_data *msg_data);
-%rename(call_dial_dtmf) pjsua_call_dial_dtmf;
-%javamethodmodifiers pjsua_call_dial_dtmf(pjsua_call_id call_id, 
-					  const pj_str_t *digits) "public synchronized";
 PJ_DECL(pj_status_t) pjsua_call_dial_dtmf(pjsua_call_id call_id, 
 					  const pj_str_t *digits);
-%rename(call_send_im) pjsua_call_send_im;
-%javamethodmodifiers pjsua_call_send_im( pjsua_call_id call_id, 
-					 const pj_str_t *mime_type,
-					 const pj_str_t *content,
-					 const pjsua_msg_data *msg_data,
-					 void *user_data) "public synchronized";
 PJ_DECL(pj_status_t) pjsua_call_send_im( pjsua_call_id call_id, 
 					 const pj_str_t *mime_type,
 					 const pj_str_t *content,
 					 const pjsua_msg_data *msg_data,
 					 void *user_data);
-%rename(call_send_typing_ind) pjsua_call_send_typing_ind;
-%javamethodmodifiers pjsua_call_send_typing_ind(pjsua_call_id call_id, 
-						pj_bool_t is_typing,
-						const pjsua_msg_data*msg_data) "public synchronized";
 PJ_DECL(pj_status_t) pjsua_call_send_typing_ind(pjsua_call_id call_id, 
 						pj_bool_t is_typing,
 						const pjsua_msg_data*msg_data);
-%rename(call_send_request) pjsua_call_send_request;
-%javamethodmodifiers pjsua_call_send_request(pjsua_call_id call_id,
-					     const pj_str_t *method,
-					     const pjsua_msg_data *msg_data) "public synchronized";
 PJ_DECL(pj_status_t) pjsua_call_send_request(pjsua_call_id call_id,
 					     const pj_str_t *method,
 					     const pjsua_msg_data *msg_data);
-%rename(call_hangup_all) pjsua_call_hangup_all;
-%javamethodmodifiers pjsua_call_hangup_all(void) "public synchronized";
 PJ_DECL(void) pjsua_call_hangup_all(void);
-%rename(call_dump) pjsua_call_dump;
-%javamethodmodifiers pjsua_call_dump(pjsua_call_id call_id, 
-				     pj_bool_t with_media, 
-				     char *buffer, 
-				     unsigned maxlen,
-				     const char *indent) "public synchronized";
 PJ_DECL(pj_status_t) pjsua_call_dump(pjsua_call_id call_id, 
 				     pj_bool_t with_media, 
 				     char *buffer, 
@@ -2187,107 +2177,51 @@ PJ_DECL(pj_status_t) pjsua_call_dump(pjsua_call_id call_id,
 #ifndef PJSUA_PRES_TIMER
 #   define PJSUA_PRES_TIMER	    300
 #endif
-struct pjsua_buddy_config
+typedef struct pjsua_buddy_config
 {
-    
     pj_str_t	uri;
-    
     pj_bool_t	subscribe;
-    
     void       *user_data;
-};
-enum pjsua_buddy_status
+} pjsua_buddy_config;
+typedef enum pjsua_buddy_status
 {
-    
     PJSUA_BUDDY_STATUS_UNKNOWN,
-    
     PJSUA_BUDDY_STATUS_ONLINE,
-    
     PJSUA_BUDDY_STATUS_OFFLINE,
-};
-struct pjsua_buddy_info
+} pjsua_buddy_status;
+typedef struct pjsua_buddy_info
 {
-    
     pjsua_buddy_id	id;
-    
     pj_str_t		uri;
-    
     pj_str_t		contact;
-    
     pjsua_buddy_status	status;
-    
     pj_str_t		status_text;
-    
     pj_bool_t		monitor_pres;
-    
     pjsip_evsub_state	sub_state;
-    
     const char	       *sub_state_name;
-    
     unsigned		sub_term_code;
-    
     pj_str_t		sub_term_reason;
-    
     pjrpid_element	rpid;
-    
     pjsip_pres_status	pres_status;
-    
     char		buf_[512];
-};
-%rename(buddy_config_default) pjsua_buddy_config_default;
-%javamethodmodifiers pjsua_buddy_config_default(pjsua_buddy_config *cfg) "public synchronized";
+} pjsua_buddy_info;
 PJ_DECL(void) pjsua_buddy_config_default(pjsua_buddy_config *cfg);
-%rename(get_buddy_count) pjsua_get_buddy_count;
-%javamethodmodifiers pjsua_get_buddy_count(void) "public synchronized";
 PJ_DECL(unsigned) pjsua_get_buddy_count(void);
-%rename(buddy_is_valid) pjsua_buddy_is_valid;
-%javamethodmodifiers pjsua_buddy_is_valid(pjsua_buddy_id buddy_id) "public synchronized";
 PJ_DECL(pj_bool_t) pjsua_buddy_is_valid(pjsua_buddy_id buddy_id);
-%rename(enum_buddies) pjsua_enum_buddies;
-%javamethodmodifiers pjsua_enum_buddies(pjsua_buddy_id ids[],
-					unsigned *count) "public synchronized";
 PJ_DECL(pj_status_t) pjsua_enum_buddies(pjsua_buddy_id ids[],
 					unsigned *count);
-%rename(buddy_find) pjsua_buddy_find;
-%javamethodmodifiers pjsua_buddy_find(const pj_str_t *uri) "public synchronized";
 PJ_DECL(pjsua_buddy_id) pjsua_buddy_find(const pj_str_t *uri);
-%rename(buddy_get_info) pjsua_buddy_get_info;
-%javamethodmodifiers pjsua_buddy_get_info(pjsua_buddy_id buddy_id,
-					  pjsua_buddy_info *info) "public synchronized";
 PJ_DECL(pj_status_t) pjsua_buddy_get_info(pjsua_buddy_id buddy_id,
 					  pjsua_buddy_info *info);
-%rename(buddy_set_user_data) pjsua_buddy_set_user_data;
-%javamethodmodifiers pjsua_buddy_set_user_data(pjsua_buddy_id buddy_id,
-					       void *user_data) "public synchronized";
 PJ_DECL(pj_status_t) pjsua_buddy_set_user_data(pjsua_buddy_id buddy_id,
 					       void *user_data);
-%rename(buddy_get_user_data) pjsua_buddy_get_user_data;
-%javamethodmodifiers pjsua_buddy_get_user_data(pjsua_buddy_id buddy_id) "public synchronized";
 PJ_DECL(void*) pjsua_buddy_get_user_data(pjsua_buddy_id buddy_id);
-%rename(buddy_add) pjsua_buddy_add;
-%javamethodmodifiers pjsua_buddy_add(const pjsua_buddy_config *buddy_cfg,
-				     pjsua_buddy_id *p_buddy_id) "public synchronized";
 PJ_DECL(pj_status_t) pjsua_buddy_add(const pjsua_buddy_config *buddy_cfg,
 				     pjsua_buddy_id *p_buddy_id);
-%rename(buddy_del) pjsua_buddy_del;
-%javamethodmodifiers pjsua_buddy_del(pjsua_buddy_id buddy_id) "public synchronized";
 PJ_DECL(pj_status_t) pjsua_buddy_del(pjsua_buddy_id buddy_id);
-%rename(buddy_subscribe_pres) pjsua_buddy_subscribe_pres;
-%javamethodmodifiers pjsua_buddy_subscribe_pres(pjsua_buddy_id buddy_id,
-						pj_bool_t subscribe) "public synchronized";
 PJ_DECL(pj_status_t) pjsua_buddy_subscribe_pres(pjsua_buddy_id buddy_id,
 						pj_bool_t subscribe);
-%rename(buddy_update_pres) pjsua_buddy_update_pres;
-%javamethodmodifiers pjsua_buddy_update_pres(pjsua_buddy_id buddy_id) "public synchronized";
 PJ_DECL(pj_status_t) pjsua_buddy_update_pres(pjsua_buddy_id buddy_id);
-%rename(pres_notify) pjsua_pres_notify;
-%javamethodmodifiers pjsua_pres_notify(pjsua_acc_id acc_id,
-				       pjsua_srv_pres *srv_pres,
-				       pjsip_evsub_state state,
-				       const pj_str_t *state_str,
-				       const pj_str_t *reason,
-				       pj_bool_t with_body,
-				       const pjsua_msg_data *msg_data) "public synchronized";
 PJ_DECL(pj_status_t) pjsua_pres_notify(pjsua_acc_id acc_id,
 				       pjsua_srv_pres *srv_pres,
 				       pjsip_evsub_state state,
@@ -2295,28 +2229,14 @@ PJ_DECL(pj_status_t) pjsua_pres_notify(pjsua_acc_id acc_id,
 				       const pj_str_t *reason,
 				       pj_bool_t with_body,
 				       const pjsua_msg_data *msg_data);
-%rename(pres_dump) pjsua_pres_dump;
-%javamethodmodifiers pjsua_pres_dump(pj_bool_t verbose) "public synchronized";
 PJ_DECL(void) pjsua_pres_dump(pj_bool_t verbose);
 extern const pjsip_method pjsip_message_method;
-%rename(im_send) pjsua_im_send;
-%javamethodmodifiers pjsua_im_send(pjsua_acc_id acc_id, 
-				   const pj_str_t *to,
-				   const pj_str_t *mime_type,
-				   const pj_str_t *content,
-				   const pjsua_msg_data *msg_data,
-				   void *user_data) "public synchronized";
 PJ_DECL(pj_status_t) pjsua_im_send(pjsua_acc_id acc_id, 
 				   const pj_str_t *to,
 				   const pj_str_t *mime_type,
 				   const pj_str_t *content,
 				   const pjsua_msg_data *msg_data,
 				   void *user_data);
-%rename(im_typing) pjsua_im_typing;
-%javamethodmodifiers pjsua_im_typing(pjsua_acc_id acc_id, 
-				     const pj_str_t *to, 
-				     pj_bool_t is_typing,
-				     const pjsua_msg_data *msg_data) "public synchronized";
 PJ_DECL(pj_status_t) pjsua_im_typing(pjsua_acc_id acc_id, 
 				     const pj_str_t *to, 
 				     pj_bool_t is_typing,
@@ -2347,289 +2267,134 @@ PJ_DECL(pj_status_t) pjsua_im_typing(pjsua_acc_id acc_id,
 #endif
 struct pjsua_media_config
 {
-    
     unsigned		clock_rate;
-    
     unsigned		snd_clock_rate;
-    
     unsigned		channel_count;
-    
     unsigned		audio_frame_ptime;
-    
     unsigned		max_media_ports;
-    
     pj_bool_t		has_ioqueue;
-    
     unsigned		thread_cnt;
-    
     unsigned		quality;
-    
     unsigned		ptime;
-    
     pj_bool_t		no_vad;
-    
     unsigned		ilbc_mode;
-    
     unsigned		tx_drop_pct;
-    
     unsigned		rx_drop_pct;
-    
     unsigned		ec_options;
-    
     unsigned		ec_tail_len;
-    
     unsigned		snd_rec_latency;
-    
     unsigned		snd_play_latency;
-    
     int			jb_init;
-    
     int			jb_min_pre;
-    
-    
     int			jb_max_pre;
-    
     int			jb_max;
-    
     pj_bool_t		enable_ice;
-    
     int			ice_max_host_cands;
-    
     pj_ice_sess_options	ice_opt;
-    
     pj_bool_t		ice_no_rtcp;
-    
     pj_bool_t		enable_turn;
-    
     pj_str_t		turn_server;
-    
     pj_turn_tp_type	turn_conn_type;
-    
     pj_stun_auth_cred	turn_auth_cred;
-    
     int			snd_auto_close_time;
 };
-%rename(media_config_default) pjsua_media_config_default;
-%javamethodmodifiers pjsua_media_config_default(pjsua_media_config *cfg) "public synchronized";
 PJ_DECL(void) pjsua_media_config_default(pjsua_media_config *cfg);
-struct pjsua_codec_info
+typedef struct pjsua_codec_info
 {
-    
     pj_str_t		codec_id;
-    
     pj_uint8_t		priority;
-    
     char		buf_[32];
-};
-struct pjsua_conf_port_info
+} pjsua_codec_info;
+typedef struct pjsua_conf_port_info
 {
-    
     pjsua_conf_port_id	slot_id;
-    
     pj_str_t		name;
-    
     unsigned		clock_rate;
-    
     unsigned		channel_count;
-    
     unsigned		samples_per_frame;
-    
     unsigned		bits_per_sample;
-    
     unsigned		listener_cnt;
-    
     pjsua_conf_port_id	listeners[PJSUA_MAX_CONF_PORTS];
-};
-struct pjsua_media_transport
+} pjsua_conf_port_info;
+typedef struct pjsua_media_transport
 {
-    
     pjmedia_sock_info	 skinfo;
-    
     pjmedia_transport	*transport;
-};
-%rename(conf_get_max_ports) pjsua_conf_get_max_ports;
-%javamethodmodifiers pjsua_conf_get_max_ports(void) "public synchronized";
+} pjsua_media_transport;
 PJ_DECL(unsigned) pjsua_conf_get_max_ports(void);
-%rename(conf_get_active_ports) pjsua_conf_get_active_ports;
-%javamethodmodifiers pjsua_conf_get_active_ports(void) "public synchronized";
 PJ_DECL(unsigned) pjsua_conf_get_active_ports(void);
-%rename(enum_conf_ports) pjsua_enum_conf_ports;
-%javamethodmodifiers pjsua_enum_conf_ports(pjsua_conf_port_id id[],
-					   unsigned *count) "public synchronized";
 PJ_DECL(pj_status_t) pjsua_enum_conf_ports(pjsua_conf_port_id id[],
 					   unsigned *count);
-%rename(conf_get_port_info) pjsua_conf_get_port_info;
-%javamethodmodifiers pjsua_conf_get_port_info( pjsua_conf_port_id port_id,
-					       pjsua_conf_port_info *info) "public synchronized";
 PJ_DECL(pj_status_t) pjsua_conf_get_port_info( pjsua_conf_port_id port_id,
 					       pjsua_conf_port_info *info);
-%rename(conf_add_port) pjsua_conf_add_port;
-%javamethodmodifiers pjsua_conf_add_port(pj_pool_t *pool,
-					 pjmedia_port *port,
-					 pjsua_conf_port_id *p_id) "public synchronized";
 PJ_DECL(pj_status_t) pjsua_conf_add_port(pj_pool_t *pool,
 					 pjmedia_port *port,
 					 pjsua_conf_port_id *p_id);
-%rename(conf_remove_port) pjsua_conf_remove_port;
-%javamethodmodifiers pjsua_conf_remove_port(pjsua_conf_port_id port_id) "public synchronized";
 PJ_DECL(pj_status_t) pjsua_conf_remove_port(pjsua_conf_port_id port_id);
-%rename(conf_connect) pjsua_conf_connect;
-%javamethodmodifiers pjsua_conf_connect(pjsua_conf_port_id source,
-					pjsua_conf_port_id sink) "public synchronized";
 PJ_DECL(pj_status_t) pjsua_conf_connect(pjsua_conf_port_id source,
 					pjsua_conf_port_id sink);
-%rename(conf_disconnect) pjsua_conf_disconnect;
-%javamethodmodifiers pjsua_conf_disconnect(pjsua_conf_port_id source,
-					   pjsua_conf_port_id sink) "public synchronized";
 PJ_DECL(pj_status_t) pjsua_conf_disconnect(pjsua_conf_port_id source,
 					   pjsua_conf_port_id sink);
-%rename(conf_adjust_tx_level) pjsua_conf_adjust_tx_level;
-%javamethodmodifiers pjsua_conf_adjust_tx_level(pjsua_conf_port_id slot,
-						float level) "public synchronized";
 PJ_DECL(pj_status_t) pjsua_conf_adjust_tx_level(pjsua_conf_port_id slot,
 						float level);
-%rename(conf_adjust_rx_level) pjsua_conf_adjust_rx_level;
-%javamethodmodifiers pjsua_conf_adjust_rx_level(pjsua_conf_port_id slot,
-						float level) "public synchronized";
 PJ_DECL(pj_status_t) pjsua_conf_adjust_rx_level(pjsua_conf_port_id slot,
 						float level);
-%rename(conf_get_signal_level) pjsua_conf_get_signal_level;
-%javamethodmodifiers pjsua_conf_get_signal_level(pjsua_conf_port_id slot,
-						 unsigned *tx_level,
-						 unsigned *rx_level) "public synchronized";
 PJ_DECL(pj_status_t) pjsua_conf_get_signal_level(pjsua_conf_port_id slot,
 						 unsigned *tx_level,
 						 unsigned *rx_level);
-%rename(player_create) pjsua_player_create;
-%javamethodmodifiers pjsua_player_create(const pj_str_t *filename,
-					 unsigned options,
-					 pjsua_player_id *p_id) "public synchronized";
 PJ_DECL(pj_status_t) pjsua_player_create(const pj_str_t *filename,
 					 unsigned options,
 					 pjsua_player_id *p_id);
-%rename(playlist_create) pjsua_playlist_create;
-%javamethodmodifiers pjsua_playlist_create(const pj_str_t file_names[],
-					   unsigned file_count,
-					   const pj_str_t *label,
-					   unsigned options,
-					   pjsua_player_id *p_id) "public synchronized";
 PJ_DECL(pj_status_t) pjsua_playlist_create(const pj_str_t file_names[],
 					   unsigned file_count,
 					   const pj_str_t *label,
 					   unsigned options,
 					   pjsua_player_id *p_id);
-%rename(player_get_conf_port) pjsua_player_get_conf_port;
-%javamethodmodifiers pjsua_player_get_conf_port(pjsua_player_id id) "public synchronized";
 PJ_DECL(pjsua_conf_port_id) pjsua_player_get_conf_port(pjsua_player_id id);
-%rename(player_get_port) pjsua_player_get_port;
-%javamethodmodifiers pjsua_player_get_port(pjsua_player_id id,
-					   pjmedia_port **p_port) "public synchronized";
 PJ_DECL(pj_status_t) pjsua_player_get_port(pjsua_player_id id,
 					   pjmedia_port **p_port);
-%rename(player_set_pos) pjsua_player_set_pos;
-%javamethodmodifiers pjsua_player_set_pos(pjsua_player_id id,
-					  pj_uint32_t samples) "public synchronized";
 PJ_DECL(pj_status_t) pjsua_player_set_pos(pjsua_player_id id,
 					  pj_uint32_t samples);
-%rename(player_destroy) pjsua_player_destroy;
-%javamethodmodifiers pjsua_player_destroy(pjsua_player_id id) "public synchronized";
 PJ_DECL(pj_status_t) pjsua_player_destroy(pjsua_player_id id);
-%rename(recorder_create) pjsua_recorder_create;
-%javamethodmodifiers pjsua_recorder_create(const pj_str_t *filename,
-					   unsigned enc_type,
-					   void *enc_param,
-					   pj_ssize_t max_size,
-					   unsigned options,
-					   pjsua_recorder_id *p_id) "public synchronized";
 PJ_DECL(pj_status_t) pjsua_recorder_create(const pj_str_t *filename,
 					   unsigned enc_type,
 					   void *enc_param,
 					   pj_ssize_t max_size,
 					   unsigned options,
 					   pjsua_recorder_id *p_id);
-%rename(recorder_get_conf_port) pjsua_recorder_get_conf_port;
-%javamethodmodifiers pjsua_recorder_get_conf_port(pjsua_recorder_id id) "public synchronized";
 PJ_DECL(pjsua_conf_port_id) pjsua_recorder_get_conf_port(pjsua_recorder_id id);
-%rename(recorder_get_port) pjsua_recorder_get_port;
-%javamethodmodifiers pjsua_recorder_get_port(pjsua_recorder_id id,
-					     pjmedia_port **p_port) "public synchronized";
 PJ_DECL(pj_status_t) pjsua_recorder_get_port(pjsua_recorder_id id,
 					     pjmedia_port **p_port);
-%rename(recorder_destroy) pjsua_recorder_destroy;
-%javamethodmodifiers pjsua_recorder_destroy(pjsua_recorder_id id) "public synchronized";
 PJ_DECL(pj_status_t) pjsua_recorder_destroy(pjsua_recorder_id id);
-%rename(enum_aud_devs) pjsua_enum_aud_devs;
-%javamethodmodifiers pjsua_enum_aud_devs(pjmedia_aud_dev_info info[],
-					 unsigned *count) "public synchronized";
 PJ_DECL(pj_status_t) pjsua_enum_aud_devs(pjmedia_aud_dev_info info[],
 					 unsigned *count);
-%rename(enum_snd_devs) pjsua_enum_snd_devs;
-%javamethodmodifiers pjsua_enum_snd_devs(pjmedia_snd_dev_info info[],
-					 unsigned *count) "public synchronized";
 PJ_DECL(pj_status_t) pjsua_enum_snd_devs(pjmedia_snd_dev_info info[],
 					 unsigned *count);
-%rename(get_snd_dev) pjsua_get_snd_dev;
-%javamethodmodifiers pjsua_get_snd_dev(int *capture_dev,
-				       int *playback_dev) "public synchronized";
 PJ_DECL(pj_status_t) pjsua_get_snd_dev(int *capture_dev,
 				       int *playback_dev);
-%rename(set_snd_dev) pjsua_set_snd_dev;
-%javamethodmodifiers pjsua_set_snd_dev(int capture_dev,
-				       int playback_dev) "public synchronized";
 PJ_DECL(pj_status_t) pjsua_set_snd_dev(int capture_dev,
 				       int playback_dev);
-%rename(set_null_snd_dev) pjsua_set_null_snd_dev;
-%javamethodmodifiers pjsua_set_null_snd_dev(void) "public synchronized";
 PJ_DECL(pj_status_t) pjsua_set_null_snd_dev(void);
-%rename(set_no_snd_dev) pjsua_set_no_snd_dev;
-%javamethodmodifiers pjsua_set_no_snd_dev(void) "public synchronized";
 PJ_DECL(pjmedia_port*) pjsua_set_no_snd_dev(void);
-%rename(set_ec) pjsua_set_ec;
-%javamethodmodifiers pjsua_set_ec(unsigned tail_ms, unsigned options) "public synchronized";
 PJ_DECL(pj_status_t) pjsua_set_ec(unsigned tail_ms, unsigned options);
-%rename(get_ec_tail) pjsua_get_ec_tail;
-%javamethodmodifiers pjsua_get_ec_tail(unsigned *p_tail_ms) "public synchronized";
 PJ_DECL(pj_status_t) pjsua_get_ec_tail(unsigned *p_tail_ms);
-%rename(snd_is_active) pjsua_snd_is_active;
-%javamethodmodifiers pjsua_snd_is_active(void) "public synchronized";
 PJ_DECL(pj_bool_t) pjsua_snd_is_active(void);
-    
-%rename(snd_set_setting) pjsua_snd_set_setting;
-%javamethodmodifiers pjsua_snd_set_setting(pjmedia_aud_dev_cap cap,
-					   const void *pval,
-					   pj_bool_t keep) "public synchronized";
 PJ_DECL(pj_status_t) pjsua_snd_set_setting(pjmedia_aud_dev_cap cap,
 					   const void *pval,
 					   pj_bool_t keep);
-%rename(snd_get_setting) pjsua_snd_get_setting;
-%javamethodmodifiers pjsua_snd_get_setting(pjmedia_aud_dev_cap cap,
-					   void *pval) "public synchronized";
 PJ_DECL(pj_status_t) pjsua_snd_get_setting(pjmedia_aud_dev_cap cap,
 					   void *pval);
-%rename(enum_codecs) pjsua_enum_codecs;
-%javamethodmodifiers pjsua_enum_codecs( pjsua_codec_info id[],
-				        unsigned *count ) "public synchronized";
 PJ_DECL(pj_status_t) pjsua_enum_codecs( pjsua_codec_info id[],
 				        unsigned *count );
-%rename(codec_set_priority) pjsua_codec_set_priority;
-%javamethodmodifiers pjsua_codec_set_priority( const pj_str_t *codec_id,
-					       pj_uint8_t priority ) "public synchronized";
 PJ_DECL(pj_status_t) pjsua_codec_set_priority( const pj_str_t *codec_id,
 					       pj_uint8_t priority );
-%rename(codec_get_param) pjsua_codec_get_param;
-%javamethodmodifiers pjsua_codec_get_param( const pj_str_t *codec_id,
-					    pjmedia_codec_param *param ) "public synchronized";
 PJ_DECL(pj_status_t) pjsua_codec_get_param( const pj_str_t *codec_id,
 					    pjmedia_codec_param *param );
-%rename(codec_set_param) pjsua_codec_set_param;
-%javamethodmodifiers pjsua_codec_set_param( const pj_str_t *codec_id,
-					    const pjmedia_codec_param *param) "public synchronized";
 PJ_DECL(pj_status_t) pjsua_codec_set_param( const pj_str_t *codec_id,
 					    const pjmedia_codec_param *param);
-%rename(media_transports_create) pjsua_media_transports_create;
-%javamethodmodifiers pjsua_media_transports_create(const pjsua_transport_config *cfg) "public synchronized";
 PJ_DECL(pj_status_t) 
 pjsua_media_transports_create(const pjsua_transport_config *cfg);
+
 PJ_DECL(int) codecs_get_nbr();
 PJ_DECL(pj_str_t) codecs_get_id(int codec_id) ;
 PJ_DECL(pj_status_t) test_audio_dev(unsigned int clock_rate, unsigned int ptime);
@@ -2647,13 +2412,11 @@ PJ_DECL(pj_status_t) csipsimple_destroy(void);
 PJ_DECL(pj_status_t) send_keep_alive(int acc_id);
 PJ_DECL(pj_status_t) set_turn_cfg(pjsua_media_config *media_cfg, pj_str_t username, pj_str_t data);
 PJ_DECL(void) set_use_compact_form(pj_bool_t use_compact_form);
+
 #ifndef __PJMEDIA_TRANSPORT_ZRTP_H__
- 
 enum pjmedia_zrtp_use
 {
-    
     PJMEDIA_NO_ZRTP  = 1,
-    
     PJMEDIA_CREATE_ZRTP  = 2
 };
 #endif

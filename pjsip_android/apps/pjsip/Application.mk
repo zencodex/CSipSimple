@@ -8,12 +8,12 @@ APP_ABI := armeabi armeabi-v7a
 APP_STL := stlport_static
 
 
-MY_USE_G729 := 1
+MY_USE_G729 := 0
 MY_USE_ILBC := 1
 MY_USE_G722 := 1
 MY_USE_SPEEX := 1
 MY_USE_GSM := 1
-MY_USE_SILK := 1
+MY_USE_SILK := 0
 MY_USE_CODEC2 := 0
 MY_USE_TLS := 0
 
