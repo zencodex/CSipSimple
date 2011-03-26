@@ -1,4 +1,4 @@
-/* $Id: pjsua_call.c 3374 2010-11-25 09:27:06Z nanang $ */
+/* $Id: pjsua_call.c 3452 2011-03-16 03:52:20Z bennylp $ */
 /* 
  * Copyright (C) 2008-2009 Teluu Inc. (http://www.teluu.com)
  * Copyright (C) 2003-2008 Benny Prijono <benny@prijono.org>
@@ -1159,6 +1159,7 @@ pj_status_t acquire_call(const char *title,
     pj_time_val time_start, timeout;
 
     pj_gettimeofday(&time_start);
+    timeout.sec = 0;
     timeout.msec = PJSUA_ACQUIRE_CALL_TIMEOUT;
     pj_time_val_normalize(&timeout);
 
@@ -1660,10 +1661,11 @@ PJ_DEF(pj_status_t) pjsua_call_set_hold(pjsua_call_id call_id,
  * Send re-INVITE (to release hold).
  */
 PJ_DEF(pj_status_t) pjsua_call_reinvite( pjsua_call_id call_id,
-					 pj_bool_t unhold,
+                                         unsigned options,
 					 const pjsua_msg_data *msg_data)
 {
     pjmedia_sdp_session *sdp;
+    pj_str_t *new_contact = NULL;
     pjsip_tx_data *tdata;
     pjsua_call *call;
     pjsip_dialog *dlg;
@@ -1684,7 +1686,7 @@ PJ_DEF(pj_status_t) pjsua_call_reinvite( pjsua_call_id call_id,
     }
 
     /* Create SDP */
-    if (call->local_hold && !unhold) {
+    if (call->local_hold && (options & PJSUA_CALL_UNHOLD)==0) {
 	status = create_sdp_of_call_hold(call, &sdp);
     } else {
 	status = pjsua_media_channel_create_sdp(call->index, 
@@ -1699,8 +1701,14 @@ PJ_DEF(pj_status_t) pjsua_call_reinvite( pjsua_call_id call_id,
 	return status;
     }
 
+    if ((options & PJSUA_CALL_UPDATE_CONTACT) &
+	    pjsua_acc_is_valid(call->acc_id))
+    {
+	new_contact = &pjsua_var.acc[call->acc_id].contact;
+    }
+
     /* Create re-INVITE with new offer */
-    status = pjsip_inv_reinvite( call->inv, NULL, sdp, &tdata);
+    status = pjsip_inv_reinvite( call->inv, new_contact, sdp, &tdata);
     if (status != PJ_SUCCESS) {
 	pjsua_perror(THIS_FILE, "Unable to create re-INVITE", status);
 	pjsip_dlg_dec_lock(dlg);
@@ -1732,6 +1740,7 @@ PJ_DEF(pj_status_t) pjsua_call_update( pjsua_call_id call_id,
 				       const pjsua_msg_data *msg_data)
 {
     pjmedia_sdp_session *sdp;
+    pj_str_t *new_contact = NULL;
     pjsip_tx_data *tdata;
     pjsua_call *call;
     pjsip_dialog *dlg;
@@ -1757,8 +1766,14 @@ PJ_DEF(pj_status_t) pjsua_call_update( pjsua_call_id call_id,
 	return status;
     }
 
+    if ((options & PJSUA_CALL_UPDATE_CONTACT) &
+	    pjsua_acc_is_valid(call->acc_id))
+    {
+	new_contact = &pjsua_var.acc[call->acc_id].contact;
+    }
+
     /* Create UPDATE with new offer */
-    status = pjsip_inv_update(call->inv, NULL, sdp, &tdata);
+    status = pjsip_inv_update(call->inv, new_contact, sdp, &tdata);
     if (status != PJ_SUCCESS) {
 	pjsua_perror(THIS_FILE, "Unable to create UPDATE request", status);
 	pjsip_dlg_dec_lock(dlg);

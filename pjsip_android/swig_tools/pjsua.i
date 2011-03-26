@@ -1436,7 +1436,7 @@ struct pj_stun_nat_detect_result
 					 const pjsua_msg_data *msg_data) "public synchronized";
 %rename(call_reinvite) pjsua_call_reinvite;
 %javamethodmodifiers pjsua_call_reinvite(pjsua_call_id call_id,
-					 pj_bool_t unhold,
+					 unsigned options,
 					 const pjsua_msg_data *msg_data) "public synchronized";
 %rename(call_update) pjsua_call_update;
 %javamethodmodifiers pjsua_call_update(pjsua_call_id call_id,
@@ -2099,6 +2099,11 @@ typedef struct pjsua_call_info
 	char	last_status_text[128];
     } buf_;
 } pjsua_call_info;
+typedef enum pjsua_call_flag
+{
+    PJSUA_CALL_UNHOLD = 1,
+    PJSUA_CALL_UPDATE_CONTACT = 2
+} pjsua_call_flag;
 PJ_DECL(unsigned) pjsua_call_get_max_count(void);
 PJ_DECL(unsigned) pjsua_call_get_count(void);
 PJ_DECL(pj_status_t) pjsua_enum_calls(pjsua_call_id ids[],
@@ -2139,7 +2144,7 @@ PJ_DECL(pj_status_t) pjsua_call_process_redirect(pjsua_call_id call_id,
 PJ_DECL(pj_status_t) pjsua_call_set_hold(pjsua_call_id call_id,
 					 const pjsua_msg_data *msg_data);
 PJ_DECL(pj_status_t) pjsua_call_reinvite(pjsua_call_id call_id,
-					 pj_bool_t unhold,
+					 unsigned options,
 					 const pjsua_msg_data *msg_data);
 PJ_DECL(pj_status_t) pjsua_call_update(pjsua_call_id call_id,
 				       unsigned options,

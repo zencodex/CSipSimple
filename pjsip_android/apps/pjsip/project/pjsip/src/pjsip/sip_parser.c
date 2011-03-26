@@ -1,4 +1,4 @@
-/* $Id: sip_parser.c 3342 2010-10-13 11:17:51Z bennylp $ */
+/* $Id: sip_parser.c 3482 2011-03-23 12:01:21Z bennylp $ */
 /* 
  * Copyright (C) 2008-2009 Teluu Inc. (http://www.teluu.com)
  * Copyright (C) 2003-2008 Benny Prijono <benny@prijono.org>
@@ -1060,9 +1060,8 @@ parse_headers:
 					     &ctype_hdr->media, 0);
 	    } else {
 		body = PJ_POOL_ALLOC_T(pool, pjsip_msg_body);
-		body->content_type.type = ctype_hdr->media.type;
-		body->content_type.subtype = ctype_hdr->media.subtype;
-		body->content_type.param = ctype_hdr->media.param;
+		pjsip_media_type_cp(pool, &body->content_type,
+		                    &ctype_hdr->media);
 
 		body->data = scanner->curptr;
 		body->len = scanner->end - scanner->curptr;

@@ -1,4 +1,4 @@
-/* $Id: sock.h 3145 2010-04-26 07:08:53Z bennylp $ */
+/* $Id: sock.h 3478 2011-03-23 06:08:36Z ming $ */
 /* 
  * Copyright (C) 2008-2009 Teluu Inc. (http://www.teluu.com)
  * Copyright (C) 2003-2008 Benny Prijono <benny@prijono.org>
@@ -297,6 +297,9 @@ extern const pj_uint16_t PJ_TCP_NODELAY;
  *  @see pj_SO_REUSEADDR */
 extern const pj_uint16_t PJ_SO_REUSEADDR;
 
+/** Do not generate SIGPIPE. @see pj_SO_NOSIGPIPE */
+extern const pj_uint16_t PJ_SO_NOSIGPIPE;
+
 /** Set the protocol-defined priority for all packets to be sent on socket.
  */
 extern const pj_uint16_t PJ_SO_PRIORITY;
@@ -333,6 +336,9 @@ extern const pj_uint16_t PJ_IP_DROP_MEMBERSHIP;
     /** Get #PJ_SO_REUSEADDR constant */
     PJ_DECL(pj_uint16_t) pj_SO_REUSEADDR(void);
 
+    /** Get #PJ_SO_NOSIGPIPE constant */
+    PJ_DECL(pj_uint16_t) pj_SO_NOSIGPIPE(void);
+
     /** Get #PJ_SO_PRIORITY constant */
     PJ_DECL(pj_uint16_t) pj_SO_PRIORITY(void);
 
@@ -365,6 +371,9 @@ extern const pj_uint16_t PJ_IP_DROP_MEMBERSHIP;
 
     /** Get #PJ_SO_REUSEADDR constant */
 #   define pj_SO_REUSEADDR() PJ_SO_REUSEADDR
+
+    /** Get #PJ_SO_NOSIGPIPE constant */
+#   define pj_SO_NOSIGPIPE() PJ_SO_NOSIGPIPE
 
     /** Get #PJ_SO_PRIORITY constant */
 #   define pj_SO_PRIORITY() PJ_SO_PRIORITY
@@ -503,12 +512,7 @@ struct pj_sockaddr_in
 #endif
     pj_uint16_t	sin_port;	/**< Transport layer port number.   */
     pj_in_addr	sin_addr;	/**< IP address.		    */
-
-#if defined(PJ_SOCKADDR_HAS_PAD) && PJ_SOCKADDR_HAS_PAD!=0
-    char	   __pad[8];	/**< Padding.			    */
-#else
-     char	sin_zero[8];	/**< Padding.			    */
-#endif
+    char	sin_zero[8];	/**< Padding.			    */
 };
 
 

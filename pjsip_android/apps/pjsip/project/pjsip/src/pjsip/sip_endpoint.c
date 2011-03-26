@@ -1,4 +1,4 @@
-/* $Id: sip_endpoint.c 3106 2010-02-24 05:43:34Z nanang $ */
+/* $Id: sip_endpoint.c 3455 2011-03-16 07:34:16Z nanang $ */
 /* 
  * Copyright (C) 2008-2009 Teluu Inc. (http://www.teluu.com)
  * Copyright (C) 2003-2008 Benny Prijono <benny@prijono.org>
@@ -116,9 +116,6 @@ void deinit_sip_parser(void);
 /* Defined in sip_tel_uri.c */
 pj_status_t pjsip_tel_uri_subsys_init(void);
 
-
-/* Specifies whether error subsystem has been registered to pjlib. */
-static int error_subsys_initialized;
 
 /*
  * This is the global handler for memory allocation failure, for pools that
@@ -425,11 +422,9 @@ PJ_DEF(pj_status_t) pjsip_endpt_create(pj_pool_factory *pf,
     pj_lock_t *lock = NULL;
 
 
-    if (!error_subsys_initialized) {
-	pj_register_strerror(PJSIP_ERRNO_START, PJ_ERRNO_SPACE_SIZE,
-			     &pjsip_strerror);
-	error_subsys_initialized = 1;
-    }
+    status = pj_register_strerror(PJSIP_ERRNO_START, PJ_ERRNO_SPACE_SIZE,
+				  &pjsip_strerror);
+    pj_assert(status == PJ_SUCCESS);
 
     PJ_LOG(5, (THIS_FILE, "Creating endpoint instance..."));
 

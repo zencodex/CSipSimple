@@ -1,26 +1,24 @@
 /* $Id: os_android.h $ */
-/**
- * This file is part of CSipSimple.
- *
- *  CSipSimple is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  CSipSimple is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with CSipSimple.  If not, see <http://www.gnu.org/licenses/>.
- */
 /* 
  * Since deeply inspired from os_linux.h and voidroid project (MIT relicense)
  * Copyright (C) 2009-2010 r3gis (http://www.r3gis.fr)
  * Copyright (C) 2009 Jurij Smakov <jurij@wooyd.org>
  * Copyright (C) 2008-2009 Teluu Inc. (http://www.teluu.com)
  * Copyright (C) 2003-2008 Benny Prijono <benny@prijono.org>
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA 
  */
 #ifndef __PJ_COMPAT_OS_ANDROID_H__
 #define __PJ_COMPAT_OS_ANDROID_H__
@@ -70,12 +68,13 @@
  * Default: 0
  */
 #define PJ_SOCKADDR_HAS_LEN	    0
-#define PJ_SOCKADDR_HAS_PAD     1
+#define sin_zero     __pad
+
 
 
 /**
  * If this macro is set, it tells select I/O Queue that select() needs to
- * be given correct value of nfds (i.e. largest fd  1). This requires
+ * be given correct value of nfds (i.e. largest fd + 1). This requires
  * select ioqueue to re-scan the descriptors on each registration and
  * unregistration.
  * If this macro is not set, then ioqueue will always give FD_SETSIZE for

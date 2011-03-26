@@ -1,4 +1,4 @@
-/* $Id: os.h 3423 2011-02-28 07:44:19Z bennylp $ */
+/* $Id: os.h 3456 2011-03-16 09:22:24Z ming $ */
 /* 
  * Copyright (C) 2008-2009 Teluu Inc. (http://www.teluu.com)
  * Copyright (C) 2003-2008 Benny Prijono <benny@prijono.org>
@@ -1167,6 +1167,15 @@ PJ_DECL(pj_color_t) pj_term_get_color(void);
  * High resolution timer.
  */
 #if defined(PJ_HAS_HIGH_RES_TIMER) && PJ_HAS_HIGH_RES_TIMER != 0
+
+/**
+ * Get monotonic time since some unspecified starting point.
+ *
+ * @param tv	Variable to store the result.
+ *
+ * @return PJ_SUCCESS if successful.
+ */
+PJ_DECL(pj_status_t) pj_gettickcount(pj_time_val *tv);
 
 /**
  * Acquire high resolution timer value. The time value are stored

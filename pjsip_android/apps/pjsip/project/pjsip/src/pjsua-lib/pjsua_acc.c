@@ -1,4 +1,4 @@
-/* $Id: pjsua_acc.c 3444 2011-03-15 10:49:59Z ming $ */
+/* $Id: pjsua_acc.c 3474 2011-03-23 03:46:26Z bennylp $ */
 /* 
  * Copyright (C) 2008-2009 Teluu Inc. (http://www.teluu.com)
  * Copyright (C) 2003-2008 Benny Prijono <benny@prijono.org>
@@ -113,6 +113,17 @@ PJ_DEF(void) pjsua_acc_config_dup( pj_pool_t *pool,
 	hdr = src->reg_hdr_list.next;
 	while (hdr != &src->reg_hdr_list) {
 	    pj_list_push_back(&dst->reg_hdr_list, pjsip_hdr_clone(pool, hdr));
+	    hdr = hdr->next;
+	}
+    }
+
+    pj_list_init(&dst->sub_hdr_list);
+    if (!pj_list_empty(&src->sub_hdr_list)) {
+	const pjsip_hdr *hdr;
+
+	hdr = src->sub_hdr_list.next;
+	while (hdr != &src->sub_hdr_list) {
+	    pj_list_push_back(&dst->sub_hdr_list, pjsip_hdr_clone(pool, hdr));
 	    hdr = hdr->next;
 	}
     }

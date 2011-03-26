@@ -1,4 +1,4 @@
-/* $Id: sip_transport_tls.c 3148 2010-04-28 07:52:57Z nanang $ */
+/* $Id: sip_transport_tls.c 3480 2011-03-23 10:23:31Z ming $ */
 /* 
  * Copyright (C) 2009 Teluu Inc. (http://www.teluu.com)
  *
@@ -615,7 +615,7 @@ static pj_status_t tls_create( struct tls_listener *listener,
     tls->ka_timer.cb = &tls_keep_alive_timer;
     pj_ioqueue_op_key_init(&tls->ka_op_key.key, sizeof(pj_ioqueue_op_key_t));
     pj_strdup(tls->base.pool, &tls->ka_pkt, &ka_pkt);
-
+    
     /* Done setting up basic transport. */
     *p_tls = tls;
 

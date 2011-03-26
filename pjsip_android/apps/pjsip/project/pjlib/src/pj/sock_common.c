@@ -1,4 +1,4 @@
-/* $Id: sock_common.c 3186 2010-05-26 15:10:07Z bennylp $ */
+/* $Id: sock_common.c 3478 2011-03-23 06:08:36Z ming $ */
 /* 
  * Copyright (C) 2008-2009 Teluu Inc. (http://www.teluu.com)
  * Copyright (C) 2003-2008 Benny Prijono <benny@prijono.org>
@@ -1135,6 +1135,11 @@ PJ_DEF(pj_uint16_t) pj_TCP_NODELAY(void)
 PJ_DEF(pj_uint16_t) pj_SO_REUSEADDR(void)
 {
     return PJ_SO_REUSEADDR;
+}
+
+PJ_DEF(pj_uint16_t) pj_SO_NOSIGPIPE(void)
+{
+    return PJ_SO_NOSIGPIPE;
 }
 
 PJ_DEF(pj_uint16_t) pj_SO_PRIORITY(void)
