@@ -1,4 +1,4 @@
-/* $Id: sip_inv.c 3385 2010-12-02 11:21:01Z bennylp $ */
+/* $Id: sip_inv.c 3481 2011-03-23 11:46:17Z bennylp $ */
 /* 
  * Copyright (C) 2008-2009 Teluu Inc. (http://www.teluu.com)
  * Copyright (C) 2003-2008 Benny Prijono <benny@prijono.org>
@@ -3692,10 +3692,30 @@ static void inv_on_state_early( pjsip_inv_session *inv, pjsip_event *e)
 	 */
 	inv_respond_incoming_bye(inv, tsx, e->body.tsx_state.src.rdata, e);
 
-	/* Set timer just in case we will never get the final response
-	 * for INVITE.
-	 */
-	pjsip_tsx_set_timeout(inv->invite_tsx, 64*pjsip_cfg()->tsx.t1);
+	if (inv->invite_tsx->role == PJSIP_ROLE_UAC) {
+	    /* Set timer just in case we will never get the final response
+	     * for INVITE.
+	     */
+	    pjsip_tsx_set_timeout(inv->invite_tsx, 64*pjsip_cfg()->tsx.t1);
+	} else if (inv->invite_tsx->status_code < 200) {
+	    pjsip_tx_data *tdata;
+	    pjsip_msg *msg;
+
+	    /* For UAS, send a final response. */
+	    tdata = inv->invite_tsx->last_tx;
+	    PJ_ASSERT_ON_FAIL(tdata != NULL, return);
+
+	    msg = tdata->msg;
+	    msg->line.status.code = PJSIP_SC_REQUEST_TERMINATED;
+	    msg->line.status.reason =
+		    *pjsip_get_status_text(PJSIP_SC_REQUEST_TERMINATED);
+	    msg->body = NULL;
+
+	    pjsip_tx_data_invalidate_msg(tdata);
+	    pjsip_tx_data_add_ref(tdata);
+
+	    pjsip_dlg_send_response(inv->dlg, inv->invite_tsx, tdata);
+	}
     }
 }
 

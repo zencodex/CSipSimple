@@ -1,4 +1,4 @@
-/* $Id: os_timestamp_common.c 2560 2009-03-30 18:22:16Z bennylp $ */
+/* $Id: os_timestamp_common.c 3456 2011-03-16 09:22:24Z ming $ */
 /* 
  * Copyright (C) 2008-2009 Teluu Inc. (http://www.teluu.com)
  * Copyright (C) 2003-2008 Benny Prijono <benny@prijono.org>
@@ -186,6 +186,20 @@ PJ_DEF(pj_uint32_t) pj_elapsed_cycle( const pj_timestamp *start,
                                       const pj_timestamp *stop )
 {
     return stop->u32.lo - start->u32.lo;
+}
+
+PJ_DEF(pj_status_t) pj_gettickcount(pj_time_val *tv)
+{
+    pj_timestamp ts, start;
+    pj_status_t status;
+
+    if ((status = pj_get_timestamp(&ts)) != PJ_SUCCESS)
+        return status;
+
+    pj_set_timestamp32(&start, 0, 0);
+    *tv = pj_elapsed_time(&start, &ts);
+
+    return PJ_SUCCESS;
 }
 
 #endif  /* PJ_HAS_HIGH_RES_TIMER */

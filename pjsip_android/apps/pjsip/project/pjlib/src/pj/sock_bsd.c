@@ -1,4 +1,4 @@
-/* $Id: sock_bsd.c 3408 2011-01-21 07:15:22Z bennylp $ */
+/* $Id: sock_bsd.c 3480 2011-03-23 10:23:31Z ming $ */
 /* 
  * Copyright (C) 2008-2009 Teluu Inc. (http://www.teluu.com)
  * Copyright (C) 2003-2008 Benny Prijono <benny@prijono.org>
@@ -135,6 +135,11 @@ const pj_uint16_t PJ_SO_RCVBUF  = SO_RCVBUF;
 const pj_uint16_t PJ_SO_SNDBUF  = SO_SNDBUF;
 const pj_uint16_t PJ_TCP_NODELAY= TCP_NODELAY;
 const pj_uint16_t PJ_SO_REUSEADDR= SO_REUSEADDR;
+#ifdef SO_NOSIGPIPE
+const pj_uint16_t PJ_SO_NOSIGPIPE = SO_NOSIGPIPE;
+#else
+const pj_uint16_t PJ_SO_NOSIGPIPE = 0xFFFF;
+#endif
 #if defined(SO_PRIORITY)
 const pj_uint16_t PJ_SO_PRIORITY = SO_PRIORITY;
 #else
@@ -544,9 +549,13 @@ PJ_DEF(pj_status_t) pj_sock_socket(int af,
     if (*sock == PJ_INVALID_SOCKET)
 	return PJ_RETURN_OS_ERROR(pj_get_native_netos_error());
     else {
+	pj_int32_t val = 1;
+	if (type == pj_SOCK_STREAM()) {
+	    pj_sock_setsockopt(*sock, pj_SOL_SOCKET(), pj_SO_NOSIGPIPE(),
+			       &val, sizeof(val));
+	}
 #if defined(PJ_IPHONE_OS_HAS_MULTITASKING_SUPPORT) && \
     PJ_IPHONE_OS_HAS_MULTITASKING_SUPPORT!=0
-	pj_int32_t val = 1;
 	if (type == pj_SOCK_DGRAM()) {
 	    pj_sock_setsockopt(*sock, pj_SOL_SOCKET(), SO_NOSIGPIPE, 
 			       &val, sizeof(val));

@@ -1,4 +1,4 @@
-/* $Id: evsub.c 3412 2011-02-11 07:39:14Z ming $ */
+/* $Id: evsub.c 3455 2011-03-16 07:34:16Z nanang $ */
 /* 
  * Copyright (C) 2008-2009 Teluu Inc. (http://www.teluu.com)
  * Copyright (C) 2003-2008 Benny Prijono <benny@prijono.org>
@@ -287,8 +287,10 @@ PJ_DEF(pj_status_t) pjsip_evsub_init_module(pjsip_endpoint *endpt)
 	{ "NOTIFY", 6}
     };
 
-    pj_register_strerror(PJSIP_SIMPLE_ERRNO_START, PJ_ERRNO_SPACE_SIZE,
-			 &pjsipsimple_strerror);
+    status = pj_register_strerror(PJSIP_SIMPLE_ERRNO_START,
+				  PJ_ERRNO_SPACE_SIZE,
+				  &pjsipsimple_strerror);
+    pj_assert(status == PJ_SUCCESS);
 
     PJ_ASSERT_RETURN(endpt != NULL, PJ_EINVAL);
     PJ_ASSERT_RETURN(mod_evsub.mod.id == -1, PJ_EINVALIDOP);

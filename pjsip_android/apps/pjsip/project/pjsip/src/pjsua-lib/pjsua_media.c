@@ -792,7 +792,6 @@ static pj_status_t create_udp_media_transports(pjsua_transport_config *cfg)
     unsigned i;
     pjmedia_sock_info skinfo;
     pj_status_t status;
-
     /* Create each media transport */
     for (i=0; i<pjsua_var.ua_cfg.max_calls; ++i) {
 
@@ -1279,10 +1278,6 @@ pj_status_t pjsua_media_channel_init(pjsua_call_id call_id,
 	call->med_tp = srtp;
     }
 #else
-    call->med_orig = call->med_tp;
-    PJ_UNUSED_ARG(security_level);
-#endif
-
 #if defined(PJMEDIA_HAS_ZRTP) && (PJMEDIA_HAS_ZRTP != 0)
     /*
      * If SRTP and ZRTP are enabled return error. 
@@ -1308,6 +1303,8 @@ pj_status_t pjsua_media_channel_init(pjsua_call_id call_id,
     }
 #else
     call->med_orig = call->med_tp;
+    PJ_UNUSED_ARG(security_level);
+#endif
 #endif
 
     /* Find out which media line in SDP that we support. If we are offerer,

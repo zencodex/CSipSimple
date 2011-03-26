@@ -1,4 +1,4 @@
-/* $Id: errno.c 3255 2010-08-06 07:18:08Z nanang $ */
+/* $Id: errno.c 3455 2011-03-16 07:34:16Z nanang $ */
 /* 
  * Copyright (C) 2008-2009 Teluu Inc. (http://www.teluu.com)
  * Copyright (C) 2003-2008 Benny Prijono <benny@prijono.org>
@@ -128,6 +128,14 @@ PJ_DEF(pj_status_t) pj_register_strerror( pj_status_t start,
 	if (IN_RANGE(start, err_msg_hnd[i].begin, err_msg_hnd[i].end) ||
 	    IN_RANGE(start+space-1, err_msg_hnd[i].begin, err_msg_hnd[i].end))
 	{
+	    if (err_msg_hnd[i].begin == start && 
+		err_msg_hnd[i].end == (start+space) &&
+		err_msg_hnd[i].strerror == f)
+	    {
+		/* The same range and handler has already been registered */
+		return PJ_SUCCESS;
+	    }
+
 	    return PJ_EEXISTS;
 	}
     }

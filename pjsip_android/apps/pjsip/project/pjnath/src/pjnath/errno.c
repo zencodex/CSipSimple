@@ -1,4 +1,4 @@
-/* $Id: errno.c 2724 2009-05-29 13:04:03Z bennylp $ */
+/* $Id: errno.c 3455 2011-03-16 07:34:16Z nanang $ */
 /* 
  * Copyright (C) 2008-2009 Teluu Inc. (http://www.teluu.com)
  * Copyright (C) 2003-2008 Benny Prijono <benny@prijono.org>
@@ -19,6 +19,7 @@
  */
 #include <pjnath/errno.h>
 #include <pjnath/stun_msg.h>
+#include <pj/assert.h>
 #include <pj/log.h>
 #include <pj/string.h>
 
@@ -176,13 +177,14 @@ PJ_DEF(pj_status_t) pjnath_init(void)
 
     status = pj_register_strerror(PJNATH_ERRNO_START, 299, 
 				  &pjnath_strerror);
-    if (status != PJ_SUCCESS)
-	return status;
+    pj_assert(status == PJ_SUCCESS);
 
     status = pj_register_strerror(PJ_STATUS_FROM_STUN_CODE(300), 
 				  699 - 300, 
 				  &pjnath_strerror2);
-    return status;
+    pj_assert(status == PJ_SUCCESS);
+
+    return PJ_SUCCESS;
 }
 
 

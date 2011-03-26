@@ -1,4 +1,4 @@
-/* $Id: sock_symbian.cpp 2966 2009-10-25 09:02:07Z bennylp $ */
+/* $Id: sock_symbian.cpp 3478 2011-03-23 06:08:36Z ming $ */
 /* 
  * Copyright (C) 2008-2009 Teluu Inc. (http://www.teluu.com)
  * Copyright (C) 2003-2008 Benny Prijono <benny@prijono.org>
@@ -53,6 +53,7 @@ const pj_uint16_t PJ_SOL_IP	= 0xFFFF;
 const pj_uint16_t PJ_SOL_TCP	= 0xFFFF;
 const pj_uint16_t PJ_SOL_UDP	= 0xFFFF;
 const pj_uint16_t PJ_SOL_IPV6	= 0xFFFF;
+const pj_uint16_t PJ_SO_NOSIGPIPE = 0xFFFF;
 
 /* TOS */
 const pj_uint16_t PJ_IP_TOS		= 0;

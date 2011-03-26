@@ -1,4 +1,4 @@
-/* $Id: endpoint.c 3360 2010-11-03 06:46:27Z bennylp $ */
+/* $Id: endpoint.c 3455 2011-03-16 07:34:16Z nanang $ */
 /* 
  * Copyright (C) 2008-2009 Teluu Inc. (http://www.teluu.com)
  * Copyright (C) 2003-2008 Benny Prijono <benny@prijono.org>
@@ -42,11 +42,6 @@ static const pj_str_t STR_SDP_NAME = { "pjmedia", 7 };
 static const pj_str_t STR_SENDRECV = { "sendrecv", 8 };
 
 
-
-/* Flag to indicate whether pjmedia error subsystem has been registered
- * to pjlib.
- */
-static int error_subsys_registered;
 
 /* Config to control rtpmap inclusion for static payload types */
 pj_bool_t pjmedia_add_rtpmap_for_static_pt = 
@@ -105,11 +100,9 @@ PJ_DEF(pj_status_t) pjmedia_endpt_create(pj_pool_factory *pf,
     unsigned i;
     pj_status_t status;
 
-    if (!error_subsys_registered) {
-	pj_register_strerror(PJMEDIA_ERRNO_START, PJ_ERRNO_SPACE_SIZE, 
-			     &pjmedia_strerror);
-	error_subsys_registered = 1;
-    }
+    status = pj_register_strerror(PJMEDIA_ERRNO_START, PJ_ERRNO_SPACE_SIZE,
+				  &pjmedia_strerror);
+    pj_assert(status == PJ_SUCCESS);
 
     PJ_ASSERT_RETURN(pf && p_endpt, PJ_EINVAL);
     PJ_ASSERT_RETURN(worker_cnt <= MAX_THREADS, PJ_EINVAL);

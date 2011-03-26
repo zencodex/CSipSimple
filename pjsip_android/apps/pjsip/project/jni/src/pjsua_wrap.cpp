@@ -12559,6 +12559,30 @@ SWIGEXPORT void JNICALL Java_org_pjsip_pjsua_pjsuaJNI_delete_1pjsua_1call_1info(
 }
 
 
+SWIGEXPORT jint JNICALL Java_org_pjsip_pjsua_pjsuaJNI_PJSUA_1CALL_1UNHOLD_1get(JNIEnv *jenv, jclass jcls) {
+  jint jresult = 0 ;
+  pjsua_call_flag result;
+  
+  (void)jenv;
+  (void)jcls;
+  result = (pjsua_call_flag)PJSUA_CALL_UNHOLD;
+  jresult = (jint)result; 
+  return jresult;
+}
+
+
+SWIGEXPORT jint JNICALL Java_org_pjsip_pjsua_pjsuaJNI_PJSUA_1CALL_1UPDATE_1CONTACT_1get(JNIEnv *jenv, jclass jcls) {
+  jint jresult = 0 ;
+  pjsua_call_flag result;
+  
+  (void)jenv;
+  (void)jcls;
+  result = (pjsua_call_flag)PJSUA_CALL_UPDATE_CONTACT;
+  jresult = (jint)result; 
+  return jresult;
+}
+
+
 SWIGEXPORT jlong JNICALL Java_org_pjsip_pjsua_pjsuaJNI_call_1get_1max_1count(JNIEnv *jenv, jclass jcls) {
   jlong jresult = 0 ;
   unsigned int result;
@@ -12898,17 +12922,17 @@ SWIGEXPORT jint JNICALL Java_org_pjsip_pjsua_pjsuaJNI_call_1set_1hold(JNIEnv *je
 }
 
 
-SWIGEXPORT jint JNICALL Java_org_pjsip_pjsua_pjsuaJNI_call_1reinvite(JNIEnv *jenv, jclass jcls, jint jarg1, jint jarg2, jlong jarg3) {
+SWIGEXPORT jint JNICALL Java_org_pjsip_pjsua_pjsuaJNI_call_1reinvite(JNIEnv *jenv, jclass jcls, jint jarg1, jlong jarg2, jlong jarg3) {
   jint jresult = 0 ;
   pjsua_call_id arg1 ;
-  pj_bool_t arg2 ;
+  unsigned int arg2 ;
   pjsua_msg_data *arg3 = (pjsua_msg_data *) 0 ;
   pj_status_t result;
   
   (void)jenv;
   (void)jcls;
   arg1 = (pjsua_call_id)jarg1; 
-  arg2 = (pj_bool_t)jarg2; 
+  arg2 = (unsigned int)jarg2; 
   arg3 = *(pjsua_msg_data **)&jarg3; 
   result = (pj_status_t)pjsua_call_reinvite(arg1,arg2,(pjsua_msg_data const *)arg3);
   jresult = (jint)result; 
@@ -17287,6 +17311,8 @@ JNIEXPORT jint JNI_OnLoad(JavaVM *vm, void *reserved) {
 {"pjsua_call_info_total_duration_get", "(JLorg/pjsip/pjsua/pjsua_call_info;)J", (void*)& Java_org_pjsip_pjsua_pjsuaJNI_pjsua_1call_1info_1total_1duration_1get},
 {"new_pjsua_call_info", "()J", (void*)& Java_org_pjsip_pjsua_pjsuaJNI_new_1pjsua_1call_1info},
 {"delete_pjsua_call_info", "(J)V", (void*)& Java_org_pjsip_pjsua_pjsuaJNI_delete_1pjsua_1call_1info},
+{"PJSUA_CALL_UNHOLD_get", "()I", (void*)& Java_org_pjsip_pjsua_pjsuaJNI_PJSUA_1CALL_1UNHOLD_1get},
+{"PJSUA_CALL_UPDATE_CONTACT_get", "()I", (void*)& Java_org_pjsip_pjsua_pjsuaJNI_PJSUA_1CALL_1UPDATE_1CONTACT_1get},
 {"call_get_max_count", "()J", (void*)& Java_org_pjsip_pjsua_pjsuaJNI_call_1get_1max_1count},
 {"call_get_count", "()J", (void*)& Java_org_pjsip_pjsua_pjsuaJNI_call_1get_1count},
 {"enum_calls", "([I[J)I", (void*)& Java_org_pjsip_pjsua_pjsuaJNI_enum_1calls},
@@ -17305,7 +17331,7 @@ JNIEXPORT jint JNI_OnLoad(JavaVM *vm, void *reserved) {
 {"call_hangup", "(IJJLorg/pjsip/pjsua/pj_str_t;J)I", (void*)& Java_org_pjsip_pjsua_pjsuaJNI_call_1hangup},
 {"call_process_redirect", "(IJ)I", (void*)& Java_org_pjsip_pjsua_pjsuaJNI_call_1process_1redirect},
 {"call_set_hold", "(IJ)I", (void*)& Java_org_pjsip_pjsua_pjsuaJNI_call_1set_1hold},
-{"call_reinvite", "(IIJ)I", (void*)& Java_org_pjsip_pjsua_pjsuaJNI_call_1reinvite},
+{"call_reinvite", "(IJJ)I", (void*)& Java_org_pjsip_pjsua_pjsuaJNI_call_1reinvite},
 {"call_update", "(IJJ)I", (void*)& Java_org_pjsip_pjsua_pjsuaJNI_call_1update},
 {"call_xfer", "(IJLorg/pjsip/pjsua/pj_str_t;J)I", (void*)& Java_org_pjsip_pjsua_pjsuaJNI_call_1xfer},
 {"PJSUA_XFER_NO_REQUIRE_REPLACES_get", "()I", (void*)& Java_org_pjsip_pjsua_pjsuaJNI_PJSUA_1XFER_1NO_1REQUIRE_1REPLACES_1get},
