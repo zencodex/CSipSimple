@@ -72,6 +72,9 @@
 
 
 
+/* Seems to fix problems when restarting too frequently */
+#define PJ_IOQUEUE_MAX_HANDLES	    1024
+
 /**
  * If this macro is set, it tells select I/O Queue that select() needs to
  * be given correct value of nfds (i.e. largest fd + 1). This requires
