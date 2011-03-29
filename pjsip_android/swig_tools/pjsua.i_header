@@ -138,6 +138,7 @@ public:
 		const pj_str_t *to, const pj_str_t *contact,
 		pj_bool_t is_typing) {}
 	virtual void on_nat_detect (const pj_stun_nat_detect_result *res) {}
+	virtual pjsip_redirect_op on_call_redirected (pjsua_call_id call_id, const pj_str_t *target) {}
 	virtual void on_mwi_info (pjsua_acc_id acc_id, const pj_str_t *mime_type, const pj_str_t *body) {}
 	
 	
@@ -278,6 +279,23 @@ void on_nat_detect_wrapper (const pj_stun_nat_detect_result *res) {
 	registeredCallbackObject->on_nat_detect(res);
 }
 
+
+pjsip_redirect_op on_call_redirected_wrapper (pjsua_call_id call_id, const pjsip_uri *target, const pjsip_event *e) {
+	char uristr[PJSIP_MAX_URL_SIZE];
+	int len;
+	pj_str_t uri_pstr;
+
+	len = pjsip_uri_print(PJSIP_URI_IN_FROMTO_HDR, target, uristr, 
+			      sizeof(uristr));
+	if (len < 1) {
+	    pj_ansi_strcpy(uristr, "--URI too long--");
+	}
+	
+	uri_pstr = pj_str(uristr);
+
+	return registeredCallbackObject->on_call_redirected(call_id, &uri_pstr);
+}
+
 void on_mwi_info_wrapper (pjsua_acc_id acc_id, pjsua_mwi_info *mwi_info) {
 	pj_str_t body;
 	pj_str_t mime_type;
@@ -364,7 +382,7 @@ static struct pjsua_callback wrapper_callback_struct = {
 	&on_typing_wrapper,
 	NULL, //Typing 2
 	&on_nat_detect_wrapper,
-	NULL, //on_call_redirected
+	&on_call_redirected_wrapper,
 	&on_mwi_info_wrapper,
 	NULL, //on_transport_state
 	NULL, //on_ice_transport_error
@@ -448,6 +466,7 @@ public:
 		const pj_str_t *to, const pj_str_t *contact,
 		pj_bool_t is_typing);
 	virtual void on_nat_detect (const pj_stun_nat_detect_result *res);
+	virtual pjsip_redirect_op on_call_redirected (pjsua_call_id call_id, const pj_str_t *target);
 	virtual void on_mwi_info (pjsua_acc_id acc_id, const pj_str_t *mime_type, const pj_str_t *body);
 	
 	virtual pj_status_t on_setup_audio(int clock_rate);
@@ -1220,3 +1239,38 @@ struct pj_stun_nat_detect_result
     const char		*nat_type_name;
 
 } ;
+
+
+// pjsip/include/pjsip/sip_util.h:80
+/**
+ * These enumerations specify the action to be performed to a redirect
+ * response.
+ */
+typedef enum pjsip_redirect_op
+{
+    /**
+     * Reject the redirection to the current target. The UAC will
+     * select the next target from the target set if exists.
+     */
+    PJSIP_REDIRECT_REJECT,
+
+    /**
+     * Accept the redirection to the current target. The INVITE request
+     * will be resent to the current target.
+     */
+    PJSIP_REDIRECT_ACCEPT,
+
+    /**
+     * Defer the redirection decision, for example to request permission
+     * from the end user.
+     */
+    PJSIP_REDIRECT_PENDING,
+
+    /**
+     * Stop the whole redirection process altogether. This will cause
+     * the invite session to be disconnected.
+     */
+    PJSIP_REDIRECT_STOP
+
+} pjsip_redirect_op;
+
