@@ -409,7 +409,7 @@ namespace Swig {
 namespace Swig {
   namespace {
     jclass jclass_pjsuaJNI = NULL;
-    jmethodID director_methids[25];
+    jmethodID director_methids[26];
   }
 }
 
@@ -1101,6 +1101,7 @@ public:
 		const pj_str_t *to, const pj_str_t *contact,
 		pj_bool_t is_typing) {}
 	virtual void on_nat_detect (const pj_stun_nat_detect_result *res) {}
+	virtual pjsip_redirect_op on_call_redirected (pjsua_call_id call_id, const pj_str_t *target) {}
 	virtual void on_mwi_info (pjsua_acc_id acc_id, const pj_str_t *mime_type, const pj_str_t *body) {}
 	
 	
@@ -1241,6 +1242,23 @@ void on_nat_detect_wrapper (const pj_stun_nat_detect_result *res) {
 	registeredCallbackObject->on_nat_detect(res);
 }
 
+
+pjsip_redirect_op on_call_redirected_wrapper (pjsua_call_id call_id, const pjsip_uri *target, const pjsip_event *e) {
+	char uristr[PJSIP_MAX_URL_SIZE];
+	int len;
+	pj_str_t uri_pstr;
+
+	len = pjsip_uri_print(PJSIP_URI_IN_FROMTO_HDR, target, uristr, 
+			      sizeof(uristr));
+	if (len < 1) {
+	    pj_ansi_strcpy(uristr, "--URI too long--");
+	}
+	
+	uri_pstr = pj_str(uristr);
+
+	return registeredCallbackObject->on_call_redirected(call_id, &uri_pstr);
+}
+
 void on_mwi_info_wrapper (pjsua_acc_id acc_id, pjsua_mwi_info *mwi_info) {
 	pj_str_t body;
 	pj_str_t mime_type;
@@ -1327,7 +1345,7 @@ static struct pjsua_callback wrapper_callback_struct = {
 	&on_typing_wrapper,
 	NULL, //Typing 2
 	&on_nat_detect_wrapper,
-	NULL, //on_call_redirected
+	&on_call_redirected_wrapper,
 	&on_mwi_info_wrapper,
 	NULL, //on_transport_state
 	NULL, //on_ice_transport_error
@@ -1855,6 +1873,32 @@ void SwigDirector_Callback::on_nat_detect(pj_stun_nat_detect_result const *res) 
   if (swigjobj) jenv->DeleteLocalRef(swigjobj);
 }
 
+pjsip_redirect_op SwigDirector_Callback::on_call_redirected(pjsua_call_id call_id, pj_str_t const *target) {
+  pjsip_redirect_op c_result = SwigValueInit< pjsip_redirect_op >() ;
+  jint jresult = 0 ;
+  JNIEnvWrapper swigjnienv(this) ;
+  JNIEnv * jenv = swigjnienv.getJNIEnv() ;
+  jobject swigjobj = (jobject) NULL ;
+  jint jcall_id  ;
+  jlong jtarget = 0 ;
+  
+  if (!swig_override[19]) {
+    return Callback::on_call_redirected(call_id,target);
+  }
+  swigjobj = swig_get_self(jenv);
+  if (swigjobj && jenv->IsSameObject(swigjobj, NULL) == JNI_FALSE) {
+    jcall_id = (jint) call_id;
+    *((pj_str_t **)&jtarget) = (pj_str_t *) target; 
+    jresult = (jint) jenv->CallStaticIntMethod(Swig::jclass_pjsuaJNI, Swig::director_methids[19], swigjobj, jcall_id, jtarget);
+    if (jenv->ExceptionOccurred()) return c_result;
+    c_result = (pjsip_redirect_op)jresult; 
+  } else {
+    SWIG_JavaThrowException(jenv, SWIG_JavaNullPointerException, "null upcall object");
+  }
+  if (swigjobj) jenv->DeleteLocalRef(swigjobj);
+  return c_result;
+}
+
 void SwigDirector_Callback::on_mwi_info(pjsua_acc_id acc_id, pj_str_t const *mime_type, pj_str_t const *body) {
   JNIEnvWrapper swigjnienv(this) ;
   JNIEnv * jenv = swigjnienv.getJNIEnv() ;
@@ -1863,7 +1907,7 @@ void SwigDirector_Callback::on_mwi_info(pjsua_acc_id acc_id, pj_str_t const *mim
   jlong jmime_type = 0 ;
   jlong jbody = 0 ;
   
-  if (!swig_override[19]) {
+  if (!swig_override[20]) {
     Callback::on_mwi_info(acc_id,mime_type,body);
     return;
   }
@@ -1872,7 +1916,7 @@ void SwigDirector_Callback::on_mwi_info(pjsua_acc_id acc_id, pj_str_t const *mim
     jacc_id = (jint) acc_id;
     *((pj_str_t **)&jmime_type) = (pj_str_t *) mime_type; 
     *((pj_str_t **)&jbody) = (pj_str_t *) body; 
-    jenv->CallStaticVoidMethod(Swig::jclass_pjsuaJNI, Swig::director_methids[19], swigjobj, jacc_id, jmime_type, jbody);
+    jenv->CallStaticVoidMethod(Swig::jclass_pjsuaJNI, Swig::director_methids[20], swigjobj, jacc_id, jmime_type, jbody);
     if (jenv->ExceptionOccurred()) return ;
   } else {
     SWIG_JavaThrowException(jenv, SWIG_JavaNullPointerException, "null upcall object");
@@ -1888,13 +1932,13 @@ pj_status_t SwigDirector_Callback::on_setup_audio(int clock_rate) {
   jobject swigjobj = (jobject) NULL ;
   jint jclock_rate  ;
   
-  if (!swig_override[20]) {
+  if (!swig_override[21]) {
     return Callback::on_setup_audio(clock_rate);
   }
   swigjobj = swig_get_self(jenv);
   if (swigjobj && jenv->IsSameObject(swigjobj, NULL) == JNI_FALSE) {
     jclock_rate = (jint) clock_rate;
-    jresult = (jint) jenv->CallStaticIntMethod(Swig::jclass_pjsuaJNI, Swig::director_methids[20], swigjobj, jclock_rate);
+    jresult = (jint) jenv->CallStaticIntMethod(Swig::jclass_pjsuaJNI, Swig::director_methids[21], swigjobj, jclock_rate);
     if (jenv->ExceptionOccurred()) return c_result;
     c_result = (pj_status_t)jresult; 
   } else {
@@ -1909,13 +1953,13 @@ void SwigDirector_Callback::on_teardown_audio() {
   JNIEnv * jenv = swigjnienv.getJNIEnv() ;
   jobject swigjobj = (jobject) NULL ;
   
-  if (!swig_override[21]) {
+  if (!swig_override[22]) {
     Callback::on_teardown_audio();
     return;
   }
   swigjobj = swig_get_self(jenv);
   if (swigjobj && jenv->IsSameObject(swigjobj, NULL) == JNI_FALSE) {
-    jenv->CallStaticVoidMethod(Swig::jclass_pjsuaJNI, Swig::director_methids[21], swigjobj);
+    jenv->CallStaticVoidMethod(Swig::jclass_pjsuaJNI, Swig::director_methids[22], swigjobj);
     if (jenv->ExceptionOccurred()) return ;
   } else {
     SWIG_JavaThrowException(jenv, SWIG_JavaNullPointerException, "null upcall object");
@@ -1930,7 +1974,7 @@ void SwigDirector_Callback::on_zrtp_show_sas(pj_str_t const *sas, int verified) 
   jlong jsas = 0 ;
   jint jverified  ;
   
-  if (!swig_override[22]) {
+  if (!swig_override[23]) {
     Callback::on_zrtp_show_sas(sas,verified);
     return;
   }
@@ -1938,7 +1982,7 @@ void SwigDirector_Callback::on_zrtp_show_sas(pj_str_t const *sas, int verified) 
   if (swigjobj && jenv->IsSameObject(swigjobj, NULL) == JNI_FALSE) {
     *((pj_str_t **)&jsas) = (pj_str_t *) sas; 
     jverified = (jint) verified;
-    jenv->CallStaticVoidMethod(Swig::jclass_pjsuaJNI, Swig::director_methids[22], swigjobj, jsas, jverified);
+    jenv->CallStaticVoidMethod(Swig::jclass_pjsuaJNI, Swig::director_methids[23], swigjobj, jsas, jverified);
     if (jenv->ExceptionOccurred()) return ;
   } else {
     SWIG_JavaThrowException(jenv, SWIG_JavaNullPointerException, "null upcall object");
@@ -1952,14 +1996,14 @@ void SwigDirector_Callback::on_zrtp_secure_on(pj_str_t const *cipher) {
   jobject swigjobj = (jobject) NULL ;
   jlong jcipher = 0 ;
   
-  if (!swig_override[23]) {
+  if (!swig_override[24]) {
     Callback::on_zrtp_secure_on(cipher);
     return;
   }
   swigjobj = swig_get_self(jenv);
   if (swigjobj && jenv->IsSameObject(swigjobj, NULL) == JNI_FALSE) {
     *((pj_str_t **)&jcipher) = (pj_str_t *) cipher; 
-    jenv->CallStaticVoidMethod(Swig::jclass_pjsuaJNI, Swig::director_methids[23], swigjobj, jcipher);
+    jenv->CallStaticVoidMethod(Swig::jclass_pjsuaJNI, Swig::director_methids[24], swigjobj, jcipher);
     if (jenv->ExceptionOccurred()) return ;
   } else {
     SWIG_JavaThrowException(jenv, SWIG_JavaNullPointerException, "null upcall object");
@@ -1972,13 +2016,13 @@ void SwigDirector_Callback::on_zrtp_secure_off() {
   JNIEnv * jenv = swigjnienv.getJNIEnv() ;
   jobject swigjobj = (jobject) NULL ;
   
-  if (!swig_override[24]) {
+  if (!swig_override[25]) {
     Callback::on_zrtp_secure_off();
     return;
   }
   swigjobj = swig_get_self(jenv);
   if (swigjobj && jenv->IsSameObject(swigjobj, NULL) == JNI_FALSE) {
-    jenv->CallStaticVoidMethod(Swig::jclass_pjsuaJNI, Swig::director_methids[24], swigjobj);
+    jenv->CallStaticVoidMethod(Swig::jclass_pjsuaJNI, Swig::director_methids[25], swigjobj);
     if (jenv->ExceptionOccurred()) return ;
   } else {
     SWIG_JavaThrowException(jenv, SWIG_JavaNullPointerException, "null upcall object");
@@ -2050,6 +2094,9 @@ void SwigDirector_Callback::swig_connect_director(JNIEnv *jenv, jobject jself, j
       "on_nat_detect", "(Lorg/pjsip/pjsua/pj_stun_nat_detect_result;)V", NULL 
     },
     {
+      "on_call_redirected", "(ILorg/pjsip/pjsua/pj_str_t;)Lorg/pjsip/pjsua/pjsip_redirect_op;", NULL 
+    },
+    {
       "on_mwi_info", "(ILorg/pjsip/pjsua/pj_str_t;Lorg/pjsip/pjsua/pj_str_t;)V", NULL 
     },
     {
@@ -2078,7 +2125,7 @@ void SwigDirector_Callback::swig_connect_director(JNIEnv *jenv, jobject jself, j
       baseclass = (jclass) jenv->NewGlobalRef(baseclass);
     }
     bool derived = (jenv->IsSameObject(baseclass, jcls) ? false : true);
-    for (int i = 0; i < 25; ++i) {
+    for (int i = 0; i < 26; ++i) {
       if (!methods[i].base_methid) {
         methods[i].base_methid = jenv->GetMethodID(baseclass, methods[i].mname, methods[i].mdesc);
         if (!methods[i].base_methid) return;
@@ -2853,6 +2900,46 @@ SWIGEXPORT void JNICALL Java_org_pjsip_pjsua_pjsuaJNI_Callback_1on_1nat_1detectS
   arg1 = *(Callback **)&jarg1; 
   arg2 = *(pj_stun_nat_detect_result **)&jarg2; 
   (arg1)->Callback::on_nat_detect((pj_stun_nat_detect_result const *)arg2);
+}
+
+
+SWIGEXPORT jint JNICALL Java_org_pjsip_pjsua_pjsuaJNI_Callback_1on_1call_1redirected(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_, jint jarg2, jlong jarg3, jobject jarg3_) {
+  jint jresult = 0 ;
+  Callback *arg1 = (Callback *) 0 ;
+  pjsua_call_id arg2 ;
+  pj_str_t *arg3 = (pj_str_t *) 0 ;
+  pjsip_redirect_op result;
+  
+  (void)jenv;
+  (void)jcls;
+  (void)jarg1_;
+  (void)jarg3_;
+  arg1 = *(Callback **)&jarg1; 
+  arg2 = (pjsua_call_id)jarg2; 
+  arg3 = *(pj_str_t **)&jarg3; 
+  result = (pjsip_redirect_op)(arg1)->on_call_redirected(arg2,(pj_str_t const *)arg3);
+  jresult = (jint)result; 
+  return jresult;
+}
+
+
+SWIGEXPORT jint JNICALL Java_org_pjsip_pjsua_pjsuaJNI_Callback_1on_1call_1redirectedSwigExplicitCallback(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_, jint jarg2, jlong jarg3, jobject jarg3_) {
+  jint jresult = 0 ;
+  Callback *arg1 = (Callback *) 0 ;
+  pjsua_call_id arg2 ;
+  pj_str_t *arg3 = (pj_str_t *) 0 ;
+  pjsip_redirect_op result;
+  
+  (void)jenv;
+  (void)jcls;
+  (void)jarg1_;
+  (void)jarg3_;
+  arg1 = *(Callback **)&jarg1; 
+  arg2 = (pjsua_call_id)jarg2; 
+  arg3 = *(pj_str_t **)&jarg3; 
+  result = (pjsip_redirect_op)(arg1)->Callback::on_call_redirected(arg2,(pj_str_t const *)arg3);
+  jresult = (jint)result; 
+  return jresult;
 }
 
 
@@ -12884,22 +12971,16 @@ SWIGEXPORT jint JNICALL Java_org_pjsip_pjsua_pjsuaJNI_call_1hangup(JNIEnv *jenv,
 }
 
 
-SWIGEXPORT jint JNICALL Java_org_pjsip_pjsua_pjsuaJNI_call_1process_1redirect(JNIEnv *jenv, jclass jcls, jint jarg1, jlong jarg2) {
+SWIGEXPORT jint JNICALL Java_org_pjsip_pjsua_pjsuaJNI_call_1process_1redirect(JNIEnv *jenv, jclass jcls, jint jarg1, jint jarg2) {
   jint jresult = 0 ;
   pjsua_call_id arg1 ;
   pjsip_redirect_op arg2 ;
-  pjsip_redirect_op *argp2 ;
   pj_status_t result;
   
   (void)jenv;
   (void)jcls;
   arg1 = (pjsua_call_id)jarg1; 
-  argp2 = *(pjsip_redirect_op **)&jarg2; 
-  if (!argp2) {
-    SWIG_JavaThrowException(jenv, SWIG_JavaNullPointerException, "Attempt to dereference null pjsip_redirect_op");
-    return 0;
-  }
-  arg2 = *argp2; 
+  arg2 = (pjsip_redirect_op)jarg2; 
   result = (pj_status_t)pjsua_call_process_redirect(arg1,arg2);
   jresult = (jint)result; 
   return jresult;
@@ -16506,7 +16587,7 @@ SWIGEXPORT void JNICALL Java_org_pjsip_pjsua_pjsuaJNI_swig_1module_1init(JNIEnv 
   static struct {
     const char *method;
     const char *signature;
-  } methods[25] = {
+  } methods[26] = {
     {
       "SwigDirector_Callback_on_call_state", "(Lorg/pjsip/pjsua/Callback;IJ)V" 
     },
@@ -16563,6 +16644,9 @@ SWIGEXPORT void JNICALL Java_org_pjsip_pjsua_pjsuaJNI_swig_1module_1init(JNIEnv 
     },
     {
       "SwigDirector_Callback_on_nat_detect", "(Lorg/pjsip/pjsua/Callback;J)V" 
+    },
+    {
+      "SwigDirector_Callback_on_call_redirected", "(Lorg/pjsip/pjsua/Callback;IJ)I" 
     },
     {
       "SwigDirector_Callback_on_mwi_info", "(Lorg/pjsip/pjsua/Callback;IJJ)V" 
@@ -16651,6 +16735,8 @@ JNIEXPORT jint JNI_OnLoad(JavaVM *vm, void *reserved) {
 {"Callback_on_typingSwigExplicitCallback", "(JLorg/pjsip/pjsua/Callback;IJLorg/pjsip/pjsua/pj_str_t;JLorg/pjsip/pjsua/pj_str_t;JLorg/pjsip/pjsua/pj_str_t;I)V", (void*)& Java_org_pjsip_pjsua_pjsuaJNI_Callback_1on_1typingSwigExplicitCallback},
 {"Callback_on_nat_detect", "(JLorg/pjsip/pjsua/Callback;JLorg/pjsip/pjsua/pj_stun_nat_detect_result;)V", (void*)& Java_org_pjsip_pjsua_pjsuaJNI_Callback_1on_1nat_1detect},
 {"Callback_on_nat_detectSwigExplicitCallback", "(JLorg/pjsip/pjsua/Callback;JLorg/pjsip/pjsua/pj_stun_nat_detect_result;)V", (void*)& Java_org_pjsip_pjsua_pjsuaJNI_Callback_1on_1nat_1detectSwigExplicitCallback},
+{"Callback_on_call_redirected", "(JLorg/pjsip/pjsua/Callback;IJLorg/pjsip/pjsua/pj_str_t;)I", (void*)& Java_org_pjsip_pjsua_pjsuaJNI_Callback_1on_1call_1redirected},
+{"Callback_on_call_redirectedSwigExplicitCallback", "(JLorg/pjsip/pjsua/Callback;IJLorg/pjsip/pjsua/pj_str_t;)I", (void*)& Java_org_pjsip_pjsua_pjsuaJNI_Callback_1on_1call_1redirectedSwigExplicitCallback},
 {"Callback_on_mwi_info", "(JLorg/pjsip/pjsua/Callback;IJLorg/pjsip/pjsua/pj_str_t;JLorg/pjsip/pjsua/pj_str_t;)V", (void*)& Java_org_pjsip_pjsua_pjsuaJNI_Callback_1on_1mwi_1info},
 {"Callback_on_mwi_infoSwigExplicitCallback", "(JLorg/pjsip/pjsua/Callback;IJLorg/pjsip/pjsua/pj_str_t;JLorg/pjsip/pjsua/pj_str_t;)V", (void*)& Java_org_pjsip_pjsua_pjsuaJNI_Callback_1on_1mwi_1infoSwigExplicitCallback},
 {"Callback_on_setup_audio", "(JLorg/pjsip/pjsua/Callback;I)I", (void*)& Java_org_pjsip_pjsua_pjsuaJNI_Callback_1on_1setup_1audio},
@@ -17329,7 +17415,7 @@ JNIEXPORT jint JNI_OnLoad(JavaVM *vm, void *reserved) {
 {"call_get_rem_nat_type", "(IJ)I", (void*)& Java_org_pjsip_pjsua_pjsuaJNI_call_1get_1rem_1nat_1type},
 {"call_answer", "(IJJLorg/pjsip/pjsua/pj_str_t;J)I", (void*)& Java_org_pjsip_pjsua_pjsuaJNI_call_1answer},
 {"call_hangup", "(IJJLorg/pjsip/pjsua/pj_str_t;J)I", (void*)& Java_org_pjsip_pjsua_pjsuaJNI_call_1hangup},
-{"call_process_redirect", "(IJ)I", (void*)& Java_org_pjsip_pjsua_pjsuaJNI_call_1process_1redirect},
+{"call_process_redirect", "(II)I", (void*)& Java_org_pjsip_pjsua_pjsuaJNI_call_1process_1redirect},
 {"call_set_hold", "(IJ)I", (void*)& Java_org_pjsip_pjsua_pjsuaJNI_call_1set_1hold},
 {"call_reinvite", "(IJJ)I", (void*)& Java_org_pjsip_pjsua_pjsuaJNI_call_1reinvite},
 {"call_update", "(IJJ)I", (void*)& Java_org_pjsip_pjsua_pjsuaJNI_call_1update},
