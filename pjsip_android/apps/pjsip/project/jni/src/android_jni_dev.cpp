@@ -20,6 +20,7 @@
 
 #include "android_dev.h"
 #include "audio_dev_wrap.h"
+#include <sys/system_properties.h>
 
 #if PJMEDIA_AUDIO_DEV_HAS_ANDROID
 
@@ -726,8 +727,21 @@ static pj_status_t android_create_stream(pjmedia_aud_dev_factory *f,
 			goto on_error;
 		}
 
+		int mic_source = 1;
+		char sdk_version[PROP_VALUE_MAX];
+		__system_property_get("ro.build.version.sdk", sdk_version);
+
+		pj_str_t pj_sdk_version = pj_str(sdk_version);
+		int sdk_v = pj_strtoul(&pj_sdk_version);
+		if(sdk_v >= 10){
+			mic_source = 7;
+		}
+
+		//FIXME: this is moto hack
+		//mic_source = 5;
+
 		stream->record =  jni_env->NewObject(stream->record_class, constructor_method,
-					1, // Mic input source
+					mic_source, // Mic input source 1 : MIC - 7 : VOICE_COMMUNICATION
 					param->clock_rate,
 					2, // CHANNEL_CONFIGURATION_MONO
 					sampleFormat,

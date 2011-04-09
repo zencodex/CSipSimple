@@ -28,6 +28,8 @@
 #include <SLES/OpenSLES.h>
 #include <SLES/OpenSLES_Android.h>
 #include <SLES/OpenSLES_AndroidConfiguration.h>
+#include <sys/system_properties.h>
+
 #include "pjmedia/errno.h"
 #include "audio_dev_wrap.h"
 
@@ -584,7 +586,21 @@ static pj_status_t opensl_create_stream(pjmedia_aud_dev_factory *f,
 				PJ_LOG(2, (THIS_FILE, "Can't get recorder config iface"));
 				goto on_error;
 			}
-			SLint32 streamType = SL_ANDROID_RECORDING_PRESET_GENERIC;//0x7;
+
+			SLint32 streamType = SL_ANDROID_RECORDING_PRESET_GENERIC;
+			char sdk_version[PROP_VALUE_MAX];
+			__system_property_get("ro.build.version.sdk", sdk_version);
+
+			pj_str_t pj_sdk_version = pj_str(sdk_version);
+			int sdk_v = pj_strtoul(&pj_sdk_version);
+			if(sdk_v >= 10){
+				streamType = 0x7;
+			}
+
+
+			PJ_LOG(3, (THIS_FILE, "We have a stream type %d Cause SDK : %d", streamType, sdk_v));
+
+
 			result = (*recorderConfig)->SetConfiguration(recorderConfig, SL_ANDROID_KEY_RECORDING_PRESET, &streamType, sizeof(SLint32));
 
 
