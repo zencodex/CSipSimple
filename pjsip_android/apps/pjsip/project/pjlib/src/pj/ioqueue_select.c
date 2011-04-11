@@ -1,4 +1,4 @@
-/* $Id: ioqueue_select.c 3456 2011-03-16 09:22:24Z ming $ */
+/* $Id: ioqueue_select.c 3491 2011-03-31 05:54:16Z bennylp $ */
 /* 
  * Copyright (C) 2008-2009 Teluu Inc. (http://www.teluu.com)
  * Copyright (C) 2003-2008 Benny Prijono <benny@prijono.org>
@@ -125,7 +125,10 @@ struct pj_ioqueue_t
 };
 
 /* Proto */
+#if defined(PJ_IPHONE_OS_HAS_MULTITASKING_SUPPORT) && \
+	    PJ_IPHONE_OS_HAS_MULTITASKING_SUPPORT!=0
 static pj_status_t replace_udp_sock(pj_ioqueue_key_t *h);
+#endif
 
 /* Include implementation for common abstraction after we declare
  * pj_ioqueue_key_t and pj_ioqueue_t.
