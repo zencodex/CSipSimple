@@ -1,4 +1,4 @@
-/* $Id: os_core_unix.c 3427 2011-02-28 23:58:14Z bennylp $ */
+/* $Id: os_core_unix.c 3524 2011-04-11 21:01:11Z bennylp $ */
 /* 
  * Copyright (C) 2008-2009 Teluu Inc. (http://www.teluu.com)
  * Copyright (C) 2003-2008 Benny Prijono <benny@prijono.org>
@@ -1350,7 +1350,6 @@ PJ_DEF(pj_status_t) pj_mutex_destroy(pj_mutex_t *mutex)
     if (status == 0)
 	return PJ_SUCCESS;
     else {
-	pj_assert(!"Error destroying pthread_mutex");
 	return PJ_RETURN_OS_ERROR(status);
     }
 #else

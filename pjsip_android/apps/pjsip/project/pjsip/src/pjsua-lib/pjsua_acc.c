@@ -1,4 +1,4 @@
-/* $Id: pjsua_acc.c 3474 2011-03-23 03:46:26Z bennylp $ */
+/* $Id: pjsua_acc.c 3490 2011-03-29 03:47:16Z nanang $ */
 /* 
  * Copyright (C) 2008-2009 Teluu Inc. (http://www.teluu.com)
  * Copyright (C) 2003-2008 Benny Prijono <benny@prijono.org>
@@ -905,7 +905,7 @@ PJ_DEF(pj_status_t) pjsua_acc_modify( pjsua_acc_id acc_id,
 	    pjsip_cred_info ci;
 
 	    /* Find if this credential is already listed */
-	    for (j = i; j < acc->cfg.cred_count; ++i) {
+	    for (j = i; j < acc->cfg.cred_count; ++j) {
 		if (pjsip_cred_info_cmp(&acc->cfg.cred_info[j], 
 					&cfg->cred_info[i]) == 0)
 		{
