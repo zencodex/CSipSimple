@@ -40,15 +40,16 @@ public:
     virtual void on_mwi_info(pjsua_acc_id acc_id, pj_str_t const *mime_type, pj_str_t const *body);
     virtual pj_status_t on_setup_audio(int clock_rate);
     virtual void on_teardown_audio();
+    virtual int on_set_micro_source();
     virtual void on_zrtp_show_sas(pj_str_t const *sas, int verified);
     virtual void on_zrtp_secure_on(pj_str_t const *cipher);
     virtual void on_zrtp_secure_off();
 public:
     bool swig_overrides(int n) {
-      return (n < 26 ? swig_override[n] : false);
+      return (n < 27 ? swig_override[n] : false);
     }
 protected:
-    bool swig_override[26];
+    bool swig_override[27];
 };
 
 

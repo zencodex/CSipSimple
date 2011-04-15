@@ -727,18 +727,19 @@ static pj_status_t android_create_stream(pjmedia_aud_dev_factory *f,
 			goto on_error;
 		}
 
-		int mic_source = 1;
-		char sdk_version[PROP_VALUE_MAX];
-		__system_property_get("ro.build.version.sdk", sdk_version);
+		int mic_source = on_set_micro_source_wrapper();
+		if(mic_source == 0){
+			mic_source = 1;
+			char sdk_version[PROP_VALUE_MAX];
+			__system_property_get("ro.build.version.sdk", sdk_version);
 
-		pj_str_t pj_sdk_version = pj_str(sdk_version);
-		int sdk_v = pj_strtoul(&pj_sdk_version);
-		if(sdk_v >= 10){
-			mic_source = 7;
+			pj_str_t pj_sdk_version = pj_str(sdk_version);
+			int sdk_v = pj_strtoul(&pj_sdk_version);
+			if(sdk_v >= 10){
+				mic_source = 7;
+			}
 		}
-
-		//FIXME: this is moto hack
-		//mic_source = 5;
+		PJ_LOG(3, (THIS_FILE, "Use micro source : %d", mic_source));
 
 		stream->record =  jni_env->NewObject(stream->record_class, constructor_method,
 					mic_source, // Mic input source 1 : MIC - 7 : VOICE_COMMUNICATION
@@ -875,14 +876,10 @@ static pj_status_t strm_start(pjmedia_aud_stream *s)
 	JNIEnv *jni_env = 0;
 	ATTACH_JVM(jni_env);
 
-
-
-
 	pj_status_t status;
 
 	//Start threads
 	if(stream->record){
-
 
 		status = pj_thread_create(stream->pool, "android_recorder", &AndroidRecorderCallback, stream, 0, 0,  &stream->rec_thread);
 		if (status != PJ_SUCCESS) {
@@ -964,8 +961,6 @@ static pj_status_t strm_stop(pjmedia_aud_stream *s)
 	}
 
 
-	//Unset media in call
-	on_teardown_audio_wrapper();
 
 	PJ_LOG(4,(THIS_FILE, "Stopping Done"));
 
@@ -1015,6 +1010,9 @@ static pj_status_t strm_destroy(pjmedia_aud_stream *s)
 	}else{
 		PJ_LOG(2,(THIS_FILE, "Nothing to release !!! track"));
 	}
+
+	//Unset media in call
+	on_teardown_audio_wrapper();
 
 //	pj_sem_destroy(stream->audio_launch_sem);
 	pj_pool_release(stream->pool);

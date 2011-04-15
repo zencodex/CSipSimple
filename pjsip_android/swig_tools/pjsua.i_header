@@ -144,6 +144,7 @@ public:
 	
 	virtual pj_status_t on_setup_audio (int clock_rate) {}
 	virtual void on_teardown_audio () {}
+	virtual int on_set_micro_source () {}
 	
 	virtual void on_zrtp_show_sas (const pj_str_t *sas, int verified) {}
 	virtual void on_zrtp_secure_on (const pj_str_t *cipher) {}
@@ -341,6 +342,10 @@ void on_teardown_audio_wrapper () {
 	registeredCallbackObject->on_teardown_audio();
 }
 
+int on_set_micro_source_wrapper () {
+	registeredCallbackObject->on_set_micro_source();
+}
+
 void on_zrtp_show_sas_wrapper(void* data, char* sas, int verified){
 	pj_str_t sas_string = pj_str(sas);
 	registeredCallbackObject->on_zrtp_show_sas(&sas_string, verified);
@@ -471,6 +476,7 @@ public:
 	
 	virtual pj_status_t on_setup_audio(int clock_rate);
 	virtual void on_teardown_audio();
+	virtual int on_set_micro_source();
 	
 	virtual void on_zrtp_show_sas (const pj_str_t *sas, int verified);
 	virtual void on_zrtp_secure_on (const pj_str_t *cipher);
