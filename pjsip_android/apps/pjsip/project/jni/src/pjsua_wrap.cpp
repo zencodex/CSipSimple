@@ -409,7 +409,7 @@ namespace Swig {
 namespace Swig {
   namespace {
     jclass jclass_pjsuaJNI = NULL;
-    jmethodID director_methids[26];
+    jmethodID director_methids[27];
   }
 }
 
@@ -1107,6 +1107,7 @@ public:
 	
 	virtual pj_status_t on_setup_audio (int clock_rate) {}
 	virtual void on_teardown_audio () {}
+	virtual int on_set_micro_source () {}
 	
 	virtual void on_zrtp_show_sas (const pj_str_t *sas, int verified) {}
 	virtual void on_zrtp_secure_on (const pj_str_t *cipher) {}
@@ -1302,6 +1303,10 @@ pj_status_t on_setup_audio_wrapper (int clock_rate) {
 
 void on_teardown_audio_wrapper () {
 	registeredCallbackObject->on_teardown_audio();
+}
+
+int on_set_micro_source_wrapper () {
+	registeredCallbackObject->on_set_micro_source();
 }
 
 void on_zrtp_show_sas_wrapper(void* data, char* sas, int verified){
@@ -1967,6 +1972,28 @@ void SwigDirector_Callback::on_teardown_audio() {
   if (swigjobj) jenv->DeleteLocalRef(swigjobj);
 }
 
+int SwigDirector_Callback::on_set_micro_source() {
+  int c_result = SwigValueInit< int >() ;
+  jint jresult = 0 ;
+  JNIEnvWrapper swigjnienv(this) ;
+  JNIEnv * jenv = swigjnienv.getJNIEnv() ;
+  jobject swigjobj = (jobject) NULL ;
+  
+  if (!swig_override[23]) {
+    return Callback::on_set_micro_source();
+  }
+  swigjobj = swig_get_self(jenv);
+  if (swigjobj && jenv->IsSameObject(swigjobj, NULL) == JNI_FALSE) {
+    jresult = (jint) jenv->CallStaticIntMethod(Swig::jclass_pjsuaJNI, Swig::director_methids[23], swigjobj);
+    if (jenv->ExceptionOccurred()) return c_result;
+    c_result = (int)jresult; 
+  } else {
+    SWIG_JavaThrowException(jenv, SWIG_JavaNullPointerException, "null upcall object");
+  }
+  if (swigjobj) jenv->DeleteLocalRef(swigjobj);
+  return c_result;
+}
+
 void SwigDirector_Callback::on_zrtp_show_sas(pj_str_t const *sas, int verified) {
   JNIEnvWrapper swigjnienv(this) ;
   JNIEnv * jenv = swigjnienv.getJNIEnv() ;
@@ -1974,7 +2001,7 @@ void SwigDirector_Callback::on_zrtp_show_sas(pj_str_t const *sas, int verified) 
   jlong jsas = 0 ;
   jint jverified  ;
   
-  if (!swig_override[23]) {
+  if (!swig_override[24]) {
     Callback::on_zrtp_show_sas(sas,verified);
     return;
   }
@@ -1982,7 +2009,7 @@ void SwigDirector_Callback::on_zrtp_show_sas(pj_str_t const *sas, int verified) 
   if (swigjobj && jenv->IsSameObject(swigjobj, NULL) == JNI_FALSE) {
     *((pj_str_t **)&jsas) = (pj_str_t *) sas; 
     jverified = (jint) verified;
-    jenv->CallStaticVoidMethod(Swig::jclass_pjsuaJNI, Swig::director_methids[23], swigjobj, jsas, jverified);
+    jenv->CallStaticVoidMethod(Swig::jclass_pjsuaJNI, Swig::director_methids[24], swigjobj, jsas, jverified);
     if (jenv->ExceptionOccurred()) return ;
   } else {
     SWIG_JavaThrowException(jenv, SWIG_JavaNullPointerException, "null upcall object");
@@ -1996,14 +2023,14 @@ void SwigDirector_Callback::on_zrtp_secure_on(pj_str_t const *cipher) {
   jobject swigjobj = (jobject) NULL ;
   jlong jcipher = 0 ;
   
-  if (!swig_override[24]) {
+  if (!swig_override[25]) {
     Callback::on_zrtp_secure_on(cipher);
     return;
   }
   swigjobj = swig_get_self(jenv);
   if (swigjobj && jenv->IsSameObject(swigjobj, NULL) == JNI_FALSE) {
     *((pj_str_t **)&jcipher) = (pj_str_t *) cipher; 
-    jenv->CallStaticVoidMethod(Swig::jclass_pjsuaJNI, Swig::director_methids[24], swigjobj, jcipher);
+    jenv->CallStaticVoidMethod(Swig::jclass_pjsuaJNI, Swig::director_methids[25], swigjobj, jcipher);
     if (jenv->ExceptionOccurred()) return ;
   } else {
     SWIG_JavaThrowException(jenv, SWIG_JavaNullPointerException, "null upcall object");
@@ -2016,13 +2043,13 @@ void SwigDirector_Callback::on_zrtp_secure_off() {
   JNIEnv * jenv = swigjnienv.getJNIEnv() ;
   jobject swigjobj = (jobject) NULL ;
   
-  if (!swig_override[25]) {
+  if (!swig_override[26]) {
     Callback::on_zrtp_secure_off();
     return;
   }
   swigjobj = swig_get_self(jenv);
   if (swigjobj && jenv->IsSameObject(swigjobj, NULL) == JNI_FALSE) {
-    jenv->CallStaticVoidMethod(Swig::jclass_pjsuaJNI, Swig::director_methids[25], swigjobj);
+    jenv->CallStaticVoidMethod(Swig::jclass_pjsuaJNI, Swig::director_methids[26], swigjobj);
     if (jenv->ExceptionOccurred()) return ;
   } else {
     SWIG_JavaThrowException(jenv, SWIG_JavaNullPointerException, "null upcall object");
@@ -2106,6 +2133,9 @@ void SwigDirector_Callback::swig_connect_director(JNIEnv *jenv, jobject jself, j
       "on_teardown_audio", "()V", NULL 
     },
     {
+      "on_set_micro_source", "()I", NULL 
+    },
+    {
       "on_zrtp_show_sas", "(Lorg/pjsip/pjsua/pj_str_t;I)V", NULL 
     },
     {
@@ -2125,7 +2155,7 @@ void SwigDirector_Callback::swig_connect_director(JNIEnv *jenv, jobject jself, j
       baseclass = (jclass) jenv->NewGlobalRef(baseclass);
     }
     bool derived = (jenv->IsSameObject(baseclass, jcls) ? false : true);
-    for (int i = 0; i < 26; ++i) {
+    for (int i = 0; i < 27; ++i) {
       if (!methods[i].base_methid) {
         methods[i].base_methid = jenv->GetMethodID(baseclass, methods[i].mname, methods[i].mdesc);
         if (!methods[i].base_methid) return;
@@ -3034,6 +3064,36 @@ SWIGEXPORT void JNICALL Java_org_pjsip_pjsua_pjsuaJNI_Callback_1on_1teardown_1au
   (void)jarg1_;
   arg1 = *(Callback **)&jarg1; 
   (arg1)->Callback::on_teardown_audio();
+}
+
+
+SWIGEXPORT jint JNICALL Java_org_pjsip_pjsua_pjsuaJNI_Callback_1on_1set_1micro_1source(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_) {
+  jint jresult = 0 ;
+  Callback *arg1 = (Callback *) 0 ;
+  int result;
+  
+  (void)jenv;
+  (void)jcls;
+  (void)jarg1_;
+  arg1 = *(Callback **)&jarg1; 
+  result = (int)(arg1)->on_set_micro_source();
+  jresult = (jint)result; 
+  return jresult;
+}
+
+
+SWIGEXPORT jint JNICALL Java_org_pjsip_pjsua_pjsuaJNI_Callback_1on_1set_1micro_1sourceSwigExplicitCallback(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_) {
+  jint jresult = 0 ;
+  Callback *arg1 = (Callback *) 0 ;
+  int result;
+  
+  (void)jenv;
+  (void)jcls;
+  (void)jarg1_;
+  arg1 = *(Callback **)&jarg1; 
+  result = (int)(arg1)->Callback::on_set_micro_source();
+  jresult = (jint)result; 
+  return jresult;
 }
 
 
@@ -16587,7 +16647,7 @@ SWIGEXPORT void JNICALL Java_org_pjsip_pjsua_pjsuaJNI_swig_1module_1init(JNIEnv 
   static struct {
     const char *method;
     const char *signature;
-  } methods[26] = {
+  } methods[27] = {
     {
       "SwigDirector_Callback_on_call_state", "(Lorg/pjsip/pjsua/Callback;IJ)V" 
     },
@@ -16656,6 +16716,9 @@ SWIGEXPORT void JNICALL Java_org_pjsip_pjsua_pjsuaJNI_swig_1module_1init(JNIEnv 
     },
     {
       "SwigDirector_Callback_on_teardown_audio", "(Lorg/pjsip/pjsua/Callback;)V" 
+    },
+    {
+      "SwigDirector_Callback_on_set_micro_source", "(Lorg/pjsip/pjsua/Callback;)I" 
     },
     {
       "SwigDirector_Callback_on_zrtp_show_sas", "(Lorg/pjsip/pjsua/Callback;JI)V" 
@@ -16743,6 +16806,8 @@ JNIEXPORT jint JNI_OnLoad(JavaVM *vm, void *reserved) {
 {"Callback_on_setup_audioSwigExplicitCallback", "(JLorg/pjsip/pjsua/Callback;I)I", (void*)& Java_org_pjsip_pjsua_pjsuaJNI_Callback_1on_1setup_1audioSwigExplicitCallback},
 {"Callback_on_teardown_audio", "(JLorg/pjsip/pjsua/Callback;)V", (void*)& Java_org_pjsip_pjsua_pjsuaJNI_Callback_1on_1teardown_1audio},
 {"Callback_on_teardown_audioSwigExplicitCallback", "(JLorg/pjsip/pjsua/Callback;)V", (void*)& Java_org_pjsip_pjsua_pjsuaJNI_Callback_1on_1teardown_1audioSwigExplicitCallback},
+{"Callback_on_set_micro_source", "(JLorg/pjsip/pjsua/Callback;)I", (void*)& Java_org_pjsip_pjsua_pjsuaJNI_Callback_1on_1set_1micro_1source},
+{"Callback_on_set_micro_sourceSwigExplicitCallback", "(JLorg/pjsip/pjsua/Callback;)I", (void*)& Java_org_pjsip_pjsua_pjsuaJNI_Callback_1on_1set_1micro_1sourceSwigExplicitCallback},
 {"Callback_on_zrtp_show_sas", "(JLorg/pjsip/pjsua/Callback;JLorg/pjsip/pjsua/pj_str_t;I)V", (void*)& Java_org_pjsip_pjsua_pjsuaJNI_Callback_1on_1zrtp_1show_1sas},
 {"Callback_on_zrtp_show_sasSwigExplicitCallback", "(JLorg/pjsip/pjsua/Callback;JLorg/pjsip/pjsua/pj_str_t;I)V", (void*)& Java_org_pjsip_pjsua_pjsuaJNI_Callback_1on_1zrtp_1show_1sasSwigExplicitCallback},
 {"Callback_on_zrtp_secure_on", "(JLorg/pjsip/pjsua/Callback;JLorg/pjsip/pjsua/pj_str_t;)V", (void*)& Java_org_pjsip_pjsua_pjsuaJNI_Callback_1on_1zrtp_1secure_1on},

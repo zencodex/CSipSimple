@@ -555,8 +555,6 @@ static pj_status_t opensl_create_stream(pjmedia_aud_dev_factory *f,
 			result = (*stream->playerBufferQueue)->RegisterCallback(stream->playerBufferQueue, bqPlayerCallback, (void *) stream);
 			assert(SL_RESULT_SUCCESS == result);
 
-
-
 		}
 
 
@@ -597,10 +595,7 @@ static pj_status_t opensl_create_stream(pjmedia_aud_dev_factory *f,
 				streamType = 0x7;
 			}
 
-
 			PJ_LOG(3, (THIS_FILE, "We have a stream type %d Cause SDK : %d", streamType, sdk_v));
-
-
 			result = (*recorderConfig)->SetConfiguration(recorderConfig, SL_ANDROID_KEY_RECORDING_PRESET, &streamType, sizeof(SLint32));
 
 
