@@ -15,6 +15,11 @@
 #define PJMEDIA_RTP_PT_TELEPHONE_EVENTS_STR      "101"
 
 #if defined(PJ_ANDROID) && PJ_ANDROID!=0
+	// Disable keep alive because it's done using android SDK which properly handle that
+	#define PJSIP_TCP_KEEP_ALIVE_INTERVAL 0
+	#define PJSIP_TLS_KEEP_ALIVE_INTERVAL 0
+
+
 //    #define PJ_LOG_USE_STACK_BUFFER             1
 	//#define PJSUA_DEFAULT_AUDIO_FRAME_PTIME 30
 
@@ -26,10 +31,7 @@
 	#define PJMEDIA_CONF_USE_SWITCH_BOARD 0
 
     #define PJ_OS_HAS_CHECK_STACK		0
-
-
 	#define PJSIP_HAS_DIGEST_MJMD5_AUTH	1
-
 	#define PJ_QOS_IMPLEMENTATION    PJ_QOS_BSD
 
 

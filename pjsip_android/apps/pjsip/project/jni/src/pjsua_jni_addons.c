@@ -450,11 +450,14 @@ PJ_DECL(pj_status_t) send_keep_alive(int acc_id) {
 
 		/* Send raw packet */
 		status = pjsip_tpmgr_send_raw(pjsip_endpt_get_tpmgr(pjsua_var.endpt),
-					  PJSIP_TRANSPORT_UDP, &tp_sel,
+					  acc->ka_transport->key.type, &tp_sel,
 					  NULL, acc->cfg.ka_data.ptr,
 					  acc->cfg.ka_data.slen,
 					  &acc->ka_target, acc->ka_target_len,
 					  NULL, NULL);
+		if(status != PJ_SUCCESS){
+			PJ_LOG(2, (THIS_FILE, "Impossible to send keep alive to account transport"));
+		}
 	}
 
 	PJSUA_UNLOCK();
