@@ -1,4 +1,4 @@
-/* $Id: sip_reg.c 3444 2011-03-15 10:49:59Z ming $ */
+/* $Id: sip_reg.c 3545 2011-04-27 03:05:26Z bennylp $ */
 /* 
  * Copyright (C) 2008-2009 Teluu Inc. (http://www.teluu.com)
  * Copyright (C) 2003-2008 Benny Prijono <benny@prijono.org>
@@ -991,7 +991,7 @@ static pj_int32_t calculate_response_expiration(const pjsip_regc *regc,
     return expiration;
 }
 
-static void tsx_callback(void *token, pjsip_event *event)
+static void regc_tsx_callback(void *token, pjsip_event *event)
 {
     pj_status_t status;
     pjsip_regc *regc = (pjsip_regc*) token;
@@ -1164,9 +1164,6 @@ handle_err:
 						       PJSIP_REGC_MAX_CONTACT,
 						       contact);
 
-	    /* Mark operation as complete */
-	    regc->current_op = REGC_IDLE;
-
 	    /* Schedule next registration */
             schedule_registration(regc, expiration);
 
@@ -1178,6 +1175,9 @@ handle_err:
 	/* Update registration */
 	if (expiration==NOEXP) expiration=-1;
 	regc->expires = expiration;
+
+	/* Mark operation as complete */
+	regc->current_op = REGC_IDLE;
 
 	/* Call callback. */
 	/* Should be safe to release the lock temporarily.
@@ -1251,11 +1251,22 @@ PJ_DEF(pj_status_t) pjsip_regc_send(pjsip_regc *regc, pjsip_tx_data *tdata)
      */
     pjsip_tx_data_add_ref(tdata);
 
+    /* Need to unlock the regc temporarily while sending the message to
+     * prevent deadlock (https://trac.pjsip.org/repos/ticket/1247).
+     * It should be safe to do this since the regc's refcount has been
+     * incremented.
+     */
+    pj_lock_release(regc->lock);
+
+    /* Now send the message */
     status = pjsip_endpt_send_request(regc->endpt, tdata, REGC_TSX_TIMEOUT,
-				      regc, &tsx_callback);
+				      regc, &regc_tsx_callback);
     if (status!=PJ_SUCCESS) {
 	PJ_LOG(4,(THIS_FILE, "Error sending request, status=%d", status));
     }
+
+    /* Reacquire the lock */
+    pj_lock_acquire(regc->lock);
 
     /* Get last transport used and add reference to it */
     if (tdata->tp_info.transport != regc->last_transport) {
