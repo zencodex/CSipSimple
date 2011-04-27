@@ -1,4 +1,4 @@
-/* $Id: sdp.c 3256 2010-08-06 08:26:31Z nanang $ */
+/* $Id: sdp.c 3541 2011-04-25 06:25:44Z nanang $ */
 /* 
  * Copyright (C) 2008-2009 Teluu Inc. (http://www.teluu.com)
  * Copyright (C) 2003-2008 Benny Prijono <benny@prijono.org>
@@ -981,7 +981,7 @@ static void parse_media(pj_scanner *scanner, pjmedia_sdp_media *med,
     }
 
     /* transport */
-    pj_scan_get_until_ch(scanner, ' ', &med->desc.transport);
+    pj_scan_get_until_chr(scanner, " \t\r\n", &med->desc.transport);
 
     /* format list */
     med->desc.fmt_count = 0;

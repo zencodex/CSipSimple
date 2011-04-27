@@ -1,4 +1,4 @@
-/* $Id: sock_bsd.c 3492 2011-03-31 07:38:57Z ming $ */
+/* $Id: sock_bsd.c 3543 2011-04-26 03:07:24Z ming $ */
 /* 
  * Copyright (C) 2008-2009 Teluu Inc. (http://www.teluu.com)
  * Copyright (C) 2003-2008 Benny Prijono <benny@prijono.org>
@@ -456,23 +456,6 @@ PJ_DEF(const pj_str_t*) pj_gethostname(void)
 	    hostname.slen = 0;
 	} else {
             hostname.slen = strlen(buf);
-#if defined(PJ_GETHOSTNAME_APPEND_LOCAL_SUFFIX) && \
-    PJ_GETHOSTNAME_APPEND_LOCAL_SUFFIX!=0
-            {
-                const pj_str_t suffix = {".local", 6};
-
-                if (hostname.slen < suffix.slen ||
-                    pj_ansi_strnicmp(hostname.ptr + hostname.slen -
-                                     suffix.slen, suffix.ptr, suffix.slen))
-                {
-                    if (hostname.slen + suffix.slen + 1 < sizeof(buf))
-                        pj_strcat(&hostname, &suffix);
-                    else
-                        hostname.slen = 0;
-                    hostname.ptr[hostname.slen] = '\0';
-                }
-            }
-#endif
 	}
     }
     return &hostname;

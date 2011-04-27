@@ -1,4 +1,4 @@
-/* $Id: sip_inv.c 3481 2011-03-23 11:46:17Z bennylp $ */
+/* $Id: sip_inv.c 3546 2011-04-27 04:58:32Z nanang $ */
 /* 
  * Copyright (C) 2008-2009 Teluu Inc. (http://www.teluu.com)
  * Copyright (C) 2003-2008 Benny Prijono <benny@prijono.org>
@@ -2295,6 +2295,9 @@ PJ_DEF(pj_status_t) pjsip_inv_process_redirect( pjsip_inv_session *inv,
 	    via = (pjsip_via_hdr*) 
 		  pjsip_msg_find_hdr(tdata->msg, PJSIP_H_VIA, NULL);
 	    via->branch_param.slen = 0;
+
+	    /* Reset message destination info (see #1248). */
+	    pj_bzero(&tdata->dest_info, sizeof(tdata->dest_info));
 
 	    /* Must invalidate the message! */
 	    pjsip_tx_data_invalidate_msg(tdata);

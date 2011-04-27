@@ -792,6 +792,7 @@ static pj_status_t create_udp_media_transports(pjsua_transport_config *cfg)
     unsigned i;
     pjmedia_sock_info skinfo;
     pj_status_t status;
+
     /* Create each media transport */
     for (i=0; i<pjsua_var.ua_cfg.max_calls; ++i) {
 
