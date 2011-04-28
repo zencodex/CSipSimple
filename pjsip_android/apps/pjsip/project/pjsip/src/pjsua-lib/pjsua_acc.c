@@ -1538,14 +1538,6 @@ static void update_keep_alive(pjsua_acc *acc, pj_bool_t start,
 	pj_time_val delay;
 	pj_status_t status;
 
-	/* Save transport and destination address. */
-	acc->ka_transport = param->rdata->tp_info.transport;
-	pjsip_transport_add_ref(acc->ka_transport);
-	pj_memcpy(&acc->ka_target, &param->rdata->pkt_info.src_addr,
-		  param->rdata->pkt_info.src_addr_len);
-	acc->ka_target_len = param->rdata->pkt_info.src_addr_len;
-
-
 	/* Only do keep-alive if:
 	 *  - ka_interval is not zero in the account, and
 	 *  - transport is UDP.
@@ -1565,8 +1557,15 @@ static void update_keep_alive(pjsua_acc *acc, pj_bool_t start,
 	    param->rdata->tp_info.transport->key.type != PJSIP_TRANSPORT_UDP)
 	{
 	    /* Keep alive is not necessary */
-	    return;
+	//    return;
 	}
+
+	/* Save transport and destination address. */
+	acc->ka_transport = param->rdata->tp_info.transport;
+	pjsip_transport_add_ref(acc->ka_transport);
+	pj_memcpy(&acc->ka_target, &param->rdata->pkt_info.src_addr,
+		  param->rdata->pkt_info.src_addr_len);
+	acc->ka_target_len = param->rdata->pkt_info.src_addr_len;
 
 	//we don't want to use this anymore return right now
 	return;
