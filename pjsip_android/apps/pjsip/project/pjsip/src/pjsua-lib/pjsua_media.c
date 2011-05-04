@@ -2684,6 +2684,7 @@ static pj_status_t create_aud_param(pjmedia_aud_param *param,
 	param->flags |= (PJMEDIA_AUD_DEV_CAP_EC | PJMEDIA_AUD_DEV_CAP_EC_TAIL);
 	param->ec_enabled = PJ_TRUE;
 	param->ec_tail_ms = pjsua_var.media_cfg.ec_tail_len;
+	param->ec_options = pjsua_var.media_cfg.ec_options;
     } else {
 	param->flags &= ~(PJMEDIA_AUD_DEV_CAP_EC|PJMEDIA_AUD_DEV_CAP_EC_TAIL);
     }
@@ -3075,7 +3076,7 @@ PJ_DEF(pjmedia_port*) pjsua_set_no_snd_dev(void)
 PJ_DEF(pj_status_t) pjsua_set_ec(unsigned tail_ms, unsigned options)
 {
     pjsua_var.media_cfg.ec_tail_len = tail_ms;
-
+    pjsua_var.media_cfg.ec_options = options;
     if (pjsua_var.snd_port)
 	return pjmedia_snd_port_set_ec( pjsua_var.snd_port, pjsua_var.pool,
 					tail_ms, options);

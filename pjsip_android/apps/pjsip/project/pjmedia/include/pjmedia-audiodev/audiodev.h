@@ -410,6 +410,11 @@ typedef struct pjmedia_aud_param
      */
     unsigned ec_tail_ms;
 
+    /**
+     * Set software echo canceller algorithm. This setting is optional. default value is 0
+    */
+    unsigned ec_options;
+
     /** 
      * Enable/disable PLC. This setting is optional, and will only be used
      * if PJMEDIA_AUD_DEV_CAP_PLC is set in the flags.
