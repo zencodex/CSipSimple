@@ -1278,7 +1278,8 @@ pj_status_t pjsua_media_channel_init(pjsua_call_id call_id,
 	call->med_orig = call->med_tp;
 	call->med_tp = srtp;
     }
-#else
+#endif
+
 #if defined(PJMEDIA_HAS_ZRTP) && (PJMEDIA_HAS_ZRTP != 0)
     /*
      * If SRTP and ZRTP are enabled return error. 
@@ -1298,14 +1299,15 @@ pj_status_t pjsua_media_channel_init(pjsua_call_id call_id,
     if (status != PJ_SUCCESS)
         return status;
 
-    /* Set SRTP as current media transport */
+    /* Set ZRTP as current media transport */
     call->med_orig = call->med_tp;
     call->med_tp = zrtp;
     }
-#else
+#endif
+
+#if ! (defined(PJMEDIA_HAS_ZRTP) && (PJMEDIA_HAS_ZRTP != 0)) &&  !(defined(PJMEDIA_HAS_SRTP) && (PJMEDIA_HAS_SRTP != 0))
     call->med_orig = call->med_tp;
     PJ_UNUSED_ARG(security_level);
-#endif
 #endif
 
     /* Find out which media line in SDP that we support. If we are offerer,
