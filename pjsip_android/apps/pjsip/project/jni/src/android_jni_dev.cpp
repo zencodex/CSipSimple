@@ -599,7 +599,7 @@ static pj_status_t android_create_stream(pjmedia_aud_dev_factory *f,
 	//TODO : return codes should be better
 	JNIEnv *jni_env = 0;
 	ATTACH_JVM(jni_env);
-	jmethodID constructor_method=0, get_min_buffer_size_method = 0;
+	jmethodID constructor_method=0, get_min_buffer_size_method = 0, method_id = 0;
 
 
 	status = on_setup_audio_wrapper(param->clock_rate);
@@ -742,18 +742,42 @@ static pj_status_t android_create_stream(pjmedia_aud_dev_factory *f,
 		PJ_LOG(3, (THIS_FILE, "Use micro source : %d", mic_source));
 
 		stream->record =  jni_env->NewObject(stream->record_class, constructor_method,
-					mic_source, // Mic input source 1 : MIC - 7 : VOICE_COMMUNICATION
+					mic_source, // Mic input source:  1 = MIC / 7 = VOICE_COMMUNICATION
 					param->clock_rate,
 					2, // CHANNEL_CONFIGURATION_MONO
 					sampleFormat,
 					inputBuffSizeRec);
 
 
-		stream->record = jni_env->NewGlobalRef(stream->record);
 		if (stream->record == 0) {
 			PJ_LOG(1, (THIS_FILE, "Not able to instantiate record class"));
 			goto on_error;
 		}
+		jthrowable exc = jni_env->ExceptionOccurred();
+		if (exc) {
+			jni_env->ExceptionDescribe();
+			jni_env->ExceptionClear();
+			PJ_LOG(2, (THIS_FILE, "The micro source was probably not valid"));
+			if(mic_source != 1){
+				PJ_LOG(4, (THIS_FILE, "Try default source"));
+				stream->record =  jni_env->NewObject(stream->record_class, constructor_method,
+							1, // Mic input source:  1 = MIC / 7 = VOICE_COMMUNICATION
+							param->clock_rate,
+							2, // CHANNEL_CONFIGURATION_MONO
+							sampleFormat,
+							inputBuffSizeRec);
+				if (stream->record == 0) {
+					PJ_LOG(1, (THIS_FILE, "Not able to instantiate record class"));
+					goto on_error;
+				}
+			}else{
+				PJ_LOG(1, (THIS_FILE, "Not able to instantiate record class"));
+				goto on_error;
+			}
+		}
+
+		stream->record = jni_env->NewGlobalRef(stream->record);
+
 		PJ_LOG(3, (THIS_FILE, "We have capture the instance done"));
 
 	}
