@@ -76,11 +76,6 @@ struct android_aud_stream
 	//pj_thread_desc play_thread_desc;
 	pj_thread_t *play_thread;
 
-//	pj_sem_t *audio_launch_sem;
-
-
-
-
 };
 
 /* Factory prototypes */
@@ -135,6 +130,48 @@ static pjmedia_aud_stream_op android_strm_op =
 	&strm_destroy
 };
 
+// Thread priority utils
+// TODO : port it to pj_thread functions
+#define THREAD_PRIORITY_AUDIO -16
+#define THREAD_PRIORITY_URGENT_AUDIO -19
+
+static pj_status_t set_android_thread_priority(int priority){
+	jclass process_class;
+	jmethodID set_prio_method;
+	JNIEnv *jni_env = 0;
+	ATTACH_JVM(jni_env);
+	pj_status_t result = PJ_SUCCESS;
+
+	//Get pointer to the java class
+	process_class = (jclass)jni_env->NewGlobalRef(jni_env->FindClass("android/os/Process"));
+	if (process_class == 0) {
+		PJ_LOG(1, (THIS_FILE, "Not able to find os process class"));
+		result = PJ_EIGNORED;
+		goto on_finish;
+	}
+
+	PJ_LOG(4, (THIS_FILE, "We have the class for process"));
+
+	//Get the set priority function
+	set_prio_method = jni_env->GetStaticMethodID(process_class, "setThreadPriority", "(I)V");
+	if (set_prio_method == 0) {
+		PJ_LOG(1, (THIS_FILE, "Not able to find setThreadPriority method"));
+		result = PJ_EIGNORED;
+		goto on_finish;
+	}
+	PJ_LOG(4, (THIS_FILE, "We have the method for setThreadPriority"));
+
+	//Call it
+	jni_env->CallStaticIntMethod(process_class, set_prio_method, priority);
+	// TODO : catch exceptions
+
+	on_finish:
+		DETACH_JVM(jni_env);
+		return result;
+
+}
+
+
 static int PJ_THREAD_FUNC AndroidRecorderCallback(void* userData){
 	struct android_aud_stream *stream = (struct android_aud_stream*) userData;
 	JNIEnv *jni_env = 0;
@@ -178,7 +215,11 @@ static int PJ_THREAD_FUNC AndroidRecorderCallback(void* userData){
 
 
 	//start recording
-	setpriority(PRIO_PROCESS, 0, -19 /*ANDROID_PRIORITY_AUDIO*/);
+	//setpriority(PRIO_PROCESS, 0, -19 /*ANDROID_PRIORITY_AUDIO*/);
+	// set priority is probably not enough cause does not change the thread group in scheduler
+	// Temporary solution is to call the java api to set the thread priority.
+	// A cool solution would be to port (if possible) the code from the android os regarding set_sched groups
+	set_android_thread_priority(THREAD_PRIORITY_URGENT_AUDIO);
 
 	buf = jni_env->GetByteArrayElements(inputBuffer, 0);
 
@@ -338,7 +379,8 @@ static int PJ_THREAD_FUNC AndroidTrackCallback(void* userData){
 
 	buf = jni_env->GetByteArrayElements(outputBuffer, 0);
 
-	setpriority(PRIO_PROCESS, 0, -19 /*ANDROID_PRIORITY_AUDIO*/);
+	set_android_thread_priority(THREAD_PRIORITY_URGENT_AUDIO);
+	//setpriority(PRIO_PROCESS, 0, -19 /*ANDROID_PRIORITY_URGENT_AUDIO*/);
 
 	//start playing
 	jni_env->CallVoidMethod(stream->track, play_method);
