@@ -1,6 +1,6 @@
-/* $Id: codec_vectors.c 2675 2009-05-06 14:34:13Z bennylp $ */
+/* $Id: codec_vectors.c 3553 2011-05-05 06:14:19Z nanang $ */
 /* 
- * Copyright (C) 2008-2009 Teluu Inc. (http://www.teluu.com)
+ * Copyright (C) 2008-2011 Teluu Inc. (http://www.teluu.com)
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by

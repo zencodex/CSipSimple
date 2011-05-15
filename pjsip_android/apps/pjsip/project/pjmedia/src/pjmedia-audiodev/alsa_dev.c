@@ -1,6 +1,6 @@
-/* $Id: alsa_dev.c 3438 2011-03-11 06:57:24Z ming $ */
+/* $Id: alsa_dev.c 3553 2011-05-05 06:14:19Z nanang $ */
 /*
- * Copyright (C) 2009-2010 Teluu Inc. (http://www.teluu.com)
+ * Copyright (C) 2009-2011 Teluu Inc. (http://www.teluu.com)
  * Copyright (C) 2007-2009 Keystream AB and Konftel AB, All rights reserved.
  *                         Author: <dan.aberg@keystream.se>
  *

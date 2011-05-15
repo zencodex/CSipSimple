@@ -1,6 +1,6 @@
-/* $Id: sock_qos_common.c 2993 2009-11-09 04:32:33Z bennylp $ */
+/* $Id: sock_qos_common.c 3553 2011-05-05 06:14:19Z nanang $ */
 /* 
- * Copyright (C) 2008-2009 Teluu Inc. (http://www.teluu.com)
+ * Copyright (C) 2008-2011 Teluu Inc. (http://www.teluu.com)
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by

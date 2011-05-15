@@ -1,6 +1,6 @@
-/* $Id: sip_tel_uri_wrap.cpp 2873 2009-08-13 11:54:35Z nanang $ */
+/* $Id: sip_tel_uri_wrap.cpp 3553 2011-05-05 06:14:19Z nanang $ */
 /* 
- * Copyright (C) 2009 Teluu Inc. (http://www.teluu.com)
+ * Copyright (C) 2009-2011 Teluu Inc. (http://www.teluu.com)
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by

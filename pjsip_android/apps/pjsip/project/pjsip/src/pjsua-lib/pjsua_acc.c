@@ -1,6 +1,6 @@
-/* $Id: pjsua_acc.c 3538 2011-04-14 15:38:23Z bennylp $ */
+/* $Id: pjsua_acc.c 3566 2011-05-15 12:40:38Z ming $ */
 /* 
- * Copyright (C) 2008-2009 Teluu Inc. (http://www.teluu.com)
+ * Copyright (C) 2008-2011 Teluu Inc. (http://www.teluu.com)
  * Copyright (C) 2003-2008 Benny Prijono <benny@prijono.org>
  *
  * This program is free software; you can redistribute it and/or modify
@@ -1337,7 +1337,7 @@ static pj_bool_t acc_check_nat_addr(pjsua_acc *acc,
 			       tp->type_name,
 			       (int)acc->cfg.contact_uri_params.slen,
 			       acc->cfg.contact_uri_params.ptr,
-			       ob,
+			       (acc->cfg.use_rfc5626? ob: ""),
 			       (int)acc->cfg.contact_params.slen,
 			       acc->cfg.contact_params.ptr);
 	if (len < 1) {
@@ -2492,7 +2492,7 @@ PJ_DEF(pj_status_t) pjsua_acc_create_uac_contact( pj_pool_t *pool,
 				     transport_param,
 				     (int)acc->cfg.contact_uri_params.slen,
 				     acc->cfg.contact_uri_params.ptr,
-				     ob,
+				     (acc->cfg.use_rfc5626? ob: ""),
 				     (int)acc->cfg.contact_params.slen,
 				     acc->cfg.contact_params.ptr);
 

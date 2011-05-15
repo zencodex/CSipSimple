@@ -1,6 +1,6 @@
-/* $Id: http_client.c 3333 2010-10-04 01:11:54Z bennylp $ */
+/* $Id: http_client.c 3553 2011-05-05 06:14:19Z nanang $ */
 /* 
- * Copyright (C) 2008-2010 Teluu Inc. (http://www.teluu.com)
+ * Copyright (C) 2008-2011 Teluu Inc. (http://www.teluu.com)
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by

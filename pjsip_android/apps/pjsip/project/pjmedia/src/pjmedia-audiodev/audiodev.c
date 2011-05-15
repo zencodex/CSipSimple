@@ -1,6 +1,6 @@
-/* $Id: audiodev.c 3455 2011-03-16 07:34:16Z nanang $ */
+/* $Id: audiodev.c 3559 2011-05-06 07:25:59Z bennylp $ */
 /* 
- * Copyright (C) 2008-2009 Teluu Inc. (http://www.teluu.com)
+ * Copyright (C) 2008-2011 Teluu Inc. (http://www.teluu.com)
  * Copyright (C) 2003-2008 Benny Prijono <benny@prijono.org>
  *
  * This program is free software; you can redistribute it and/or modify
@@ -488,11 +488,13 @@ PJ_DEF(pj_status_t) pjmedia_aud_subsys_shutdown(void)
     }
     --aud_subsys.init_count;
 
-    for (i=0; i<aud_subsys.drv_cnt; ++i) {
-	deinit_driver(i);
-    }
+    if (aud_subsys.init_count == 0) {
+	for (i=0; i<aud_subsys.drv_cnt; ++i) {
+	    deinit_driver(i);
+	}
 
-    aud_subsys.pf = NULL;
+	aud_subsys.pf = NULL;
+    }
     return PJ_SUCCESS;
 }
 

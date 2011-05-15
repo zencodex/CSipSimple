@@ -1,6 +1,6 @@
-/* $Id: jbuf.c 3396 2010-12-14 20:39:47Z nanang $ */
+/* $Id: jbuf.c 3561 2011-05-10 10:39:57Z bennylp $ */
 /* 
- * Copyright (C) 2008-2009 Teluu Inc. (http://www.teluu.com)
+ * Copyright (C) 2008-2011 Teluu Inc. (http://www.teluu.com)
  * Copyright (C) 2003-2008 Benny Prijono <benny@prijono.org>
  *
  * This program is free software; you can redistribute it and/or modify
@@ -529,7 +529,7 @@ PJ_DEF(pj_status_t) pjmedia_jbuf_set_adaptive( pjmedia_jbuf *jb,
 					       unsigned max_prefetch)
 {
     PJ_ASSERT_RETURN(jb, PJ_EINVAL);
-    PJ_ASSERT_RETURN(min_prefetch < max_prefetch &&
+    PJ_ASSERT_RETURN(min_prefetch <= max_prefetch &&
 		     prefetch <= max_prefetch &&
 		     max_prefetch <= jb->jb_max_count,
 		     PJ_EINVAL);

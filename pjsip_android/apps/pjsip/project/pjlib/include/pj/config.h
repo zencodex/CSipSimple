@@ -1,6 +1,6 @@
-/* $Id: config.h 3423 2011-02-28 07:44:19Z bennylp $ */
+/* $Id: config.h 3556 2011-05-05 10:49:02Z nanang $ */
 /* 
- * Copyright (C) 2008-2009 Teluu Inc. (http://www.teluu.com)
+ * Copyright (C) 2008-2011 Teluu Inc. (http://www.teluu.com)
  * Copyright (C) 2003-2008 Benny Prijono <benny@prijono.org>
  *
  * This program is free software; you can redistribute it and/or modify

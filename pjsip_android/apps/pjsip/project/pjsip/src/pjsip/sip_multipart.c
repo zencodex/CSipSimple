@@ -1,6 +1,6 @@
-/* $Id: sip_multipart.c 3378 2010-12-02 03:46:11Z nanang $ */
+/* $Id: sip_multipart.c 3553 2011-05-05 06:14:19Z nanang $ */
 /* 
- * Copyright (C) 2008-2010 Teluu Inc. (http://www.teluu.com)
+ * Copyright (C) 2008-2011 Teluu Inc. (http://www.teluu.com)
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
