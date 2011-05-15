@@ -1,6 +1,6 @@
-/* $Id: ssl_sock_symbian.cpp 3364 2010-11-12 07:42:58Z nanang $ */
+/* $Id: ssl_sock_symbian.cpp 3553 2011-05-05 06:14:19Z nanang $ */
 /* 
- * Copyright (C) 2009 Teluu Inc. (http://www.teluu.com)
+ * Copyright (C) 2009-2011 Teluu Inc. (http://www.teluu.com)
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
