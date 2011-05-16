@@ -138,6 +138,7 @@ static pjmedia_aud_stream_op android_strm_op =
 static pj_status_t set_android_thread_priority(int priority){
 	jclass process_class;
 	jmethodID set_prio_method;
+	jthrowable exc;
 	JNIEnv *jni_env = 0;
 	ATTACH_JVM(jni_env);
 	pj_status_t result = PJ_SUCCESS;
@@ -162,8 +163,15 @@ static pj_status_t set_android_thread_priority(int priority){
 	PJ_LOG(4, (THIS_FILE, "We have the method for setThreadPriority"));
 
 	//Call it
-	jni_env->CallStaticIntMethod(process_class, set_prio_method, priority);
-	// TODO : catch exceptions
+	jni_env->CallStaticVoidMethod(process_class, set_prio_method, priority);
+
+	exc = jni_env->ExceptionOccurred();
+	if (exc) {
+		jni_env->ExceptionDescribe();
+		jni_env->ExceptionClear();
+		PJ_LOG(2, (THIS_FILE, "Impossible to set priority using java API, fallback to setpriority"));
+		setpriority(PRIO_PROCESS, 0, priority);
+	}
 
 	on_finish:
 		DETACH_JVM(jni_env);
