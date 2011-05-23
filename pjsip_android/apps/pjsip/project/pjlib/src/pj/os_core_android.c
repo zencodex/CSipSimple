@@ -1,6 +1,6 @@
 /* $Id: os_core_android.c 3320 2010-09-24 07:49:32Z bennylp $ */
 /* 
- * Copyright (C) 2008-2009 Teluu Inc. (http://www.teluu.com)
+ * Copyright (C) 2008-2011 Teluu Inc. (http://www.teluu.com)
  * Copyright (C) 2003-2008 Benny Prijono <benny@prijono.org>
  *
  * This program is free software; you can redistribute it and/or modify
@@ -1338,7 +1338,6 @@ PJ_DEF(pj_status_t) pj_mutex_destroy(pj_mutex_t *mutex)
     if (status == 0)
 	return PJ_SUCCESS;
     else {
-	pj_assert(!"Error destroying pthread_mutex");
 	return PJ_RETURN_OS_ERROR(status);
     }
 #else

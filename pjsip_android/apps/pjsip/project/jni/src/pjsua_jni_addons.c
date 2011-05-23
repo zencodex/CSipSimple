@@ -33,6 +33,7 @@
 
 #define THIS_FILE		"pjsua_jni_addons.c"
 
+#define USE_TCP_HACK 0
 
 /**
  * Get nbr of codecs
@@ -351,8 +352,6 @@ PJ_DECL(pj_bool_t) is_call_secure(pjsua_call_id call_id){
 	return result;
 }
 
-
-
 static pj_bool_t on_rx_request_tcp_hack(pjsip_rx_data *rdata) {
 	 PJ_LOG(3,(THIS_FILE, "CB TCP HACK"));
 	if (strstr(pj_strbuf(&rdata->msg_info.msg->line.req.method.name), "INVITE")) {
@@ -399,7 +398,7 @@ PJ_DECL(pj_status_t) csipsimple_init(pjsua_config *ua_cfg,
 #endif
 #endif
 
-
+#if USE_TCP_HACK==1
 	    // Registering module for tcp hack
 	    static pjsip_module tcp_hack_mod; // cannot be a stack variable
 
@@ -410,7 +409,7 @@ PJ_DECL(pj_status_t) csipsimple_init(pjsua_config *ua_cfg,
 	    tcp_hack_mod.name = pj_str("TCP-Hack");
 
 	    result = pjsip_endpt_register_module(pjsip_ua_get_endpt(pjsip_ua_instance()), &tcp_hack_mod);
-
+#endif
 
 	}
 

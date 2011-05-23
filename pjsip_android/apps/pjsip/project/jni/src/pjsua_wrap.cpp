@@ -8252,13 +8252,13 @@ SWIGEXPORT jint JNICALL Java_org_pjsip_pjsua_pjsuaJNI_pjsua_1config_1nat_1type_1
 
 SWIGEXPORT void JNICALL Java_org_pjsip_pjsua_pjsuaJNI_pjsua_1config_1require_1100rel_1set(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_, jint jarg2) {
   pjsua_config *arg1 = (pjsua_config *) 0 ;
-  pj_bool_t arg2 ;
+  pjsua_100rel_use arg2 ;
   
   (void)jenv;
   (void)jcls;
   (void)jarg1_;
   arg1 = *(pjsua_config **)&jarg1; 
-  arg2 = (pj_bool_t)jarg2; 
+  arg2 = (pjsua_100rel_use)jarg2; 
   if (arg1) (arg1)->require_100rel = arg2;
 }
 
@@ -8266,13 +8266,13 @@ SWIGEXPORT void JNICALL Java_org_pjsip_pjsua_pjsuaJNI_pjsua_1config_1require_110
 SWIGEXPORT jint JNICALL Java_org_pjsip_pjsua_pjsuaJNI_pjsua_1config_1require_1100rel_1get(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_) {
   jint jresult = 0 ;
   pjsua_config *arg1 = (pjsua_config *) 0 ;
-  pj_bool_t result;
+  pjsua_100rel_use result;
   
   (void)jenv;
   (void)jcls;
   (void)jarg1_;
   arg1 = *(pjsua_config **)&jarg1; 
-  result = (pj_bool_t) ((arg1)->require_100rel);
+  result = (pjsua_100rel_use) ((arg1)->require_100rel);
   jresult = (jint)result; 
   return jresult;
 }
@@ -10524,13 +10524,13 @@ SWIGEXPORT jlong JNICALL Java_org_pjsip_pjsua_pjsuaJNI_pjsua_1acc_1config_1conta
 
 SWIGEXPORT void JNICALL Java_org_pjsip_pjsua_pjsuaJNI_pjsua_1acc_1config_1require_1100rel_1set(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_, jint jarg2) {
   pjsua_acc_config *arg1 = (pjsua_acc_config *) 0 ;
-  pj_bool_t arg2 ;
+  pjsua_100rel_use arg2 ;
   
   (void)jenv;
   (void)jcls;
   (void)jarg1_;
   arg1 = *(pjsua_acc_config **)&jarg1; 
-  arg2 = (pj_bool_t)jarg2; 
+  arg2 = (pjsua_100rel_use)jarg2; 
   if (arg1) (arg1)->require_100rel = arg2;
 }
 
@@ -10538,13 +10538,13 @@ SWIGEXPORT void JNICALL Java_org_pjsip_pjsua_pjsuaJNI_pjsua_1acc_1config_1requir
 SWIGEXPORT jint JNICALL Java_org_pjsip_pjsua_pjsuaJNI_pjsua_1acc_1config_1require_1100rel_1get(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_) {
   jint jresult = 0 ;
   pjsua_acc_config *arg1 = (pjsua_acc_config *) 0 ;
-  pj_bool_t result;
+  pjsua_100rel_use result;
   
   (void)jenv;
   (void)jcls;
   (void)jarg1_;
   arg1 = *(pjsua_acc_config **)&jarg1; 
-  result = (pj_bool_t) ((arg1)->require_100rel);
+  result = (pjsua_100rel_use) ((arg1)->require_100rel);
   jresult = (jint)result; 
   return jresult;
 }

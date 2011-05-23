@@ -1,4 +1,4 @@
-/* $Id: sip_inv.c 3553 2011-05-05 06:14:19Z nanang $ */
+/* $Id: sip_inv.c 3574 2011-05-20 10:29:45Z nanang $ */
 /* 
  * Copyright (C) 2008-2011 Teluu Inc. (http://www.teluu.com)
  * Copyright (C) 2003-2008 Benny Prijono <benny@prijono.org>
@@ -4012,6 +4012,16 @@ static void inv_on_state_confirmed( pjsip_inv_session *inv, pjsip_event *e)
 
 		/* Not Acceptable */
 		const pjsip_hdr *accept;
+
+		/* The incoming SDP is unacceptable. If the SDP negotiator
+		 * state has just been changed, i.e: DONE -> REMOTE_OFFER,
+		 * revert it back.
+		 */
+		if (pjmedia_sdp_neg_get_state(inv->neg) ==
+		    PJMEDIA_SDP_NEG_STATE_REMOTE_OFFER)
+		{
+		    pjmedia_sdp_neg_cancel_offer(inv->neg);
+		}
 
 		status = pjsip_dlg_create_response(inv->dlg, rdata, 
 						   488, NULL, &tdata);

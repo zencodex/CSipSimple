@@ -1,4 +1,4 @@
-/* $Id: pjsua_media.c 3553 2011-05-05 06:14:19Z nanang $ */
+/* $Id: pjsua_media.c 3571 2011-05-19 08:05:23Z ming $ */
 /* 
  * Copyright (C) 2008-2011 Teluu Inc. (http://www.teluu.com)
  * Copyright (C) 2003-2008 Benny Prijono <benny@prijono.org>
@@ -1604,6 +1604,9 @@ pj_status_t pjsua_media_channel_deinit(pjsua_call_id call_id)
 {
     pjsua_call *call = &pjsua_var.calls[call_id];
 
+    if (call->session)
+        pjmedia_session_send_rtcp_bye(call->session);
+
     stop_media_session(call_id);
 
     if (call->med_tp_st != PJSUA_MED_TP_IDLE) {
@@ -1647,6 +1650,7 @@ pj_status_t pjsua_media_channel_update(pjsua_call_id call_id,
 				       const pjmedia_sdp_session *local_sdp,
 				       const pjmedia_sdp_session *remote_sdp)
 {
+    unsigned i;
     int prev_media_st = 0;
     pjsua_call *call = &pjsua_var.calls[call_id];
     pjmedia_session_info sess_info;
@@ -1671,6 +1675,10 @@ pj_status_t pjsua_media_channel_update(pjsua_call_id call_id,
 					    local_sdp, remote_sdp);
     if (status != PJ_SUCCESS)
 	return status;
+
+    for (i = 0; i < sess_info.stream_cnt; ++i) {
+        sess_info.stream_info[i].rtcp_sdes_bye_disabled = PJ_TRUE;
+    }
 
     /* Update audio index from the negotiated SDP */
     call->audio_idx = find_audio_index(local_sdp, PJ_TRUE);
@@ -1790,6 +1798,9 @@ pj_status_t pjsua_media_channel_update(pjsua_call_id call_id,
 	if (status != PJ_SUCCESS) {
 	    return status;
 	}
+
+        if (prev_media_st == PJSUA_CALL_MEDIA_NONE)
+            pjmedia_session_send_rtcp_sdes(call->session);
 
 	/* If DTMF callback is installed by application, install our
 	 * callback to the session.
