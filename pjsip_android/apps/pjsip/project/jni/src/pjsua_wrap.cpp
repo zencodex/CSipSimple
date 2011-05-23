@@ -6442,6 +6442,84 @@ SWIGEXPORT void JNICALL Java_org_pjsip_pjsua_pjsuaJNI_delete_1pj_1stun_1nat_1det
 }
 
 
+SWIGEXPORT void JNICALL Java_org_pjsip_pjsua_pjsuaJNI_pjsip_1timer_1setting_1min_1se_1set(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_, jlong jarg2) {
+  pjsip_timer_setting *arg1 = (pjsip_timer_setting *) 0 ;
+  unsigned int arg2 ;
+  
+  (void)jenv;
+  (void)jcls;
+  (void)jarg1_;
+  arg1 = *(pjsip_timer_setting **)&jarg1; 
+  arg2 = (unsigned int)jarg2; 
+  if (arg1) (arg1)->min_se = arg2;
+}
+
+
+SWIGEXPORT jlong JNICALL Java_org_pjsip_pjsua_pjsuaJNI_pjsip_1timer_1setting_1min_1se_1get(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_) {
+  jlong jresult = 0 ;
+  pjsip_timer_setting *arg1 = (pjsip_timer_setting *) 0 ;
+  unsigned int result;
+  
+  (void)jenv;
+  (void)jcls;
+  (void)jarg1_;
+  arg1 = *(pjsip_timer_setting **)&jarg1; 
+  result = (unsigned int) ((arg1)->min_se);
+  jresult = (jlong)result; 
+  return jresult;
+}
+
+
+SWIGEXPORT void JNICALL Java_org_pjsip_pjsua_pjsuaJNI_pjsip_1timer_1setting_1sess_1expires_1set(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_, jlong jarg2) {
+  pjsip_timer_setting *arg1 = (pjsip_timer_setting *) 0 ;
+  unsigned int arg2 ;
+  
+  (void)jenv;
+  (void)jcls;
+  (void)jarg1_;
+  arg1 = *(pjsip_timer_setting **)&jarg1; 
+  arg2 = (unsigned int)jarg2; 
+  if (arg1) (arg1)->sess_expires = arg2;
+}
+
+
+SWIGEXPORT jlong JNICALL Java_org_pjsip_pjsua_pjsuaJNI_pjsip_1timer_1setting_1sess_1expires_1get(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_) {
+  jlong jresult = 0 ;
+  pjsip_timer_setting *arg1 = (pjsip_timer_setting *) 0 ;
+  unsigned int result;
+  
+  (void)jenv;
+  (void)jcls;
+  (void)jarg1_;
+  arg1 = *(pjsip_timer_setting **)&jarg1; 
+  result = (unsigned int) ((arg1)->sess_expires);
+  jresult = (jlong)result; 
+  return jresult;
+}
+
+
+SWIGEXPORT jlong JNICALL Java_org_pjsip_pjsua_pjsuaJNI_new_1pjsip_1timer_1setting(JNIEnv *jenv, jclass jcls) {
+  jlong jresult = 0 ;
+  pjsip_timer_setting *result = 0 ;
+  
+  (void)jenv;
+  (void)jcls;
+  result = (pjsip_timer_setting *)new pjsip_timer_setting();
+  *(pjsip_timer_setting **)&jresult = result; 
+  return jresult;
+}
+
+
+SWIGEXPORT void JNICALL Java_org_pjsip_pjsua_pjsuaJNI_delete_1pjsip_1timer_1setting(JNIEnv *jenv, jclass jcls, jlong jarg1) {
+  pjsip_timer_setting *arg1 = (pjsip_timer_setting *) 0 ;
+  
+  (void)jenv;
+  (void)jcls;
+  arg1 = *(pjsip_timer_setting **)&jarg1; 
+  delete arg1;
+}
+
+
 SWIGEXPORT jint JNICALL Java_org_pjsip_pjsua_pjsuaJNI_PJSUA_1INVALID_1ID_1get(JNIEnv *jenv, jclass jcls) {
   jint jresult = 0 ;
   int result;
@@ -8334,36 +8412,31 @@ SWIGEXPORT jint JNICALL Java_org_pjsip_pjsua_pjsuaJNI_pjsua_1config_1enable_1uns
 }
 
 
-SWIGEXPORT void JNICALL Java_org_pjsip_pjsua_pjsuaJNI_pjsua_1config_1timer_1setting_1set(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_, jlong jarg2) {
+SWIGEXPORT void JNICALL Java_org_pjsip_pjsua_pjsuaJNI_pjsua_1config_1timer_1setting_1set(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_, jlong jarg2, jobject jarg2_) {
   pjsua_config *arg1 = (pjsua_config *) 0 ;
-  pjsip_timer_setting arg2 ;
-  pjsip_timer_setting *argp2 ;
+  pjsip_timer_setting *arg2 = (pjsip_timer_setting *) 0 ;
   
   (void)jenv;
   (void)jcls;
   (void)jarg1_;
+  (void)jarg2_;
   arg1 = *(pjsua_config **)&jarg1; 
-  argp2 = *(pjsip_timer_setting **)&jarg2; 
-  if (!argp2) {
-    SWIG_JavaThrowException(jenv, SWIG_JavaNullPointerException, "Attempt to dereference null pjsip_timer_setting");
-    return ;
-  }
-  arg2 = *argp2; 
-  if (arg1) (arg1)->timer_setting = arg2;
+  arg2 = *(pjsip_timer_setting **)&jarg2; 
+  if (arg1) (arg1)->timer_setting = *arg2;
 }
 
 
 SWIGEXPORT jlong JNICALL Java_org_pjsip_pjsua_pjsuaJNI_pjsua_1config_1timer_1setting_1get(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_) {
   jlong jresult = 0 ;
   pjsua_config *arg1 = (pjsua_config *) 0 ;
-  pjsip_timer_setting result;
+  pjsip_timer_setting *result = 0 ;
   
   (void)jenv;
   (void)jcls;
   (void)jarg1_;
   arg1 = *(pjsua_config **)&jarg1; 
-  result =  ((arg1)->timer_setting);
-  *(pjsip_timer_setting **)&jresult = new pjsip_timer_setting((const pjsip_timer_setting &)result); 
+  result = (pjsip_timer_setting *)& ((arg1)->timer_setting);
+  *(pjsip_timer_setting **)&jresult = result; 
   return jresult;
 }
 
@@ -10578,36 +10651,31 @@ SWIGEXPORT jint JNICALL Java_org_pjsip_pjsua_pjsuaJNI_pjsua_1acc_1config_1use_1t
 }
 
 
-SWIGEXPORT void JNICALL Java_org_pjsip_pjsua_pjsuaJNI_pjsua_1acc_1config_1timer_1setting_1set(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_, jlong jarg2) {
+SWIGEXPORT void JNICALL Java_org_pjsip_pjsua_pjsuaJNI_pjsua_1acc_1config_1timer_1setting_1set(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_, jlong jarg2, jobject jarg2_) {
   pjsua_acc_config *arg1 = (pjsua_acc_config *) 0 ;
-  pjsip_timer_setting arg2 ;
-  pjsip_timer_setting *argp2 ;
+  pjsip_timer_setting *arg2 = (pjsip_timer_setting *) 0 ;
   
   (void)jenv;
   (void)jcls;
   (void)jarg1_;
+  (void)jarg2_;
   arg1 = *(pjsua_acc_config **)&jarg1; 
-  argp2 = *(pjsip_timer_setting **)&jarg2; 
-  if (!argp2) {
-    SWIG_JavaThrowException(jenv, SWIG_JavaNullPointerException, "Attempt to dereference null pjsip_timer_setting");
-    return ;
-  }
-  arg2 = *argp2; 
-  if (arg1) (arg1)->timer_setting = arg2;
+  arg2 = *(pjsip_timer_setting **)&jarg2; 
+  if (arg1) (arg1)->timer_setting = *arg2;
 }
 
 
 SWIGEXPORT jlong JNICALL Java_org_pjsip_pjsua_pjsuaJNI_pjsua_1acc_1config_1timer_1setting_1get(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_) {
   jlong jresult = 0 ;
   pjsua_acc_config *arg1 = (pjsua_acc_config *) 0 ;
-  pjsip_timer_setting result;
+  pjsip_timer_setting *result = 0 ;
   
   (void)jenv;
   (void)jcls;
   (void)jarg1_;
   arg1 = *(pjsua_acc_config **)&jarg1; 
-  result =  ((arg1)->timer_setting);
-  *(pjsip_timer_setting **)&jresult = new pjsip_timer_setting((const pjsip_timer_setting &)result); 
+  result = (pjsip_timer_setting *)& ((arg1)->timer_setting);
+  *(pjsip_timer_setting **)&jresult = result; 
   return jresult;
 }
 
@@ -17051,6 +17119,12 @@ JNIEXPORT jint JNI_OnLoad(JavaVM *vm, void *reserved) {
 {"pj_stun_nat_detect_result_nat_type_name_get", "(JLorg/pjsip/pjsua/pj_stun_nat_detect_result;)Ljava/lang/String;", (void*)& Java_org_pjsip_pjsua_pjsuaJNI_pj_1stun_1nat_1detect_1result_1nat_1type_1name_1get},
 {"new_pj_stun_nat_detect_result", "()J", (void*)& Java_org_pjsip_pjsua_pjsuaJNI_new_1pj_1stun_1nat_1detect_1result},
 {"delete_pj_stun_nat_detect_result", "(J)V", (void*)& Java_org_pjsip_pjsua_pjsuaJNI_delete_1pj_1stun_1nat_1detect_1result},
+{"pjsip_timer_setting_min_se_set", "(JLorg/pjsip/pjsua/pjsip_timer_setting;J)V", (void*)& Java_org_pjsip_pjsua_pjsuaJNI_pjsip_1timer_1setting_1min_1se_1set},
+{"pjsip_timer_setting_min_se_get", "(JLorg/pjsip/pjsua/pjsip_timer_setting;)J", (void*)& Java_org_pjsip_pjsua_pjsuaJNI_pjsip_1timer_1setting_1min_1se_1get},
+{"pjsip_timer_setting_sess_expires_set", "(JLorg/pjsip/pjsua/pjsip_timer_setting;J)V", (void*)& Java_org_pjsip_pjsua_pjsuaJNI_pjsip_1timer_1setting_1sess_1expires_1set},
+{"pjsip_timer_setting_sess_expires_get", "(JLorg/pjsip/pjsua/pjsip_timer_setting;)J", (void*)& Java_org_pjsip_pjsua_pjsuaJNI_pjsip_1timer_1setting_1sess_1expires_1get},
+{"new_pjsip_timer_setting", "()J", (void*)& Java_org_pjsip_pjsua_pjsuaJNI_new_1pjsip_1timer_1setting},
+{"delete_pjsip_timer_setting", "(J)V", (void*)& Java_org_pjsip_pjsua_pjsuaJNI_delete_1pjsip_1timer_1setting},
 {"PJSUA_INVALID_ID_get", "()I", (void*)& Java_org_pjsip_pjsua_pjsuaJNI_PJSUA_1INVALID_1ID_1get},
 {"PJSUA_ACC_MAX_PROXIES_get", "()I", (void*)& Java_org_pjsip_pjsua_pjsuaJNI_PJSUA_1ACC_1MAX_1PROXIES_1get},
 {"PJSUA_DEFAULT_SRTP_SECURE_SIGNALING_get", "()I", (void*)& Java_org_pjsip_pjsua_pjsuaJNI_PJSUA_1DEFAULT_1SRTP_1SECURE_1SIGNALING_1get},
@@ -17176,7 +17250,7 @@ JNIEXPORT jint JNI_OnLoad(JavaVM *vm, void *reserved) {
 {"pjsua_config_use_timer_get", "(JLorg/pjsip/pjsua/pjsua_config;)I", (void*)& Java_org_pjsip_pjsua_pjsuaJNI_pjsua_1config_1use_1timer_1get},
 {"pjsua_config_enable_unsolicited_mwi_set", "(JLorg/pjsip/pjsua/pjsua_config;I)V", (void*)& Java_org_pjsip_pjsua_pjsuaJNI_pjsua_1config_1enable_1unsolicited_1mwi_1set},
 {"pjsua_config_enable_unsolicited_mwi_get", "(JLorg/pjsip/pjsua/pjsua_config;)I", (void*)& Java_org_pjsip_pjsua_pjsuaJNI_pjsua_1config_1enable_1unsolicited_1mwi_1get},
-{"pjsua_config_timer_setting_set", "(JLorg/pjsip/pjsua/pjsua_config;J)V", (void*)& Java_org_pjsip_pjsua_pjsuaJNI_pjsua_1config_1timer_1setting_1set},
+{"pjsua_config_timer_setting_set", "(JLorg/pjsip/pjsua/pjsua_config;JLorg/pjsip/pjsua/pjsip_timer_setting;)V", (void*)& Java_org_pjsip_pjsua_pjsuaJNI_pjsua_1config_1timer_1setting_1set},
 {"pjsua_config_timer_setting_get", "(JLorg/pjsip/pjsua/pjsua_config;)J", (void*)& Java_org_pjsip_pjsua_pjsuaJNI_pjsua_1config_1timer_1setting_1get},
 {"pjsua_config_cred_count_set", "(JLorg/pjsip/pjsua/pjsua_config;J)V", (void*)& Java_org_pjsip_pjsua_pjsuaJNI_pjsua_1config_1cred_1count_1set},
 {"pjsua_config_cred_count_get", "(JLorg/pjsip/pjsua/pjsua_config;)J", (void*)& Java_org_pjsip_pjsua_pjsuaJNI_pjsua_1config_1cred_1count_1get},
@@ -17325,7 +17399,7 @@ JNIEXPORT jint JNI_OnLoad(JavaVM *vm, void *reserved) {
 {"pjsua_acc_config_require_100rel_get", "(JLorg/pjsip/pjsua/pjsua_acc_config;)I", (void*)& Java_org_pjsip_pjsua_pjsuaJNI_pjsua_1acc_1config_1require_1100rel_1get},
 {"pjsua_acc_config_use_timer_set", "(JLorg/pjsip/pjsua/pjsua_acc_config;I)V", (void*)& Java_org_pjsip_pjsua_pjsuaJNI_pjsua_1acc_1config_1use_1timer_1set},
 {"pjsua_acc_config_use_timer_get", "(JLorg/pjsip/pjsua/pjsua_acc_config;)I", (void*)& Java_org_pjsip_pjsua_pjsuaJNI_pjsua_1acc_1config_1use_1timer_1get},
-{"pjsua_acc_config_timer_setting_set", "(JLorg/pjsip/pjsua/pjsua_acc_config;J)V", (void*)& Java_org_pjsip_pjsua_pjsuaJNI_pjsua_1acc_1config_1timer_1setting_1set},
+{"pjsua_acc_config_timer_setting_set", "(JLorg/pjsip/pjsua/pjsua_acc_config;JLorg/pjsip/pjsua/pjsip_timer_setting;)V", (void*)& Java_org_pjsip_pjsua_pjsuaJNI_pjsua_1acc_1config_1timer_1setting_1set},
 {"pjsua_acc_config_timer_setting_get", "(JLorg/pjsip/pjsua/pjsua_acc_config;)J", (void*)& Java_org_pjsip_pjsua_pjsuaJNI_pjsua_1acc_1config_1timer_1setting_1get},
 {"pjsua_acc_config_proxy_cnt_set", "(JLorg/pjsip/pjsua/pjsua_acc_config;J)V", (void*)& Java_org_pjsip_pjsua_pjsuaJNI_pjsua_1acc_1config_1proxy_1cnt_1set},
 {"pjsua_acc_config_proxy_cnt_get", "(JLorg/pjsip/pjsua/pjsua_acc_config;)J", (void*)& Java_org_pjsip_pjsua_pjsuaJNI_pjsua_1acc_1config_1proxy_1cnt_1get},
