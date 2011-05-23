@@ -1,4 +1,4 @@
-/* $Id: pjsua_call.c 3553 2011-05-05 06:14:19Z nanang $ */
+/* $Id: pjsua_call.c 3574 2011-05-20 10:29:45Z nanang $ */
 /* 
  * Copyright (C) 2008-2011 Teluu Inc. (http://www.teluu.com)
  * Copyright (C) 2003-2008 Benny Prijono <benny@prijono.org>
@@ -499,7 +499,7 @@ PJ_DEF(pj_status_t) pjsua_call_make_call( pjsua_acc_id acc_id,
 
     /* Create the INVITE session: */
     options |= PJSIP_INV_SUPPORT_100REL;
-    if (acc->cfg.require_100rel)
+    if (acc->cfg.require_100rel == PJSUA_100REL_MANDATORY)
 	options |= PJSIP_INV_REQUIRE_100REL;
     if (acc->cfg.use_timer != PJSUA_SIP_TIMER_INACTIVE) {
 	options |= PJSIP_INV_SUPPORT_TIMER;
@@ -848,7 +848,7 @@ pj_bool_t pjsua_call_on_incoming(pjsip_rx_data *rdata)
     /* Verify that we can handle the request. */
     options |= PJSIP_INV_SUPPORT_100REL;
     options |= PJSIP_INV_SUPPORT_TIMER;
-    if (pjsua_var.acc[acc_id].cfg.require_100rel)
+    if (pjsua_var.acc[acc_id].cfg.require_100rel == PJSUA_100REL_MANDATORY)
 	options |= PJSIP_INV_REQUIRE_100REL;
     if (pjsua_var.media_cfg.enable_ice)
 	options |= PJSIP_INV_SUPPORT_ICE;
@@ -929,6 +929,19 @@ pj_bool_t pjsua_call_on_incoming(pjsip_rx_data *rdata)
 	(options & PJSIP_INV_REQUIRE_TIMER) == 0)
     {
 	options &= ~(PJSIP_INV_SUPPORT_TIMER);
+    }
+
+    /* If 100rel is optional and UAC supports it, use it. */
+    if ((options & PJSIP_INV_REQUIRE_100REL)==0 &&
+	pjsua_var.acc[acc_id].cfg.require_100rel == PJSUA_100REL_OPTIONAL)
+    {
+	const pj_str_t token = { "100rel", 6};
+	pjsip_dialog_cap_status cap_status;
+
+	cap_status = pjsip_dlg_remote_has_cap(dlg, PJSIP_H_SUPPORTED, NULL,
+	                                      &token);
+	if (cap_status == PJSIP_DIALOG_CAP_SUPPORTED)
+	    options |= PJSIP_INV_REQUIRE_100REL;
     }
 
     /* Create invite session: */
@@ -3766,12 +3779,6 @@ static void pjsua_call_on_rx_offer(pjsip_inv_session *inv,
 
     call = (pjsua_call*) inv->dlg->mod_data[pjsua_var.mod.id];
 
-    if (call->audio_idx < (int)offer->media_count)
-	conn = offer->media[call->audio_idx]->conn;
-
-    if (!conn)
-	conn = offer->conn;
-
     /* Supply candidate answer */
     PJ_LOG(4,(THIS_FILE, "Call %d: received updated media offer",
 	      call->index));
@@ -3784,6 +3791,12 @@ static void pjsua_call_on_rx_offer(pjsip_inv_session *inv,
 	PJSUA_UNLOCK();
 	return;
     }
+
+    if (call->audio_idx >= 0 && call->audio_idx < (int)offer->media_count)
+	conn = offer->media[call->audio_idx]->conn;
+
+    if (!conn)
+	conn = offer->conn;
 
     /* Check if offer's conn address is zero */
     if (pj_strcmp2(&conn->addr, "0.0.0.0")==0 ||

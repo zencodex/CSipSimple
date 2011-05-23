@@ -638,6 +638,7 @@ PJ_DEF(pj_thread_t*) pj_thread_this(void)
     pj_thread_t *rec = (pj_thread_t*)pj_thread_local_get(thread_tls_id);
     
     if (rec == NULL) {
+    	PJ_LOG(1, (THIS_FILE, "Invalid thread !!! "));
 	pj_assert(!"Calling pjlib from unknown/external thread. You must "
 		   "register external threads with pj_thread_register() "
 		   "before calling any pjlib functions.");
