@@ -1280,7 +1280,26 @@ typedef enum pjsip_redirect_op
 
 } pjsip_redirect_op;
 
+// pjsip/include/psip-ua/sip_timer.h
 
+/**
+ * This structure describes Session Timers settings in an invite session.
+ */
+struct pjsip_timer_setting
+{
+    /** 
+     * Specify minimum session expiration period, in seconds. Must not be
+     * lower than 90. Default is 90.
+     */
+    unsigned			 min_se;
+
+    /**
+     * Specify session expiration period, in seconds. Must not be lower than
+     * #min_se. Default is 1800.
+     */
+    unsigned			 sess_expires;	
+
+};
 %rename(logging_config_default) pjsua_logging_config_default;
 %javamethodmodifiers pjsua_logging_config_default(pjsua_logging_config *cfg) "public synchronized";
 %rename(logging_config_dup) pjsua_logging_config_dup;
@@ -1851,6 +1870,12 @@ typedef enum pjsua_sip_timer_use
     PJSUA_SIP_TIMER_REQUIRED,
     PJSUA_SIP_TIMER_ALWAYS
 } pjsua_sip_timer_use;
+typedef enum pjsua_100rel_use
+{
+    PJSUA_100REL_NOT_USED,
+    PJSUA_100REL_MANDATORY,
+    PJSUA_100REL_OPTIONAL
+} pjsua_100rel_use;
 typedef struct pjsua_config
 {
     unsigned	    max_calls;
@@ -1866,7 +1891,7 @@ typedef struct pjsua_config
     pj_str_t	    stun_srv[8];
     pj_bool_t	    stun_ignore_failure;
     int		    nat_type_in_sdp;
-    pj_bool_t	    require_100rel;
+    pjsua_100rel_use require_100rel;
     pjsua_sip_timer_use use_timer;
     pj_bool_t	    enable_unsolicited_mwi;
     pjsip_timer_setting timer_setting;
@@ -2022,7 +2047,7 @@ typedef struct pjsua_acc_config
     pj_str_t	    force_contact;
     pj_str_t	    contact_params;
     pj_str_t	    contact_uri_params;
-    pj_bool_t	    require_100rel;
+    pjsua_100rel_use require_100rel;
     pjsua_sip_timer_use use_timer;
     pjsip_timer_setting timer_setting;
     unsigned	    proxy_cnt;
