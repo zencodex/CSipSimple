@@ -61,6 +61,9 @@ endif
 ifeq ($(MY_USE_CODEC2),1)
 	LOCAL_STATIC_LIBRARIES += codec2
 endif
+ifeq ($(MY_USE_G7221),1)
+	LOCAL_STATIC_LIBRARIES += g7221
+endif
 ifeq ($(MY_USE_TLS),1)
 	LOCAL_STATIC_LIBRARIES += ssl zrtp4pj crypto 
 endif

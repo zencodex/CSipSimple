@@ -345,7 +345,7 @@ void Get_wegt(
     }
   }
 
-  sft = norm_s(tmp);
+  sft = norm_s_g729(tmp);
   for ( i = 0; i < M; i++ ) {
     wegt[i] = shl(wegt[i], sft);                  /* wegt in Q(11+sft) */
   }

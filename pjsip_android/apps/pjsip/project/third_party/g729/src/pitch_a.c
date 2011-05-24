@@ -393,7 +393,7 @@ Word16 G_pitch(      /* (o) Q14 : Gain of pitch lag saturated to 1.2       */
    }
 
    if (i == L_subfr) {
-     exp_yy = norm_l(s);
+     exp_yy = norm_l_g729(s);
      yy     = g_round( L_shl(s, exp_yy) );
    }
    else {
@@ -412,7 +412,7 @@ Word16 G_pitch(      /* (o) Q14 : Gain of pitch lag saturated to 1.2       */
      s <<= 1;
      s++; /* Avoid case of all zeros */
 
-     exp_yy = norm_l(s);
+     exp_yy = norm_l_g729(s);
      yy     = g_round( L_shl(s, exp_yy) );
      exp_yy = exp_yy - 4;
    }
@@ -433,7 +433,7 @@ Word16 G_pitch(      /* (o) Q14 : Gain of pitch lag saturated to 1.2       */
    }
 
    if (i == L_subfr) {
-     exp_xy = norm_l(s);
+     exp_xy = norm_l_g729(s);
      xy     = g_round( L_shl(s, exp_xy) );
    }
    else {
@@ -442,7 +442,7 @@ Word16 G_pitch(      /* (o) Q14 : Gain of pitch lag saturated to 1.2       */
        //s += xn[i] * scaled_y1[i];
        s += xn[i] * (y1[i] >> 2);
      s <<= 1;
-     exp_xy = norm_l(s);
+     exp_xy = norm_l_g729(s);
      xy     = g_round( L_shl(s, exp_xy) );
      exp_xy = exp_xy - 2;
    }
@@ -464,10 +464,10 @@ Word16 G_pitch(      /* (o) Q14 : Gain of pitch lag saturated to 1.2       */
    /* compute gain = xy/yy */
 
    xy >>= 1;             /* Be sure xy < yy */
-   gain = div_s( xy, yy);
+   gain = div_s_g729( xy, yy);
 
    i = exp_xy - exp_yy;
-   gain = shr(gain, i);         /* saturation if > 1.99 in Q14 */
+   gain = shr_g729(gain, i);         /* saturation if > 1.99 in Q14 */
 
    /* if(gain >1.2) gain = 1.2  in Q14 */
 

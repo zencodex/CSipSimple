@@ -85,7 +85,7 @@ void Autocorr(
     sum += 1; /* Avoid case of all zeros */
 
   /* Normalization of r[0] */
-  norm = norm_l(sum);
+  norm = norm_l_g729(sum);
   sum  <<= norm;
 
   /* Put in DPF format (see oper_32b) */
@@ -234,7 +234,7 @@ void Levinson(
 
   /* R[1] in Q31      */
   t1 = (((Word32) Rh[1]) << 16) + ((Word32)Rl[1] << 1);
-  t2  = L_abs(t1);                      /* abs R[1]         */
+  t2  = L_abs_g729(t1);                      /* abs R[1]         */
   t0  = Div_32(t2, Rh[0], Rl[0]);       /* R[1]/R[0] in Q31 */
   if(t1 > 0) t0= -t0;          /* -R[1]/R[0]       */
   /* K in DPF         */
@@ -267,7 +267,7 @@ void Levinson(
   t0 <<= 1;
 /* Normalize Alpha */
 
-  alp_exp = norm_l(t0);
+  alp_exp = norm_l_g729(t0);
   //t0 = L_shl(t0, alp_exp);
   t0 = t0 << alp_exp;
   /* DPF format    */
@@ -299,7 +299,7 @@ void Levinson(
 
     /* K = -t0 / Alpha */
 
-    t1 = L_abs(t0);
+    t1 = L_abs_g729(t0);
     t2 = Div_32(t1, alp_h, alp_l);     /* abs(t0)/Alpha                   */
     if(t0 > 0) t2= -t2;                /* K =-t0/Alpha                    */
     t2 = L_shl(t2, alp_exp);           /* denormalize; compare to Alpha   */
@@ -360,7 +360,7 @@ void Levinson(
     t0 <<= 1;
 
     /* Normalize Alpha */
-    j = norm_l(t0);
+    j = norm_l_g729(t0);
     t0 <<= j;
 
     /* DPF format    */
@@ -535,9 +535,9 @@ void Az_lsp(
      {
        sign= y;
        y   = abs_s(y);
-       exp = norm_s(y);
+       exp = norm_s_g729(y);
        y <<= exp;
-       y   = div_s( (Word16)16383, y);
+       y   = div_s_g729( (Word16)16383, y);
        /* y= (xhigh-xlow)/(yhigh-ylow) in Q11 */
 			 y = ((Word32)x * (Word32)y) >> (19 - exp);
 

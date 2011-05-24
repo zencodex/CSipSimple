@@ -171,7 +171,7 @@ void Post_Filter(
       }
       else {
         temp2 = mult(temp2, MU);
-        temp2 = div_s(temp2, temp1);
+        temp2 = div_s_g729(temp2, temp1);
       }
 
       preemphasis(res2_pst, temp2, L_SUBFR);
@@ -274,7 +274,7 @@ void pit_pst_filt(
   {
     temp = ener0;
   }
-  j = norm_l(temp);
+  j = norm_l_g729(temp);
   cmax = g_round(L_shl(cor_max, j));
   en = g_round(L_shl(ener, j));
   en0 = g_round(L_shl(ener0, j));
@@ -301,7 +301,7 @@ void pit_pst_filt(
     i = cmax + (en >> 1);  /* Q14 */
     if(i > 0)
     {
-      gain = div_s(cmax, i);    /* gain(Q15) = cor_max/(cor_max+ener)  */
+      gain = div_s_g729(cmax, i);    /* gain(Q15) = cor_max/(cor_max+ener)  */
       g0 = 32767 - gain;    /* g0(Q15) = 1 - gain */
     }
     else
@@ -381,7 +381,7 @@ void agc(
     past_gain = 0;
     return;
   }
-  exp = norm_l(s) - 1;
+  exp = norm_l_g729(s) - 1;
   gain_out = g_round(L_shl(s, exp));
 
   /* calculate gain_in with exponent */
@@ -396,7 +396,7 @@ void agc(
     g0 = 0;
   }
   else {
-    i = norm_l(s);
+    i = norm_l_g729(s);
     gain_in = g_round(L_shl(s, i));
     exp = exp - i;
 
@@ -404,7 +404,7 @@ void agc(
     *  g0(Q12) = (1-AGC_FAC) * sqrt(gain_in/gain_out);  *
     *---------------------------------------------------*/
 
-    s = L_deposit_l(div_s(gain_out,gain_in));   /* Q15 */
+    s = L_deposit_l_g729(div_s_g729(gain_out,gain_in));   /* Q15 */
     s = L_shl(s, 7);           /* s(Q22) = gain_out / gain_in */
     s = L_shr(s, exp);         /* Q22, add exponent */
 

@@ -87,7 +87,7 @@ extern "C"
     ; GLOBAL FUNCTION DEFINITIONS
     ; Function Prototype declaration
     ----------------------------------------------------------------------------*/
-    Word32 L_negate(Word32 L_var1);
+    Word32 L_negate_g729(Word32 L_var1);
 
     /*----------------------------------------------------------------------------
     ; END

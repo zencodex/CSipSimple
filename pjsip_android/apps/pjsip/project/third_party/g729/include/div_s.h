@@ -87,7 +87,7 @@ extern "C"
     ; GLOBAL FUNCTION DEFINITIONS
     ; Function Prototype declaration
     ----------------------------------------------------------------------------*/
-    OSCL_IMPORT_REF Word16 div_s(Word16 var1, Word16 var2);
+    OSCL_IMPORT_REF Word16 div_s_g729(Word16 var1, Word16 var2);
 
     /*----------------------------------------------------------------------------
     ; END
