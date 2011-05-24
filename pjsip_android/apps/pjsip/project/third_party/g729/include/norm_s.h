@@ -89,7 +89,7 @@ extern "C"
 
 
 #if   ((PV_CPU_ARCH_VERSION >=5) && (PV_COMPILER == EPV_ARM_GNUC))
-    static inline Word16 norm_s(Word16 var1)
+    static inline Word16 norm_s_g729(Word16 var1)
     {
         register Word32 var_out = 0;
         register Word32 ra = var1 << 16;
@@ -106,7 +106,7 @@ extern "C"
     }
 #else
     /*C EQUIVALENT */
-    OSCL_IMPORT_REF Word16 norm_s(Word16 var1);
+    OSCL_IMPORT_REF Word16 norm_s_g729(Word16 var1);
 #endif
     /*----------------------------------------------------------------------------
     ; END

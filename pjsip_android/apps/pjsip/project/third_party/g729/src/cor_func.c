@@ -70,15 +70,15 @@ void Corr_xy2(
       L_accxny2 <<= 1; L_accxny2 +=1;
       L_accy1y2 <<= 1; L_accy1y2 +=1;
 
-      exp            = norm_l(L_accy2y2);
+      exp            = norm_l_g729(L_accy2y2);
       g_coeff[2]     = g_round( L_accy2y2 << exp );
       exp_g_coeff[2] = exp + 3; //add(exp, 19-16);               /* Q[19+exp-16] */
 
-      exp            = norm_l(L_accxny2);
+      exp            = norm_l_g729(L_accxny2);
       g_coeff[3]     = negate(g_round( L_accxny2 << exp ));
       exp_g_coeff[3] = sub(add(exp, 10-16), 1);                  /* Q[10+exp-16] */
 
-      exp            = norm_l(L_accy1y2);
+      exp            = norm_l_g729(L_accy1y2);
       g_coeff[4]     = g_round( L_accy1y2 << exp );
       exp_g_coeff[4] = sub(add(exp, 10-16), 1);                  /* Q[10+exp-16] */
 }
@@ -120,7 +120,7 @@ void Cor_h_X(
    /* Find the number of right shifts to do on y32[]  */
    /* so that maximum is on 13 bits                   */
 
-   j = norm_l(max);
+   j = norm_l_g729(max);
    if( j > 16) {
     j = 16;
    }

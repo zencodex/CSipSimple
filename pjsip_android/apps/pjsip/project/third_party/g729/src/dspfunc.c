@@ -115,7 +115,7 @@ void Log2(
     return;
   }
 
-  exp = norm_l(L_x);
+  exp = norm_l_g729(L_x);
   L_x <<= exp;               /* L_x is normalized */
 
   /* Calculate exponent portion of Log2 */
@@ -177,7 +177,7 @@ Word32 Inv_sqrt(   /* (o) Q30 : output value   (range: 0<=val<1)           */
 
   if( L_x <= (Word32)0) return ( (Word32)0x3fffffffL);
 
-  exp = norm_l(L_x);
+  exp = norm_l_g729(L_x);
   L_x <<= exp;               /* L_x is normalize */
 
   exp = 30 - exp;

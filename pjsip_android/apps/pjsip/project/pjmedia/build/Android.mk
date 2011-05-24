@@ -13,7 +13,10 @@ LOCAL_C_INCLUDES := $(LOCAL_PATH)../pjlib/include/ $(LOCAL_PATH)../pjlib-util/in
 	$(LOCAL_PATH)../third_party/srtp/crypto/include $(LOCAL_PATH)../third_party/build/srtp/ \
 	$(LOCAL_PATH)../third_party/build/speex/  $(LOCAL_PATH)../third_party/speex/include \
 	$(LOCAL_PATH)../third_party/g729/include $(LOCAL_PATH)../third_party/silk/interface/ \
-	$(LOCAL_PATH)../third_party/codec2/src
+	$(LOCAL_PATH)../third_party/codec2/src \
+	$(LOCAL_PATH)../third_party/g7221/common \
+	$(LOCAL_PATH)../third_party/g7221/decode \
+	$(LOCAL_PATH)../third_party/g7221/encode
 
 LOCAL_CFLAGS := $(MY_PJSIP_FLAGS)
 PJLIB_SRC_DIR := src/pjmedia
@@ -60,6 +63,9 @@ ifeq ($(MY_USE_SILK),1)
 endif
 ifeq ($(MY_USE_CODEC2),1)
 	LOCAL_SRC_FILES += $(PJMEDIACODEC_SRC_DIR)/codec2.c 
+endif
+ifeq ($(MY_USE_G7221),1)
+	LOCAL_SRC_FILES += $(PJMEDIACODEC_SRC_DIR)/g7221.c 
 endif
 
 

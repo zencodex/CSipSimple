@@ -277,7 +277,7 @@ Word16 sub(Word16 var1,Word16 var2)
  |___________________________________________________________________________|
 */
 
-Word16 shr(Word16 var1,Word16 var2)
+Word16 shr_g729(Word16 var1,Word16 var2)
   {
    Word16 var_out;
 
@@ -720,7 +720,7 @@ Word32 L_sub_c(Word32 L_var1, Word32 L_var2)
  |___________________________________________________________________________|
 */
 
-Word32 L_negate(Word32 L_var1)
+Word32 L_negate_g729(Word32 L_var1)
   {
    Word32 L_var_out;
 
@@ -765,7 +765,7 @@ Word32 L_negate(Word32 L_var1)
  |___________________________________________________________________________|
 */
 
-Word16 shr_r(Word16 var1, Word16 var2)
+Word16 shr_r_g729(Word16 var1, Word16 var2)
   {
    Word16 var_out;
 
@@ -827,7 +827,7 @@ Word16 shr_r(Word16 var1, Word16 var2)
  |___________________________________________________________________________|
 */
 
-Word16 mac_r(Word32 L_var3, Word16 var1, Word16 var2)
+Word16 mac_r_g729(Word32 L_var3, Word16 var1, Word16 var2)
   {
    Word16 var_out;
 
@@ -877,7 +877,7 @@ Word16 mac_r(Word32 L_var3, Word16 var1, Word16 var2)
  |___________________________________________________________________________|
 */
 
-Word16 msu_r(Word32 L_var3, Word16 var1, Word16 var2)
+Word16 msu_r_g729(Word32 L_var3, Word16 var1, Word16 var2)
   {
    Word16 var_out;
 
@@ -918,7 +918,7 @@ Word16 msu_r(Word32 L_var3, Word16 var1, Word16 var2)
  |___________________________________________________________________________|
 */
 
-Word32 L_deposit_h(Word16 var1)
+Word32 L_deposit_h_g729(Word16 var1)
   {
    Word32 L_var_out;
 
@@ -955,7 +955,7 @@ Word32 L_deposit_h(Word16 var1)
  |___________________________________________________________________________|
 */
 
-Word32 L_deposit_l(Word16 var1)
+Word32 L_deposit_l_g729(Word16 var1)
   {
    Word32 L_var_out;
 
@@ -1000,7 +1000,7 @@ Word32 L_deposit_l(Word16 var1)
  |___________________________________________________________________________|
 */
 
-Word32 L_shr_r(Word32 L_var1,Word16 var2)
+Word32 L_shr_r_g729(Word32 L_var1,Word16 var2)
   {
    Word32 L_var_out;
 
@@ -1051,7 +1051,7 @@ Word32 L_shr_r(Word32 L_var1,Word16 var2)
  |___________________________________________________________________________|
 */
 
-Word32 L_abs(Word32 L_var1)
+Word32 L_abs_g729(Word32 L_var1)
   {
    Word32 L_var_out;
 
@@ -1165,7 +1165,7 @@ Word32 L_sat (Word32 L_var1)
  |___________________________________________________________________________|
 */
 
-Word16 norm_s(Word16 var1)
+Word16 norm_s_g729(Word16 var1)
   {
    Word16 var_out;
 
@@ -1234,7 +1234,7 @@ Word16 norm_s(Word16 var1)
  |___________________________________________________________________________|
 */
 
-Word16 div_s(Word16 var1, Word16 var2)
+Word16 div_s_g729(Word16 var1, Word16 var2)
   {
    Word16 var_out = 0;
    Word16 iteration;
@@ -1265,8 +1265,8 @@ Word16 div_s(Word16 var1, Word16 var2)
         }
       else
         {
-         L_num = L_deposit_l(var1);
-         L_denom = L_deposit_l(var2);
+         L_num = L_deposit_l_g729(var1);
+         L_denom = L_deposit_l_g729(var2);
 
          for(iteration=0;iteration<15;iteration++)
            {
@@ -1319,7 +1319,7 @@ Word16 div_s(Word16 var1, Word16 var2)
  |___________________________________________________________________________|
 */
 
-Word16 norm_l(Word32 L_var1)
+Word16 norm_l_g729(Word32 L_var1)
   {
    Word16 var_out;
 

@@ -49,6 +49,9 @@ ifeq ($(MY_USE_CODEC2),1)
 	include $(TOP_LOCAL_PATH)/third_party/build/codec2/Android.mk
 endif
 
+ifeq ($(MY_USE_G7221),1)
+	include $(TOP_LOCAL_PATH)/third_party/build/g7221/Android.mk
+endif
 # pjsip JNI
 include $(TOP_LOCAL_PATH)/jni/build/Android.mk
 

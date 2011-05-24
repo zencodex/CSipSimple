@@ -151,8 +151,8 @@ static void Cor_h(
   }
   else
   {
-    k = norm_l(cor);
-    k = shr(k, 1);
+    k = norm_l_g729(cor);
+    k = shr_g729(k, 1);
 
     for(i=0; i<L_SUBFR; i++) {
       h[i] = shl(H[i], k);
@@ -889,10 +889,10 @@ static Word16 D4i40_17_fast(/*(o) : Index of pulses positions.               */
  /* Find the codeword corresponding to the selected positions */
  Set_zero(cod, L_SUBFR);
 
- cod[ip0] = shr(i0, 2);         /* From Q15 to Q13 */
- cod[ip1] = shr(i1, 2);
- cod[ip2] = shr(i2, 2);
- cod[ip3] = shr(i3, 2);
+ cod[ip0] = shr_g729(i0, 2);         /* From Q15 to Q13 */
+ cod[ip1] = shr_g729(i1, 2);
+ cod[ip2] = shr_g729(i2, 2);
+ cod[ip3] = shr_g729(i3, 2);
 
  /* find the filtered codeword */
  Set_zero(y, ip0);

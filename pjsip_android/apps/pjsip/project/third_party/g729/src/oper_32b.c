@@ -147,7 +147,7 @@ Word32 Div_32(Word32 L_num, Word16 denom_hi, Word16 denom_lo)
 
   /* First approximation: 1 / L_denom = 1/denom_hi */
 
-  approx = div_s( (Word16)0x3fff, denom_hi);    /* result in Q14 */
+  approx = div_s_g729( (Word16)0x3fff, denom_hi);    /* result in Q14 */
                                                 /* Note: 3fff = 0.5 in Q15 */
 
   /* 1/L_denom = approx * (2.0 - L_denom * approx) */

@@ -87,7 +87,7 @@ extern "C"
     ; GLOBAL FUNCTION DEFINITIONS
     ; Function Prototype declaration
     ----------------------------------------------------------------------------*/
-    OSCL_IMPORT_REF Word32 L_shr_r(Word32 L_var1, Word16 var2/*, Flag *pOverflow*/);
+    OSCL_IMPORT_REF Word32 L_shr_r_g729(Word32 L_var1, Word16 var2/*, Flag *pOverflow*/);
 
     /*----------------------------------------------------------------------------
     ; END

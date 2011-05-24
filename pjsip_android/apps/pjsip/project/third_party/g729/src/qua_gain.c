@@ -122,11 +122,11 @@ Word16 Qua_gain(
       L_tmp = L_sub( L_tmp1, L_shr( L_tmp2, sub(exp2,exp1) ) );
       exp = exp1;
    }
-   sft = norm_l( L_tmp );
+   sft = norm_l_g729( L_tmp );
    denom = extract_h( L_shl(L_tmp, sft) );
    exp_denom = sub( add( exp, sft ), 16 );
 
-   inv_denom = div_s(16384,denom);
+   inv_denom = div_s_g729(16384,denom);
    inv_denom = negate( inv_denom );
    exp_inv_denom = sub( 14+15, exp_denom );
 
@@ -147,7 +147,7 @@ Word16 Qua_gain(
       L_tmp = L_sub( L_shr( L_tmp1,1 ), L_shr( L_tmp2, add(sub(exp2,exp1),1 )) );
       exp = sub(exp1,1);
    }
-   sft = norm_l( L_tmp );
+   sft = norm_l_g729( L_tmp );
    nume = extract_h( L_shl(L_tmp, sft) );
    exp_nume = sub( add( exp, sft ), 16 );
 
@@ -179,7 +179,7 @@ Word16 Qua_gain(
       exp = sub(exp1,1);
       //exp = exp1--;
    }
-   sft = norm_l( L_tmp );
+   sft = norm_l_g729( L_tmp );
    nume = extract_h( L_shl(L_tmp, sft) );
    exp_nume = sub( add( exp, sft ), 16 );
 
@@ -193,7 +193,7 @@ Word16 Qua_gain(
       gcode0_org = shr( gcode0, sub(exp_gcode0,4) );
    }
    else{
-      L_acc = L_deposit_l( gcode0 );
+      L_acc = L_deposit_l_g729( gcode0 );
       L_acc = L_shl( L_acc, sub( (4+16), exp_gcode0 ) );
       gcode0_org = extract_h( L_acc );              /*-- gcode0_org:Q4 --*/
    }
@@ -277,8 +277,8 @@ if(tameflag == 1){
       for(j=0; j<NCAN2; j++){
          g_pitch = add( gbk1[cand1+i][0], gbk2[cand2+j][0] );     /* Q14 */
          if(g_pitch < GP0999) {
-         L_acc = L_deposit_l( gbk1[cand1+i][1] );
-         L_accb = L_deposit_l( gbk2[cand2+j][1] );                /* Q13 */
+         L_acc = L_deposit_l_g729( gbk1[cand1+i][1] );
+         L_accb = L_deposit_l_g729( gbk2[cand2+j][1] );                /* Q13 */
          L_tmp = L_add( L_acc,L_accb );
          tmp = extract_l( L_shr( L_tmp,1 ) );                     /* Q12 */
 
@@ -314,8 +314,8 @@ else{
    for(i=0; i<NCAN1; i++){
       for(j=0; j<NCAN2; j++){
          g_pitch = add( gbk1[cand1+i][0], gbk2[cand2+j][0] );     /* Q14 */
-         L_acc = L_deposit_l( gbk1[cand1+i][1] );
-         L_accb = L_deposit_l( gbk2[cand2+j][1] );                /* Q13 */
+         L_acc = L_deposit_l_g729( gbk1[cand1+i][1] );
+         L_accb = L_deposit_l_g729( gbk2[cand2+j][1] );                /* Q13 */
          L_tmp = L_add( L_acc,L_accb );
          tmp = extract_l( L_shr( L_tmp,1 ) );                     /* Q12 */
 
@@ -394,7 +394,7 @@ static void Gbk_presel(
    L_acc = L_add( L_cfbg , L_acc );
    acc_h = extract_h( L_acc );                         /* acc_h:Q4      */
    L_preg = L_mult( acc_h, gcode0 );                   /* L_preg:Q9     */
-   L_acc = L_shl( L_deposit_l( best_gain[1] ), 7 );    /* L_acc:Q9      */
+   L_acc = L_shl( L_deposit_l_g729( best_gain[1] ), 7 );    /* L_acc:Q9      */
    L_acc = L_sub( L_acc, L_preg );
    acc_h = extract_h( L_shl( L_acc,2 ) );              /* L_acc_h:Q[-5] */
    L_tmp_x = L_mult( acc_h, INV_COEF );                /* L_tmp_x:Q15   */

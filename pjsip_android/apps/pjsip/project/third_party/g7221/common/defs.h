@@ -4,7 +4,7 @@
 **   > Software Release 2.1 (2008-06)
 **     (Simple repackaging; no change from 2005-05 Release 2.0 code)
 **
-**   © 2004 Polycom, Inc.
+**   ï¿½ 2004 Polycom, Inc.
 **
 **   All rights reserved.
 **
@@ -13,8 +13,10 @@
 #include <stdio.h>
 #include <math.h>
 #include <stdlib.h>
-#include "g7221/common/typedef.h"
-#include "g7221/common/basic_op.h"
+/*#include "g7221/common/typedef.h"
+#include "g7221/common/basic_op.h"*/
+#include "./typedef.h"
+#include "./basic_op.h"
 
 #define  PI             3.141592653589793238462
 
