@@ -190,7 +190,7 @@ Word16 Qua_gain(
    /*--- Change Q-format of gcode0 ( Q[exp_gcode0] -> Q4 ) ---*/
    //if( sub(exp_gcode0,4) >= 0 ){
    if (exp_gcode0 >=4) {
-      gcode0_org = shr( gcode0, sub(exp_gcode0,4) );
+      gcode0_org = shr_g729( gcode0, sub(exp_gcode0,4) );
    }
    else{
       L_acc = L_deposit_l_g729( gcode0 );

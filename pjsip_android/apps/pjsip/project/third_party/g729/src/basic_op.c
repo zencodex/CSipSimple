@@ -775,7 +775,7 @@ Word16 shr_r_g729(Word16 var1, Word16 var2)
      }
    else
      {
-      var_out = shr(var1,var2);
+      var_out = shr_g729(var1,var2);
 
       if (var2 > 0)
         {
