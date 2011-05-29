@@ -105,7 +105,7 @@
     #define PJSUA_MAX_CALLS			4
 
     /* Other pjsua settings */
-    #define PJSUA_MAX_ACC			10
+    #define PJSUA_MAX_ACC			11 // Mean 10 accounts active at maximum
     #define PJSUA_MAX_PLAYERS			4
     #define PJSUA_MAX_RECORDERS			4
     #define PJSUA_MAX_CONF_PORTS		(PJSUA_MAX_CALLS+2*PJSUA_MAX_PLAYERS)
