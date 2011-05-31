@@ -307,7 +307,7 @@ typedef struct pjsua_msg_data pjsua_msg_data;
 
 #endif
 
-#if defined(PJMEDIA_HAS_ZRTP) && (PJMEDIA_HAS_ZRTP != 0)
+//#if defined(PJMEDIA_HAS_ZRTP) && (PJMEDIA_HAS_ZRTP != 0)
 
     /**
      * Default value of ZRTP usage mode.
@@ -317,7 +317,7 @@ typedef struct pjsua_msg_data pjsua_msg_data;
     #define PJSUA_DEFAULT_USE_ZRTP  PJMEDIA_CREATE_ZRTP
 #endif
     
-#endif
+//#endif
 
 /**
  * Controls whether PJSUA-LIB should add ICE media feature tag

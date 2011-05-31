@@ -190,6 +190,7 @@ PJ_DEF(void) pjsua_acc_config_default(pjsua_acc_config *cfg)
 #if defined(PJMEDIA_STREAM_ENABLE_KA) && PJMEDIA_STREAM_ENABLE_KA!=0
     cfg->use_stream_ka = (PJMEDIA_STREAM_ENABLE_KA != 0);
 #endif
+    cfg->use_zrtp = PJSUA_DEFAULT_USE_ZRTP;
     pj_list_init(&cfg->reg_hdr_list);
     pj_list_init(&cfg->sub_hdr_list);
     cfg->call_hold_type = PJSUA_CALL_HOLD_TYPE_DEFAULT;
