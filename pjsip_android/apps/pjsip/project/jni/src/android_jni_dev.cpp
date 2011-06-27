@@ -608,6 +608,7 @@ static pj_status_t android_create_stream(pjmedia_aud_dev_factory *f,
 	struct android_aud_stream *stream;
 	pj_status_t status;
 	int has_set_in_call = 0;
+	int state = 0;
 
 	PJ_ASSERT_RETURN(play_cb && rec_cb && p_aud_strm, PJ_EINVAL);
 
@@ -808,6 +809,29 @@ static pj_status_t android_create_stream(pjmedia_aud_dev_factory *f,
 			jni_env->ExceptionDescribe();
 			jni_env->ExceptionClear();
 			PJ_LOG(2, (THIS_FILE, "The micro source was probably not valid"));
+			// Try to fallback on MIC source -- lazy failure
+			if(mic_source != 1){
+				PJ_LOG(4, (THIS_FILE, "Try default source"));
+				stream->record =  jni_env->NewObject(stream->record_class, constructor_method,
+							1, // Mic input source:  1 = MIC / 7 = VOICE_COMMUNICATION
+							param->clock_rate,
+							2, // CHANNEL_CONFIGURATION_MONO
+							sampleFormat,
+							inputBuffSizeRec);
+				if (stream->record == 0) {
+					PJ_LOG(1, (THIS_FILE, "Not able to instantiate record class"));
+					goto on_error;
+				}
+			}else{
+				PJ_LOG(1, (THIS_FILE, "Not able to instantiate record class"));
+				goto on_error;
+			}
+		}
+		// Check state
+		method_id = jni_env->GetMethodID(stream->record_class,"getState", "()I");
+		state = jni_env->CallIntMethod(stream->record, method_id);
+		if(state == 0){ /* STATE_UNINITIALIZED */
+			// Try to fallback on MIC source -- lazy failure
 			if(mic_source != 1){
 				PJ_LOG(4, (THIS_FILE, "Try default source"));
 				stream->record =  jni_env->NewObject(stream->record_class, constructor_method,
