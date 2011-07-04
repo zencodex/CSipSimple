@@ -40,6 +40,7 @@ PJ_DECL(pj_status_t) csipsimple_destroy(void);
 PJ_DECL(pj_status_t) send_keep_alive(int acc_id);
 PJ_DECL(pj_status_t) set_turn_cfg(pjsua_media_config *media_cfg, pj_str_t username, pj_str_t data);
 PJ_DECL(void) set_use_compact_form(pj_bool_t use_compact_form);
+PJ_DECL(void) set_no_update(pj_bool_t use_no_update);
 PJ_END_DECL
 
 #endif

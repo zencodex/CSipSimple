@@ -23,6 +23,9 @@
 
 #define THIS_FILE		"pjsua_call.c"
 
+#if USE_CSIPSIMPLE_HACKS
+	pj_bool_t pjsua_no_update = PJ_FALSE;
+#endif
 
 /* Retry interval of sending re-INVITE for locking a codec when remote
  * SDP answer contains multiple codec, in milliseconds.
@@ -3175,7 +3178,11 @@ static pj_status_t perform_lock_codec(pjsua_call *call)
 					      PJSIP_H_ALLOW,
 					      NULL, &STR_UPDATE) ==
 						PJSIP_DIALOG_CAP_SUPPORTED;
-    if (rem_can_update) {
+    if (rem_can_update
+#if USE_CSIPSIMPLE_HACKS
+    		&& !pjsua_no_update
+#endif
+    ) {
 	status = pjsip_inv_update(call->inv, NULL, new_sdp, &tdata);
     } else {
 	status = pjsip_inv_reinvite(call->inv, NULL, new_sdp, &tdata);

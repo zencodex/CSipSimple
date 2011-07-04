@@ -1738,11 +1738,11 @@ typedef struct pjsua_msg_data pjsua_msg_data;
     #define PJSUA_DEFAULT_SRTP_SECURE_SIGNALING 1
 #endif
 #endif
-#if defined(PJMEDIA_HAS_ZRTP) && (PJMEDIA_HAS_ZRTP != 0)
+//#if defined(PJMEDIA_HAS_ZRTP) && (PJMEDIA_HAS_ZRTP != 0)
 #ifndef PJSUA_DEFAULT_USE_ZRTP
     #define PJSUA_DEFAULT_USE_ZRTP  PJMEDIA_CREATE_ZRTP
 #endif
-#endif
+//#endif
 #ifndef PJSUA_ADD_ICE_TAGS
 #   define PJSUA_ADD_ICE_TAGS		1
 #endif
@@ -2502,6 +2502,7 @@ PJ_DECL(pj_status_t) csipsimple_destroy(void);
 PJ_DECL(pj_status_t) send_keep_alive(int acc_id);
 PJ_DECL(pj_status_t) set_turn_cfg(pjsua_media_config *media_cfg, pj_str_t username, pj_str_t data);
 PJ_DECL(void) set_use_compact_form(pj_bool_t use_compact_form);
+PJ_DECL(void) set_no_update(pj_bool_t use_no_update);
 
 #ifndef __PJMEDIA_TRANSPORT_ZRTP_H__
 enum pjmedia_zrtp_use
