@@ -16678,6 +16678,16 @@ SWIGEXPORT void JNICALL Java_org_pjsip_pjsua_pjsuaJNI_set_1use_1compact_1form(JN
 }
 
 
+SWIGEXPORT void JNICALL Java_org_pjsip_pjsua_pjsuaJNI_set_1no_1update(JNIEnv *jenv, jclass jcls, jint jarg1) {
+  pj_bool_t arg1 ;
+  
+  (void)jenv;
+  (void)jcls;
+  arg1 = (pj_bool_t)jarg1; 
+  set_no_update(arg1);
+}
+
+
 SWIGEXPORT jint JNICALL Java_org_pjsip_pjsua_pjsuaJNI_PJMEDIA_1NO_1ZRTP_1get(JNIEnv *jenv, jclass jcls) {
   jint jresult = 0 ;
   pjmedia_zrtp_use result;
@@ -17777,6 +17787,7 @@ JNIEXPORT jint JNI_OnLoad(JavaVM *vm, void *reserved) {
 {"send_keep_alive", "(I)I", (void*)& Java_org_pjsip_pjsua_pjsuaJNI_send_1keep_1alive},
 {"set_turn_cfg", "(JLorg/pjsip/pjsua/pjsua_media_config;JLorg/pjsip/pjsua/pj_str_t;JLorg/pjsip/pjsua/pj_str_t;)I", (void*)& Java_org_pjsip_pjsua_pjsuaJNI_set_1turn_1cfg},
 {"set_use_compact_form", "(I)V", (void*)& Java_org_pjsip_pjsua_pjsuaJNI_set_1use_1compact_1form},
+{"set_no_update", "(I)V", (void*)& Java_org_pjsip_pjsua_pjsuaJNI_set_1no_1update},
 {"PJMEDIA_NO_ZRTP_get", "()I", (void*)& Java_org_pjsip_pjsua_pjsuaJNI_PJMEDIA_1NO_1ZRTP_1get},
 {"PJMEDIA_CREATE_ZRTP_get", "()I", (void*)& Java_org_pjsip_pjsua_pjsuaJNI_PJMEDIA_1CREATE_1ZRTP_1get},
 {"jzrtp_SASVerified", "()V", (void*)& Java_org_pjsip_pjsua_pjsuaJNI_jzrtp_1SASVerified}
