@@ -4,7 +4,7 @@
 **   > Software Release 2.1 (2008-06)
 **     (Simple repackaging; no change from 2005-05 Release 2.0 code)
 **
-**   � 2004 Polycom, Inc.
+**   © 2004 Polycom, Inc.
 **
 **   All rights reserved.
 **

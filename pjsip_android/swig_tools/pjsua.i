@@ -374,6 +374,7 @@ static struct pjsua_callback wrapper_callback_struct = {
 	&on_call_transfer_status_wrapper,
 	&on_call_replace_request_wrapper,
 	&on_call_replaced_wrapper,
+	NULL, // on_reg_started
 	&on_reg_state_wrapper,
 	NULL, //on_reg2_state
 	NULL, // incoming subscribe &on_incoming_subscribe_wrapper,
@@ -1738,11 +1739,6 @@ typedef struct pjsua_msg_data pjsua_msg_data;
     #define PJSUA_DEFAULT_SRTP_SECURE_SIGNALING 1
 #endif
 #endif
-//#if defined(PJMEDIA_HAS_ZRTP) && (PJMEDIA_HAS_ZRTP != 0)
-#ifndef PJSUA_DEFAULT_USE_ZRTP
-    #define PJSUA_DEFAULT_USE_ZRTP  PJMEDIA_CREATE_ZRTP
-#endif
-//#endif
 #ifndef PJSUA_ADD_ICE_TAGS
 #   define PJSUA_ADD_ICE_TAGS		1
 #endif
@@ -1772,6 +1768,10 @@ typedef struct pjsua_reg_info
 {
     struct pjsip_regc_cbparam	*cbparam;   
 } pjsua_reg_info;
+typedef enum pjsua_create_media_transport_flag
+{
+   PJSUA_MED_TP_CLOSE_MEMBER = 1
+} pjsua_create_media_transport_flag;
 typedef struct pjsua_callback
 {
     void (*on_call_state)(pjsua_call_id call_id, pjsip_event *e);
@@ -1803,6 +1803,7 @@ typedef struct pjsua_callback
 				    pj_str_t *st_text);
     void (*on_call_replaced)(pjsua_call_id old_call_id,
 			     pjsua_call_id new_call_id);
+    void (*on_reg_started)(pjsua_acc_id acc_id, pj_bool_t renew);
     void (*on_reg_state)(pjsua_acc_id acc_id);
     void (*on_reg_state2)(pjsua_acc_id acc_id, pjsua_reg_info *info);
     void (*on_incoming_subscribe)(pjsua_acc_id acc_id,
@@ -1859,9 +1860,10 @@ typedef struct pjsua_callback
     pjsip_tp_state_callback on_transport_state;
     void (*on_ice_transport_error)(int index, pj_ice_strans_op op,
 				   pj_status_t status, void *param);
-//#if defined(PJMEDIA_HAS_ZRTP) && (PJMEDIA_HAS_ZRTP != 0)
-    pj_status_t (*on_zrtp_transport_created)(pjmedia_transport *tp, pjsua_call_id call_id);
-//#endif
+    pjmedia_transport* (*on_create_media_transport)(pjsua_call_id call_id,
+                                                    unsigned media_idx,
+                                                    pjmedia_transport *base_tp,
+                                                    unsigned flags);
 } pjsua_callback;
 typedef enum pjsua_sip_timer_use
 {
@@ -2070,9 +2072,6 @@ typedef struct pjsua_acc_config
     int		     srtp_secure_signaling;
     pj_bool_t	     srtp_optional_dup_offer;
 #endif
-//#if defined(PJMEDIA_HAS_ZRTP) && (PJMEDIA_HAS_ZRTP != 0)
-    pjmedia_zrtp_use     use_zrtp;
-//#endif
     unsigned	     reg_retry_interval;
     pj_bool_t	     drop_calls_on_reg_fail;
     unsigned	     reg_use_proxy;
@@ -2080,6 +2079,7 @@ typedef struct pjsua_acc_config
     pj_bool_t	     use_stream_ka;
 #endif
     pjsua_call_hold_type call_hold_type;
+    pj_bool_t         register_on_acc_add;
 } pjsua_acc_config;
 PJ_DECL(void) pjsua_acc_config_default(pjsua_acc_config *cfg);
 PJ_DECL(void) pjsua_acc_config_dup(pj_pool_t *pool,
@@ -2485,6 +2485,16 @@ PJ_DECL(pj_status_t) pjsua_codec_set_param( const pj_str_t *codec_id,
 PJ_DECL(pj_status_t) 
 pjsua_media_transports_create(const pjsua_transport_config *cfg);
 
+// css config
+typedef struct csipsimple_config {
+	pj_bool_t use_compact_form_sdp;
+	pj_bool_t use_compact_form_headers;
+	pj_bool_t use_no_update;
+	pj_str_t turn_username;
+	pj_str_t turn_password;
+	pj_bool_t use_zrtp;
+} csipsimple_config;
+// methods
 PJ_DECL(int) codecs_get_nbr();
 PJ_DECL(pj_str_t) codecs_get_id(int codec_id) ;
 PJ_DECL(pj_status_t) test_audio_dev(unsigned int clock_rate, unsigned int ptime);
@@ -2495,20 +2505,12 @@ PJ_DECL(pj_bool_t) can_use_srtp();
 PJ_DECL(pj_bool_t) is_call_secure(pjsua_call_id call_id);
 PJ_DECL(pj_status_t) media_transports_create_ipv6(pjsua_transport_config rtp_cfg);
 PJ_DECL(pj_str_t) get_error_message(int status);
+PJ_DECL(void) csipsimple_config_default(csipsimple_config *css_cfg);
 PJ_DECL(pj_status_t) csipsimple_init(pjsua_config *ua_cfg,
 				pjsua_logging_config *log_cfg,
-				pjsua_media_config *media_cfg);
+				pjsua_media_config *media_cfg,
+				csipsimple_config *css_cfg);
 PJ_DECL(pj_status_t) csipsimple_destroy(void);
 PJ_DECL(pj_status_t) send_keep_alive(int acc_id);
-PJ_DECL(pj_status_t) set_turn_cfg(pjsua_media_config *media_cfg, pj_str_t username, pj_str_t data);
-PJ_DECL(void) set_use_compact_form(pj_bool_t use_compact_form);
-PJ_DECL(void) set_no_update(pj_bool_t use_no_update);
 
-#ifndef __PJMEDIA_TRANSPORT_ZRTP_H__
-enum pjmedia_zrtp_use
-{
-    PJMEDIA_NO_ZRTP  = 1,
-    PJMEDIA_CREATE_ZRTP  = 2
-};
-#endif
 PJ_DECL(void) jzrtp_SASVerified();

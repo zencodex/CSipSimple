@@ -1,18 +1,20 @@
 #include "zrtp_android.h"
-//
-////I know I should not do that here
-void on_zrtp_show_sas_wrapper(void* data, char* sas, int verified);
-void on_zrtp_secure_on_wrapper(void* data, char* cipher);
-void on_zrtp_secure_off_wrapper(void* data);
-
 
 /*
  * ZRTP stuff
  */
 
-#define THIS_FILE		"zrtp_android.cpp"
+#define THIS_FILE		"zrtp_android.c"
 
 #if defined(PJMEDIA_HAS_ZRTP) && PJMEDIA_HAS_ZRTP!=0
+
+
+////I know I should not do that here
+void on_zrtp_show_sas_wrapper(void* data, char* sas, int verified);
+void on_zrtp_secure_on_wrapper(void* data, char* cipher);
+void on_zrtp_secure_off_wrapper(void* data);
+
+#include "transport_zrtp.h"
 
 const char* InfoCodes[] =
 {
@@ -135,27 +137,39 @@ static zrtp_UserCallbacks wrapper_zrtp_callback_struct = {
 pjmedia_transport *current_zrtp;
 
 /* Initialize the ZRTP transport and the user callbacks */
-pj_status_t on_zrtp_transport_created(pjmedia_transport *tp, pjsua_call_id call_id)
-{
-    PJ_LOG(3,(THIS_FILE, "ZRTP transport created"));
-    wrapper_zrtp_callback_struct.userData = tp;
+pjmedia_transport* on_zrtp_transport_created(pjsua_call_id call_id,
+	unsigned media_idx,
+	pjmedia_transport *base_tp,
+	unsigned flags) {
 
-    current_zrtp = tp;
+		pjmedia_transport *zrtp_tp = NULL;
+		pj_status_t status;
+		pjmedia_endpt* endpt = pjsua_get_pjmedia_endpt();
 
-    /* this is optional but highly recommended to enable the application
-     * to report status information to the user, such as verfication status,
-     * SAS code, etc
-     */
-    pjmedia_transport_zrtp_setUserCallback(tp, &wrapper_zrtp_callback_struct);
+		status = pjmedia_transport_zrtp_create(endpt, NULL, base_tp,
+											   &zrtp_tp, flags);
 
-    /*
-     * Initialize the transport. Just the filename of the ZID file that holds
-     * our partners ZID, shared data etc. If the files does not exists it will
-     * be created an initialized. The ZRTP configuration is not yet implemented
-     * thus the parameter is NULL.
-     */
-    pjmedia_transport_zrtp_initialize(tp, "/sdcard/simple.zid", PJ_TRUE);
-    return PJ_SUCCESS;
+		PJ_LOG(3,(THIS_FILE, "ZRTP transport created"));
+
+
+		/*
+		* this is optional but highly recommended to enable the application
+		* to report status information to the user, such as verfication status,
+		* SAS code, etc
+		*/
+		wrapper_zrtp_callback_struct.userData = zrtp_tp;
+		pjmedia_transport_zrtp_setUserCallback(zrtp_tp, &wrapper_zrtp_callback_struct);
+
+		/*
+		* Initialize the transport. Just the filename of the ZID file that holds
+		* our partners ZID, shared data etc. If the files does not exists it will
+		* be created an initialized. The ZRTP configuration is not yet implemented
+		* thus the parameter is NULL.
+		*/
+		pjmedia_transport_zrtp_initialize(zrtp_tp, "/sdcard/simple.zid", PJ_TRUE);
+		current_zrtp = zrtp_tp;
+
+		return zrtp_tp;
 }
 
 // TODO : that's not clean should be able to manage

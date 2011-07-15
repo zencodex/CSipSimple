@@ -1,4 +1,4 @@
-/* $Id: passthrough.c 3553 2011-05-05 06:14:19Z nanang $ */
+/* $Id: passthrough.c 3589 2011-06-20 04:06:19Z nanang $ */
 /* 
  * Copyright (C) 2008-2011 Teluu Inc. (http://www.teluu.com)
  * Copyright (C) 2003-2008 Benny Prijono <benny@prijono.org>
@@ -266,6 +266,8 @@ static pj_status_t pack_amr ( codec_private_t *codec_data,
 	}
 	info->good_quality = 1;
 	info->mode = setting->enc_mode;
+	if (info->frame_type == SID_FT)
+	    info->STI = (sf->data[4] >> 4) & 1;
 
 	frames[i].buf = sf->data;
 	frames[i].size = len;

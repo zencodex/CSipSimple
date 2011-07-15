@@ -1,4 +1,4 @@
-/* $Id: pjsua.h 3570 2011-05-19 04:36:01Z bennylp $ */
+/* $Id: pjsua.h 3594 2011-06-22 08:00:20Z bennylp $ */
 /* 
  * Copyright (C) 2008-2011 Teluu Inc. (http://www.teluu.com)
  * Copyright (C) 2003-2008 Benny Prijono <benny@prijono.org>
@@ -50,8 +50,6 @@
 /* Include all PJLIB headers. */
 #include <pjlib.h>
 
-/* Include zrtp headers. */
-#include <transport_zrtp.h>
 
 PJ_BEGIN_DECL
 
@@ -307,18 +305,6 @@ typedef struct pjsua_msg_data pjsua_msg_data;
 
 #endif
 
-//#if defined(PJMEDIA_HAS_ZRTP) && (PJMEDIA_HAS_ZRTP != 0)
-
-    /**
-     * Default value of ZRTP usage mode.
-     * Valid values are PJMEDIA_NO_ZRTP, PJMEDIA_CREATE_ZRTP
-     */
-#ifndef PJSUA_DEFAULT_USE_ZRTP
-    #define PJSUA_DEFAULT_USE_ZRTP  PJMEDIA_CREATE_ZRTP
-#endif
-    
-//#endif
-
 /**
  * Controls whether PJSUA-LIB should add ICE media feature tag
  * parameter (the ";+sip.ice" parameter) to Contact header if ICE
@@ -432,6 +418,22 @@ typedef struct pjsua_reg_info
     struct pjsip_regc_cbparam	*cbparam;   /**< Parameters returned by 
 						 registration callback.	*/
 } pjsua_reg_info;
+
+
+/**
+ * This enumeration specifies the options for custom media transport creation.
+ */
+typedef enum pjsua_create_media_transport_flag
+{
+   /**
+    * This flag indicates that the media transport must also close its
+    * "member" or "child" transport when pjmedia_transport_close() is
+    * called. If this flag is not specified, then the media transport
+    * must not call pjmedia_transport_close() of its member transport.
+    */
+   PJSUA_MED_TP_CLOSE_MEMBER = 1
+
+} pjsua_create_media_transport_flag;
 
 
 /**
@@ -601,6 +603,18 @@ typedef struct pjsua_callback
 			     pjsua_call_id new_call_id);
 
 
+    /**
+     * Notify application when registration or unregistration has been
+     * initiated. Note that this only notifies the initial registration
+     * and unregistration. Once registration session is active, subsequent
+     * refresh will not cause this callback to be called.
+     *
+     * @param acc_id	    The account ID.
+     * @param renew	    Non-zero for registration and zero for
+     * 			    unregistration.
+     */
+    void (*on_reg_started)(pjsua_acc_id acc_id, pj_bool_t renew);
+    
     /**
      * Notify application when registration status has changed.
      * Application may then query the account info to get the
@@ -932,33 +946,31 @@ typedef struct pjsua_callback
     void (*on_ice_transport_error)(int index, pj_ice_strans_op op,
 				   pj_status_t status, void *param);
 
-//#if defined(PJMEDIA_HAS_ZRTP) && (PJMEDIA_HAS_ZRTP != 0)
     /**
-     * PJSUA-LIB calls this function after it created the ZRTP transport but
-     * before PJSUA-LIB initilizes the ZRTP library. The application may store
-     * the ZRTP transport pointer for later use and may call ZRTP transport 
-     * specific functions to set parameters before PJSUA-LIB initializes ZRTP.
+     * This callback can be used by application to implement custom media
+     * transport adapter for the call, or to replace the media transport
+     * with something completely new altogether.
      *
-     * To set or get ZRTP protocol specific data the application must get the
-     * ZrtpContext first (@c pjmedia_transport_zrtp_getZrtpContext()). Then
-     * application can call ZRTP protocol specific methods. The method names
-     * of the ZRTP specific methods start with @c zrtp_ .
+     * This callback is called when a new call is created. The library has
+     * created a media transport for the call, and it is provided as the
+     * \a base_tp argument of this callback. Upon returning, the callback
+     * must return an instance of media transport to be used by the call.
      *
-     * @param tp
-     *     The ZRTP transport pointer. The application shall not modify the
-     *     contents of this structure directly.
-     * @param call_id
-     *     The call id associated with this ZRTP transport.
+     * @param call_id       Call ID
+     * @param media_idx     The media index in the SDP for which this media
+     *                      transport will be used.
+     * @param base_tp       The media transport which otherwise will be
+     *                      used by the call has this callback not been
+     *                      implemented.
+     * @param flags         Bitmask from pjsua_create_media_transport_flag.
      *
-     * @see pjmedia_transport_zrtp_setEnableZrtp()
-     * @see pjmedia_transport_zrtp_isEnableZrtp()
-     * @see pjmedia_transport_zrtp_setUserCallback
-     * @see pjmedia_transport_zrtp_setLocalSSRC()
-     * @see pjmedia_transport_zrtp_getZrtpContext()
+     * @return              The callback must return an instance of media
+     *                      transport to be used by the call.
      */
-    pj_status_t (*on_zrtp_transport_created)(pjmedia_transport *tp, pjsua_call_id call_id);
-
-//#endif
+    pjmedia_transport* (*on_create_media_transport)(pjsua_call_id call_id,
+                                                    unsigned media_idx,
+                                                    pjmedia_transport *base_tp,
+                                                    unsigned flags);
 
 } pjsua_callback;
 
@@ -2503,17 +2515,6 @@ typedef struct pjsua_acc_config
      */
     pj_bool_t	     srtp_optional_dup_offer;
 #endif
-//#if defined(PJMEDIA_HAS_ZRTP) && (PJMEDIA_HAS_ZRTP != 0)
-    /**
-     * Specify whether ZRTP transport should be used for this account.
-     * Valid values are PJMEDIA_NO_ZRTP, PJMEDIA_ZRTP_MANUAL_START, and
-     * PJMEDIA_ZRTP_AUTO_START.
-     *
-     * Default: #PJSUA_DEFAULT_USE_ZRTP
-     */
-    pjmedia_zrtp_use     use_zrtp;
-    
-//#endif
 
     /**
      * Specify interval of auto registration retry upon registration failure
@@ -2563,6 +2564,16 @@ typedef struct pjsua_acc_config
      * Default: PJSUA_CALL_HOLD_TYPE_DEFAULT
      */
     pjsua_call_hold_type call_hold_type;
+    
+    
+    /**
+     * Specify whether the account should register as soon as it is
+     * added to the UA. Application can set this to PJ_FALSE and control
+     * the registration manually with pjsua_acc_set_registration().
+     *
+     * Default: PJ_TRUE
+     */
+    pj_bool_t         register_on_acc_add;
 
 } pjsua_acc_config;
 

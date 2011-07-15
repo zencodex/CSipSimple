@@ -1,4 +1,4 @@
-/* $Id: sip_config.h 3553 2011-05-05 06:14:19Z nanang $ */
+/* $Id: sip_config.h 3586 2011-06-16 13:15:04Z nanang $ */
 /* 
  * Copyright (C) 2008-2011 Teluu Inc. (http://www.teluu.com)
  * Copyright (C) 2003-2008 Benny Prijono <benny@prijono.org>
@@ -666,6 +666,16 @@ PJ_INLINE(pjsip_cfg_t*) pjsip_cfg(void)
  */
 #ifndef PJSIP_POOL_TSX_INC
 #   define PJSIP_POOL_TSX_INC		256
+#endif
+
+/**
+ * Delay for non-100 1xx retransmission, in seconds.
+ * Set to 0 to disable this feature.
+ *
+ * Default: 60 seconds
+ */
+#ifndef PJSIP_TSX_1XX_RETRANS_DELAY
+#   define PJSIP_TSX_1XX_RETRANS_DELAY	60
 #endif
 
 #define PJSIP_MAX_TSX_KEY_LEN		(PJSIP_MAX_URL_SIZE*2)

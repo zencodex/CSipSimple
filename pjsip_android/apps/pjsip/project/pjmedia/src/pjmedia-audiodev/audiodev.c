@@ -1,4 +1,4 @@
-/* $Id: audiodev.c 3559 2011-05-06 07:25:59Z bennylp $ */
+/* $Id: audiodev.c 3611 2011-07-07 09:26:26Z bennylp $ */
 /* 
  * Copyright (C) 2008-2011 Teluu Inc. (http://www.teluu.com)
  * Copyright (C) 2003-2008 Benny Prijono <benny@prijono.org>
@@ -145,7 +145,7 @@ PJ_DEF(const char*) pjmedia_aud_dev_cap_name(pjmedia_aud_dev_cap cap,
 	    break;
     }
 
-    if (i==32) {
+    if (i==PJ_ARRAY_SIZE(cap_infos)) {
 	*p_desc = "??";
 	return "??";
     }

@@ -352,6 +352,7 @@ PJ_DECL(pj_bool_t) is_call_secure(pjsua_call_id call_id){
 	return result;
 }
 
+#if USE_TCP_HACK==1
 static pj_bool_t on_rx_request_tcp_hack(pjsip_rx_data *rdata) {
 	 PJ_LOG(3,(THIS_FILE, "CB TCP HACK"));
 	if (strstr(pj_strbuf(&rdata->msg_info.msg->line.req.method.name), "INVITE")) {
@@ -362,6 +363,7 @@ static pj_bool_t on_rx_request_tcp_hack(pjsip_rx_data *rdata) {
 	return PJ_FALSE;
 
 }
+#endif
 
 
 
@@ -377,14 +379,55 @@ PJ_DECL(pj_str_t) get_error_message(int status) {
     return result;*/
 }
 
+
+PJ_DECL(void) csipsimple_config_default(csipsimple_config *css_cfg){
+	css_cfg->use_compact_form_sdp = PJ_FALSE;
+	css_cfg->use_compact_form_headers = PJ_FALSE;
+	css_cfg->use_no_update = PJ_FALSE;
+	css_cfg->use_zrtp = PJ_FALSE;
+
+}
+
 //Wrap start & stop
 PJ_DECL(pj_status_t) csipsimple_init(pjsua_config *ua_cfg,
 				pjsua_logging_config *log_cfg,
-				pjsua_media_config *media_cfg){
+				pjsua_media_config *media_cfg,
+				csipsimple_config *css_cfg){
 	pj_status_t result;
+
+	// Finalize configuration
 	log_cfg->cb = &pj_android_log_msg;
+	if(css_cfg->turn_username.slen){
+		media_cfg->turn_auth_cred.type = PJ_STUN_AUTH_CRED_STATIC;
+		media_cfg->turn_auth_cred.data.static_cred.realm = pj_str("*");
+		media_cfg->turn_auth_cred.data.static_cred.username = css_cfg->turn_username;
+
+		if (css_cfg->turn_password.slen) {
+			 media_cfg->turn_auth_cred.data.static_cred.data_type = PJ_STUN_PASSWD_PLAIN;
+			 media_cfg->turn_auth_cred.data.static_cred.data = css_cfg->turn_password;
+		}
+	}
+
+	// Static cfg
+	extern pj_bool_t pjsip_use_compact_form;
+	extern pj_bool_t pjsip_include_allow_hdr_in_dlg;
+	extern pj_bool_t pjmedia_add_rtpmap_for_static_pt;
+	extern pj_bool_t pjsua_no_update;
+
+
+	pjsua_no_update = css_cfg->use_no_update ? PJ_TRUE : PJ_FALSE;
+
+	pjsip_use_compact_form = css_cfg->use_compact_form_headers ? PJ_TRUE : PJ_FALSE;
+	/* do not transmit Allow header */
+	pjsip_include_allow_hdr_in_dlg = css_cfg->use_compact_form_headers ? PJ_FALSE : PJ_TRUE;
+	/* Do not include rtpmap for static payload types (<96) */
+	pjmedia_add_rtpmap_for_static_pt = css_cfg->use_compact_form_sdp ? PJ_FALSE : PJ_TRUE;
+
+
 #if defined(PJMEDIA_HAS_ZRTP) && PJMEDIA_HAS_ZRTP!=0
-	ua_cfg->cb.on_zrtp_transport_created = &on_zrtp_transport_created;
+	if(css_cfg->use_zrtp){
+		ua_cfg->cb.on_create_media_transport = &on_zrtp_transport_created;
+	}
 #endif
 	result = (pj_status_t) pjsua_init(ua_cfg, log_cfg, media_cfg);
 	if(result == PJ_SUCCESS){
@@ -411,9 +454,8 @@ PJ_DECL(pj_status_t) csipsimple_init(pjsua_config *ua_cfg,
 	    result = pjsip_endpt_register_module(pjsip_ua_get_endpt(pjsip_ua_instance()), &tcp_hack_mod);
 #endif
 
+
 	}
-
-
 
 
 	return result;
@@ -641,32 +683,3 @@ void app_on_call_state(pjsua_call_id call_id, pjsip_event *e) {
 }
 
 
-
-PJ_DECL(pj_status_t) set_turn_cfg(pjsua_media_config *media_cfg, pj_str_t username, pj_str_t data){
-	media_cfg->turn_auth_cred.type = PJ_STUN_AUTH_CRED_STATIC;
-	media_cfg->turn_auth_cred.data.static_cred.realm = pj_str("*");
-	media_cfg->turn_auth_cred.data.static_cred.username = username;
-
-	 if (data.slen) {
-		 media_cfg->turn_auth_cred.data.static_cred.data_type = PJ_STUN_PASSWD_PLAIN;
-		 media_cfg->turn_auth_cred.data.static_cred.data = data;
-	 }
-}
-
-PJ_DECL(void) set_use_compact_form(pj_bool_t use_compact_form) {
-	extern pj_bool_t pjsip_use_compact_form;
-	extern pj_bool_t pjsip_include_allow_hdr_in_dlg;
-	extern pj_bool_t pjmedia_add_rtpmap_for_static_pt;
-
-	pjsip_use_compact_form = use_compact_form ? PJ_TRUE : PJ_FALSE;
-	/* do not transmit Allow header */
-	pjsip_include_allow_hdr_in_dlg = use_compact_form ? PJ_FALSE : PJ_TRUE;
-	/* Do not include rtpmap for static payload types (<96) */
-	pjmedia_add_rtpmap_for_static_pt = use_compact_form ? PJ_FALSE : PJ_TRUE;
-}
-
-PJ_DECL(void) set_no_update(pj_bool_t use_no_update) {
-	extern pj_bool_t pjsua_no_update;
-
-	pjsua_no_update = use_no_update ? PJ_TRUE : PJ_FALSE;
-}

@@ -7,28 +7,12 @@
  * ZRTP stuff
  */
 
-pj_status_t on_zrtp_transport_created(pjmedia_transport *tp, pjsua_call_id call_id);
+pjmedia_transport* on_zrtp_transport_created(pjsua_call_id call_id,
+	unsigned media_idx,
+	pjmedia_transport *base_tp,
+	unsigned flags);
 
 PJ_BEGIN_DECL
-
-#ifndef __PJMEDIA_TRANSPORT_ZRTP_H__
- /**
- * ZRTP option.
- */
-enum pjmedia_zrtp_use
-{
-    /** When this flag is specified, ZRTP will be disabled. */
-    PJMEDIA_NO_ZRTP  = 1,
-
-    /** When this flag is specified, PJSUA-LIB creates a ZRTP transport
-     * call calls back the applicaion for further process if callback is
-     * set.
-     */
-    PJMEDIA_CREATE_ZRTP  = 2
-
-};
-
-#endif
 
 PJ_DECL(void) jzrtp_SASVerified();
 

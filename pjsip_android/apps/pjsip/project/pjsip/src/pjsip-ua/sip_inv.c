@@ -1,4 +1,4 @@
-/* $Id: sip_inv.c 3574 2011-05-20 10:29:45Z nanang $ */
+/* $Id: sip_inv.c 3598 2011-06-24 07:35:28Z bennylp $ */
 /* 
  * Copyright (C) 2008-2011 Teluu Inc. (http://www.teluu.com)
  * Copyright (C) 2003-2008 Benny Prijono <benny@prijono.org>
@@ -195,8 +195,18 @@ void inv_set_state(pjsip_inv_session *inv, pjsip_inv_state state,
 		   pjsip_event *e)
 {
     pjsip_inv_state prev_state = inv->state;
+    pj_bool_t dont_notify = PJ_FALSE;
     pj_status_t status;
 
+    /* Prevent STATE_CALLING from being reported more than once because
+     * of authentication
+     * https://trac.pjsip.org/repos/ticket/1318
+     */
+    if (state==PJSIP_INV_STATE_CALLING && 
+	(inv->cb_called & (1 << PJSIP_INV_STATE_CALLING)) != 0)
+    {
+	dont_notify = PJ_TRUE;
+    }
 
     /* If state is confirmed, check that SDP negotiation is done,
      * otherwise disconnect the session.
@@ -224,8 +234,11 @@ void inv_set_state(pjsip_inv_session *inv, pjsip_inv_state state,
     pj_assert(inv->state != PJSIP_INV_STATE_DISCONNECTED ||
 	      inv->cause != 0);
 
+    /* Mark the callback as called for this state */
+    inv->cb_called |= (1 << state);
+
     /* Call on_state_changed() callback. */
-    if (mod_inv.cb.on_state_changed && inv->notify)
+    if (mod_inv.cb.on_state_changed && inv->notify && !dont_notify)
 	(*mod_inv.cb.on_state_changed)(inv, e);
 
     /* Only decrement when previous state is not already DISCONNECTED */
