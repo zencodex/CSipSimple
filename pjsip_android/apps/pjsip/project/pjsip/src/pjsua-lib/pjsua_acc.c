@@ -1,4 +1,4 @@
-/* $Id: pjsua_acc.c 3566 2011-05-15 12:40:38Z ming $ */
+/* $Id: pjsua_acc.c 3594 2011-06-22 08:00:20Z bennylp $ */
 /* 
  * Copyright (C) 2008-2011 Teluu Inc. (http://www.teluu.com)
  * Copyright (C) 2003-2008 Benny Prijono <benny@prijono.org>
@@ -452,9 +452,10 @@ PJ_DEF(pj_status_t) pjsua_acc_add( const pjsua_acc_config *cfg,
 	      (int)cfg->id.slen, cfg->id.ptr, id));
 
     /* If accounts has registration enabled, start registration */
-    if (pjsua_var.acc[id].cfg.reg_uri.slen)
-	pjsua_acc_set_registration(id, PJ_TRUE);
-    else {
+    if (pjsua_var.acc[id].cfg.reg_uri.slen) {
+	if (pjsua_var.acc[id].cfg.register_on_acc_add)
+            pjsua_acc_set_registration(id, PJ_TRUE);
+    } else {
 	/* Otherwise subscribe to MWI, if it's enabled */
 	if (pjsua_var.acc[id].cfg.mwi_enabled)
 	    pjsua_start_mwi(&pjsua_var.acc[id]);
@@ -1641,10 +1642,12 @@ static void regc_cb(struct pjsip_regc_cbparam *param)
 
     pjsua_acc *acc = (pjsua_acc*) param->token;
 
-    if (param->regc != acc->regc)
-	return;
-
     PJSUA_LOCK();
+
+    if (param->regc != acc->regc) {
+	PJSUA_UNLOCK();
+	return;
+    }
 
     /*
      * Print registration status.
@@ -2013,6 +2016,10 @@ PJ_DEF(pj_status_t) pjsua_acc_set_registration( pjsua_acc_id acc_id,
 
 	pjsip_regc_get_info(pjsua_var.acc[acc_id].regc, &reg_info);
 	pjsua_var.acc[acc_id].auto_rereg.reg_tp = reg_info.transport;
+        
+        if (pjsua_var.ua_cfg.cb.on_reg_started) {
+            (*pjsua_var.ua_cfg.cb.on_reg_started)(acc_id, renew);
+        }
     }
 
     if (status != PJ_SUCCESS) {

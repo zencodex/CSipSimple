@@ -23,7 +23,9 @@
 #include <string>
 #include <time.h>
 #include <stdlib.h>
+#ifdef ANDROID
 #include <unistd.h>
+#endif
 
 #include <libzrtpcpp/ZIDFile.h>
 

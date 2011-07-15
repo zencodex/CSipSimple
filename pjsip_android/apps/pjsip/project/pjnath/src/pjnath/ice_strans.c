@@ -1,4 +1,4 @@
-/* $Id: ice_strans.c 3553 2011-05-05 06:14:19Z nanang $ */
+/* $Id: ice_strans.c 3596 2011-06-22 10:57:11Z bennylp $ */
 /* 
  * Copyright (C) 2008-2011 Teluu Inc. (http://www.teluu.com)
  * Copyright (C) 2003-2008 Benny Prijono <benny@prijono.org>
@@ -1183,6 +1183,12 @@ PJ_DEF(pj_status_t) pj_ice_strans_sendto( pj_ice_strans *ice_st,
 				  ~(PJ_STUN_SESS_LOG_TX_IND|
 				    PJ_STUN_SESS_LOG_RX_IND)
 	    };
+
+	    /* https://trac.pjsip.org/repos/ticket/1316 */
+	    if (comp->turn_sock == NULL) {
+		/* TURN socket error */
+		return PJ_EINVALIDOP;
+	    }
 
 	    if (!comp->turn_log_off) {
 		/* Disable logging for Send/Data indications */

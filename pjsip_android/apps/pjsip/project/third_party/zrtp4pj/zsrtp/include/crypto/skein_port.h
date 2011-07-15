@@ -17,8 +17,10 @@
 
 #include <crypto/brg_types.h>                      /* get integer type definitions */
 
-//r3gis3r : don't need that on android : TODO add a ifdef
-//typedef unsigned int    uint_t;             /* native unsigned integer */
+//r3gis3r : android already has that defined in types
+#ifndef ANDROID
+typedef unsigned int    uint_t;             /* native unsigned integer */
+#endif
 typedef uint_8t         u08b_t;             /*  8-bit unsigned integer */
 typedef uint_64t        u64b_t;             /* 64-bit unsigned integer */
 

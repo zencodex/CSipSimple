@@ -23,6 +23,43 @@ static pj_bool_t on_rx_request_tcp_hack(pjsip_rx_data *rdata);
 
 PJ_BEGIN_DECL
 
+// css config
+typedef struct csipsimple_config {
+    /**
+     * Use compact form for sdp
+     */
+	pj_bool_t use_compact_form_sdp;
+
+	/**
+	* Use compact form for header
+	*/
+	pj_bool_t use_compact_form_headers;
+
+	/**
+	 * For to send no update and use re-invite instead
+	 */
+	pj_bool_t use_no_update;
+
+	/**
+	 * Turn username
+	 */
+	pj_str_t turn_username;
+
+	/**
+	 * Turn password
+	 */
+	pj_str_t turn_password;
+
+	/**
+	 * Use ZRTP
+	 */
+	pj_bool_t use_zrtp;
+
+
+} csipsimple_config;
+
+
+// methods
 PJ_DECL(int) codecs_get_nbr();
 PJ_DECL(pj_str_t) codecs_get_id(int codec_id) ;
 PJ_DECL(pj_status_t) test_audio_dev(unsigned int clock_rate, unsigned int ptime);
@@ -33,14 +70,17 @@ PJ_DECL(pj_bool_t) can_use_srtp();
 PJ_DECL(pj_bool_t) is_call_secure(pjsua_call_id call_id);
 PJ_DECL(pj_status_t) media_transports_create_ipv6(pjsua_transport_config rtp_cfg);
 PJ_DECL(pj_str_t) get_error_message(int status);
+
+PJ_DECL(void) csipsimple_config_default(csipsimple_config *css_cfg);
 PJ_DECL(pj_status_t) csipsimple_init(pjsua_config *ua_cfg,
 				pjsua_logging_config *log_cfg,
-				pjsua_media_config *media_cfg);
+				pjsua_media_config *media_cfg,
+				csipsimple_config *css_cfg);
 PJ_DECL(pj_status_t) csipsimple_destroy(void);
 PJ_DECL(pj_status_t) send_keep_alive(int acc_id);
-PJ_DECL(pj_status_t) set_turn_cfg(pjsua_media_config *media_cfg, pj_str_t username, pj_str_t data);
-PJ_DECL(void) set_use_compact_form(pj_bool_t use_compact_form);
-PJ_DECL(void) set_no_update(pj_bool_t use_no_update);
+
+
+
 PJ_END_DECL
 
 #endif

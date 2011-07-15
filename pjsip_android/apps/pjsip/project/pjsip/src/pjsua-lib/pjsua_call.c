@@ -1,4 +1,4 @@
-/* $Id: pjsua_call.c 3574 2011-05-20 10:29:45Z nanang $ */
+/* $Id: pjsua_call.c 3584 2011-06-16 03:49:51Z bennylp $ */
 /* 
  * Copyright (C) 2008-2011 Teluu Inc. (http://www.teluu.com)
  * Copyright (C) 2003-2008 Benny Prijono <benny@prijono.org>
@@ -2184,14 +2184,15 @@ PJ_DEF(void) pjsua_call_hangup_all(void)
 {
     unsigned i;
 
-    PJSUA_LOCK();
+    // This may deadlock, see https://trac.pjsip.org/repos/ticket/1305
+    //PJSUA_LOCK();
 
     for (i=0; i<pjsua_var.ua_cfg.max_calls; ++i) {
 	if (pjsua_var.calls[i].inv)
 	    pjsua_call_hangup(i, 0, NULL, NULL);
     }
 
-    PJSUA_UNLOCK();
+    //PJSUA_UNLOCK();
 }
 
 

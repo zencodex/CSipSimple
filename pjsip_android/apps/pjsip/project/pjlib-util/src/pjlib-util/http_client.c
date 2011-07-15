@@ -1,4 +1,4 @@
-/* $Id: http_client.c 3553 2011-05-05 06:14:19Z nanang $ */
+/* $Id: http_client.c 3600 2011-06-29 12:59:11Z bennylp $ */
 /* 
  * Copyright (C) 2008-2011 Teluu Inc. (http://www.teluu.com)
  *
@@ -1345,7 +1345,7 @@ static pj_status_t auth_respond_digest(pj_http_req *hreq)
 	 */
 	const pj_str_t STR_MD5 = { "MD5", 3 };
 	const pj_str_t qop = pj_str("auth");
-	const pj_str_t nc = pj_str("1");
+	const pj_str_t nc = pj_str("00000001");
 	const pj_str_t cnonce = pj_str("b39971");
 
 	auth_create_digest_response(&digest_response, cred,

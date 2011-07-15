@@ -374,6 +374,7 @@ static struct pjsua_callback wrapper_callback_struct = {
 	&on_call_transfer_status_wrapper,
 	&on_call_replace_request_wrapper,
 	&on_call_replaced_wrapper,
+	NULL, // on_reg_started
 	&on_reg_state_wrapper,
 	NULL, //on_reg2_state
 	NULL, // incoming subscribe &on_incoming_subscribe_wrapper,

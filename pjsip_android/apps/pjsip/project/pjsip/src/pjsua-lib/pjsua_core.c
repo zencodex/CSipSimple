@@ -1,4 +1,4 @@
-/* $Id: pjsua_core.c 3553 2011-05-05 06:14:19Z nanang $ */
+/* $Id: pjsua_core.c 3594 2011-06-22 08:00:20Z bennylp $ */
 /* 
  * Copyright (C) 2008-2011 Teluu Inc. (http://www.teluu.com)
  * Copyright (C) 2003-2008 Benny Prijono <benny@prijono.org>
@@ -190,10 +190,10 @@ PJ_DEF(void) pjsua_acc_config_default(pjsua_acc_config *cfg)
 #if defined(PJMEDIA_STREAM_ENABLE_KA) && PJMEDIA_STREAM_ENABLE_KA!=0
     cfg->use_stream_ka = (PJMEDIA_STREAM_ENABLE_KA != 0);
 #endif
-    cfg->use_zrtp = PJSUA_DEFAULT_USE_ZRTP;
     pj_list_init(&cfg->reg_hdr_list);
     pj_list_init(&cfg->sub_hdr_list);
     cfg->call_hold_type = PJSUA_CALL_HOLD_TYPE_DEFAULT;
+    cfg->register_on_acc_add = PJ_TRUE;
 }
 
 PJ_DEF(void) pjsua_buddy_config_default(pjsua_buddy_config *cfg)
@@ -563,13 +563,12 @@ static int worker_thread(void *arg)
 {
 	//r3gis3r : increased for Galaxy S
     enum { TIMEOUT = 500 };
-    PJ_LOG(2, (THIS_FILE, ">>> Init worker thread "));
 
     PJ_UNUSED_ARG(arg);
 
     while (!pjsua_var.thread_quit_flag) {
 	int count;
-	//PJ_LOG(4, (THIS_FILE, ">>> worker thread %d / prio %d", count, pj_thread_get_prio(pj_thread_this())));
+
 	count = pjsua_handle_events(TIMEOUT);
 	if (count < 0)
 	    pj_thread_sleep(TIMEOUT);

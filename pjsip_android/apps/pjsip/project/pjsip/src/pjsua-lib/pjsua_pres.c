@@ -1,4 +1,4 @@
-/* $Id: pjsua_pres.c 3553 2011-05-05 06:14:19Z nanang $ */
+/* $Id: pjsua_pres.c 3604 2011-07-07 04:35:00Z bennylp $ */
 /* 
  * Copyright (C) 2008-2011 Teluu Inc. (http://www.teluu.com)
  * Copyright (C) 2003-2008 Benny Prijono <benny@prijono.org>
@@ -2174,6 +2174,10 @@ static void pres_timer_cb(pj_timer_heap_t *th,
     /* Retry failed PUBLISH and MWI SUBSCRIBE requests */
     for (i=0; i<PJ_ARRAY_SIZE(pjsua_var.acc); ++i) {
 	pjsua_acc *acc = &pjsua_var.acc[i];
+
+	/* Acc may not be ready yet, otherwise assertion will happen */
+	if (!pjsua_acc_is_valid(i))
+	    continue;
 
 	/* Retry PUBLISH */
 	if (acc->cfg.publish_enabled && acc->publish_sess==NULL)
