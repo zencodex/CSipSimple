@@ -58,6 +58,7 @@
 %apply pjsua_call_id *OUTPUT { pjsua_call_id *p_call_id };
 %apply pjsua_transport_id *OUTPUT { pjsua_transport_id *p_id };
 %apply pjsua_recorder_id *OUTPUT { pjsua_recorder_id *p_id };
+%apply pjsua_player_id *OUTPUT { pjsua_player_id *p_id };
 %apply unsigned *INOUT { unsigned *count };
 %apply int *OUTPUT { int *capture_dev };
 %apply int *OUTPUT { int *playback_dev };
@@ -392,7 +393,7 @@ static struct pjsua_callback wrapper_callback_struct = {
 	&on_mwi_info_wrapper,
 	NULL, //on_transport_state
 	NULL, //on_ice_transport_error
-	NULL //on_zrtp_transport_created
+	NULL //on_media_transport_created
 };
 
 void setCallbackObject(Callback* callback) {
