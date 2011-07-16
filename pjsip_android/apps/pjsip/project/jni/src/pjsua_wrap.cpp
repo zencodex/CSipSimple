@@ -15905,11 +15905,12 @@ SWIGEXPORT jint JNICALL Java_org_pjsip_pjsua_pjsuaJNI_conf_1get_1signal_1level(J
 }
 
 
-SWIGEXPORT jint JNICALL Java_org_pjsip_pjsua_pjsuaJNI_player_1create(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_, jlong jarg2, jlong jarg3) {
+SWIGEXPORT jint JNICALL Java_org_pjsip_pjsua_pjsuaJNI_player_1create(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_, jlong jarg2, jintArray jarg3) {
   jint jresult = 0 ;
   pj_str_t *arg1 = (pj_str_t *) 0 ;
   unsigned int arg2 ;
   pjsua_player_id *arg3 = (pjsua_player_id *) 0 ;
+  pjsua_player_id temp3 ;
   pj_status_t result;
   
   (void)jenv;
@@ -15917,14 +15918,29 @@ SWIGEXPORT jint JNICALL Java_org_pjsip_pjsua_pjsuaJNI_player_1create(JNIEnv *jen
   (void)jarg1_;
   arg1 = *(pj_str_t **)&jarg1; 
   arg2 = (unsigned int)jarg2; 
-  arg3 = *(pjsua_player_id **)&jarg3; 
+  {
+    if (!jarg3) {
+      SWIG_JavaThrowException(jenv, SWIG_JavaNullPointerException, "array null");
+      return 0;
+    }
+    if (jenv->GetArrayLength(jarg3) == 0) {
+      SWIG_JavaThrowException(jenv, SWIG_JavaIndexOutOfBoundsException, "Array must contain at least 1 element");
+      return 0;
+    }
+    arg3 = &temp3; 
+  }
   result = (pj_status_t)pjsua_player_create((pj_str_t const *)arg1,arg2,arg3);
   jresult = (jint)result; 
+  {
+    jint jvalue = (jint)temp3;
+    jenv->SetIntArrayRegion(jarg3, 0, 1, &jvalue);
+  }
+  
   return jresult;
 }
 
 
-SWIGEXPORT jint JNICALL Java_org_pjsip_pjsua_pjsuaJNI_playlist_1create(JNIEnv *jenv, jclass jcls, jlongArray jarg1, jlong jarg2, jlong jarg3, jobject jarg3_, jlong jarg4, jlong jarg5) {
+SWIGEXPORT jint JNICALL Java_org_pjsip_pjsua_pjsuaJNI_playlist_1create(JNIEnv *jenv, jclass jcls, jlongArray jarg1, jlong jarg2, jlong jarg3, jobject jarg3_, jlong jarg4, jintArray jarg5) {
   jint jresult = 0 ;
   pj_str_t *arg1 ;
   unsigned int arg2 ;
@@ -15933,6 +15949,7 @@ SWIGEXPORT jint JNICALL Java_org_pjsip_pjsua_pjsuaJNI_playlist_1create(JNIEnv *j
   pjsua_player_id *arg5 = (pjsua_player_id *) 0 ;
   jlong *jarr1 ;
   jsize sz1 ;
+  pjsua_player_id temp5 ;
   pj_status_t result;
   
   (void)jenv;
@@ -15965,7 +15982,17 @@ SWIGEXPORT jint JNICALL Java_org_pjsip_pjsua_pjsuaJNI_playlist_1create(JNIEnv *j
   arg2 = (unsigned int)jarg2; 
   arg3 = *(pj_str_t **)&jarg3; 
   arg4 = (unsigned int)jarg4; 
-  arg5 = *(pjsua_player_id **)&jarg5; 
+  {
+    if (!jarg5) {
+      SWIG_JavaThrowException(jenv, SWIG_JavaNullPointerException, "array null");
+      return 0;
+    }
+    if (jenv->GetArrayLength(jarg5) == 0) {
+      SWIG_JavaThrowException(jenv, SWIG_JavaIndexOutOfBoundsException, "Array must contain at least 1 element");
+      return 0;
+    }
+    arg5 = &temp5; 
+  }
   result = (pj_status_t)pjsua_playlist_create((pj_str_t const (*))arg1,arg2,(pj_str_t const *)arg3,arg4,arg5);
   jresult = (jint)result; 
   {
@@ -15975,7 +16002,12 @@ SWIGEXPORT jint JNICALL Java_org_pjsip_pjsua_pjsuaJNI_playlist_1create(JNIEnv *j
     }
     jenv->ReleaseLongArrayElements(jarg1, jarr1, 0);
   }
+  {
+    jint jvalue = (jint)temp5;
+    jenv->SetIntArrayRegion(jarg5, 0, 1, &jvalue);
+  }
   delete [] arg1; 
+  
   return jresult;
 }
 
@@ -17919,8 +17951,8 @@ JNIEXPORT jint JNI_OnLoad(JavaVM *vm, void *reserved) {
 {"conf_adjust_tx_level", "(IF)I", (void*)& Java_org_pjsip_pjsua_pjsuaJNI_conf_1adjust_1tx_1level},
 {"conf_adjust_rx_level", "(IF)I", (void*)& Java_org_pjsip_pjsua_pjsuaJNI_conf_1adjust_1rx_1level},
 {"conf_get_signal_level", "(IJJ)I", (void*)& Java_org_pjsip_pjsua_pjsuaJNI_conf_1get_1signal_1level},
-{"player_create", "(JLorg/pjsip/pjsua/pj_str_t;JJ)I", (void*)& Java_org_pjsip_pjsua_pjsuaJNI_player_1create},
-{"playlist_create", "([JJJLorg/pjsip/pjsua/pj_str_t;JJ)I", (void*)& Java_org_pjsip_pjsua_pjsuaJNI_playlist_1create},
+{"player_create", "(JLorg/pjsip/pjsua/pj_str_t;J[I)I", (void*)& Java_org_pjsip_pjsua_pjsuaJNI_player_1create},
+{"playlist_create", "([JJJLorg/pjsip/pjsua/pj_str_t;J[I)I", (void*)& Java_org_pjsip_pjsua_pjsuaJNI_playlist_1create},
 {"player_get_conf_port", "(I)I", (void*)& Java_org_pjsip_pjsua_pjsuaJNI_player_1get_1conf_1port},
 {"player_get_port", "(IJ)I", (void*)& Java_org_pjsip_pjsua_pjsuaJNI_player_1get_1port},
 {"player_set_pos", "(IJ)I", (void*)& Java_org_pjsip_pjsua_pjsuaJNI_player_1set_1pos},
