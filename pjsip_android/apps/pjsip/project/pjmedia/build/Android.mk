@@ -68,6 +68,10 @@ ifeq ($(MY_USE_G7221),1)
 	LOCAL_SRC_FILES += $(PJMEDIACODEC_SRC_DIR)/g7221.c 
 endif
 
+ifeq ($(MY_USE_WEBRTC),1)
+	LOCAL_C_INCLUDES += $(LOCAL_PATH)../third_party/webrtc/
+	LOCAL_SRC_FILES += $(PJLIB_SRC_DIR)/echo_webrtc_aec.c 
+endif
 
 include $(BUILD_STATIC_LIBRARY)
 

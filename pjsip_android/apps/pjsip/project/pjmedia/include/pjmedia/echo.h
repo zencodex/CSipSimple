@@ -70,6 +70,7 @@ typedef enum pjmedia_echo_flag
      */
     PJMEDIA_ECHO_SPEEX	= 1,
 
+
     /**
      * If PJMEDIA_ECHO_SIMPLE flag is specified during echo canceller
      * creation, then a simple echo suppressor will be used instead of
@@ -77,6 +78,12 @@ typedef enum pjmedia_echo_flag
      * with PJMEDIA_ECHO_SPEEX.
      */
     PJMEDIA_ECHO_SIMPLE	= 2,
+
+    /**
+     * Force to use WebRTC AEC as the backend echo canceller algorithm.
+     * This setting is mutually exclusive with PJMEDIA_ECHO_SIMPLE & PJMEDIA_ECHO_SPEEX.
+     */
+    PJMEDIA_ECHO_WEBRTC	= 3,
 
     /**
      * For internal use.
