@@ -68,6 +68,14 @@ ifeq ($(MY_USE_TLS),1)
 	LOCAL_STATIC_LIBRARIES += ssl zrtp4pj crypto 
 endif
 
+ifeq ($(MY_USE_WEBRTC),1)
+ifeq ($(TARGET_ARCH_ABI),armeabi)
+	LOCAL_STATIC_LIBRARIES += libwebrtc_aecm
+else
+	LOCAL_STATIC_LIBRARIES += libwebrtc_aec
+endif
+	LOCAL_STATIC_LIBRARIES += libwebrtc_apm_utility libwebrtc_system_wrappers libwebrtc_spl 
+endif
 
 include $(BUILD_SHARED_LIBRARY)
 
