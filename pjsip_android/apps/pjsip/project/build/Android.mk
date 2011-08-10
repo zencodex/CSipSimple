@@ -3,10 +3,9 @@ TOP_LOCAL_PATH := $(call my-dir)/../
 
 #Add target arm version
 ifeq ($(TARGET_ARCH_ABI),armeabi)
-MY_USE_WEBRTC := 0
 MY_PJSIP_FLAGS := $(BASE_PJSIP_FLAGS) -DPJ_HAS_FLOATING_POINT=0
 else
-MY_PJSIP_FLAGS := $(BASE_PJSIP_FLAGS) -DPJ_HAS_FLOATING_POINT=1
+MY_PJSIP_FLAGS := $(BASE_PJSIP_FLAGS) -DPJ_HAS_FLOATING_POINT=1  -DPJMEDIA_HAS_WEBRTC_CODEC=$(MY_USE_WEBRTC) 
 endif
 
 # Pjsip
@@ -53,13 +52,17 @@ endif
 ifeq ($(MY_USE_G7221),1)
 	include $(TOP_LOCAL_PATH)/third_party/build/g7221/Android.mk
 endif
+
+ifneq ($(TARGET_ARCH_ABI),armeabi)
 ifeq ($(MY_USE_WEBRTC),1)
 #Commons
 	include $(TOP_LOCAL_PATH)/third_party/webrtc/system_wrappers/source/Android.mk
 	include $(TOP_LOCAL_PATH)/third_party/webrtc/modules/audio_processing/utility/Android.mk
 	include $(TOP_LOCAL_PATH)/third_party/webrtc/common_audio/signal_processing_library/main/source/Android.mk
+	include $(TOP_LOCAL_PATH)/third_party/webrtc/common_audio/vad/main/source/Android.mk
+	include $(TOP_LOCAL_PATH)/third_party/webrtc/common_audio/resampler/main/source/Android.mk
 	
-	
+#AEC
 ifeq ($(TARGET_ARCH_ABI),armeabi)
 # AEC fixed // Never reached for now -- have to find out why spl does not build on armeabi
 	include $(TOP_LOCAL_PATH)/third_party/webrtc/modules/audio_processing/aecm/main/source/Android.mk
@@ -67,9 +70,17 @@ else
 # AEC floating
 	include $(TOP_LOCAL_PATH)/third_party/webrtc/modules/audio_processing/aec/main/source/Android.mk
 endif
+
+#CODECS
+	include $(TOP_LOCAL_PATH)/third_party/webrtc/modules/audio_coding/main/source/Android.mk
+	include $(TOP_LOCAL_PATH)/third_party/webrtc/modules/audio_coding/NetEQ/main/source/Android.mk
+	include $(TOP_LOCAL_PATH)/third_party/webrtc/modules/audio_coding/codecs/CNG/main/source/Android.mk
+	include $(TOP_LOCAL_PATH)/third_party/webrtc/modules/audio_coding/codecs/iLBC/main/source/Android.mk
+	include $(TOP_LOCAL_PATH)/third_party/webrtc/modules/audio_coding/codecs/iSAC/main/source/Android.mk
+	include $(TOP_LOCAL_PATH)/third_party/webrtc/modules/audio_coding/codecs/G711/main/source/Android.mk
 	
 endif
-
+endif
 
 
 # pjsip JNI

@@ -21,8 +21,9 @@ MY_WEBRTC_COMMON_DEFS := \
 #    '-DWEBRTC_MODULE_UTILITY_VIDEO' [module media_file] [module utility]
 ifeq ($(TARGET_ARCH),arm)
 MY_WEBRTC_COMMON_DEFS += \
-    '-DWEBRTC_ARM_INLINE_CALLS' \
-    '-DWEBRTC_ARCH_ARM'
+    '-DWEBRTC_ARM_INLINE_CALLS'
+    #Fine - already done by typedef
+    #'-DWEBRTC_ARCH_ARM'
 # TODO: test if the code under next two MACROs works with generic GCC compilers
 ifeq ($(ARCH_ARM_HAVE_NEON),true)
 MY_WEBRTC_COMMON_DEFS += \
@@ -35,3 +36,10 @@ else ifeq ($(TARGET_ARCH),x86)
 MY_WEBRTC_COMMON_DEFS += \
     '-DWEBRTC_USE_SSE2'
 endif
+
+# Disable not wanted (for now) codecs
+# This disable engine internal configuration
+MY_WEBRTC_COMMON_DEFS += \
+	-DWEBRTC_ENGINE_CONFIGURATIONS_H_ \
+	-DWEBRTC_CODEC_ILBC -DWEBRTC_CODEC_ISAC
+	
