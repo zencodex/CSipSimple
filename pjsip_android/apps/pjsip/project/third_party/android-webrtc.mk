@@ -20,8 +20,11 @@ MY_WEBRTC_COMMON_DEFS := \
 #    '-DNETEQ_VOICEENGINE_CODECS' [module audio_coding neteq]
 #    '-DWEBRTC_MODULE_UTILITY_VIDEO' [module media_file] [module utility]
 ifeq ($(TARGET_ARCH),arm)
+ifeq ($(TARGET_ARCH_ABI),armeabi-v7a)
 MY_WEBRTC_COMMON_DEFS += \
     '-DWEBRTC_ARM_INLINE_CALLS'
+endif
+
     #Fine - already done by typedef
     #'-DWEBRTC_ARCH_ARM'
 # TODO: test if the code under next two MACROs works with generic GCC compilers
@@ -38,8 +41,19 @@ MY_WEBRTC_COMMON_DEFS += \
 endif
 
 # Disable not wanted (for now) codecs
-# This disable engine internal configuration
+# This disable engine internal auto configuration and replace by ower settings
 MY_WEBRTC_COMMON_DEFS += \
 	-DWEBRTC_ENGINE_CONFIGURATIONS_H_ \
-	-DWEBRTC_CODEC_ILBC -DWEBRTC_CODEC_ISAC
+	-DWEBRTC_CODEC_ILBC 
+
+#L16 is useless -DWEBRTC_CODEC_PCM16
+
+ifeq ($(TARGET_ARCH_ABI),armeabi)
+#Use fixed isac for armeabi
+MY_WEBRTC_COMMON_DEFS += -DWEBRTC_CODEC_ISACFX
+else
+#Use floating isac for others
+MY_WEBRTC_COMMON_DEFS += -DWEBRTC_CODEC_ISAC
+endif
+
 	

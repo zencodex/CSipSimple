@@ -76,8 +76,9 @@ ifeq ($(MY_USE_WEBRTC),1)
 	LOCAL_SRC_FILES += $(PJLIB_SRC_DIR)/echo_webrtc_aec.c 
 	
 	#CODECS
-	LOCAL_C_INCLUDES += $(LOCAL_PATH)../third_party/webrtc/modules/interface/
-	LOCAL_SRC_FILES += $(PJMEDIACODEC_SRC_DIR)/webrtc.cpp 
+	LOCAL_C_INCLUDES += $(LOCAL_PATH)../third_party/webrtc/modules/interface/ $(LOCAL_PATH)../third_party/webrtc/modules/audio_coding/main/interface/
+	LOCAL_SRC_FILES += $(PJMEDIACODEC_SRC_DIR)/webrtc_codec.cpp $(PJMEDIACODEC_SRC_DIR)/webrtc_coder.cpp 
+	
 endif
 
 include $(BUILD_STATIC_LIBRARY)
