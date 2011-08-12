@@ -75,22 +75,23 @@ ifeq ($(MY_USE_WEBRTC),1)
 	LOCAL_STATIC_LIBRARIES +=  libwebrtc_audio_coding libwebrtc_cng libwebrtc_vad libwebrtc_neteq libwebrtc_resampler
 	
 #Codecs implementations 
-	LOCAL_STATIC_LIBRARIES += libwebrtc_ilbc libwebrtc_isac libwebrtc_g711
-	#libwebrtc_g722 libwebrtc_pcm16b
+	LOCAL_STATIC_LIBRARIES += libwebrtc_ilbc libwebrtc_g711 
+	#libwebrtc_pcm16b
+	#libwebrtc_g722 
 
 # AEC
 ifeq ($(TARGET_ARCH_ABI),armeabi)
-	LOCAL_STATIC_LIBRARIES += libwebrtc_aecm
+	LOCAL_STATIC_LIBRARIES += libwebrtc_isacfix libwebrtc_aecm
 else
-	LOCAL_STATIC_LIBRARIES += libwebrtc_aec
+	LOCAL_STATIC_LIBRARIES += libwebrtc_isac libwebrtc_aec
 endif
 
 #Common
 	LOCAL_STATIC_LIBRARIES += libwebrtc_apm_utility libwebrtc_system_wrappers libwebrtc_spl 
 	
-	
-	
 endif
+
+
 
 include $(BUILD_SHARED_LIBRARY)
 

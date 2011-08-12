@@ -5,8 +5,9 @@ TOP_LOCAL_PATH := $(call my-dir)/../
 ifeq ($(TARGET_ARCH_ABI),armeabi)
 MY_PJSIP_FLAGS := $(BASE_PJSIP_FLAGS) -DPJ_HAS_FLOATING_POINT=0
 else
-MY_PJSIP_FLAGS := $(BASE_PJSIP_FLAGS) -DPJ_HAS_FLOATING_POINT=1  -DPJMEDIA_HAS_WEBRTC_CODEC=$(MY_USE_WEBRTC) 
+MY_PJSIP_FLAGS := $(BASE_PJSIP_FLAGS) -DPJ_HAS_FLOATING_POINT=1
 endif
+
 
 # Pjsip
 include $(TOP_LOCAL_PATH)/pjlib/build/Android.mk
@@ -53,7 +54,6 @@ ifeq ($(MY_USE_G7221),1)
 	include $(TOP_LOCAL_PATH)/third_party/build/g7221/Android.mk
 endif
 
-ifneq ($(TARGET_ARCH_ABI),armeabi)
 ifeq ($(MY_USE_WEBRTC),1)
 #Commons
 	include $(TOP_LOCAL_PATH)/third_party/webrtc/system_wrappers/source/Android.mk
@@ -64,7 +64,7 @@ ifeq ($(MY_USE_WEBRTC),1)
 	
 #AEC
 ifeq ($(TARGET_ARCH_ABI),armeabi)
-# AEC fixed // Never reached for now -- have to find out why spl does not build on armeabi
+# AEC fixed 
 	include $(TOP_LOCAL_PATH)/third_party/webrtc/modules/audio_processing/aecm/main/source/Android.mk
 else
 # AEC floating
@@ -75,11 +75,22 @@ endif
 	include $(TOP_LOCAL_PATH)/third_party/webrtc/modules/audio_coding/main/source/Android.mk
 	include $(TOP_LOCAL_PATH)/third_party/webrtc/modules/audio_coding/NetEQ/main/source/Android.mk
 	include $(TOP_LOCAL_PATH)/third_party/webrtc/modules/audio_coding/codecs/CNG/main/source/Android.mk
-	include $(TOP_LOCAL_PATH)/third_party/webrtc/modules/audio_coding/codecs/iLBC/main/source/Android.mk
-	include $(TOP_LOCAL_PATH)/third_party/webrtc/modules/audio_coding/codecs/iSAC/main/source/Android.mk
 	include $(TOP_LOCAL_PATH)/third_party/webrtc/modules/audio_coding/codecs/G711/main/source/Android.mk
-	
+	include $(TOP_LOCAL_PATH)/third_party/webrtc/modules/audio_coding/codecs/iLBC/main/source/Android.mk
+	#include $(TOP_LOCAL_PATH)/third_party/webrtc/modules/audio_coding/codecs/PCM16B/main/source/Android.mk
+ifeq ($(TARGET_ARCH_ABI),armeabi)
+#Fix codecs
+	include $(TOP_LOCAL_PATH)/third_party/webrtc/modules/audio_coding/codecs/iSAC/fix/source/Android.mk
+else
+#Floating codecs
+	include $(TOP_LOCAL_PATH)/third_party/webrtc/modules/audio_coding/codecs/iSAC/main/source/Android.mk
 endif
+
+# WARN ABOUT DUPLICATE CODEC !
+ifeq ($(MY_USE_ILBC),1)
+$(warning MY_USE_ILBC and MY_USE_WEBRTC will both produce iLBC codec)
+endif
+
 endif
 
 
