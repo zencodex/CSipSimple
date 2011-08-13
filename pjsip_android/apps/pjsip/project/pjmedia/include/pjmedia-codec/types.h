@@ -60,6 +60,13 @@ enum
     PJMEDIA_RTP_PT_START = (PJMEDIA_RTP_PT_DYNAMIC-1),
 #endif
 
+    PJMEDIA_RTP_PT_ILBC,			/**< iLBC (13.3/15.2Kbps)   */ // r3gis3r : changed position cause 102 in webRTC is iLBC
+
+    #if defined(PJMEDIA_HAS_WEBRTC_CODEC) && PJMEDIA_HAS_WEBRTC_CODEC != 0
+    PJMEDIA_RTP_PT_ISAC_WB,
+    PJMEDIA_RTP_PT_ISAC_UWB,
+#endif
+
     PJMEDIA_RTP_PT_SPEEX_NB,			/**< Speex narrowband/8KHz  */
     PJMEDIA_RTP_PT_SPEEX_WB,			/**< Speex wideband/16KHz   */
     PJMEDIA_RTP_PT_SPEEX_UWB,			/**< Speex 32KHz	    */
@@ -77,7 +84,7 @@ enum
     //PJMEDIA_RTP_PT_L16_48KHZ_MONO,		/**< L16 @ 48KHz, mono	    */
     //PJMEDIA_RTP_PT_L16_48KHZ_STEREO,		/**< L16 @ 48KHz, stereo    */
 #endif
-    PJMEDIA_RTP_PT_ILBC,			/**< iLBC (13.3/15.2Kbps)   */
+
 #if ( defined(PJMEDIA_HAS_INTEL_IPP) && PJMEDIA_HAS_INTEL_IPP != 0 ) || ( defined(PJMEDIA_HAS_PASSTHROUGH_CODECS) && PJMEDIA_HAS_PASSTHROUGH_CODECS!=0 )
     PJMEDIA_RTP_PT_AMR,				/**< AMR (4.75 - 12.2Kbps)  */
     PJMEDIA_RTP_PT_AMRWB,			/**< AMRWB (6.6 - 23.85Kbps)*/
