@@ -62,7 +62,7 @@ enum
 
     PJMEDIA_RTP_PT_ILBC,			/**< iLBC (13.3/15.2Kbps)   */ // r3gis3r : changed position cause 102 in webRTC is iLBC
 
-    #if defined(PJMEDIA_HAS_WEBRTC_CODEC) && PJMEDIA_HAS_WEBRTC_CODEC != 0
+#if defined(PJMEDIA_HAS_WEBRTC_CODEC) && PJMEDIA_HAS_WEBRTC_CODEC != 0
     PJMEDIA_RTP_PT_ISAC_WB,
     PJMEDIA_RTP_PT_ISAC_UWB,
 #endif
