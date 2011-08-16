@@ -16914,6 +16914,22 @@ SWIGEXPORT jint JNICALL Java_org_pjsip_pjsua_pjsuaJNI_send_1keep_1alive(JNIEnv *
 }
 
 
+SWIGEXPORT jint JNICALL Java_org_pjsip_pjsua_pjsuaJNI_pj_1timer_1fire(JNIEnv *jenv, jclass jcls, jint jarg1, jint jarg2) {
+  jint jresult = 0 ;
+  int arg1 ;
+  int arg2 ;
+  pj_status_t result;
+  
+  (void)jenv;
+  (void)jcls;
+  arg1 = (int)jarg1; 
+  arg2 = (int)jarg2; 
+  result = (pj_status_t)pj_timer_fire(arg1,arg2);
+  jresult = (jint)result; 
+  return jresult;
+}
+
+
 SWIGEXPORT void JNICALL Java_org_pjsip_pjsua_pjsuaJNI_jzrtp_1SASVerified(JNIEnv *jenv, jclass jcls) {
   (void)jenv;
   (void)jcls;
@@ -18005,6 +18021,7 @@ JNIEXPORT jint JNI_OnLoad(JavaVM *vm, void *reserved) {
 {"csipsimple_init", "(JLorg/pjsip/pjsua/pjsua_config;JLorg/pjsip/pjsua/pjsua_logging_config;JLorg/pjsip/pjsua/pjsua_media_config;JLorg/pjsip/pjsua/csipsimple_config;)I", (void*)& Java_org_pjsip_pjsua_pjsuaJNI_csipsimple_1init},
 {"csipsimple_destroy", "()I", (void*)& Java_org_pjsip_pjsua_pjsuaJNI_csipsimple_1destroy},
 {"send_keep_alive", "(I)I", (void*)& Java_org_pjsip_pjsua_pjsuaJNI_send_1keep_1alive},
+{"pj_timer_fire", "(II)I", (void*)& Java_org_pjsip_pjsua_pjsuaJNI_pj_1timer_1fire},
 {"jzrtp_SASVerified", "()V", (void*)& Java_org_pjsip_pjsua_pjsuaJNI_jzrtp_1SASVerified}
 
 	};
