@@ -1506,15 +1506,13 @@ static void keep_alive_timer_cb(pj_timer_heap_t *th, pj_timer_entry *te)
     }
 
     /* Reschedule next timer */
-    if( acc->cfg.ka_interval > 0){
-		delay.sec = acc->cfg.ka_interval;
-		delay.msec = 0;
-		status = pjsip_endpt_schedule_timer(pjsua_var.endpt, te, &delay);
-		if (status == PJ_SUCCESS) {
-		te->id = PJ_TRUE;
-		} else {
-		pjsua_perror(THIS_FILE, "Error starting keep-alive timer", status);
-		}
+    delay.sec = acc->cfg.ka_interval;
+    delay.msec = 0;
+    status = pjsip_endpt_schedule_timer(pjsua_var.endpt, te, &delay);
+    if (status == PJ_SUCCESS) {
+	te->id = PJ_TRUE;
+    } else {
+	pjsua_perror(THIS_FILE, "Error starting keep-alive timer", status);
     }
 
     PJSUA_UNLOCK();
@@ -1529,8 +1527,7 @@ static void update_keep_alive(pjsua_acc *acc, pj_bool_t start,
     if (acc->ka_timer.id) {
 	pjsip_endpt_cancel_timer(pjsua_var.endpt, &acc->ka_timer);
 	acc->ka_timer.id = PJ_FALSE;
-    }
-    if(acc->ka_transport != NULL){
+
 	pjsip_transport_dec_ref(acc->ka_transport);
 	acc->ka_transport = NULL;
     }
@@ -1558,7 +1555,7 @@ static void update_keep_alive(pjsua_acc *acc, pj_bool_t start,
 	    param->rdata->tp_info.transport->key.type != PJSIP_TRANSPORT_UDP)
 	{
 	    /* Keep alive is not necessary */
-	//    return;
+	    return;
 	}
 
 	/* Save transport and destination address. */
@@ -1567,9 +1564,6 @@ static void update_keep_alive(pjsua_acc *acc, pj_bool_t start,
 	pj_memcpy(&acc->ka_target, &param->rdata->pkt_info.src_addr,
 		  param->rdata->pkt_info.src_addr_len);
 	acc->ka_target_len = param->rdata->pkt_info.src_addr_len;
-
-	//we don't want to use this anymore return right now
-	return;
 
 	/* Setup and start the timer */
 	acc->ka_timer.cb = &keep_alive_timer_cb;
