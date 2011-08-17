@@ -77,9 +77,8 @@ PJ_DECL(pj_status_t) csipsimple_init(pjsua_config *ua_cfg,
 				pjsua_media_config *media_cfg,
 				csipsimple_config *css_cfg);
 PJ_DECL(pj_status_t) csipsimple_destroy(void);
-PJ_DECL(pj_status_t) send_keep_alive(int acc_id);
 PJ_DECL(pj_status_t) pj_timer_fire(int heap_id, int timer_id);
-
+PJ_DECL(pj_status_t) pjsua_acc_clean_all_registrations( pjsua_acc_id acc_id);
 
 
 PJ_END_DECL

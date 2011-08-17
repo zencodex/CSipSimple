@@ -468,46 +468,6 @@ PJ_DECL(pj_status_t) csipsimple_destroy(void){
 
 
 
-// Manage keep alive
-PJ_DECL(pj_status_t) send_keep_alive(int acc_id) {
-	pjsua_acc *acc;
-	pjsip_tpselector tp_sel;
-	pj_status_t status = PJ_SUCCESS;
-
-
-	PJSUA_LOCK();
-
-	acc = &pjsua_var.acc[acc_id];
-
-	if( acc != NULL && acc->ka_transport != NULL ){
-		/* Select the transport to send the packet */
-		pj_bzero(&tp_sel, sizeof(tp_sel));
-		tp_sel.type = PJSIP_TPSELECTOR_TRANSPORT;
-		tp_sel.u.transport = acc->ka_transport;
-
-		PJ_LOG(5,(THIS_FILE,
-			  "Sending %d bytes keep-alive packet for acc %d",
-			  acc->cfg.ka_data.slen, acc->index));
-
-		/* Send raw packet */
-		status = pjsip_tpmgr_send_raw(pjsip_endpt_get_tpmgr(pjsua_var.endpt),
-					  acc->ka_transport->key.type, &tp_sel,
-					  NULL, acc->cfg.ka_data.ptr,
-					  acc->cfg.ka_data.slen,
-					  &acc->ka_target, acc->ka_target_len,
-					  NULL, NULL);
-		if(status != PJ_SUCCESS){
-			PJ_LOG(2, (THIS_FILE, "Impossible to send keep alive to account transport"));
-		}
-	}
-
-	PJSUA_UNLOCK();
-	return status;
-}
-
-
-
-
 
 // Android app glue
 

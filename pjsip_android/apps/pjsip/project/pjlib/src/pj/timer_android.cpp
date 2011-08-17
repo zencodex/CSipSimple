@@ -136,7 +136,7 @@ static int cancel(pj_timer_heap_t *ht, pj_timer_entry *entry, int dont_call) {
 	}
 
 
-	PJ_LOG(4, (THIS_FILE, "Cancel timer %d", entry->_timer_id));
+	PJ_LOG(5, (THIS_FILE, "Cancel timer %d", entry->_timer_id));
 	lock_timer_heap(ht);
 	ht->entries[entry->_timer_id] = NULL;
 	unlock_timer_heap(ht);
