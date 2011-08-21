@@ -467,6 +467,49 @@ PJ_DECL(pj_status_t) csipsimple_destroy(void){
 }
 
 
+void update_active_calls(const pj_str_t *new_ip_addr) {
+	pjsip_tpselector tp_sel;
+	pjsua_init_tpselector(0, &tp_sel); // << 0 is hard coded here for active transportId.  could be passed in if needed.
+	int ndx;
+	for (ndx = 0; ndx < pjsua_var.ua_cfg.max_calls; ++ndx) {
+		pjsua_call *call = &pjsua_var.calls[ndx];
+		if (!call->inv || call->inv->state != PJSIP_INV_STATE_CONFIRMED){
+			continue;
+		}
+
+		// -- TODO : we should do something here about transport,
+		// but something that actually restart media transport for this call
+		// cause copying ip addr somewhere is not valid for stun and nat cases
+		//transport_set_sdp_addr_from_string(call->med_orig, new_ip_addr);
+		//transport_set_sdp_addr_from_string(call->med_tp,   new_ip_addr);
+
+		if (call->local_hold) {
+			pjsua_call_set_hold(ndx, NULL);
+		} else {
+			pjsua_call_reinvite(ndx, PJ_TRUE, NULL);
+		}
+	}
+}
+
+PJ_DECL(pj_status_t) update_transport(const pj_str_t *new_ip_addr) {
+	PJSUA_LOCK();
+
+	PJ_LOG(4, (THIS_FILE,"update_transport to addr = %s", new_ip_addr->ptr));
+	// No need ot check thread cause csipsimple use handler thread
+
+	/*
+	pjsua_transport_config cfg;
+	pjsua_transport_config_default(&cfg);
+	cfg.port = 0;
+
+	pjsua_media_transports_create(&cfg);
+	*/
+	update_active_calls(new_ip_addr);
+
+	PJSUA_UNLOCK();
+	return PJ_SUCCESS;
+}
+
 
 
 // Android app glue
