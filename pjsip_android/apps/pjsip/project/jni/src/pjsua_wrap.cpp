@@ -16930,6 +16930,21 @@ SWIGEXPORT jint JNICALL Java_org_pjsip_pjsua_pjsuaJNI_acc_1clean_1all_1registrat
 }
 
 
+SWIGEXPORT jint JNICALL Java_org_pjsip_pjsua_pjsuaJNI_update_1transport(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_) {
+  jint jresult = 0 ;
+  pj_str_t *arg1 = (pj_str_t *) 0 ;
+  pj_status_t result;
+  
+  (void)jenv;
+  (void)jcls;
+  (void)jarg1_;
+  arg1 = *(pj_str_t **)&jarg1; 
+  result = (pj_status_t)update_transport((pj_str_t const *)arg1);
+  jresult = (jint)result; 
+  return jresult;
+}
+
+
 SWIGEXPORT void JNICALL Java_org_pjsip_pjsua_pjsuaJNI_jzrtp_1SASVerified(JNIEnv *jenv, jclass jcls) {
   (void)jenv;
   (void)jcls;
@@ -18022,6 +18037,7 @@ JNIEXPORT jint JNI_OnLoad(JavaVM *vm, void *reserved) {
 {"csipsimple_destroy", "()I", (void*)& Java_org_pjsip_pjsua_pjsuaJNI_csipsimple_1destroy},
 {"pj_timer_fire", "(II)I", (void*)& Java_org_pjsip_pjsua_pjsuaJNI_pj_1timer_1fire},
 {"acc_clean_all_registrations", "(I)I", (void*)& Java_org_pjsip_pjsua_pjsuaJNI_acc_1clean_1all_1registrations},
+{"update_transport", "(JLorg/pjsip/pjsua/pj_str_t;)I", (void*)& Java_org_pjsip_pjsua_pjsuaJNI_update_1transport},
 {"jzrtp_SASVerified", "()V", (void*)& Java_org_pjsip_pjsua_pjsuaJNI_jzrtp_1SASVerified}
 
 	};

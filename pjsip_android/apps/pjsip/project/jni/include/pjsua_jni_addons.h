@@ -79,7 +79,7 @@ PJ_DECL(pj_status_t) csipsimple_init(pjsua_config *ua_cfg,
 PJ_DECL(pj_status_t) csipsimple_destroy(void);
 PJ_DECL(pj_status_t) pj_timer_fire(int heap_id, int timer_id);
 PJ_DECL(pj_status_t) pjsua_acc_clean_all_registrations( pjsua_acc_id acc_id);
-
+PJ_DECL(pj_status_t) update_transport(const pj_str_t *new_ip_addr);
 
 PJ_END_DECL
 
