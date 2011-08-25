@@ -365,6 +365,19 @@ PJ_DEF(pj_status_t) pj_timer_heap_earliest_time( pj_timer_heap_t * ht,
 PJ_BEGIN_DECL
 PJ_DEF(pj_status_t) pj_timer_fire(int heap_id, int timer_id){
 
+
+    pj_thread_desc  a_thread_desc;
+    pj_thread_t         *a_thread;
+
+    if (!pj_thread_is_registered()) {
+    	char thread_name[160];
+    	int len = pj_ansi_snprintf(thread_name, sizeof(thread_name),
+    						 "timer_thread_%d_%d", heap_id, timer_id);
+    	thread_name[len] = '\0';
+        pj_thread_register(thread_name, a_thread_desc, &a_thread);
+        PJ_LOG(5, (THIS_FILE, "Registered thread %s", thread_name));
+    }
+
 	if(sHeaps[heap_id] != NULL){
 		pj_timer_heap_t *ht = sHeaps[heap_id];
 		lock_timer_heap(ht);
