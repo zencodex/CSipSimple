@@ -116,7 +116,7 @@ static pj_status_t schedule_entry( pj_timer_heap_t *ht,
 		JNIEnv *jni_env = 0;
 		ATTACH_JVM(jni_env);
 
-		jni_env->CallStaticVoidMethod(ht->timer_class, ht->schedule_method, ht->heap_id, entry->_timer_id, ft);
+		jni_env->CallStaticIntMethod(ht->timer_class, ht->schedule_method, ht->heap_id, entry->_timer_id, ft);
 		DETACH_JVM(jni_env);
 
 		return 0;
@@ -144,7 +144,7 @@ static int cancel(pj_timer_heap_t *ht, pj_timer_entry *entry, int dont_call) {
 	// Java stuff
 	JNIEnv *jni_env = 0;
 	ATTACH_JVM(jni_env);
-	jni_env->CallStaticVoidMethod(ht->timer_class, ht->cancel_method, ht->heap_id, entry->_timer_id);
+	jni_env->CallStaticIntMethod(ht->timer_class, ht->cancel_method, ht->heap_id, entry->_timer_id);
 	DETACH_JVM(jni_env);
 
 	if (dont_call == 0) {
