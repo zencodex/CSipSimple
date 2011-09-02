@@ -265,8 +265,8 @@ static pj_status_t g729_default_attr (pjmedia_codec_factory *factory,
 
 
     /* Set default frames per packet to 2 (or 20ms) */
-    //attr->setting.frm_per_pkt = 2;
-    attr->setting.frm_per_pkt = 1;
+    attr->setting.frm_per_pkt = 2;
+    //attr->setting.frm_per_pkt = 1;
 
 #if !PLC_DISABLED
     /* Enable plc by default. */
