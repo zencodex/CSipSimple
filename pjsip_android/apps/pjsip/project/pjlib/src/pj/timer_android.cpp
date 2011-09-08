@@ -80,7 +80,7 @@ PJ_INLINE(void) unlock_timer_heap( pj_timer_heap_t *ht )
 }
 
 
-
+// protected by timer heap lock
 static pj_status_t schedule_entry( pj_timer_heap_t *ht,
 				   pj_timer_entry *entry, 
 				   const pj_time_val *future_time,
@@ -120,12 +120,12 @@ static pj_status_t schedule_entry( pj_timer_heap_t *ht,
 		DETACH_JVM(jni_env);
 
 		return 0;
+    } else{
+    	return PJ_ETOOMANY;
     }
-    else
-	return -1;
 }
 
-
+// Protected by timer heap lock
 static int cancel(pj_timer_heap_t *ht, pj_timer_entry *entry, int dont_call) {
 
 	PJ_CHECK_STACK();
@@ -137,9 +137,11 @@ static int cancel(pj_timer_heap_t *ht, pj_timer_entry *entry, int dont_call) {
 
 
 	PJ_LOG(5, (THIS_FILE, "Cancel timer %d", entry->_timer_id));
-	lock_timer_heap(ht);
+	if(ht->entries[entry->_timer_id] == NULL){
+		PJ_LOG(4, (THIS_FILE, "Huh, pj is cancelling something already unknown..."));
+		return 0;
+	}
 	ht->entries[entry->_timer_id] = NULL;
-	unlock_timer_heap(ht);
 
 	// Java stuff
 	JNIEnv *jni_env = 0;
@@ -244,6 +246,17 @@ PJ_DEF(pj_status_t) pj_timer_heap_create( pj_pool_t *pool,
 
 PJ_DEF(void) pj_timer_heap_destroy( pj_timer_heap_t *ht )
 {
+	int i;
+    lock_timer_heap(ht);
+	for(i=0; i<MAX_ENTRY_PER_HEAP; i++){
+		if(ht->entries[i] != NULL){
+			pj_timer_entry *entry = ht->entries[i];
+		    cancel(ht, entry, 1);
+
+		}
+	}
+    unlock_timer_heap(ht);
+
     if (ht->lock && ht->auto_delete_lock) {
         pj_lock_destroy(ht->lock);
         ht->lock = NULL;
