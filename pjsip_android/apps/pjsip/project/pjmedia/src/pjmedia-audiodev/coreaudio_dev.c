@@ -1,4 +1,4 @@
-/* $Id: coreaudio_dev.c 3553 2011-05-05 06:14:19Z nanang $ */
+/* $Id: coreaudio_dev.c 3674 2011-07-21 10:06:17Z ming $ */
 /*
  * Copyright (C) 2008-2011 Teluu Inc. (http://www.teluu.com)
  *
@@ -1111,7 +1111,17 @@ static void interruptionListener(void *inClientData, UInt32 inInterruption)
 {
     struct stream_list *it, *itBegin;
     pj_status_t status;
-
+    pj_thread_desc thread_desc;
+    pj_thread_t *thread;
+    
+    /* Register the thread with PJLIB, this is must for any external threads
+     * which need to use the PJLIB framework.
+     */
+    if (!pj_thread_is_registered()) {
+	pj_bzero(thread_desc, sizeof(pj_thread_desc));
+	status = pj_thread_register("intListener", thread_desc, &thread);
+    }
+    
     PJ_LOG(3, (THIS_FILE, "Session interrupted! --- %s ---",
 	   inInterruption == kAudioSessionBeginInterruption ?
 	   "Begin Interruption" : "End Interruption"));

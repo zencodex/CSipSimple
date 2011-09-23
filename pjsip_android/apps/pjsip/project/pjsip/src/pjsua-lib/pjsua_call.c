@@ -1,4 +1,4 @@
-/* $Id: pjsua_call.c 3584 2011-06-16 03:49:51Z bennylp $ */
+/* $Id: pjsua_call.c 3771 2011-09-22 08:13:15Z bennylp $ */
 /* 
  * Copyright (C) 2008-2011 Teluu Inc. (http://www.teluu.com)
  * Copyright (C) 2003-2008 Benny Prijono <benny@prijono.org>
@@ -1244,20 +1244,24 @@ pj_status_t acquire_call(const char *title,
 PJ_DEF(pjsua_conf_port_id) pjsua_call_get_conf_port(pjsua_call_id call_id)
 {
     pjsua_call *call;
-    pjsua_conf_port_id port_id;
-    pjsip_dialog *dlg;
-    pj_status_t status;
+    pjsua_conf_port_id port_id = PJSUA_INVALID_ID;
 
     PJ_ASSERT_RETURN(call_id>=0 && call_id<(int)pjsua_var.ua_cfg.max_calls, 
 		     PJ_EINVAL);
 
-    status = acquire_call("pjsua_call_get_conf_port()", call_id, &call, &dlg);
-    if (status != PJ_SUCCESS)
-	return PJSUA_INVALID_ID;
+    /* Use PJSUA_LOCK() instead of acquire_call():
+     *  https://trac.pjsip.org/repos/ticket/1371
+     */
+    PJSUA_LOCK();
 
+    if (!pjsua_call_is_active(call_id))
+	goto on_return;
+
+    call = &pjsua_var.calls[call_id];
     port_id = call->conf_slot;
 
-    pjsip_dlg_dec_lock(dlg);
+on_return:
+    PJSUA_UNLOCK();
 
     return port_id;
 }
@@ -1271,17 +1275,22 @@ PJ_DEF(pj_status_t) pjsua_call_get_info( pjsua_call_id call_id,
 					 pjsua_call_info *info)
 {
     pjsua_call *call;
-    pjsip_dialog *dlg;
-    pj_status_t status;
 
     PJ_ASSERT_RETURN(call_id>=0 && call_id<(int)pjsua_var.ua_cfg.max_calls,
 		     PJ_EINVAL);
 
     pj_bzero(info, sizeof(*info));
 
-    status = acquire_call("pjsua_call_get_info()", call_id, &call, &dlg);
-    if (status != PJ_SUCCESS) {
-	return status;
+    /* Use PJSUA_LOCK() instead of acquire_call():
+     *  https://trac.pjsip.org/repos/ticket/1371
+     */
+    PJSUA_LOCK();
+
+    call = &pjsua_var.calls[call_id];
+
+    if (!call->inv) {
+	PJSUA_UNLOCK();
+	return PJSIP_ESESSIONTERMINATED;
     }
 
     /* id and role */
@@ -1378,7 +1387,7 @@ PJ_DEF(pj_status_t) pjsua_call_get_info( pjsua_call_id call_id,
 	PJ_TIME_VAL_SUB(info->total_duration, call->start_time);
     }
 
-    pjsip_dlg_dec_lock(dlg);
+    PJSUA_UNLOCK();
 
     return PJ_SUCCESS;
 }
@@ -1656,10 +1665,14 @@ PJ_DEF(pj_status_t) pjsua_call_set_hold(pjsua_call_id call_id,
     /* Add additional headers etc */
     pjsua_process_msg_data( tdata, msg_data);
 
+    /* Record the tx_data to keep track the operation */
+    call->hold_msg = (void*) tdata;
+
     /* Send the request */
     status = pjsip_inv_send_msg( call->inv, tdata);
     if (status != PJ_SUCCESS) {
 	pjsua_perror(THIS_FILE, "Unable to send re-INVITE", status);
+	call->hold_msg = NULL;
 	pjsip_dlg_dec_lock(dlg);
 	return status;
     }
@@ -4396,7 +4409,20 @@ static void pjsua_call_on_tsx_state_changed(pjsip_inv_session *inv,
 						    &tsx->status_text);
 	    }
 	}
+    } else if (tsx->role == PJSIP_ROLE_UAC &&
+	       tsx->last_tx == (pjsip_tx_data*)call->hold_msg &&
+	       tsx->state >= PJSIP_TSX_STATE_COMPLETED)
+    {
+	/* Monitor the status of call hold request */
+	call->hold_msg = NULL;
+	if (tsx->status_code/100 != 2) {
+	    /* Outgoing call hold failed */
+	    call->local_hold = PJ_FALSE;
+	    PJ_LOG(3,(THIS_FILE, "Error putting call %d on hold (reason=%d)",
+		      call->index, tsx->status_code));
+	}
     }
+
 
 
     PJSUA_UNLOCK();

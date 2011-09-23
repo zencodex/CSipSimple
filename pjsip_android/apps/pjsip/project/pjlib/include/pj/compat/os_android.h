@@ -138,6 +138,10 @@
 #define PJ_HAS_SOCKLEN_T		1
 
 
+#  define PJ_IS_LITTLE_ENDIAN	1
+#  define PJ_IS_BIG_ENDIAN	0
+
+
 #endif	/* __PJ_COMPAT_OS_ANDROID_H__ */
 
 

@@ -1,4 +1,4 @@
-/* $Id: pjsua.h 3594 2011-06-22 08:00:20Z bennylp $ */
+/* $Id: pjsua.h 3762 2011-09-21 07:38:22Z bennylp $ */
 /* 
  * Copyright (C) 2008-2011 Teluu Inc. (http://www.teluu.com)
  * Copyright (C) 2003-2008 Benny Prijono <benny@prijono.org>
@@ -2519,11 +2519,26 @@ typedef struct pjsua_acc_config
     /**
      * Specify interval of auto registration retry upon registration failure
      * (including caused by transport problem), in second. Set to 0 to
-     * disable auto re-registration.
+     * disable auto re-registration. Note that if the registration retry
+     * occurs because of transport failure, the first retry will be done
+     * after \a reg_first_retry_interval seconds instead. Also note that
+     * the interval will be randomized slightly by approximately +/- ten
+     * seconds to avoid all clients re-registering at the same time.
+     *
+     * See also \a reg_first_retry_interval setting.
      *
      * Default: #PJSUA_REG_RETRY_INTERVAL
      */
     unsigned	     reg_retry_interval;
+
+    /**
+     * This specifies the interval for the first registration retry. The
+     * registration retry is explained in \a reg_retry_interval. Note that
+     * the value here will also be randomized by +/- ten seconds.
+     *
+     * Default: 0
+     */
+    unsigned	     reg_first_retry_interval;
 
     /**
      * Specify whether calls of the configured account should be dropped

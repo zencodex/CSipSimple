@@ -1,4 +1,4 @@
-/* $Id: config.h 3556 2011-05-05 10:49:02Z nanang $ */
+/* $Id: config.h 3766 2011-09-22 02:42:01Z bennylp $ */
 /* 
  * Copyright (C) 2008-2011 Teluu Inc. (http://www.teluu.com)
  * Copyright (C) 2003-2008 Benny Prijono <benny@prijono.org>
@@ -171,7 +171,7 @@
 #elif defined(PJ_M_IA64) || defined(__ia64__) || defined(_IA64) || \
 	defined(__IA64__) || defined( 	_M_IA64)
     /*
-     * Intel IA64 processor, little endian
+     * Intel IA64 processor, default to little endian
      */
 #   undef PJ_M_IA64
 #   define PJ_M_IA64		1
@@ -209,15 +209,14 @@
 #elif defined(PJ_M_MIPS) || defined(__mips__) || defined(__mips) || \
 	defined(__MIPS__) || defined(MIPS) || defined(_MIPS_)
     /*
-     * MIPS, default to little endian
+     * MIPS, bi-endian, so raise error if endianness is not configured
      */
 #   undef PJ_M_MIPS
 #   define PJ_M_MIPS		1
 #   define PJ_M_NAME		"mips"
 #   define PJ_HAS_PENTIUM	0
-#   if !defined(PJ_IS_LITTLE_ENDIAN) && !defined(PJ_IS_BIG_ENDIAN)
-#   	define PJ_IS_LITTLE_ENDIAN	1
-#   	define PJ_IS_BIG_ENDIAN		0
+#   if !PJ_IS_LITTLE_ENDIAN && !PJ_IS_BIG_ENDIAN
+#   	error Endianness must be declared for this processor
 #   endif
 
 
@@ -235,29 +234,29 @@
 #elif defined (PJ_M_ARMV4) || defined(ARM) || defined(_ARM_) ||  \
 	defined(ARMV4) || defined(__arm__)
     /*
-     * ARM, default to little endian
+     * ARM, bi-endian, so raise error if endianness is not configured
      */
 #   undef PJ_M_ARMV4
 #   define PJ_M_ARMV4		1
 #   define PJ_M_NAME		"armv4"
 #   define PJ_HAS_PENTIUM	0
-#   if !defined(PJ_IS_LITTLE_ENDIAN) && !defined(PJ_IS_BIG_ENDIAN)
-#	define PJ_IS_LITTLE_ENDIAN	1
-#	define PJ_IS_BIG_ENDIAN		0
+#   if !PJ_IS_LITTLE_ENDIAN && !PJ_IS_BIG_ENDIAN
+#   	error Endianness must be declared for this processor
 #   endif
 
 #elif defined (PJ_M_POWERPC) || defined(__powerpc) || defined(__powerpc__) || \
 	defined(__POWERPC__) || defined(__ppc__) || defined(_M_PPC) || \
 	defined(_ARCH_PPC)
     /*
-     * PowerPC, big endian
+     * PowerPC, bi-endian, so raise error if endianness is not configured
      */
 #   undef PJ_M_POWERPC
 #   define PJ_M_POWERPC		1
 #   define PJ_M_NAME		"powerpc"
 #   define PJ_HAS_PENTIUM	0
-#   define PJ_IS_LITTLE_ENDIAN	0
-#   define PJ_IS_BIG_ENDIAN	1
+#   if !PJ_IS_LITTLE_ENDIAN && !PJ_IS_BIG_ENDIAN
+#   	error Endianness must be declared for this processor
+#   endif
 
 #elif defined (PJ_M_NIOS2) || defined(__nios2) || defined(__nios2__) || \
       defined(__NIOS2__) || defined(__M_NIOS2) || defined(_ARCH_NIOS2)
@@ -1129,16 +1128,16 @@ PJ_BEGIN_DECL
 #define PJ_VERSION_NUM_MAJOR	1
 
 /** PJLIB version minor number. */
-#define PJ_VERSION_NUM_MINOR	8
+#define PJ_VERSION_NUM_MINOR	10
 
 /** PJLIB version revision number. */
-#define PJ_VERSION_NUM_REV	10
+#define PJ_VERSION_NUM_REV	0
 
 /**
  * Extra suffix for the version (e.g. "-trunk"), or empty for
  * web release version.
  */
-#define PJ_VERSION_NUM_EXTRA	"-trunk"
+#define PJ_VERSION_NUM_EXTRA	"-svn"
 
 /**
  * PJLIB version number consists of three bytes with the following format:

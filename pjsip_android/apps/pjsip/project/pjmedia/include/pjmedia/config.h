@@ -1,4 +1,4 @@
-/* $Id: config.h 3553 2011-05-05 06:14:19Z nanang $ */
+/* $Id: config.h 3745 2011-09-08 06:47:28Z bennylp $ */
 /* 
  * Copyright (C) 2008-2011 Teluu Inc. (http://www.teluu.com)
  * Copyright (C) 2003-2008 Benny Prijono <benny@prijono.org>
@@ -387,12 +387,22 @@
 
 
 /**
- * Number of packets received from different source IP address from the
+ * Number of RTP packets received from different source IP address from the
  * remote address required to make the stream switch transmission
  * to the source address.
  */
 #ifndef PJMEDIA_RTP_NAT_PROBATION_CNT	
 #  define PJMEDIA_RTP_NAT_PROBATION_CNT		10
+#endif
+
+
+/**
+ * Number of RTCP packets received from different source IP address from the
+ * remote address required to make the stream switch RTCP transmission
+ * to the source address.
+ */
+#ifndef PJMEDIA_RTCP_NAT_PROBATION_CNT
+#  define PJMEDIA_RTCP_NAT_PROBATION_CNT	3
 #endif
 
 
