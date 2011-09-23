@@ -1,4 +1,4 @@
-/* $Id: pjsua_acc.c 3594 2011-06-22 08:00:20Z bennylp $ */
+/* $Id: pjsua_acc.c 3770 2011-09-22 07:41:43Z bennylp $ */
 /* 
  * Copyright (C) 2008-2011 Teluu Inc. (http://www.teluu.com)
  * Copyright (C) 2003-2008 Benny Prijono <benny@prijono.org>
@@ -960,6 +960,7 @@ PJ_DEF(pj_status_t) pjsua_acc_modify( pjsua_acc_id acc_id,
     acc->cfg.unreg_timeout = cfg->unreg_timeout;
     acc->cfg.allow_contact_rewrite = cfg->allow_contact_rewrite;
     acc->cfg.reg_retry_interval = cfg->reg_retry_interval;
+    acc->cfg.reg_first_retry_interval = cfg->reg_first_retry_interval;
     acc->cfg.drop_calls_on_reg_fail = cfg->drop_calls_on_reg_fail;
     if (acc->cfg.reg_delay_before_refresh != cfg->reg_delay_before_refresh) {
         acc->cfg.reg_delay_before_refresh = cfg->reg_delay_before_refresh;
@@ -2533,10 +2534,11 @@ PJ_DEF(pj_status_t) pjsua_acc_create_uac_contact( pj_pool_t *pool,
 
     contact->ptr = (char*)pj_pool_alloc(pool, PJSIP_MAX_URL_SIZE);
     contact->slen = pj_ansi_snprintf(contact->ptr, PJSIP_MAX_URL_SIZE,
-				     "%.*s%s<%s:%.*s%s%s%.*s%s:%d%s%.*s%s>%.*s",
+				     "%s%.*s%s<%s:%.*s%s%s%.*s%s:%d%s%.*s%s>%.*s",
+				     (acc->display.slen?"\"" : ""),
 				     (int)acc->display.slen,
 				     acc->display.ptr,
-				     (acc->display.slen?" " : ""),
+				     (acc->display.slen?"\" " : ""),
 				     (secure ? PJSUA_SECURE_SCHEME : "sip"),
 				     (int)user_tmp.slen,
 				     user_tmp.ptr,
@@ -2691,10 +2693,11 @@ PJ_DEF(pj_status_t) pjsua_acc_create_uas_contact( pj_pool_t *pool,
     /* Create the contact header */
     contact->ptr = (char*) pj_pool_alloc(pool, PJSIP_MAX_URL_SIZE);
     contact->slen = pj_ansi_snprintf(contact->ptr, PJSIP_MAX_URL_SIZE,
-				     "%.*s%s<%s:%.*s%s%s%.*s%s:%d%s%.*s>%.*s",
+				     "%s%.*s%s<%s:%.*s%s%s%.*s%s:%d%s%.*s>%.*s",
+				     (acc->display.slen?"\"" : ""),
 				     (int)acc->display.slen,
 				     acc->display.ptr,
-				     (acc->display.slen?" " : ""),
+				     (acc->display.slen?"\" " : ""),
 				     (secure ? PJSUA_SECURE_SCHEME : "sip"),
 				     (int)acc->user_part.slen,
 				     acc->user_part.ptr,
@@ -2811,8 +2814,23 @@ static void schedule_reregistration(pjsua_acc *acc)
     acc->auto_rereg.timer.user_data = acc;
 
     /* Reregistration attempt. The first attempt will be done immediately. */
-    delay.sec = acc->auto_rereg.attempt_cnt? acc->cfg.reg_retry_interval : 0;
+    delay.sec = acc->auto_rereg.attempt_cnt? acc->cfg.reg_retry_interval :
+					     acc->cfg.reg_first_retry_interval;
     delay.msec = 0;
+
+    /* Randomize interval by +/- 10 secs */
+    if (delay.sec >= 10) {
+	delay.msec = -10000 + (pj_rand() % 20000);
+    } else {
+	delay.sec = 0;
+	delay.msec = (pj_rand() % 10000);
+    }
+    pj_time_val_normalize(&delay);
+
+    PJ_LOG(4,(THIS_FILE,
+	      "Scheduling re-registration retry for acc %d in %u seconds..",
+	      acc->index, delay.sec));
+
     pjsua_schedule_timer(&acc->auto_rereg.timer, &delay);
 }
 

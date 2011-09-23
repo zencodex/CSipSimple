@@ -1,4 +1,4 @@
-/* $Id: pjsua_internal.h 3553 2011-05-05 06:14:19Z nanang $ */
+/* $Id: pjsua_internal.h 3749 2011-09-15 10:09:44Z bennylp $ */
 /* 
  * Copyright (C) 2008-2011 Teluu Inc. (http://www.teluu.com)
  * Copyright (C) 2003-2008 Benny Prijono <benny@prijono.org>
@@ -63,6 +63,7 @@ typedef struct pjsua_call
     int			 secure_level;/**< Signaling security level.	    */
     pjsua_call_hold_type call_hold_type; /**< How to do call hold.	    */
     pj_bool_t		 local_hold;/**< Flag for call-hold by local.	    */
+    void		*hold_msg;  /**< Outgoing hold tx_data.		    */
     pjsua_call_media_status media_st;/**< Media state.			    */
     pjmedia_dir		 media_dir; /**< Media direction.		    */
     pjmedia_session	*session;   /**< The media session.		    */

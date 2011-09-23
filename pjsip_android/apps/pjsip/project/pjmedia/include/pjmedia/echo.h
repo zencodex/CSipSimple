@@ -70,7 +70,6 @@ typedef enum pjmedia_echo_flag
      */
     PJMEDIA_ECHO_SPEEX	= 1,
 
-
     /**
      * If PJMEDIA_ECHO_SIMPLE flag is specified during echo canceller
      * creation, then a simple echo suppressor will be used instead of

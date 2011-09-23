@@ -1,4 +1,4 @@
-/* $Id: config.h 3553 2011-05-05 06:14:19Z nanang $ */
+/* $Id: config.h 3748 2011-09-09 09:51:10Z nanang $ */
 /* 
  * Copyright (C) 2008-2011 Teluu Inc. (http://www.teluu.com)
  * Copyright (C) 2003-2008 Benny Prijono <benny@prijono.org>
@@ -141,6 +141,21 @@ PJ_BEGIN_DECL
  */
 #ifndef PJMEDIA_AUDIO_DEV_HAS_SYMB_MDA
 #   define PJMEDIA_AUDIO_DEV_HAS_SYMB_MDA	PJ_SYMBIAN
+#endif
+
+
+/**
+ * This setting controls whether the Symbian audio with built-in multimedia
+ * framework backend should be started synchronously. Note that synchronous
+ * start will block the application/UI, e.g: about 40ms for each direction
+ * on N95. While asynchronous start may cause invalid value (always zero)
+ * returned in input/output volume query, if the query is performed when
+ * the internal start procedure is not completely finished.
+ * 
+ * Default: 1 (yes)
+ */
+#ifndef PJMEDIA_AUDIO_DEV_MDA_USE_SYNC_START
+#   define PJMEDIA_AUDIO_DEV_MDA_USE_SYNC_START	1
 #endif
 
 

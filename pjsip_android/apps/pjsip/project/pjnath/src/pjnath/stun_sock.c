@@ -1,4 +1,4 @@
-/* $Id: stun_sock.c 3553 2011-05-05 06:14:19Z nanang $ */
+/* $Id: stun_sock.c 3765 2011-09-22 01:31:21Z bennylp $ */
 /* 
  * Copyright (C) 2008-2011 Teluu Inc. (http://www.teluu.com)
  * Copyright (C) 2003-2008 Benny Prijono <benny@prijono.org>
@@ -120,10 +120,11 @@ PJ_DEF(const char*) pj_stun_sock_op_name(pj_stun_sock_op op)
 	"?",
 	"DNS resolution",
 	"STUN Binding request",
-	"Keep-alive"
+	"Keep-alive",
+	"Mapped addr. changed"
     };
 
-    return op <= PJ_STUN_SOCK_KEEP_ALIVE_OP ? names[op] : "?";
+    return op < PJ_ARRAY_SIZE(names) ? names[op] : "???";
 };
 
 
