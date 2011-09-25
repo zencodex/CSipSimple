@@ -2074,6 +2074,7 @@ typedef struct pjsua_acc_config
     pj_bool_t	     srtp_optional_dup_offer;
 #endif
     unsigned	     reg_retry_interval;
+    unsigned	     reg_first_retry_interval;
     pj_bool_t	     drop_calls_on_reg_fail;
     unsigned	     reg_use_proxy;
 #if defined(PJMEDIA_STREAM_ENABLE_KA) && (PJMEDIA_STREAM_ENABLE_KA != 0)
