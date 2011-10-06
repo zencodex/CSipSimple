@@ -408,11 +408,11 @@ PJ_DEF(pj_status_t) pj_timer_fire(int heap_id, int timer_id){
 			unlock_timer_heap(ht);
 			// TODO : make sure entry is not to fire in the future...
 
-			PJ_LOG(4, (THIS_FILE, "FIRE 1 : %d", timer_id));
+			PJ_LOG(5, (THIS_FILE, "FIRE 1 : %d", timer_id));
 			if(entry->cb){
 				entry->cb(ht, entry);
 			}
-			PJ_LOG(4, (THIS_FILE, "FIRE 2 : %d", timer_id));
+			PJ_LOG(5, (THIS_FILE, "FIRE 2 : %d", timer_id));
 
 			lock_timer_heap(ht);
 			// CB done, drop current event
