@@ -210,6 +210,17 @@ pj_status_t pjsua_media_subsys_init(const pjsua_media_config *cfg)
     }
 #endif /* PJMEDIA_HAS_WEBRTC_CODEC */
 
+#if PJMEDIA_HAS_AMR_STAGEFRIGHT_CODEC
+    /* Register AMR */
+    status = pjmedia_codec_amr_init(pjsua_var.med_endpt);
+    if (status != PJ_SUCCESS) {
+	pjsua_perror(THIS_FILE, "Error initializing AMR codec",
+		     status);
+	return status;
+    }
+#endif /* PJMEDIA_HAS_AMR_STAGEFRIGHT_CODEC */
+
+
 #if PJMEDIA_HAS_CODEC2_CODEC
     /* Register CODEC2 */
     status = pjmedia_codec_codec2_init(pjsua_var.med_endpt);
@@ -775,6 +786,10 @@ pj_status_t pjsua_media_subsys_destroy(void)
 #	if PJMEDIA_HAS_WEBRTC_CODEC
 	    pjmedia_codec_webrtc_deinit();
 #	endif /* PJMEDIA_HAS_WEBRTC_CODEC */
+
+#	if PJMEDIA_HAS_AMR_STAGEFRIGHT_CODEC
+	    pjmedia_codec_amr_deinit();
+#	endif /* PJMEDIA_HAS_AMR_STAGEFRIGHT_CODEC */
 
 #	if PJMEDIA_HAS_CODEC2_CODEC
 	    pjmedia_codec_codec2_deinit();

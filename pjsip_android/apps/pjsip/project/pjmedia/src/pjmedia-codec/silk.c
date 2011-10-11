@@ -364,7 +364,7 @@ static pj_status_t silk_default_attr( pjmedia_codec_factory *factory,
 }
 
 /*
- * Enum codecs supported by this factory (for now only support SILK 16kHz).
+ * Enum codecs supported by this factory.
  */
 static pj_status_t silk_enum_codecs(pjmedia_codec_factory *factory,
 				    unsigned *count,

@@ -88,13 +88,26 @@ PJ_DECL(pj_bool_t) can_use_srtp(){
 
 
 
-
+#include <dlfcn.h>
 // USELESS METHOD
 PJ_DECL(pj_status_t) test_audio_dev(unsigned int clock_rate, unsigned int ptime) {
 
+	pj_status_t status = PJ_SUCCESS;
+	void * handle = dlopen("libstagefright.so", RTLD_LAZY);
+	unsigned int (* AMREncodeInit) (void**, void**, int) = dlsym(handle, "AMREncodeInit");
+	PJ_LOG(1,(THIS_FILE, "Performing test.. %x, %x", handle, AMREncodeInit));
+	if(AMREncodeInit != NULL){
+		void* encState;
+		void* sidState;
+		int test = AMREncodeInit(&encState, &sidState, 0);
+		PJ_LOG(1,(THIS_FILE, "Performing test : %d, %x", test, encState));
+
+	}
+	dlclose(handle);
+	/*
+	PJ_LOG(3,(THIS_FILE, "Performing test.."));
 	pjmedia_aud_param param;
 	pjmedia_aud_test_results result;
-	pj_status_t status;
 
 	pjmedia_dir dir = PJMEDIA_DIR_ENCODING_DECODING;
 
@@ -116,7 +129,7 @@ PJ_DECL(pj_status_t) test_audio_dev(unsigned int clock_rate, unsigned int ptime)
 	param.channel_count = 1;
 	param.samples_per_frame = clock_rate * 1 * ptime / 1000;
 
-	/* Latency settings */
+	// Latency settings
 	param.flags |= (PJMEDIA_AUD_DEV_CAP_INPUT_LATENCY
 			| PJMEDIA_AUD_DEV_CAP_OUTPUT_LATENCY);
 	param.input_latency_ms = PJMEDIA_SND_DEFAULT_REC_LATENCY;
@@ -176,7 +189,7 @@ PJ_DECL(pj_status_t) test_audio_dev(unsigned int clock_rate, unsigned int ptime)
 							drift, which));
 		}
 	}
-
+	*/
 	return status;
 }
 
@@ -194,7 +207,7 @@ PJ_DECL(pj_status_t) send_dtmf_info(int current_call, pj_str_t digits){
 		int i;
 		pj_status_t status = PJ_EINVAL;
 		pjsua_msg_data msg_data;
-		PJ_LOG(4,(THIS_FILE, "SEND DTMF : %.s", digits.slen, digits.ptr));
+		PJ_LOG(4,(THIS_FILE, "SEND DTMF : %.*s", digits.slen, digits.ptr));
 
 		for (i=0; i<digits.slen; ++i) {
 			char body[80];
@@ -207,7 +220,7 @@ PJ_DECL(pj_status_t) send_dtmf_info(int current_call, pj_str_t digits){
 					 "Duration=160",
 					 digits.ptr[i]);
 			msg_data.msg_body = pj_str(body);
-			PJ_LOG(4,(THIS_FILE, "Send %.s", msg_data.msg_body.slen, msg_data.msg_body.ptr));
+			PJ_LOG(4,(THIS_FILE, "Send %.*s", msg_data.msg_body.slen, msg_data.msg_body.ptr));
 
 			status = pjsua_call_send_request(current_call, &SIP_INFO,
 							 &msg_data);

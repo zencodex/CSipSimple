@@ -1,4 +1,4 @@
-/* $Id: sip_util.c 3553 2011-05-05 06:14:19Z nanang $ */
+/* $Id: sip_util.c 3813 2011-10-11 07:26:16Z nanang $ */
 /* 
  * Copyright (C) 2008-2011 Teluu Inc. (http://www.teluu.com)
  * Copyright (C) 2003-2008 Benny Prijono <benny@prijono.org>
@@ -1389,6 +1389,9 @@ static void send_raw_resolver_callback( pj_status_t status,
 	pj_size_t data_len;
 
 	pj_assert(addr->count != 0);
+
+	/* Avoid tdata destroyed by pjsip_tpmgr_send_raw(). */
+	pjsip_tx_data_add_ref(sraw_data->tdata);
 
 	data_len = sraw_data->tdata->buf.cur - sraw_data->tdata->buf.start;
 	status = pjsip_tpmgr_send_raw(pjsip_endpt_get_tpmgr(sraw_data->endpt),

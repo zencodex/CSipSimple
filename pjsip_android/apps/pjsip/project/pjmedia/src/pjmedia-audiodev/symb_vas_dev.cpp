@@ -1,4 +1,4 @@
-/* $Id: symb_vas_dev.cpp 3595 2011-06-22 09:33:55Z nanang $ */
+/* $Id: symb_vas_dev.cpp 3809 2011-10-11 03:05:34Z nanang $ */
 /* 
  * Copyright (C) 2009-2011 Teluu Inc. (http://www.teluu.com)
  *
@@ -1130,7 +1130,7 @@ static void PlayCb(CVoIPDataBuffer *buf, void *user_data)
 		    buffer.Append((TUint8*)sf->data, len);
 		} else {
 		    enum {NO_DATA_FT = 15 };
-		    pj_uint8_t amr_header = 4 || (NO_DATA_FT << 3);
+		    pj_uint8_t amr_header = 4 | (NO_DATA_FT << 3);
 
 		    buffer.Append(amr_header);
 		}
@@ -1139,7 +1139,7 @@ static void PlayCb(CVoIPDataBuffer *buf, void *user_data)
 	    
 	    } else { /* PJMEDIA_FRAME_TYPE_NONE */
 		enum {NO_DATA_FT = 15 };
-		pj_uint8_t amr_header = 4 || (NO_DATA_FT << 3);
+		pj_uint8_t amr_header = 4 | (NO_DATA_FT << 3);
 
 		buffer.Append(amr_header);
 		

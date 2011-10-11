@@ -24,8 +24,7 @@ extern JavaVM *android_jvm;
 
 #define DEFAULT_MAX_TIMED_OUT_PER_POLL  (64)
 
-//#define THIS_FILE "timer_android.c"
-#define THIS_FILE "Timer wrap"
+#define THIS_FILE "timer_android.c"
 
 
 #define MAX_HEAPS 64
@@ -117,7 +116,7 @@ static pj_status_t schedule_entry( pj_timer_heap_t *ht,
 		JNIEnv *jni_env = 0;
 		ATTACH_JVM(jni_env);
 
-		jni_env->CallStaticIntMethod(ht->timer_class, ht->schedule_method, ht->heap_id, entry->_timer_id, ft);
+		jni_env->CallStaticIntMethod(ht->timer_class, ht->schedule_method, (void*)entry, (void*)entry, ft);
 		DETACH_JVM(jni_env);
 
 		return 0;
@@ -133,25 +132,27 @@ static int cancel(pj_timer_heap_t *ht, pj_timer_entry *entry, int dont_call) {
 
 	// Check to see if the timer_id is out of range
 	if (entry->_timer_id < 0 || (pj_size_t) entry->_timer_id > MAX_ENTRY_PER_HEAP) {
+		PJ_LOG(4, (THIS_FILE, "Ask to cancel something already fired or cancelled : %d", entry->_timer_id));
 		return 0;
 	}
 
 
 	PJ_LOG(5, (THIS_FILE, "Cancel timer %d", entry->_timer_id));
 	if(ht->entries[entry->_timer_id] == NULL){
-		PJ_LOG(4, (THIS_FILE, "Huh, pj is cancelling something already unknown... : %d", entry->_timer_id));
+		PJ_LOG(1, (THIS_FILE, "Huh, pj is cancelling something already unknown... : %d", entry->_timer_id));
 		return 0;
 	}
 
 	// Java stuff
 	JNIEnv *jni_env = 0;
 	ATTACH_JVM(jni_env);
-	int cancelCount = jni_env->CallStaticIntMethod(ht->timer_class, ht->cancel_method, ht->heap_id, entry->_timer_id);
+	int cancelCount = jni_env->CallStaticIntMethod(ht->timer_class, ht->cancel_method, (void*)entry, (void*)entry);
 	DETACH_JVM(jni_env);
 
 	if(cancelCount > 0){
 		// Remove from table
 		ht->entries[entry->_timer_id] = NULL;
+		entry->_timer_id = -1;
 	}
 
 	if (dont_call == 0) {
@@ -212,6 +213,7 @@ PJ_DEF(pj_status_t) pj_timer_heap_create( pj_pool_t *pool,
     	if(sHeaps[i] == NULL){
     		ht->heap_id = i;
     		sHeaps[i] = ht;
+    		sCurrentHeap = i;
     		break;
     	}
     }
@@ -384,43 +386,63 @@ PJ_DEF(pj_status_t) pj_timer_heap_earliest_time( pj_timer_heap_t * ht,
 }
 
 PJ_BEGIN_DECL
-PJ_DEF(pj_status_t) pj_timer_fire(int heap_id, int timer_id){
+PJ_DEF(pj_status_t) pj_timer_fire(long entry_ptr){
 
 
     pj_thread_desc  a_thread_desc;
     pj_thread_t         *a_thread;
+    int j;
 
-    if (!pj_thread_is_registered()) {
-    	char thread_name[160];
-    	int len = pj_ansi_snprintf(thread_name, sizeof(thread_name),
-    						 "timer_thread_%d_%d", heap_id, timer_id);
-    	thread_name[len] = '\0';
-        pj_thread_register(thread_name, a_thread_desc, &a_thread);
-        PJ_LOG(5, (THIS_FILE, "Registered thread %s", thread_name));
-    }
+    pj_timer_entry *entry = (pj_timer_entry *) entry_ptr;
 
-	pj_timer_heap_t *ht = sHeaps[heap_id];
-	if(ht != NULL){
-		lock_timer_heap(ht);
-		PJ_LOG(5, (THIS_FILE, "FIRE 0 : %d", timer_id));
-		if(ht->entries[timer_id] != NULL){
-			pj_timer_entry *entry = ht->entries[timer_id];
-			unlock_timer_heap(ht);
-			// TODO : make sure entry is not to fire in the future...
+	if(entry != 0x0){
 
-			PJ_LOG(5, (THIS_FILE, "FIRE 1 : %d", timer_id));
-			if(entry->cb){
-				entry->cb(ht, entry);
-			}
-			PJ_LOG(5, (THIS_FILE, "FIRE 2 : %d", timer_id));
-
-			lock_timer_heap(ht);
-			// CB done, drop current event
-			ht->entries[timer_id] = NULL;
-		}else{
-			PJ_LOG(2, (THIS_FILE, "Try to fire unknown timer %d", timer_id));
+		if (!pj_thread_is_registered()) {
+			char thread_name[160];
+			int len = pj_ansi_snprintf(thread_name, sizeof(thread_name),
+								 "timer_thread_%d", entry_ptr);
+			thread_name[len] = '\0';
+			pj_thread_register(thread_name, a_thread_desc, &a_thread);
+			PJ_LOG(5, (THIS_FILE, "Registered thread %s", thread_name));
 		}
-		unlock_timer_heap(ht);
+
+
+
+		PJ_LOG(4, (THIS_FILE, "FIRE C START : %d", entry->_timer_id));
+
+		if(entry->_timer_id != -1){
+			PJ_LOG(4, (THIS_FILE, "Trying to find HT "));
+			// Check that belong to current heap
+			pj_timer_heap_t *ht = NULL;
+			if(sHeaps[sCurrentHeap] != NULL){
+				for(j=0; j < MAX_ENTRY_PER_HEAP; j++){
+					if(sHeaps[sCurrentHeap]->entries[j] == entry){
+						ht = sHeaps[sCurrentHeap];
+						break;
+					}
+				}
+			}
+
+			if(ht != NULL){
+				PJ_LOG(4, (THIS_FILE, "FIRE has HT %x", ht));
+				lock_timer_heap(ht);
+				ht->entries[entry->_timer_id] = NULL;
+				entry->_timer_id = -1;
+				unlock_timer_heap(ht);
+
+				PJ_LOG(4, (THIS_FILE, "FIRE removed from list : %d", entry->_timer_id));
+				if(entry->cb){
+					entry->cb(ht, entry);
+				}
+				PJ_LOG(4, (THIS_FILE, "FIRE done : %d", entry->_timer_id));
+
+			}else{
+				PJ_LOG(4, (THIS_FILE, "FIRE Ignore since no heap found for this entry %x", entry));
+			}
+		}else{
+			PJ_LOG(4, (THIS_FILE, "FIRE Ignore : %d", entry->_timer_id));
+		}
+		PJ_LOG(4, (THIS_FILE, "FIRE C FINISHED : %d", entry->_timer_id));
 	}
 	return PJ_SUCCESS;
 }

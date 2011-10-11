@@ -61,6 +61,9 @@ endif
 ifeq ($(MY_USE_SILK),1)
 	LOCAL_SRC_FILES += $(PJMEDIACODEC_SRC_DIR)/silk.c 
 endif
+ifeq ($(MY_USE_AMR),1)
+	LOCAL_SRC_FILES += $(PJMEDIACODEC_SRC_DIR)/amr_stagefright_dyn.c 
+endif
 ifeq ($(MY_USE_CODEC2),1)
 	LOCAL_SRC_FILES += $(PJMEDIACODEC_SRC_DIR)/codec2.c 
 endif

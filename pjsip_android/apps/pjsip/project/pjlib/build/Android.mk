@@ -54,10 +54,11 @@ LOCAL_SRC_FILES := $(PJLIB_SRC_DIR)/addr_resolv_sock.c \
 	$(PJLIB_SRC_DIR)/pool_dbg.c \
 	$(PJLIB_SRC_DIR)/rbtree.c \
 	$(PJLIB_SRC_DIR)/string.c \
-	$(PJLIB_SRC_DIR)/rand.c \
 	$(PJLIB_SRC_DIR)/timer_android.cpp \
+	$(PJLIB_SRC_DIR)/rand.c \
 	$(PJLIB_SRC_DIR)/types.c \
 	$(PJLIB_SRC_DIR)/ioqueue_select.c
 
+	#$(PJLIB_SRC_DIR)/timer_android.cpp 
 include $(BUILD_STATIC_LIBRARY)
 
