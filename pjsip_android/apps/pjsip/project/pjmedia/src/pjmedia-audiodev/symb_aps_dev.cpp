@@ -1,4 +1,4 @@
-/* $Id: symb_aps_dev.cpp 3553 2011-05-05 06:14:19Z nanang $ */
+/* $Id: symb_aps_dev.cpp 3809 2011-10-11 03:05:34Z nanang $ */
 /* 
  * Copyright (C) 2008-2011 Teluu Inc. (http://www.teluu.com)
  * Copyright (C) 2003-2008 Benny Prijono <benny@prijono.org>
@@ -1086,7 +1086,7 @@ static void PlayCb(TAPSCommBuffer &buf, void *user_data)
 		    buf.iBuffer.Append((TUint8*)sf->data, len);
 		} else {
 		    enum {NO_DATA_FT = 15 };
-		    pj_uint8_t amr_header = 4 || (NO_DATA_FT << 3);
+		    pj_uint8_t amr_header = 4 | (NO_DATA_FT << 3);
 
 		    buf.iBuffer.Append(amr_header);
 		}
@@ -1095,7 +1095,7 @@ static void PlayCb(TAPSCommBuffer &buf, void *user_data)
 	    
 	    } else { /* PJMEDIA_FRAME_TYPE_NONE */
 		enum {NO_DATA_FT = 15 };
-		pj_uint8_t amr_header = 4 || (NO_DATA_FT << 3);
+		pj_uint8_t amr_header = 4 | (NO_DATA_FT << 3);
 
 		buf.iBuffer.Append(amr_header);
 
