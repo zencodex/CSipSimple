@@ -369,7 +369,6 @@ PJ_DEF(pj_status_t) pjmedia_codec_amr_init(pjmedia_endpt *endpt)
 				    &amr_factory.mutex);
     if (status != PJ_SUCCESS)
 	goto on_error;
-    PJ_LOG(4, (THIS_FILE, "Init amr"));
 
     /* Initialize default Speex parameter. */
     amr_factory.amr_param[PARAM_NB].enabled = 1;
@@ -390,7 +389,6 @@ PJ_DEF(pj_status_t) pjmedia_codec_amr_init(pjmedia_endpt *endpt)
 	return PJ_EINVALIDOP;
     }
 
-    PJ_LOG(4, (THIS_FILE, "Init AMR > DONE"));
 
     /* Register codec factory to endpoint. */
     status = pjmedia_codec_mgr_register_factory(codec_mgr,
@@ -467,10 +465,6 @@ static pj_status_t amr_test_alloc(pjmedia_codec_factory *factory,
     PJ_UNUSED_ARG(factory);
     PJ_ASSERT_RETURN(factory==&amr_factory.base, PJ_EINVAL);
 
-
-    PJ_LOG(4, (THIS_FILE, "Test aloc AMR ...."));
-
-
     /* Type MUST be audio. */
     if (info->type != PJMEDIA_TYPE_AUDIO)
 	return PJMEDIA_CODEC_EUNSUP;
@@ -486,7 +480,6 @@ static pj_status_t amr_test_alloc(pjmedia_codec_factory *factory,
     /* Check clock-rate */
     for (i=0; i<PJ_ARRAY_SIZE(amr_factory.amr_param); ++i) {
 	if (info->clock_rate == amr_factory.amr_param[i].clock_rate) {
-		PJ_LOG(4, (THIS_FILE, "Test OK"));
 	    /* Okay, let's AMR! */
 	    return PJ_SUCCESS;
 	}
@@ -503,13 +496,9 @@ static pj_status_t amr_default_attr( pjmedia_codec_factory *factory,
 				      const pjmedia_codec_info *id,
 				      pjmedia_codec_param *attr )
 {
-    PJ_UNUSED_ARG(factory);
-    PJ_LOG(4, (THIS_FILE, "AMR default attr"));
-    PJ_UNUSED_ARG(factory);
     PJ_ASSERT_RETURN(factory==&amr_factory.base, PJ_EINVAL);
 
 
-    PJ_LOG(4, (THIS_FILE, "AMR reset attr"));
     pj_bzero(attr, sizeof(pjmedia_codec_param));
 
     // Choose NB for now (0)
@@ -532,8 +521,6 @@ static pj_status_t amr_default_attr( pjmedia_codec_factory *factory,
 	attr->setting.cng = attr->setting.vad;
 	attr->setting.dec_fmtp = amr_factory.amr_param[0].dec_fmtp;
 
-    PJ_LOG(4, (THIS_FILE, "AMR default attr DONE"));
-
     /* Default all other flag bits disabled. */
 
     return PJ_SUCCESS;
@@ -548,7 +535,6 @@ static pj_status_t amr_enum_codecs(pjmedia_codec_factory *factory,
 {
     unsigned max;
     int i;  /* Must be signed */
-    PJ_LOG(4, (THIS_FILE, "AMR enum codecs"));
 
     PJ_UNUSED_ARG(factory);
     PJ_ASSERT_RETURN(codecs && *count > 0, PJ_EINVAL);
@@ -567,11 +553,9 @@ static pj_status_t amr_enum_codecs(pjmedia_codec_factory *factory,
 
     for (i=PJ_ARRAY_SIZE(amr_factory.amr_param)-1; i>=0 && *count<max; --i) {
 
-        PJ_LOG(4, (THIS_FILE, "AMR add codecs"));
     	if (!amr_factory.amr_param[i].enabled){
     	    continue;
     	}
-    	PJ_LOG(4, (THIS_FILE, "Add codec %d", amr_factory.amr_param[i].clock_rate));
 
     	pj_bzero(&codecs[*count], sizeof(pjmedia_codec_info));
     	codecs[*count].encoding_name = pj_str("AMR");
@@ -598,8 +582,6 @@ static pj_status_t amr_alloc_codec(pjmedia_codec_factory *factory,
     pjmedia_codec *codec;
     struct amr_private *amr;
     pj_pool_t *pool;
-
-    PJ_LOG(4, (THIS_FILE, "Alloc AMR codec"));
 
     PJ_ASSERT_RETURN(factory && id && p_codec, PJ_EINVAL);
     PJ_ASSERT_RETURN(factory == &amr_factory.base, PJ_EINVAL);
@@ -643,8 +625,6 @@ static pj_status_t amr_alloc_codec(pjmedia_codec_factory *factory,
     amr->AMRDecode = dlsym(amr->lib, "AMRDecode");
     amr->Speech_Decode_Frame_reset = dlsym(amr->lib, "Speech_Decode_Frame_reset");
     amr->GSMDecodeFrameExit = dlsym(amr->lib, "GSMDecodeFrameExit");
-
-    PJ_LOG(4, (THIS_FILE, "Alloc AMR OK"));
 
     *p_codec = codec;
     return PJ_SUCCESS;
@@ -692,7 +672,6 @@ static pj_status_t amr_dealloc_codec( pjmedia_codec_factory *factory,
 static pj_status_t amr_codec_init(pjmedia_codec *codec,
 				   pj_pool_t *pool )
 {
-    PJ_LOG(4, (THIS_FILE, "Init amr codec"));
 	PJ_UNUSED_ARG(pool);
 	PJ_UNUSED_ARG(codec);
     return PJ_SUCCESS;
@@ -722,7 +701,6 @@ static pj_status_t amr_codec_open(pjmedia_codec *codec,
 
     id = amr->param_id;
 
-    PJ_LOG(4, (THIS_FILE, "Opening amr codec"));
 
     pj_assert(amr != NULL);
     pj_assert(amr->enc_ready == PJ_FALSE &&
@@ -789,13 +767,11 @@ static pj_status_t amr_codec_open(pjmedia_codec *codec,
 		if (diff == 99)
 		    goto on_error;
 
-	    PJ_LOG(4, (THIS_FILE, "Enc mode set from enc_fmtp"));
 		enc_mode = (pj_int8_t)(enc_mode + diff);
 
 		break;
 	    }
 	}
-    PJ_LOG(4, (THIS_FILE, "Enc mode set from default"));
 
     /* Initialize AMR specific settings */
 	s = PJ_POOL_ZALLOC_T(pool, amr_settings_t);
@@ -835,7 +811,6 @@ static pj_status_t amr_codec_open(pjmedia_codec *codec,
     amr->dec_ready = PJ_TRUE;
 
 
-    PJ_LOG(4, (THIS_FILE, "Open amr codec > DONE !!"));
     return PJ_SUCCESS;
 
     on_error:
@@ -855,7 +830,6 @@ static pj_status_t amr_codec_close( pjmedia_codec *codec )
     amr->GSMDecodeFrameExit(&amr->decState);
     amr->dec_ready = PJ_FALSE;
 
-    PJ_LOG(4, (THIS_FILE, "AMR codec closed"));
     return PJ_SUCCESS;
 }
 
@@ -971,7 +945,7 @@ static pj_status_t amr_codec_encode(pjmedia_codec *codec,
 			PJ_LOG(1, (THIS_FILE, "Error on encoding frame %d", out_size));
 			return PJMEDIA_CODEC_EPCMFRMINLEN;
 		}
-		PJ_LOG(4, (THIS_FILE, "ENC %d for %d bps type %d/%d", out_size, amr->bps, frametype, outbuf[0]));
+		//PJ_LOG(4, (THIS_FILE, "ENC %d for %d bps type %d/%d", out_size, amr->bps, frametype, outbuf[0]));
 
 
 		/* TOC header */
@@ -1055,9 +1029,7 @@ static pj_status_t  amr_codec_parse( pjmedia_codec *codec,
 
 
 	    PJ_ASSERT_RETURN(frame_cnt, PJ_EINVAL);
-	    PJ_LOG(4, (THIS_FILE, "DEC : parse amr packet"));
 		pj_status_t result = parse_amr(amr, pkt,  pkt_size, ts, frame_cnt, frames);
-		PJ_LOG(4, (THIS_FILE, "DEC : Found, %d frames", *frame_cnt));
 		return result;
 }
 
@@ -1085,17 +1057,7 @@ static pj_status_t amr_codec_decode(pjmedia_codec *codec,
     pjmedia_codec_amr_bit_info *info = (pjmedia_codec_amr_bit_info*) &input->bit_info;
 
     if (input->type == PJMEDIA_FRAME_TYPE_AUDIO) {
-    	PJ_LOG(4, (THIS_FILE, "DEC : frame %d with %d", info->frame_type, input->size));
-    	/*
-		pj_uint8_t inbuf[60 + 1];
-		inbuf[0] = ((pj_uint8_t)info->frame_type) & 0x0f;
-		pj_uint8_t *inspeech = inbuf;
-		inspeech += 1;
-		pj_memcpy(inspeech, input->buf, input->size);
-		*/
     	unsigned decoded = amr->AMRDecode(amr->decState, info->frame_type, input->buf, output->buf , MIME_IETF);
-
-    	PJ_LOG(4, (THIS_FILE, "DEC : ed : %d", decoded));
     }
 
 //	pj_bzero(output->buf, output->size);
