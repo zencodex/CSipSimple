@@ -56,7 +56,6 @@ struct pj_timer_heap_t
     /** Callback to be called when a timer expires. */
     pj_timer_heap_callback *callback;
 
-    jclass timer_class;
     jmethodID schedule_method;
     jmethodID cancel_method;
 };
@@ -64,6 +63,8 @@ struct pj_timer_heap_t
 
 static pj_timer_heap_t* sHeaps[MAX_HEAPS];
 static int sCurrentHeap = 0;
+
+jclass timer_class = 0;
 
 PJ_INLINE(void) lock_timer_heap( pj_timer_heap_t *ht )
 {
@@ -116,7 +117,7 @@ static pj_status_t schedule_entry( pj_timer_heap_t *ht,
 		JNIEnv *jni_env = 0;
 		ATTACH_JVM(jni_env);
 
-		jni_env->CallStaticIntMethod(ht->timer_class, ht->schedule_method, (void*)entry, (void*)entry, ft);
+		jni_env->CallStaticIntMethod(timer_class, ht->schedule_method, (void*)entry, (void*)entry, ft);
 		DETACH_JVM(jni_env);
 
 		return 0;
@@ -146,7 +147,7 @@ static int cancel(pj_timer_heap_t *ht, pj_timer_entry *entry, int dont_call) {
 	// Java stuff
 	JNIEnv *jni_env = 0;
 	ATTACH_JVM(jni_env);
-	int cancelCount = jni_env->CallStaticIntMethod(ht->timer_class, ht->cancel_method, (void*)entry, (void*)entry);
+	int cancelCount = jni_env->CallStaticIntMethod(timer_class, ht->cancel_method, (void*)entry, (void*)entry);
 	DETACH_JVM(jni_env);
 
 	if(cancelCount > 0){
@@ -221,26 +222,35 @@ PJ_DEF(pj_status_t) pj_timer_heap_create( pj_pool_t *pool,
 
     pj_bzero(ht->entries, MAX_ENTRY_PER_HEAP * sizeof(pj_timer_entry*));
 
-    PJ_LOG(5, (THIS_FILE, "Will connect JVM"));
+    PJ_LOG(4, (THIS_FILE, "Will connect JVM"));
     // Init glue to java classes
     JNIEnv *jni_env = 0;
     ATTACH_JVM(jni_env);
 
 	//Get pointer to the java class
-    PJ_LOG(5, (THIS_FILE, "JVM CONNECTED"));
+    PJ_LOG(4, (THIS_FILE, "JVM CONNECTED %x", jni_env));
 
-	ht->timer_class = (jclass)jni_env->NewGlobalRef(jni_env->FindClass("com/csipsimple/utils/TimerWrapper"));
-	PJ_LOG(3, (THIS_FILE, "Timer class..."));
-	if (ht->timer_class == 0) {
+    if(timer_class == 0){
+    	timer_class = (jclass)/*jni_env->NewGlobalRef(*/jni_env->FindClass("com/csipsimple/utils/TimerWrapper")/*)*/;
+    }
+	PJ_LOG(4, (THIS_FILE, "Timer class..."));
+	if (timer_class == 0) {
+		PJ_LOG(1, (THIS_FILE, "Timer class not found"));
+		jni_env->ExceptionDescribe();
+		jni_env->ExceptionClear();
+		DETACH_JVM(jni_env);
 		return PJ_ENOMEM;
 	}
 
 	PJ_LOG(5, (THIS_FILE, "We have the class for process"));
 
 	//Get the set priority function
-	ht->schedule_method = jni_env->GetStaticMethodID(ht->timer_class, "schedule", "(III)I");
-	ht->cancel_method = jni_env->GetStaticMethodID(ht->timer_class, "cancel", "(II)I");
+	ht->schedule_method = jni_env->GetStaticMethodID(timer_class, "schedule", "(III)I");
+	ht->cancel_method = jni_env->GetStaticMethodID(timer_class, "cancel", "(II)I");
 	if (ht->schedule_method == 0 || ht->cancel_method == 0 ) {
+		PJ_LOG(1, (THIS_FILE, "Method for timer not found"));
+		jni_env->ExceptionClear();
+		DETACH_JVM(jni_env);
 		return PJ_ENOMEM;
 	}
 	PJ_LOG(5, (THIS_FILE, "We have the method for setThreadPriority"));

@@ -149,27 +149,31 @@ pjmedia_transport* on_zrtp_transport_created(pjsua_call_id call_id,
 		status = pjmedia_transport_zrtp_create(endpt, NULL, base_tp,
 											   &zrtp_tp, flags);
 
-		PJ_LOG(3,(THIS_FILE, "ZRTP transport created"));
+		if(status == PJ_SUCCESS){
+			PJ_LOG(3,(THIS_FILE, "ZRTP transport created"));
+			/*
+			* this is optional but highly recommended to enable the application
+			* to report status information to the user, such as verfication status,
+			* SAS code, etc
+			*/
+			wrapper_zrtp_callback_struct.userData = zrtp_tp;
+			pjmedia_transport_zrtp_setUserCallback(zrtp_tp, &wrapper_zrtp_callback_struct);
 
 
-		/*
-		* this is optional but highly recommended to enable the application
-		* to report status information to the user, such as verfication status,
-		* SAS code, etc
-		*/
-		wrapper_zrtp_callback_struct.userData = zrtp_tp;
-		pjmedia_transport_zrtp_setUserCallback(zrtp_tp, &wrapper_zrtp_callback_struct);
+			/*
+			* Initialize the transport. Just the filename of the ZID file that holds
+			* our partners ZID, shared data etc. If the files does not exists it will
+			* be created an initialized. The ZRTP configuration is not yet implemented
+			* thus the parameter is NULL.
+			*/
+			pjmedia_transport_zrtp_initialize(zrtp_tp, "/sdcard/simple.zid", PJ_TRUE);
+			current_zrtp = zrtp_tp;
 
-		/*
-		* Initialize the transport. Just the filename of the ZID file that holds
-		* our partners ZID, shared data etc. If the files does not exists it will
-		* be created an initialized. The ZRTP configuration is not yet implemented
-		* thus the parameter is NULL.
-		*/
-		pjmedia_transport_zrtp_initialize(zrtp_tp, "/sdcard/simple.zid", PJ_TRUE);
-		current_zrtp = zrtp_tp;
-
-		return zrtp_tp;
+			return zrtp_tp;
+		} else {
+			PJ_LOG(1, (THIS_FILE, "ZRTP transport problem : %d", status));
+			return base_tp;
+		}
 }
 
 // TODO : that's not clean should be able to manage
