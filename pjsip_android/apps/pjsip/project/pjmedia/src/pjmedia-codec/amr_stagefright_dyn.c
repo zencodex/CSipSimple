@@ -46,7 +46,7 @@
 #define THIS_FILE       "amr_stagefright_dyn.c"
 
 /* Tracing */
-#define PJ_TRACE    1
+#define PJ_TRACE    0
 
 #if PJ_TRACE
 #   define TRACE_(expr)	PJ_LOG(4,expr)
