@@ -1,5 +1,5 @@
 /* pjmedia/include/pjmedia-codec/config_auto.h.  Generated from config_auto.h.in by configure.  */
-/* $Id: config_auto.h.in 3295 2010-08-25 12:51:29Z bennylp $ */
+/* $Id: config_auto.h.in 3816 2011-10-14 04:15:15Z bennylp $ */
 /*
  * Copyright (C) 2008-2009 Teluu Inc. (http://www.teluu.com)
  * Copyright (C) 2003-2008 Benny Prijono <benny@prijono.org>
@@ -68,6 +68,11 @@
 /* G7221 codec */
 #ifndef PJMEDIA_HAS_G7221_CODEC
 /* #undef PJMEDIA_HAS_G7221_CODEC */
+#endif
+
+/* OpenCORE AMR-NB codec */
+#ifndef PJMEDIA_HAS_OPENCORE_AMRNB_CODEC
+#define PJMEDIA_HAS_OPENCORE_AMRNB_CODEC 1
 #endif
 
 

@@ -1,4 +1,4 @@
-/* $Id: config.h 3745 2011-09-08 06:47:28Z bennylp $ */
+/* $Id: config.h 3814 2011-10-13 09:02:41Z nanang $ */
 /* 
  * Copyright (C) 2008-2011 Teluu Inc. (http://www.teluu.com)
  * Copyright (C) 2003-2008 Benny Prijono <benny@prijono.org>
@@ -886,7 +886,64 @@
  * Default: 5 seconds
  */
 #ifndef PJMEDIA_STREAM_KA_INTERVAL
-#	define PJMEDIA_STREAM_KA_INTERVAL	    5
+#   define PJMEDIA_STREAM_KA_INTERVAL		    5
+#endif
+
+
+/**
+ * Minimum gap between two consecutive discards in jitter buffer,
+ * in milliseconds.
+ *
+ * Default: 200 ms
+ */
+#ifndef PJMEDIA_JBUF_DISC_MIN_GAP
+#   define PJMEDIA_JBUF_DISC_MIN_GAP		    200
+#endif
+
+
+/**
+ * Minimum burst level reference used for calculating discard duration
+ * in jitter buffer progressive discard algorithm, in frames.
+ * 
+ * Default: 1 frame
+ */
+#ifndef PJMEDIA_JBUF_PRO_DISC_MIN_BURST
+#   define PJMEDIA_JBUF_PRO_DISC_MIN_BURST	    1
+#endif
+
+
+/**
+ * Maximum burst level reference used for calculating discard duration
+ * in jitter buffer progressive discard algorithm, in frames.
+ * 
+ * Default: 200 frames
+ */
+#ifndef PJMEDIA_JBUF_PRO_DISC_MAX_BURST
+#   define PJMEDIA_JBUF_PRO_DISC_MAX_BURST	    100
+#endif
+
+
+/**
+ * Duration for progressive discard algotithm in jitter buffer to discard
+ * an excessive frame when burst is equal to or lower than
+ * PJMEDIA_JBUF_PRO_DISC_MIN_BURST, in milliseconds.
+ *
+ * Default: 2000 ms
+ */
+#ifndef PJMEDIA_JBUF_PRO_DISC_T1
+#   define PJMEDIA_JBUF_PRO_DISC_T1		    2000
+#endif
+
+
+/**
+ * Duration for progressive discard algotithm in jitter buffer to discard
+ * an excessive frame when burst is equal to or lower than
+ * PJMEDIA_JBUF_PRO_DISC_MAX_BURST, in milliseconds.
+ *
+ * Default: 10000 ms
+ */
+#ifndef PJMEDIA_JBUF_PRO_DISC_T2
+#   define PJMEDIA_JBUF_PRO_DISC_T2		    10000
 #endif
 
 

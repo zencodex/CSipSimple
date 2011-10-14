@@ -1,5 +1,5 @@
 /* $Id */
-/*
+/* 
  * Copyright (C) 2011 Teluu Inc. (http://www.teluu.com)
  * Copyright (C) 2011 Dan Arrhenius <dan@keystream.se>
  *
@@ -15,10 +15,10 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA 
  */
 
-/*
+/* 
  * AMR-NB codec implementation with OpenCORE AMRNB library
  */
 #include <pjmedia-codec/g722.h>
@@ -35,18 +35,18 @@
 #include <pj/os.h>
 #include <pj/math.h>
 
-#define PJMEDIA_HAS_AMR_STAGEFRIGHT_CODEC 1
+#if defined(PJMEDIA_HAS_OPENCORE_AMRNB_CODEC) && \
+    (PJMEDIA_HAS_OPENCORE_AMRNB_CODEC != 0)
 
-#if defined(PJMEDIA_HAS_AMR_STAGEFRIGHT_CODEC) && (PJMEDIA_HAS_AMR_STAGEFRIGHT_CODEC!=0)
-
+#include <opencore-amrnb/interf_enc.h>
+#include <opencore-amrnb/interf_dec.h>
 #include <pjmedia-codec/amr_helper.h>
 #include <pjmedia-codec/opencore_amrnb.h>
-#include <dlfcn.h>
 
-#define THIS_FILE       "amr_stagefright_dyn.c"
+#define THIS_FILE "opencore_amrnb.c"
 
 /* Tracing */
-#define PJ_TRACE    1
+#define PJ_TRACE    0
 
 #if PJ_TRACE
 #   define TRACE_(expr)	PJ_LOG(4,expr)
@@ -58,100 +58,29 @@
 #define USE_PJMEDIA_PLC	    1
 
 
-/************* AMR defs ***************/
-
-#define AMR_TX_WMF  0
-#define AMR_TX_IF2  1
-#define AMR_TX_ETS  2
-
-enum Frame_Type_3GPP
-{
-    AMR_475 = 0,
-    AMR_515,
-    AMR_59,
-    AMR_67,
-    AMR_74,
-    AMR_795,
-    AMR_102,
-    AMR_122,
-    AMR_SID,
-    GSM_EFR_SID,
-    TDMA_EFR_SID,
-    PDC_EFR_SID,
-    FOR_FUTURE_USE1,
-    FOR_FUTURE_USE2,
-    FOR_FUTURE_USE3,
-    AMR_NO_DATA
-};
-
-enum Mode { MR475 = 0,
-	MR515,
-	MR59,
-	MR67,
-	MR74,
-	MR795,
-	MR102,
-	MR122,
-
-	MRDTX,
-
-	N_MODES /* number of (SPC) modes */
-
-};
-
-
-typedef enum {
-    /*
-* One word (2-byte) to indicate type of frame type.
-* One word (2-byte) to indicate frame type.
-* One word (2-byte) to indicate mode.
-* N words (2-byte) containing N bits (bit 0 = 0xff81, bit 1 = 0x007f).
-*/
-    ETS = 0, /* Both AMR-Narrowband and AMR-Wideband */
-    /*
-* One word (2-byte) for sync word (good frames: 0x6b21, bad frames: 0x6b20)
-* One word (2-byte) for frame length N.
-* N words (2-byte) containing N bits (bit 0 = 0x007f, bit 1 = 0x0081).
-*/
-    ITU, /* AMR-Wideband */
-    /*
-* AMR-WB MIME/storage format, see RFC 3267 (sections 5.1 and 5.3) for details
-*/
-    MIME_IETF,
-
-    WMF, /* AMR-Narrowband */
-
-    IF2 /* AMR-Narrowband */
-
-} bitstream_format;
-
-
-/************************************************************/
-
-
 
 /* Prototypes for AMR-NB factory */
-static pj_status_t amr_test_alloc(pjmedia_codec_factory *factory,
+static pj_status_t amr_test_alloc(pjmedia_codec_factory *factory, 
 				   const pjmedia_codec_info *id );
-static pj_status_t amr_default_attr(pjmedia_codec_factory *factory,
-				     const pjmedia_codec_info *id,
+static pj_status_t amr_default_attr(pjmedia_codec_factory *factory, 
+				     const pjmedia_codec_info *id, 
 				     pjmedia_codec_param *attr );
-static pj_status_t amr_enum_codecs(pjmedia_codec_factory *factory,
-				    unsigned *count,
+static pj_status_t amr_enum_codecs(pjmedia_codec_factory *factory, 
+				    unsigned *count, 
 				    pjmedia_codec_info codecs[]);
-static pj_status_t amr_alloc_codec(pjmedia_codec_factory *factory,
-				    const pjmedia_codec_info *id,
+static pj_status_t amr_alloc_codec(pjmedia_codec_factory *factory, 
+				    const pjmedia_codec_info *id, 
 				    pjmedia_codec **p_codec);
-static pj_status_t amr_dealloc_codec(pjmedia_codec_factory *factory,
+static pj_status_t amr_dealloc_codec(pjmedia_codec_factory *factory, 
 				      pjmedia_codec *codec );
 
 /* Prototypes for AMR-NB implementation. */
-static pj_status_t  amr_codec_init(pjmedia_codec *codec,
+static pj_status_t  amr_codec_init(pjmedia_codec *codec, 
 				    pj_pool_t *pool );
-static pj_status_t  amr_codec_open(pjmedia_codec *codec,
+static pj_status_t  amr_codec_open(pjmedia_codec *codec, 
 				    pjmedia_codec_param *attr );
 static pj_status_t  amr_codec_close(pjmedia_codec *codec );
-static pj_status_t  amr_codec_modify(pjmedia_codec *codec,
+static pj_status_t  amr_codec_modify(pjmedia_codec *codec, 
 				      const pjmedia_codec_param *attr );
 static pj_status_t  amr_codec_parse(pjmedia_codec *codec,
 				     void *pkt,
@@ -159,13 +88,13 @@ static pj_status_t  amr_codec_parse(pjmedia_codec *codec,
 				     const pj_timestamp *ts,
 				     unsigned *frame_cnt,
 				     pjmedia_frame frames[]);
-static pj_status_t  amr_codec_encode(pjmedia_codec *codec,
+static pj_status_t  amr_codec_encode(pjmedia_codec *codec, 
 				      const struct pjmedia_frame *input,
-				      unsigned output_buf_len,
+				      unsigned output_buf_len, 
 				      struct pjmedia_frame *output);
-static pj_status_t  amr_codec_decode(pjmedia_codec *codec,
+static pj_status_t  amr_codec_decode(pjmedia_codec *codec, 
 				      const struct pjmedia_frame *input,
-				      unsigned output_buf_len,
+				      unsigned output_buf_len, 
 				      struct pjmedia_frame *output);
 static pj_status_t  amr_codec_recover(pjmedia_codec *codec,
 				      unsigned output_buf_len,
@@ -174,7 +103,7 @@ static pj_status_t  amr_codec_recover(pjmedia_codec *codec,
 
 
 /* Definition for AMR-NB codec operations. */
-static pjmedia_codec_op amr_op =
+static pjmedia_codec_op amr_op = 
 {
     &amr_codec_init,
     &amr_codec_open,
@@ -221,68 +150,6 @@ struct amr_data
     pjmedia_plc		*plc;
 #endif
     pj_timestamp	 last_tx;
-
-    /* Dyn lib stagefright */
-
-    // Handle lib
-    void* lib;
-
-    // Methods
-    // -- Encoder --
-    pj_int16_t (* AMREncodeInit) (
-    		void **pEncStructure,
-            void **pSidSyncStructure,
-            int dtx_enable);
-
-    pj_int16_t (* AMREncodeReset) (
-    		void *pEncStructure,
-    		void *pSidSyncStructure);
-
-    void (* AMREncodeExit) (
-    		void **pEncStructure,
-            void **pSidSyncStructure);
-
-    pj_int16_t (* AMREncode) (
-        void *pEncState,
-        void *pSidSyncState,
-        enum Mode mode,
-        pj_int16_t *pEncInput,
-        pj_uint8_t *pEncOutput,
-        enum Frame_Type_3GPP *p3gpp_frame_type,
-        pj_int16_t output_format
-    );
-    // -- Decoder --
-    /*
-    * This function allocates memory for filter structure and initializes state
-    * memory used by the GSM AMR decoder. This function returns zero. It will
-    * return negative one if there is an error.
-    */
-    pj_int16_t (*GSMInitDecode) (
-    	void **state_data,
-        char *id);
-    /*
-    * AMRDecode steps into the part of the library that decodes the raw data
-    * speech bits for the decoding process. It returns the address offset of
-    * the next frame to be decoded.
-    */
-    pj_int16_t (*AMRDecode) (
-		void *state_data,
-		enum Frame_Type_3GPP frame_type,
-		pj_uint8_t *speech_bits_ptr,
-		pj_int16_t *raw_pcm_buffer,
-		pj_int16_t input_format
-	);
-
-    /*
-	* This function resets the state memory used by the GSM AMR decoder. This
-	* function returns zero. It will return negative one if there is an error.
-	*/
-    pj_int16_t (* Speech_Decode_Frame_reset)(void *state_data);
-    /*
-	* This function frees up the memory used for the state memory of the
-	* GSM AMR decoder.
-	*/
-    void (* GSMDecodeFrameExit)(void **state_data);
 };
 
 static pjmedia_codec_amrnb_config def_config =
@@ -292,53 +159,6 @@ static pjmedia_codec_amrnb_config def_config =
 };
 
 
-// Private AMR WRAPPER
-
-void * get_lib_handle() {
-	return dlopen("libstagefright.so", RTLD_LAZY);
-}
-
-
-void* Decoder_Interface_init(struct amr_data* amr_data) {
-	void* ptr = NULL;
-	amr_data->GSMInitDecode(&ptr, (pj_uint8_t*)"Decoder");
-	return ptr;
-}
-
-void Decoder_Interface_exit(struct amr_data* amr_data, void* state) {
-	amr_data->GSMDecodeFrameExit(&state);
-}
-
-void Decoder_Interface_Decode(struct amr_data* amr_data, void* state, const unsigned char* in, short* out, int bfi) {
-	unsigned char type = (in[0] >> 3) & 0x0f;
-	in++;
-	amr_data->AMRDecode(state, (enum Frame_Type_3GPP) type, (pj_uint8_t*) in, out, MIME_IETF);
-}
-
-struct encoder_state {
-	void* encCtx;
-	void* pidSyncCtx;
-};
-
-void* Encoder_Interface_init(struct amr_data* amr_data, int dtx) {
-	struct encoder_state* state = (struct encoder_state*) malloc(sizeof(struct encoder_state));
-	amr_data->AMREncodeInit(&state->encCtx, &state->pidSyncCtx, dtx);
-	return state;
-}
-
-void Encoder_Interface_exit(struct amr_data* amr_data, void* s) {
-	struct encoder_state* state = (struct encoder_state*) s;
-	amr_data->AMREncodeExit(&state->encCtx, &state->pidSyncCtx);
-	free(state);
-}
-
-int Encoder_Interface_Encode(struct amr_data* amr_data, void* s, enum Mode mode, const short* speech, unsigned char* out, int forceSpeech) {
-	struct encoder_state* state = (struct encoder_state*) s;
-	enum Frame_Type_3GPP frame_type = (enum Frame_Type_3GPP) mode;
-	int ret = amr_data->AMREncode(state->encCtx, state->pidSyncCtx, mode, (pj_uint16_t*) speech, out, &frame_type, AMR_TX_WMF);
-	out[0] = ((frame_type & 0x0f) << 3) | 0x04;
-	return ret;
-}
 
 /*
  * Initialize and register AMR-NB codec factory to pjmedia endpoint.
@@ -356,7 +176,7 @@ PJ_DEF(pj_status_t) pjmedia_codec_opencore_amrnb_init( pjmedia_endpt *endpt )
     amr_codec_factory.base.factory_data = NULL;
     amr_codec_factory.endpt = endpt;
 
-    amr_codec_factory.pool = pjmedia_endpt_create_pool(endpt, "amrnb", 1000,
+    amr_codec_factory.pool = pjmedia_endpt_create_pool(endpt, "amrnb", 1000, 
 						       1000);
     if (!amr_codec_factory.pool)
 	return PJ_ENOMEM;
@@ -369,7 +189,7 @@ PJ_DEF(pj_status_t) pjmedia_codec_opencore_amrnb_init( pjmedia_endpt *endpt )
     }
 
     /* Register codec factory to endpoint. */
-    status = pjmedia_codec_mgr_register_factory(codec_mgr,
+    status = pjmedia_codec_mgr_register_factory(codec_mgr, 
 						&amr_codec_factory.base);
     if (status != PJ_SUCCESS)
 	goto on_error;
@@ -407,11 +227,11 @@ PJ_DEF(pj_status_t) pjmedia_codec_opencore_amrnb_deinit(void)
     /* Unregister AMR-NB codec factory. */
     status = pjmedia_codec_mgr_unregister_factory(codec_mgr,
 						  &amr_codec_factory.base);
-
+    
     /* Destroy pool. */
     pj_pool_release(amr_codec_factory.pool);
     amr_codec_factory.pool = NULL;
-
+    
     return status;
 }
 
@@ -433,7 +253,7 @@ PJ_DEF(pj_status_t) pjmedia_codec_opencore_amrnb_set_config(
     else
     {
 	unsigned i;
-
+	
 	for (i = 0; i < nbitrates; ++i) {
 	    if (def_config.bitrate <= pjmedia_codec_amrnb_bitrates[i])
 		break;
@@ -444,10 +264,10 @@ PJ_DEF(pj_status_t) pjmedia_codec_opencore_amrnb_set_config(
     return PJ_SUCCESS;
 }
 
-/*
- * Check if factory can allocate the specified codec.
+/* 
+ * Check if factory can allocate the specified codec. 
  */
-static pj_status_t amr_test_alloc( pjmedia_codec_factory *factory,
+static pj_status_t amr_test_alloc( pjmedia_codec_factory *factory, 
 				   const pjmedia_codec_info *info )
 {
     PJ_UNUSED_ARG(factory);
@@ -464,8 +284,8 @@ static pj_status_t amr_test_alloc( pjmedia_codec_factory *factory,
 /*
  * Generate default attribute.
  */
-static pj_status_t amr_default_attr( pjmedia_codec_factory *factory,
-				     const pjmedia_codec_info *id,
+static pj_status_t amr_default_attr( pjmedia_codec_factory *factory, 
+				     const pjmedia_codec_info *id, 
 				     pjmedia_codec_param *attr )
 {
     PJ_UNUSED_ARG(factory);
@@ -499,21 +319,12 @@ static pj_status_t amr_default_attr( pjmedia_codec_factory *factory,
 /*
  * Enum codecs supported by this factory (i.e. only AMR-NB!).
  */
-static pj_status_t amr_enum_codecs( pjmedia_codec_factory *factory,
-				    unsigned *count,
+static pj_status_t amr_enum_codecs( pjmedia_codec_factory *factory, 
+				    unsigned *count, 
 				    pjmedia_codec_info codecs[])
 {
     PJ_UNUSED_ARG(factory);
     PJ_ASSERT_RETURN(codecs && *count > 0, PJ_EINVAL);
-
-
-    void *lib_handle = get_lib_handle();
-    if(lib_handle == NULL){
-    	// No lib available
-    	return PJ_SUCCESS;
-    }
-    dlclose(lib_handle);
-
 
     pj_bzero(&codecs[0], sizeof(pjmedia_codec_info));
     codecs[0].encoding_name = pj_str("AMR");
@@ -531,7 +342,7 @@ static pj_status_t amr_enum_codecs( pjmedia_codec_factory *factory,
 /*
  * Allocate a new AMR-NB codec instance.
  */
-static pj_status_t amr_alloc_codec( pjmedia_codec_factory *factory,
+static pj_status_t amr_alloc_codec( pjmedia_codec_factory *factory, 
 				    const pjmedia_codec_info *id,
 				    pjmedia_codec **p_codec)
 {
@@ -543,7 +354,7 @@ static pj_status_t amr_alloc_codec( pjmedia_codec_factory *factory,
     PJ_ASSERT_RETURN(factory && id && p_codec, PJ_EINVAL);
     PJ_ASSERT_RETURN(factory == &amr_codec_factory.base, PJ_EINVAL);
 
-    pool = pjmedia_endpt_create_pool(amr_codec_factory.endpt, "amrnb-inst",
+    pool = pjmedia_endpt_create_pool(amr_codec_factory.endpt, "amrnb-inst", 
 				     512, 512);
 
     codec = PJ_POOL_ZALLOC_T(pool, pjmedia_codec);
@@ -564,18 +375,6 @@ static pj_status_t amr_alloc_codec( pjmedia_codec_factory *factory,
 #else
     PJ_UNUSED_ARG(status);
 #endif
-
-
-    amr_data->lib = get_lib_handle();
-    amr_data->AMREncodeInit = dlsym(amr_data->lib, "AMREncodeInit");
-    amr_data->AMREncodeReset = dlsym(amr_data->lib, "AMREncodeReset");
-    amr_data->AMREncodeExit = dlsym(amr_data->lib, "AMREncodeExit");
-    amr_data->AMREncode = dlsym(amr_data->lib, "AMREncode");
-    amr_data->GSMInitDecode = dlsym(amr_data->lib, "GSMInitDecode");
-    amr_data->AMRDecode = dlsym(amr_data->lib, "AMRDecode");
-    amr_data->Speech_Decode_Frame_reset = dlsym(amr_data->lib, "Speech_Decode_Frame_reset");
-    amr_data->GSMDecodeFrameExit = dlsym(amr_data->lib, "GSMDecodeFrameExit");
-
     *p_codec = codec;
     return PJ_SUCCESS;
 }
@@ -584,7 +383,7 @@ static pj_status_t amr_alloc_codec( pjmedia_codec_factory *factory,
 /*
  * Free codec.
  */
-static pj_status_t amr_dealloc_codec( pjmedia_codec_factory *factory,
+static pj_status_t amr_dealloc_codec( pjmedia_codec_factory *factory, 
 				      pjmedia_codec *codec )
 {
     struct amr_data *amr_data;
@@ -598,11 +397,6 @@ static pj_status_t amr_dealloc_codec( pjmedia_codec_factory *factory,
     amr_codec_close(codec);
 
     pj_pool_release(amr_data->pool);
-
-    if(amr_data->lib != NULL){
-    	dlclose(amr_data->lib);
-    }
-
     amr_data = NULL;
 
     return PJ_SUCCESS;
@@ -611,7 +405,7 @@ static pj_status_t amr_dealloc_codec( pjmedia_codec_factory *factory,
 /*
  * Init codec.
  */
-static pj_status_t amr_codec_init( pjmedia_codec *codec,
+static pj_status_t amr_codec_init( pjmedia_codec *codec, 
 				   pj_pool_t *pool )
 {
     PJ_UNUSED_ARG(codec);
@@ -623,7 +417,7 @@ static pj_status_t amr_codec_init( pjmedia_codec *codec,
 /*
  * Open codec.
  */
-static pj_status_t amr_codec_open( pjmedia_codec *codec,
+static pj_status_t amr_codec_open( pjmedia_codec *codec, 
 				   pjmedia_codec_param *attr )
 {
     struct amr_data *amr_data = (struct amr_data*) codec->codec_data;
@@ -641,7 +435,7 @@ static pj_status_t amr_codec_open( pjmedia_codec *codec,
 
     /* Check octet-align */
     for (i = 0; i < attr->setting.dec_fmtp.cnt; ++i) {
-	if (pj_stricmp(&attr->setting.dec_fmtp.param[i].name,
+	if (pj_stricmp(&attr->setting.dec_fmtp.param[i].name, 
 		       &STR_FMTP_OCTET_ALIGN) == 0)
 	{
 	    octet_align = (pj_uint8_t)
@@ -653,8 +447,8 @@ static pj_status_t amr_codec_open( pjmedia_codec *codec,
     /* Check mode-set */
     for (i = 0; i < attr->setting.enc_fmtp.cnt; ++i) {
 	const pj_str_t STR_FMTP_MODE_SET = {"mode-set", 8};
-
-	if (pj_stricmp(&attr->setting.enc_fmtp.param[i].name,
+        
+	if (pj_stricmp(&attr->setting.enc_fmtp.param[i].name, 
 		       &STR_FMTP_MODE_SET) == 0)
 	{
 	    const char *p;
@@ -674,7 +468,7 @@ static pj_status_t amr_codec_open( pjmedia_codec *codec,
 		if (*p>='0' && *p<='7') {
 		    pj_int8_t tmp = *p - '0' - enc_mode;
 
-		    if (PJ_ABS(diff) > PJ_ABS(tmp) ||
+		    if (PJ_ABS(diff) > PJ_ABS(tmp) || 
 			(PJ_ABS(diff) == PJ_ABS(tmp) && tmp > diff))
 		    {
 			diff = tmp;
@@ -695,7 +489,7 @@ static pj_status_t amr_codec_open( pjmedia_codec *codec,
     amr_data->plc_enabled = (attr->setting.plc != 0);
     amr_data->enc_mode = enc_mode;
 
-    amr_data->encoder = Encoder_Interface_init(amr_data, amr_data->vad_enabled);
+    amr_data->encoder = Encoder_Interface_init(amr_data->vad_enabled);
     if (amr_data->encoder == NULL) {
 	TRACE_((THIS_FILE, "Encoder_Interface_init() failed"));
 	amr_codec_close(codec);
@@ -708,7 +502,7 @@ static pj_status_t amr_codec_open( pjmedia_codec *codec,
     setting->octet_aligned = octet_align;
     setting->cmr = 15;
 
-    amr_data->decoder = Decoder_Interface_init(amr_data);
+    amr_data->decoder = Decoder_Interface_init();
     if (amr_data->decoder == NULL) {
 	TRACE_((THIS_FILE, "Decoder_Interface_init() failed"));
 	amr_codec_close(codec);
@@ -721,7 +515,7 @@ static pj_status_t amr_codec_open( pjmedia_codec *codec,
     setting->octet_aligned = octet_align;
 
     TRACE_((THIS_FILE, "AMR-NB codec allocated: vad=%d, plc=%d, bitrate=%d",
-			amr_data->vad_enabled, amr_data->plc_enabled,
+			amr_data->vad_enabled, amr_data->plc_enabled, 
 			pjmedia_codec_amrnb_bitrates[amr_data->enc_mode]));
     return PJ_SUCCESS;
 }
@@ -740,15 +534,15 @@ static pj_status_t amr_codec_close( pjmedia_codec *codec )
     PJ_ASSERT_RETURN(amr_data != NULL, PJ_EINVALIDOP);
 
     if (amr_data->encoder) {
-        Encoder_Interface_exit(amr_data, amr_data->encoder);
+        Encoder_Interface_exit(amr_data->encoder);
         amr_data->encoder = NULL;
     }
 
     if (amr_data->decoder) {
-        Decoder_Interface_exit(amr_data, amr_data->decoder);
+        Decoder_Interface_exit(amr_data->decoder);
         amr_data->decoder = NULL;
     }
-
+    
     TRACE_((THIS_FILE, "AMR-NB codec closed"));
     return PJ_SUCCESS;
 }
@@ -757,7 +551,7 @@ static pj_status_t amr_codec_close( pjmedia_codec *codec )
 /*
  * Modify codec settings.
  */
-static pj_status_t amr_codec_modify( pjmedia_codec *codec,
+static pj_status_t amr_codec_modify( pjmedia_codec *codec, 
 				     const pjmedia_codec_param *attr )
 {
     struct amr_data *amr_data = (struct amr_data*) codec->codec_data;
@@ -773,8 +567,8 @@ static pj_status_t amr_codec_modify( pjmedia_codec *codec,
     if (prev_vad_state != amr_data->vad_enabled) {
 	/* Reinit AMR encoder to update VAD setting */
 	TRACE_((THIS_FILE, "Reiniting AMR encoder to update VAD setting."));
-        Encoder_Interface_exit(amr_data, amr_data->encoder);
-        amr_data->encoder = Encoder_Interface_init(amr_data, amr_data->vad_enabled);
+        Encoder_Interface_exit(amr_data->encoder);
+        amr_data->encoder = Encoder_Interface_init(amr_data->vad_enabled);
         if (amr_data->encoder == NULL) {
 	    TRACE_((THIS_FILE, "Encoder_Interface_init() failed"));
 	    amr_codec_close(codec);
@@ -811,7 +605,7 @@ static pj_status_t amr_codec_parse( pjmedia_codec *codec,
     if (cmr <= 7 && amr_data->enc_mode != cmr) {
 	amr_data->enc_mode = cmr;
 	TRACE_((THIS_FILE, "AMR-NB encoder switched mode to %d (%dbps)",
-			    amr_data->enc_mode,
+			    amr_data->enc_mode, 
 			    pjmedia_codec_amrnb_bitrates[amr_data->enc_mode]));
     }
 
@@ -822,9 +616,9 @@ static pj_status_t amr_codec_parse( pjmedia_codec *codec,
 /*
  * Encode frame.
  */
-static pj_status_t amr_codec_encode( pjmedia_codec *codec,
+static pj_status_t amr_codec_encode( pjmedia_codec *codec, 
 				     const struct pjmedia_frame *input,
-				     unsigned output_buf_len,
+				     unsigned output_buf_len, 
 				     struct pjmedia_frame *output)
 {
     struct amr_data *amr_data = (struct amr_data*) codec->codec_data;
@@ -845,18 +639,18 @@ static pj_status_t amr_codec_encode( pjmedia_codec *codec,
 
     nsamples = input->size >> 1;
     samples_per_frame = 160;
-    PJ_ASSERT_RETURN(nsamples % samples_per_frame == 0,
+    PJ_ASSERT_RETURN(nsamples % samples_per_frame == 0, 
 		     PJMEDIA_CODEC_EPCMFRMINLEN);
 
     nframes = nsamples / samples_per_frame;
-    PJ_ASSERT_RETURN(nframes <= MAX_FRAMES_PER_PACKET,
+    PJ_ASSERT_RETURN(nframes <= MAX_FRAMES_PER_PACKET, 
 		     PJMEDIA_CODEC_EFRMTOOSHORT);
 
     /* Encode the frames */
     speech = (pj_int16_t*)input->buf;
     bitstream = (unsigned char*)output->buf;
     while (nsamples >= samples_per_frame) {
-        size = Encoder_Interface_Encode (amr_data, amr_data->encoder, amr_data->enc_mode,
+        size = Encoder_Interface_Encode (amr_data->encoder, amr_data->enc_mode,
                                          speech, bitstream, 0);
 	if (size == 0) {
 	    output->size = 0;
@@ -885,7 +679,7 @@ static pj_status_t amr_codec_encode( pjmedia_codec *codec,
 	info->mode = (pj_int8_t)amr_data->enc_mode;
 	info->start_bit = 0;
 	frames[i].buf = p + 1;
-	frames[i].size = (info->frame_type <= 8)?
+	frames[i].size = (info->frame_type <= 8)? 
 			 pjmedia_codec_amrnb_framelen[info->frame_type] : 0;
 	p += frames[i].size + 1;
 
@@ -897,7 +691,7 @@ static pj_status_t amr_codec_encode( pjmedia_codec *codec,
     }
 
     /* VA generates DTX frames as DTX+SID frames switching quickly and it
-     * seems that the SID frames occur too often (assuming the purpose is
+     * seems that the SID frames occur too often (assuming the purpose is 
      * only for keeping NAT alive?). So let's modify the behavior a bit.
      * Only an SID frame will be sent every PJMEDIA_CODEC_MAX_SILENCE_PERIOD
      * milliseconds.
@@ -905,10 +699,10 @@ static pj_status_t amr_codec_encode( pjmedia_codec *codec,
     if (sid_cnt + dtx_cnt == nframes) {
 	pj_int32_t dtx_duration;
 
-	dtx_duration = pj_timestamp_diff32(&amr_data->last_tx,
+	dtx_duration = pj_timestamp_diff32(&amr_data->last_tx, 
 					   &input->timestamp);
 	if (PJMEDIA_CODEC_MAX_SILENCE_PERIOD == -1 ||
-	    dtx_duration < PJMEDIA_CODEC_MAX_SILENCE_PERIOD*8000/1000)
+	    dtx_duration < PJMEDIA_CODEC_MAX_SILENCE_PERIOD*8000/1000) 
 	{
 	    output->size = 0;
 	    output->type = PJMEDIA_FRAME_TYPE_NONE;
@@ -942,9 +736,9 @@ static pj_status_t amr_codec_encode( pjmedia_codec *codec,
 /*
  * Decode frame.
  */
-static pj_status_t amr_codec_decode( pjmedia_codec *codec,
+static pj_status_t amr_codec_decode( pjmedia_codec *codec, 
 				     const struct pjmedia_frame *input,
-				     unsigned output_buf_len,
+				     unsigned output_buf_len, 
 				     struct pjmedia_frame *output)
 {
     struct amr_data *amr_data = (struct amr_data*) codec->codec_data;
@@ -971,7 +765,7 @@ static pj_status_t amr_codec_decode( pjmedia_codec *codec,
 	    info->mode, info->frame_type, input_.size));
 
     /* Decode */
-    Decoder_Interface_Decode(amr_data, amr_data->decoder, bitstream,
+    Decoder_Interface_Decode(amr_data->decoder, bitstream,
                              (pj_int16_t*)output->buf, 0);
 
     output->size = 320;
@@ -1010,7 +804,7 @@ static pj_status_t  amr_codec_recover( pjmedia_codec *codec,
 
     output->size = 320;
     output->type = PJMEDIA_FRAME_TYPE_AUDIO;
-
+    
     return PJ_SUCCESS;
 }
 #endif

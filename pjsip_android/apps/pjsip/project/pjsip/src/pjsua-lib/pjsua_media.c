@@ -1,4 +1,4 @@
-/* $Id: pjsua_media.c 3585 2011-06-16 05:10:45Z ming $ */
+/* $Id: pjsua_media.c 3816 2011-10-14 04:15:15Z bennylp $ */
 /* 
  * Copyright (C) 2008-2011 Teluu Inc. (http://www.teluu.com)
  * Copyright (C) 2003-2008 Benny Prijono <benny@prijono.org>
@@ -210,17 +210,6 @@ pj_status_t pjsua_media_subsys_init(const pjsua_media_config *cfg)
     }
 #endif /* PJMEDIA_HAS_WEBRTC_CODEC */
 
-#if PJMEDIA_HAS_AMR_STAGEFRIGHT_CODEC
-    /* Register AMR */
-    status = pjmedia_codec_amr_init(pjsua_var.med_endpt);
-    if (status != PJ_SUCCESS) {
-	pjsua_perror(THIS_FILE, "Error initializing AMR codec",
-		     status);
-	return status;
-    }
-#endif /* PJMEDIA_HAS_AMR_STAGEFRIGHT_CODEC */
-
-
 #if PJMEDIA_HAS_CODEC2_CODEC
     /* Register CODEC2 */
     status = pjmedia_codec_codec2_init(pjsua_var.med_endpt);
@@ -323,6 +312,16 @@ pj_status_t pjsua_media_subsys_init(const pjsua_media_config *cfg)
 	&codec_id, PJMEDIA_CODEC_PRIO_DISABLED);
 
 #endif	/* PJMEDIA_HAS_L16_CODEC */
+
+#if PJMEDIA_HAS_OPENCORE_AMRNB_CODEC || PJMEDIA_HAS_AMR_STAGEFRIGHT_CODEC
+    /* Register OpenCORE AMR-NB codec */
+    status = pjmedia_codec_opencore_amrnb_init(pjsua_var.med_endpt);
+    if (status != PJ_SUCCESS) {
+	pjsua_perror(THIS_FILE, "Error initializing OpenCORE AMR-NB codec",
+		     status);
+	return status;
+    }
+#endif /* PJMEDIA_HAS_OPENCORE_AMRNB_CODEC */
 
 
     /* Save additional conference bridge parameters for future
@@ -787,10 +786,6 @@ pj_status_t pjsua_media_subsys_destroy(void)
 	    pjmedia_codec_webrtc_deinit();
 #	endif /* PJMEDIA_HAS_WEBRTC_CODEC */
 
-#	if PJMEDIA_HAS_AMR_STAGEFRIGHT_CODEC
-	    pjmedia_codec_amr_deinit();
-#	endif /* PJMEDIA_HAS_AMR_STAGEFRIGHT_CODEC */
-
 #	if PJMEDIA_HAS_CODEC2_CODEC
 	    pjmedia_codec_codec2_deinit();
 #	endif /* PJMEDIA_HAS_CODEC2_CODEC */
@@ -798,6 +793,10 @@ pj_status_t pjsua_media_subsys_destroy(void)
 #	if PJMEDIA_HAS_L16_CODEC
 	    pjmedia_codec_l16_deinit();
 #	endif	/* PJMEDIA_HAS_L16_CODEC */
+
+#	if PJMEDIA_HAS_OPENCORE_AMRNB_CODEC || PJMEDIA_HAS_AMR_STAGEFRIGHT_CODEC
+	    pjmedia_codec_opencore_amrnb_deinit();
+#	endif	/* PJMEDIA_HAS_OPENCORE_AMRNB_CODEC */
 
 	pjmedia_endpt_destroy(pjsua_var.med_endpt);
 	pjsua_var.med_endpt = NULL;
