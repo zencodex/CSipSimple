@@ -225,7 +225,8 @@ struct amr_data
     /* Dyn lib stagefright */
 
     // Handle lib
-    void* lib;
+    void* libEncode;
+    void* libDecode;
 
     // Methods
     // -- Encoder --
@@ -294,10 +295,98 @@ static pjmedia_codec_amrnb_config def_config =
 
 // Private AMR WRAPPER
 
-void * get_lib_handle() {
-	return dlopen("libstagefright.so", RTLD_LAZY);
+pj_status_t dlsym_stagefright(struct amr_data* amr_data){
+
+	pj_status_t status;
+	amr_data->libEncode = NULL;
+	amr_data->libDecode = NULL;
+	status = dlsym_stagefright_23(amr_data);
+	if(status == PJ_SUCCESS){
+		return status;
+	}
+
+	status = dlsym_stagefright_21(amr_data);
+	if(status == PJ_SUCCESS){
+		return status;
+	}
+
+    return status;
+
+on_error :
+	dlclose_stagefright(amr_data);
+	return PJ_EINVAL;
 }
 
+pj_status_t dlsym_stagefright_23(struct amr_data* amr_data){
+	amr_data->libEncode = dlopen("libstagefright.so", RTLD_LAZY);
+	if(amr_data->libEncode != NULL){
+		amr_data->AMREncodeInit = dlsym(amr_data->libEncode, "AMREncodeInit");
+		amr_data->AMREncodeReset = dlsym(amr_data->libEncode, "AMREncodeReset");
+		amr_data->AMREncodeExit = dlsym(amr_data->libEncode, "AMREncodeExit");
+		amr_data->AMREncode = dlsym(amr_data->libEncode, "AMREncode");
+		amr_data->GSMInitDecode = dlsym(amr_data->libEncode, "GSMInitDecode");
+		amr_data->AMRDecode = dlsym(amr_data->libEncode, "AMRDecode");
+		amr_data->Speech_Decode_Frame_reset = dlsym(amr_data->libEncode, "Speech_Decode_Frame_reset");
+		amr_data->GSMDecodeFrameExit = dlsym(amr_data->libEncode, "GSMDecodeFrameExit");
+
+	    return dlcheck_sym(amr_data);
+	}
+	return PJ_EINVAL;
+}
+
+pj_status_t dlsym_stagefright_21(struct amr_data* amr_data){
+	amr_data->libEncode = dlopen("libomx_amrenc_sharedlibrary.so", RTLD_LAZY);
+	if(amr_data->libEncode != NULL){
+		amr_data->AMREncodeInit = dlsym(amr_data->libEncode, "AMREncodeInit");
+		amr_data->AMREncodeReset = dlsym(amr_data->libEncode, "AMREncodeReset");
+		amr_data->AMREncodeExit = dlsym(amr_data->libEncode, "AMREncodeExit");
+		amr_data->AMREncode = dlsym(amr_data->libEncode, "AMREncode");
+
+		amr_data->libDecode = dlopen("libomx_amrdec_sharedlibrary.so", RTLD_LAZY);
+		if(amr_data->libDecode != NULL){
+			amr_data->GSMInitDecode = dlsym(amr_data->libDecode, "GSMInitDecode");
+			amr_data->AMRDecode = dlsym(amr_data->libDecode, "AMRDecode");
+			amr_data->Speech_Decode_Frame_reset = dlsym(amr_data->libDecode, "Speech_Decode_Frame_reset");
+			amr_data->GSMDecodeFrameExit = dlsym(amr_data->libDecode, "GSMDecodeFrameExit");
+		}
+
+	    return dlcheck_sym(amr_data);
+	}
+	return PJ_EINVAL;
+}
+
+pj_status_t dlcheck_sym(struct amr_data* amr_data){
+	 if(amr_data->AMREncodeReset == NULL
+	    		|| amr_data->AMREncodeExit == NULL
+	    		|| amr_data->AMREncode == NULL
+	    		|| amr_data->GSMInitDecode == NULL
+	    		|| amr_data->AMRDecode == NULL
+	    		|| amr_data->GSMDecodeFrameExit == NULL ){
+			return PJ_EINVAL;
+	}
+	 return PJ_SUCCESS;
+}
+
+pj_status_t dlclose_stagefright(struct amr_data* amr_data){
+	if(amr_data != NULL && amr_data->libEncode != NULL){
+		PJ_LOG(4, (THIS_FILE, "Close encode lib"));
+		dlclose(amr_data->libEncode);
+		amr_data->libEncode = NULL;
+	}
+	if(amr_data != NULL && amr_data->libDecode != NULL){
+		PJ_LOG(4, (THIS_FILE, "Close decode lib"));
+		dlclose(amr_data->libDecode);
+		amr_data->libDecode = NULL;
+	}
+	amr_data->AMREncodeReset = NULL;
+	amr_data->AMREncodeExit = NULL;
+	amr_data->AMREncode = NULL;
+	amr_data->GSMInitDecode = NULL;
+	amr_data->AMRDecode = NULL;
+	amr_data->GSMDecodeFrameExit = NULL;
+
+	return PJ_SUCCESS;
+}
 
 void* Decoder_Interface_init(struct amr_data* amr_data) {
 	void* ptr = NULL;
@@ -505,14 +594,17 @@ static pj_status_t amr_enum_codecs( pjmedia_codec_factory *factory,
 {
     PJ_UNUSED_ARG(factory);
     PJ_ASSERT_RETURN(codecs && *count > 0, PJ_EINVAL);
+    pj_status_t res = PJ_SUCCESS;
 
-
-    void *lib_handle = get_lib_handle();
-    if(lib_handle == NULL){
+    struct amr_data amr_data;
+    res = dlsym_stagefright(&amr_data);
+    if(res != PJ_SUCCESS){
     	// No lib available
+    	*count = 0;
     	return PJ_SUCCESS;
     }
-    dlclose(lib_handle);
+    PJ_LOG(4, (THIS_FILE, "Found AMR dyn lib(s)"));
+    dlclose_stagefright(&amr_data);
 
 
     pj_bzero(&codecs[0], sizeof(pjmedia_codec_info));
@@ -538,7 +630,7 @@ static pj_status_t amr_alloc_codec( pjmedia_codec_factory *factory,
     pj_pool_t *pool;
     pjmedia_codec *codec;
     struct amr_data *amr_data;
-    pj_status_t status;
+    pj_status_t status = PJ_SUCCESS;
 
     PJ_ASSERT_RETURN(factory && id && p_codec, PJ_EINVAL);
     PJ_ASSERT_RETURN(factory == &amr_codec_factory.base, PJ_EINVAL);
@@ -565,16 +657,10 @@ static pj_status_t amr_alloc_codec( pjmedia_codec_factory *factory,
     PJ_UNUSED_ARG(status);
 #endif
 
-
-    amr_data->lib = get_lib_handle();
-    amr_data->AMREncodeInit = dlsym(amr_data->lib, "AMREncodeInit");
-    amr_data->AMREncodeReset = dlsym(amr_data->lib, "AMREncodeReset");
-    amr_data->AMREncodeExit = dlsym(amr_data->lib, "AMREncodeExit");
-    amr_data->AMREncode = dlsym(amr_data->lib, "AMREncode");
-    amr_data->GSMInitDecode = dlsym(amr_data->lib, "GSMInitDecode");
-    amr_data->AMRDecode = dlsym(amr_data->lib, "AMRDecode");
-    amr_data->Speech_Decode_Frame_reset = dlsym(amr_data->lib, "Speech_Decode_Frame_reset");
-    amr_data->GSMDecodeFrameExit = dlsym(amr_data->lib, "GSMDecodeFrameExit");
+    status = dlsym_stagefright(amr_data);
+    if(status != PJ_SUCCESS){
+    	return status;
+    }
 
     *p_codec = codec;
     return PJ_SUCCESS;
@@ -599,9 +685,7 @@ static pj_status_t amr_dealloc_codec( pjmedia_codec_factory *factory,
 
     pj_pool_release(amr_data->pool);
 
-    if(amr_data->lib != NULL){
-    	dlclose(amr_data->lib);
-    }
+    dlclose_stagefright(amr_data);
 
     amr_data = NULL;
 

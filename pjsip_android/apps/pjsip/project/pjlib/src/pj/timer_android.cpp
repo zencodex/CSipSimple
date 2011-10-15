@@ -424,27 +424,35 @@ PJ_DEF(pj_status_t) pj_timer_fire(long entry_ptr){
 			PJ_LOG(4, (THIS_FILE, "Trying to find HT "));
 			// Check that belong to current heap
 			pj_timer_heap_t *ht = NULL;
-			if(sHeaps[sCurrentHeap] != NULL){
-				for(j=0; j < MAX_ENTRY_PER_HEAP; j++){
-					if(sHeaps[sCurrentHeap]->entries[j] == entry){
-						ht = sHeaps[sCurrentHeap];
-						break;
+			for(int i=0; i < MAX_HEAPS; i++){
+				pj_timer_heap_t *tHeap = sHeaps[i];
+				if(tHeap != NULL){
+				    lock_timer_heap(tHeap);
+					for(j=0; j < MAX_ENTRY_PER_HEAP; j++){
+						if(tHeap->entries[j] == entry){
+							ht = tHeap;
+							break;
+						}
 					}
+				    unlock_timer_heap(tHeap);
+				}
+				if(ht != NULL){
+					break;
 				}
 			}
 
 			if(ht != NULL){
-				PJ_LOG(4, (THIS_FILE, "FIRE has HT %x", ht));
+				PJ_LOG(4, (THIS_FILE, "FIRE %d has HT %x", ht, entry->_timer_id));
 				lock_timer_heap(ht);
 				ht->entries[entry->_timer_id] = NULL;
 				entry->_timer_id = -1;
 				unlock_timer_heap(ht);
 
-				PJ_LOG(4, (THIS_FILE, "FIRE removed from list : %d", entry->_timer_id));
+				PJ_LOG(5, (THIS_FILE, "FIRE removed from list"));
 				if(entry->cb){
 					entry->cb(ht, entry);
 				}
-				PJ_LOG(4, (THIS_FILE, "FIRE done : %d", entry->_timer_id));
+				PJ_LOG(4, (THIS_FILE, "FIRE done"));
 
 			}else{
 				PJ_LOG(4, (THIS_FILE, "FIRE Ignore since no heap found for this entry %x", entry));
