@@ -65,10 +65,10 @@ ifeq ($(MY_USE_WEBRTC),1)
 #AEC
 ifeq ($(TARGET_ARCH_ABI),armeabi)
 # AEC fixed 
-	include $(TOP_LOCAL_PATH)/third_party/webrtc/modules/audio_processing/aecm/main/source/Android.mk
+	include $(TOP_LOCAL_PATH)/third_party/webrtc/modules/audio_processing/aecm/Android.mk
 else
 # AEC floating
-	include $(TOP_LOCAL_PATH)/third_party/webrtc/modules/audio_processing/aec/main/source/Android.mk
+	include $(TOP_LOCAL_PATH)/third_party/webrtc/modules/audio_processing/aec/Android.mk
 endif
 
 #CODECS
