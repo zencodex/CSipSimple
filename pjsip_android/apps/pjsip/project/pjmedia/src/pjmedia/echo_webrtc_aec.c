@@ -34,9 +34,9 @@
 
 
 #if WEBRTC_AEC_USE_MOBILE == 1
-#include <modules/audio_processing/aecm/main/interface/echo_control_mobile.h>
+#include <modules/audio_processing/aecm/interface/echo_control_mobile.h>
 #else
-#include <modules/audio_processing/aec/main/interface/echo_cancellation.h>
+#include <modules/audio_processing/aec/interface/echo_cancellation.h>
 #endif
 
 #include "echo_internal.h"
