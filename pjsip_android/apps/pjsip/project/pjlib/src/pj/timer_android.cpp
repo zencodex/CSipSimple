@@ -418,10 +418,8 @@ PJ_DEF(pj_status_t) pj_timer_fire(long entry_ptr){
 
 
 
-		PJ_LOG(4, (THIS_FILE, "FIRE C START : %d", entry->_timer_id));
 
 		if(entry->_timer_id != -1){
-			PJ_LOG(4, (THIS_FILE, "Trying to find HT "));
 			// Check that belong to current heap
 			pj_timer_heap_t *ht = NULL;
 			for(int i=0; i < MAX_HEAPS; i++){
@@ -442,25 +440,34 @@ PJ_DEF(pj_status_t) pj_timer_fire(long entry_ptr){
 			}
 
 			if(ht != NULL){
-				PJ_LOG(4, (THIS_FILE, "FIRE %d has HT %x", ht, entry->_timer_id));
+				PJ_LOG(4, (THIS_FILE, "FIRE timer %d at %x", entry->_timer_id, entry));
+
+				pj_timer_heap_callback* cb = NULL;
+
 				lock_timer_heap(ht);
+				// Get callback if entry still valid
+				if(entry->_timer_id >= 0){
+					cb = entry->cb;
+				}
+				// Release slot
 				ht->entries[entry->_timer_id] = NULL;
 				entry->_timer_id = -1;
 				unlock_timer_heap(ht);
 
-				PJ_LOG(5, (THIS_FILE, "FIRE removed from list"));
-				if(entry->cb){
-					entry->cb(ht, entry);
+				// Callback
+				if(cb){
+					cb(ht, entry);
 				}
-				PJ_LOG(4, (THIS_FILE, "FIRE done"));
+
+
+				PJ_LOG(4, (THIS_FILE, "FIRE done and released"));
 
 			}else{
-				PJ_LOG(4, (THIS_FILE, "FIRE Ignore since no heap found for this entry %x", entry));
+				PJ_LOG(3, (THIS_FILE, "FIRE Ignore since no heap found for this entry %x", entry));
 			}
 		}else{
-			PJ_LOG(4, (THIS_FILE, "FIRE Ignore : %d", entry->_timer_id));
+			PJ_LOG(3, (THIS_FILE, "FIRE Ignored : %d", entry->_timer_id));
 		}
-		PJ_LOG(4, (THIS_FILE, "FIRE C FINISHED : %d", entry->_timer_id));
 	}
 	return PJ_SUCCESS;
 }
