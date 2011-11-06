@@ -64,7 +64,7 @@ struct pj_timer_heap_t
 static pj_timer_heap_t* sHeaps[MAX_HEAPS];
 static int sCurrentHeap = 0;
 
-jclass timer_class = 0;
+static jclass timer_class = 0;
 
 PJ_INLINE(void) lock_timer_heap( pj_timer_heap_t *ht )
 {
@@ -231,7 +231,8 @@ PJ_DEF(pj_status_t) pj_timer_heap_create( pj_pool_t *pool,
     PJ_LOG(4, (THIS_FILE, "JVM CONNECTED %x", jni_env));
 
     if(timer_class == 0){
-    	timer_class = (jclass)/*jni_env->NewGlobalRef(*/jni_env->FindClass("com/csipsimple/utils/TimerWrapper")/*)*/;
+    	// Global ref break zrtp but if not break 1.6 and normal usage of jni
+    	timer_class = (jclass)jni_env->NewGlobalRef(jni_env->FindClass("com/csipsimple/utils/TimerWrapper"));
     }
 	PJ_LOG(4, (THIS_FILE, "Timer class..."));
 	if (timer_class == 0) {
