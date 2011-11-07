@@ -81,13 +81,13 @@ ifeq ($(MY_USE_WEBRTC),1)
 
 # AEC
 ifeq ($(TARGET_ARCH_ABI),armeabi)
-	LOCAL_STATIC_LIBRARIES += libwebrtc_isacfix libwebrtc_aecm
+	LOCAL_STATIC_LIBRARIES += libwebrtc_isacfix 
 else
-	LOCAL_STATIC_LIBRARIES += libwebrtc_isac libwebrtc_aec
+	LOCAL_STATIC_LIBRARIES += libwebrtc_isac 
 endif
 
 #Common
-	LOCAL_STATIC_LIBRARIES += libwebrtc_apm_utility libwebrtc_system_wrappers libwebrtc_spl 
+	LOCAL_STATIC_LIBRARIES += libwebrtc_aecm libwebrtc_ns libwebrtc_apm_utility libwebrtc_system_wrappers libwebrtc_spl 
 	
 endif
 
