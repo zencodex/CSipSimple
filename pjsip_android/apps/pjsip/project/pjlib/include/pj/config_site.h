@@ -18,9 +18,6 @@
 #define PJSIP_AUTH_HEADER_CACHING   1
 
 #if defined(PJ_ANDROID) && PJ_ANDROID!=0
-	// Disable keep alive because it's done using android SDK which properly handle that
-	#define PJSIP_TCP_KEEP_ALIVE_INTERVAL 0
-	#define PJSIP_TLS_KEEP_ALIVE_INTERVAL 0
 
 	#define PJSIP_TCP_TRANSPORT_BACKLOG 50
 
