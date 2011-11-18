@@ -58,9 +58,9 @@ ifeq ($(MY_USE_WEBRTC),1)
 #Commons
 	include $(TOP_LOCAL_PATH)/third_party/webrtc/system_wrappers/source/Android.mk
 	include $(TOP_LOCAL_PATH)/third_party/webrtc/modules/audio_processing/utility/Android.mk
-	include $(TOP_LOCAL_PATH)/third_party/webrtc/common_audio/signal_processing_library/main/source/Android.mk
-	include $(TOP_LOCAL_PATH)/third_party/webrtc/common_audio/vad/main/source/Android.mk
-	include $(TOP_LOCAL_PATH)/third_party/webrtc/common_audio/resampler/main/source/Android.mk
+	include $(TOP_LOCAL_PATH)/third_party/webrtc/common_audio/signal_processing/Android.mk
+	include $(TOP_LOCAL_PATH)/third_party/webrtc/common_audio/vad/Android.mk
+	include $(TOP_LOCAL_PATH)/third_party/webrtc/common_audio/resampler/Android.mk
 	
 #AEC
 #ifeq ($(TARGET_ARCH_ABI),armeabi)
@@ -75,8 +75,8 @@ ifeq ($(MY_USE_WEBRTC),1)
 #CODECS
 	include $(TOP_LOCAL_PATH)/third_party/webrtc/modules/audio_coding/main/source/Android.mk
 	include $(TOP_LOCAL_PATH)/third_party/webrtc/modules/audio_coding/neteq/Android.mk
-	include $(TOP_LOCAL_PATH)/third_party/webrtc/modules/audio_coding/codecs/CNG/main/source/Android.mk
-	include $(TOP_LOCAL_PATH)/third_party/webrtc/modules/audio_coding/codecs/G711/main/source/Android.mk
+	include $(TOP_LOCAL_PATH)/third_party/webrtc/modules/audio_coding/codecs/cng/Android.mk
+	include $(TOP_LOCAL_PATH)/third_party/webrtc/modules/audio_coding/codecs/g711/Android.mk
 	include $(TOP_LOCAL_PATH)/third_party/webrtc/modules/audio_coding/codecs/ilbc/Android.mk
 	#include $(TOP_LOCAL_PATH)/third_party/webrtc/modules/audio_coding/codecs/PCM16B/main/source/Android.mk
 ifeq ($(TARGET_ARCH_ABI),armeabi)
