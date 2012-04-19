@@ -1,13 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.actionbarsherlock"
+    android:versionCode="60"
+    android:versionName="4.0.2" >
 
-<manifest
-	xmlns:android="http://schemas.android.com/apk/res/android"
-	package="com.actionbarsherlock"
-	android:versionCode="55"
-	android:versionName="3.5.1">
-	
     <uses-sdk
-    	android:minSdkVersion="4"
-    	android:targetSdkVersion="13" />
+        android:minSdkVersion="4"
+        android:targetSdkVersion="15" />
 
 </manifest>

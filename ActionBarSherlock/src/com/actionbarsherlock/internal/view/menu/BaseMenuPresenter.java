@@ -21,6 +21,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.actionbarsherlock.internal.utils.UtilityWrapper;
+
 import java.util.ArrayList;
 
 /**
@@ -29,6 +31,7 @@ import java.util.ArrayList;
  * be reused if possible when items change.
  */
 public abstract class BaseMenuPresenter implements MenuPresenter {
+
     protected Context mSystemContext;
     protected Context mContext;
     protected MenuBuilder mMenu;
@@ -91,7 +94,14 @@ public abstract class BaseMenuPresenter implements MenuPresenter {
                 MenuItemImpl item = visibleItems.get(i);
                 if (shouldIncludeItem(childIndex, item)) {
                     final View convertView = parent.getChildAt(childIndex);
+                    final MenuItemImpl oldItem = convertView instanceof MenuView.ItemView ?
+                            ((MenuView.ItemView) convertView).getItemData() : null;
                     final View itemView = getItemView(item, convertView, parent);
+                    if (item != oldItem) {
+                        // Don't let old states linger with new data.
+                        itemView.setPressed(false);
+                        UtilityWrapper.getInstance().jumpDrawablesToCurrentState(itemView);
+                    }
                     if (itemView != convertView) {
                         addItemView(itemView, childIndex);
                     }
@@ -179,7 +189,7 @@ public abstract class BaseMenuPresenter implements MenuPresenter {
     /**
      * Filter item by child index and item data.
      *
-     * @param childIndex Intended presentation index of this item
+     * @param childIndex Indended presentation index of this item
      * @param item Item to present
      * @return true if this item should be included in this menu presentation; false otherwise
      */
