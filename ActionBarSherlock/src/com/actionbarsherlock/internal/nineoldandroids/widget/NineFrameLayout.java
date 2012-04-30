@@ -22,33 +22,39 @@ public class NineFrameLayout extends FrameLayout {
     public NineFrameLayout(Context context) {
         super(context);
         mProxy = AnimatorProxy.NEEDS_PROXY ? AnimatorProxy.wrap(this) : null;
-        
+        loadStaticMethods();
+    }
+    
+    public NineFrameLayout(Context context, AttributeSet attrs) {
+        super(context, attrs);
+        mProxy = AnimatorProxy.NEEDS_PROXY ? AnimatorProxy.wrap(this) : null;
+        loadStaticMethods();
+    }
+    
+    public NineFrameLayout(Context context, AttributeSet attrs, int defStyle) {
+        super(context, attrs, defStyle);
+        mProxy = AnimatorProxy.NEEDS_PROXY ? AnimatorProxy.wrap(this) : null;
+        loadStaticMethods();
+    }
+    
+    private void loadStaticMethods() {
 
         // Building compatibility
-        Class<?> cls = getClass();
+        Class<?> cls = NineFrameLayout.class;
         if (!AnimatorProxy.NEEDS_PROXY && superGetAlphaMethod == null) {
             superGetAlphaMethod = UtilityWrapper.safelyGetSuperclassMethod(cls, "getAlpha");
-            superSetAlphaMethod = UtilityWrapper.safelyGetSuperclassMethod(cls, "setAlpha");
+            superSetAlphaMethod = UtilityWrapper.safelyGetSuperclassMethod(cls, "setAlpha", float.class);
             superGetTranslationYMethod = UtilityWrapper.safelyGetSuperclassMethod(cls,
                     "getTranslationY");
             superSetTranslationYMethod = UtilityWrapper.safelyGetSuperclassMethod(cls,
-                    "setTranslationY");
+                    "setTranslationY", float.class);
 
         }
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH
                 && superOnHoverEventMethod == null) {
-            superOnHoverEventMethod = UtilityWrapper.safelyGetSuperclassMethod(cls, "onHoverEvent");
+            superOnHoverEventMethod = UtilityWrapper.safelyGetSuperclassMethod(cls, "onHoverEvent", MotionEvent.class);
         }
-
-    }
-    public NineFrameLayout(Context context, AttributeSet attrs) {
-        super(context, attrs);
-        mProxy = AnimatorProxy.NEEDS_PROXY ? AnimatorProxy.wrap(this) : null;
-    }
-    public NineFrameLayout(Context context, AttributeSet attrs, int defStyle) {
-        super(context, attrs, defStyle);
-        mProxy = AnimatorProxy.NEEDS_PROXY ? AnimatorProxy.wrap(this) : null;
     }
 
     @Override
@@ -63,11 +69,11 @@ public class NineFrameLayout extends FrameLayout {
         super.setVisibility(visibility);
     }
 
-    public float getAlpha() {
+    public float supportGetAlpha() {
         if (AnimatorProxy.NEEDS_PROXY) {
             return mProxy.getAlpha();
         } else {
-            Float res = (Float) UtilityWrapper.safelyInvokeMethod(superGetAlphaMethod, this);
+            Float res = (Float) UtilityWrapper.safelyInvokeMethod(superGetAlphaMethod, this, (Object[]) null);
             if(res != null) {
                 return res;
             }
@@ -82,12 +88,8 @@ public class NineFrameLayout extends FrameLayout {
             UtilityWrapper.safelyInvokeMethod(superSetAlphaMethod, this, alpha);
         }
     }
-
-    public void setAlpha(float alpha) {
-        supportSetAlpha(alpha);
-    }
     
-    public float getTranslationY() {
+    public float supportGetTranslationY() {
         if (AnimatorProxy.NEEDS_PROXY) {
             return mProxy.getTranslationY();
         } else {
@@ -106,15 +108,13 @@ public class NineFrameLayout extends FrameLayout {
             UtilityWrapper.safelyInvokeMethod(superSetTranslationYMethod, this, translationY);
         }
     }
-
-    public void setTranslationY(float translationY) {
-        supportSetTranslationY(translationY);
-    }
     
-    public boolean onHoverEvent(MotionEvent event) {
+    /*
+    public boolean supportOnHoverEvent(MotionEvent event) {
         if(superOnHoverEventMethod != null) {
             UtilityWrapper.safelyInvokeMethod(superOnHoverEventMethod, this, event);
         }
         return true;
     }
+    */
 }

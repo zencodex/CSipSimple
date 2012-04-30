@@ -83,13 +83,17 @@ public abstract class UtilityWrapper {
     
     public abstract boolean isLongPressEvent(KeyEvent evt);
     
-    public static Method safelyGetSuperclassMethod(Class<?> cls, String methodName) {
-        try {
-            return cls.getSuperclass().getDeclaredMethod(methodName);
-        } catch (NoSuchMethodException e) {
-            Log.e(cls.getCanonicalName(), "Impossible to get method " + methodName, e);
+    public static Method safelyGetSuperclassMethod(Class<?> cls, String methodName, Class<?>... parametersType) {
+        Class<?> sCls = cls.getSuperclass();
+        while(sCls != Object.class) {
+            try {
+                return sCls.getDeclaredMethod(methodName, parametersType);
+            } catch (NoSuchMethodException e) {
+                // Just super it again
+            }
+            sCls = sCls.getSuperclass();
         }
-        return null;
+        throw new RuntimeException("Method not found " + methodName);
     }
     
     public static Object safelyInvokeMethod(Method method, Object receiver, Object... args) {
@@ -98,9 +102,9 @@ public abstract class UtilityWrapper {
         } catch (IllegalArgumentException e) {
             Log.e("Safe invoke fail", "Invalid args", e);
         } catch (IllegalAccessException e) {
-            Log.e("Safe invoke fail", "Invalid args", e);
+            Log.e("Safe invoke fail", "Invalid access", e);
         } catch (InvocationTargetException e) {
-            Log.e("Safe invoke fail", "Invalid args", e);
+            Log.e("Safe invoke fail", "Invalid target", e);
         }
         
         return null;

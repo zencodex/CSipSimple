@@ -282,7 +282,7 @@ public class IcsProgressBar extends View {
     public IcsProgressBar(Context context, AttributeSet attrs, int defStyle, int styleRes) {
         super(context, attrs, defStyle);
         if(superOnVisibilityChangedMethod == null) {
-            superOnVisibilityChangedMethod = UtilityWrapper.safelyGetSuperclassMethod(getClass(), "onVisibilityChanged");
+            superOnVisibilityChangedMethod = UtilityWrapper.safelyGetSuperclassMethod(IcsProgressBar.class, "onVisibilityChanged", View.class, int.class);
         }
         
         mUiThreadId = Thread.currentThread().getId();

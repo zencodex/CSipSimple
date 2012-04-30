@@ -248,8 +248,8 @@ public class ActionBarView extends AbsActionBarView {
      * Must be public so we can dispatch pre-2.2 via ActionBarImpl.
      */
     @Override
-    public void onConfigurationChanged(Configuration newConfig) {
-        super.onConfigurationChanged(newConfig);
+    public void supportOnConfigurationChanged(Configuration newConfig) {
+        super.supportOnConfigurationChanged(newConfig);
 
         mTitleView = null;
         mSubtitleView = null;
@@ -1201,8 +1201,8 @@ public class ActionBarView extends AbsActionBarView {
 
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH && superOnPopulateAccessibilityEventMethod == null) {
                 Class<?> cls = getClass();
-                superOnPopulateAccessibilityEventMethod = UtilityWrapper.safelyGetSuperclassMethod(cls, "onPopulateAccessibilityEvent");
-                superOnHoverEventMethod = UtilityWrapper.safelyGetSuperclassMethod(cls, "onHoverEvent");
+                superOnPopulateAccessibilityEventMethod = UtilityWrapper.safelyGetSuperclassMethod(cls, "onPopulateAccessibilityEvent", AccessibilityEvent.class);
+                superOnHoverEventMethod = UtilityWrapper.safelyGetSuperclassMethod(cls, "onHoverEvent", MotionEvent.class);
             }
         }
 
