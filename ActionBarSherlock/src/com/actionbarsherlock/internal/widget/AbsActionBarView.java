@@ -68,7 +68,7 @@ public abstract class AbsActionBarView extends NineViewGroup {
     
     public void supportOnConfigurationChanged(Configuration newConfig) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.FROYO) {
-            super.onConfigurationChanged(newConfig);
+            super.supportOnConfigurationChanged(newConfig);
         } else if (mMenuView != null) {
             mMenuView.supportOnConfigurationChanged(newConfig);
         }
@@ -88,13 +88,6 @@ public abstract class AbsActionBarView extends NineViewGroup {
         }
     }
 
-    /*
-     * Must be public so we can dispatch pre-2.2 via ActionBarImpl.
-     */
-    @Override
-    public void onConfigurationChanged(Configuration newConfig) {
-        supportOnConfigurationChanged(newConfig);
-    }
 
     /**
      * Sets whether the bar should be split right now, no questions asked.

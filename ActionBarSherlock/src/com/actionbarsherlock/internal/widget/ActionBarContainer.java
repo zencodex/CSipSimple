@@ -111,6 +111,7 @@ public class ActionBarContainer extends NineFrameLayout {
         return mIsTransitioning || super.onInterceptTouchEvent(ev);
     }
 
+    /*
     @Override
     public boolean onTouchEvent(MotionEvent ev) {
         super.onTouchEvent(ev);
@@ -121,11 +122,12 @@ public class ActionBarContainer extends NineFrameLayout {
 
     @Override
     public boolean onHoverEvent(MotionEvent ev) {
-        super.onHoverEvent(ev);
+        super.supportOnHoverEvent(ev);
 
         // An action bar always eats hover events.
         return true;
     }
+    */
 
     public void setTabContainer(ScrollingTabContainerView tabView) {
         if (mTabContainer != null) {

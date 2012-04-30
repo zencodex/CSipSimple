@@ -18,21 +18,23 @@ public class NineHorizontalScrollView extends HorizontalScrollView {
     public NineHorizontalScrollView(Context context) {
         super(context);
         mProxy = AnimatorProxy.NEEDS_PROXY ? AnimatorProxy.wrap(this) : null;
-        
-
+        loadStaticMethods();
+    }
+    
+    private void loadStaticMethods() {
         // Building compatibility
-        Class<?> cls = getClass();
+        Class<?> cls = NineHorizontalScrollView.class;
         if (!AnimatorProxy.NEEDS_PROXY && superGetAlphaMethod == null) {
             superGetAlphaMethod = UtilityWrapper.safelyGetSuperclassMethod(cls, "getAlpha");
-            superSetAlphaMethod = UtilityWrapper.safelyGetSuperclassMethod(cls, "setAlpha");
+            superSetAlphaMethod = UtilityWrapper.safelyGetSuperclassMethod(cls, "setAlpha", float.class);
         }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH
                 && superOnConfigurationChangedMethod == null) {
             superOnConfigurationChangedMethod = UtilityWrapper.safelyGetSuperclassMethod(cls,
-                    "onConfigurationChanged");
+                    "onConfigurationChanged", Configuration.class);
         }
-
     }
+    
 
     @Override
     public void setVisibility(int visibility) {
@@ -46,7 +48,7 @@ public class NineHorizontalScrollView extends HorizontalScrollView {
         super.setVisibility(visibility);
     }
 
-    public float getAlpha() {
+    public float supportGetAlpha() {
         if (AnimatorProxy.NEEDS_PROXY) {
             return mProxy.getAlpha();
         } else {
@@ -57,9 +59,6 @@ public class NineHorizontalScrollView extends HorizontalScrollView {
         }
         return 0.0f;
     }
-    public void setAlpha(float alpha) {
-        supportSetAlpha(alpha);
-    }
 
     public void supportSetAlpha(float alpha) {
         if (AnimatorProxy.NEEDS_PROXY) {
@@ -69,10 +68,11 @@ public class NineHorizontalScrollView extends HorizontalScrollView {
         }
     }
     
-
+    /*
     protected void onConfigurationChanged(Configuration newConfig) {
         if(superOnConfigurationChangedMethod != null) {
             UtilityWrapper.safelyInvokeMethod(superOnConfigurationChangedMethod, this, newConfig);
         }
     }
+    */
 }

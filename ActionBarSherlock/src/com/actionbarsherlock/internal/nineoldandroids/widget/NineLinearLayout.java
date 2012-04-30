@@ -23,36 +23,42 @@ public class NineLinearLayout extends LinearLayout {
     public NineLinearLayout(Context context) {
         super(context);
         mProxy = AnimatorProxy.NEEDS_PROXY ? AnimatorProxy.wrap(this) : null;
-
-        
+        loadStaticMethods();
+    }
+    
+    
+    
+    public NineLinearLayout(Context context, AttributeSet attrs) {
+        super(context, attrs);
+        mProxy = AnimatorProxy.NEEDS_PROXY ? AnimatorProxy.wrap(this) : null;
+        loadStaticMethods();
+    }
+    
+    private void loadStaticMethods() {
 
         // Building compatibility
         Class<?> cls = getClass();
         if (!AnimatorProxy.NEEDS_PROXY && superGetAlphaMethod == null) {
             superGetAlphaMethod = UtilityWrapper.safelyGetSuperclassMethod(cls, "getAlpha");
-            superSetAlphaMethod = UtilityWrapper.safelyGetSuperclassMethod(cls, "setAlpha");
+            superSetAlphaMethod = UtilityWrapper.safelyGetSuperclassMethod(cls, "setAlpha", float.class);
 
             superGetTranslationXMethod = UtilityWrapper.safelyGetSuperclassMethod(cls,
                     "getTranslationX");
             superSetTranslationXMethod = UtilityWrapper.safelyGetSuperclassMethod(cls,
-                    "setTranslationX");
+                    "setTranslationX", float.class);
         }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH
                 && superOnConfigurationChangedMethod == null) {
             superOnConfigurationChangedMethod = UtilityWrapper.safelyGetSuperclassMethod(cls,
-                    "onConfigurationChanged");
+                    "onConfigurationChanged", Configuration.class);
         }
-
-        
     }
-    public NineLinearLayout(Context context, AttributeSet attrs) {
-        super(context, attrs);
-        mProxy = AnimatorProxy.NEEDS_PROXY ? AnimatorProxy.wrap(this) : null;
-    }
+    
 /*
     public NineLinearLayout(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
         mProxy = AnimatorProxy.NEEDS_PROXY ? AnimatorProxy.wrap(this) : null;
+        loadStaticMethods();
     }
 */
     @Override
@@ -67,7 +73,7 @@ public class NineLinearLayout extends LinearLayout {
         super.setVisibility(visibility);
     }
 
-    public float getAlpha() {
+    public float supportGetAlpha() {
         if (AnimatorProxy.NEEDS_PROXY) {
             return mProxy.getAlpha();
         } else {
@@ -86,12 +92,8 @@ public class NineLinearLayout extends LinearLayout {
             UtilityWrapper.safelyInvokeMethod(superSetAlphaMethod, this, alpha);
         }
     }
-    
-    public void setAlpha(float alpha) {
-        supportSetAlpha(alpha);
-    }
 
-    public float getTranslationX() {
+    public float supportGetTranslationX() {
         if (AnimatorProxy.NEEDS_PROXY) {
             return mProxy.getTranslationX();
         } else {
@@ -111,15 +113,13 @@ public class NineLinearLayout extends LinearLayout {
         }
     }
 
-    public void setTranslationX(float translationX) {
-        supportSetTranslationX(translationX);
-    }
     
 
-
+    /*
     protected void onConfigurationChanged(Configuration newConfig) {
         if(superOnConfigurationChangedMethod != null) {
             UtilityWrapper.safelyInvokeMethod(superOnConfigurationChangedMethod, this, newConfig);
         }
     }
+    */
 }

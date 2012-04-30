@@ -79,10 +79,10 @@ public class ActionMenuItemView extends LinearLayout
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH
                 && superOnPopulateAccessibilityEventMethod == null) {
-            Class<?> cls = getClass();
+            Class<?> cls = ActionMenuItemView.class;
             superOnPopulateAccessibilityEventMethod = UtilityWrapper.safelyGetSuperclassMethod(cls,
-                    "onPopulateAccessibilityEvent");
-            superOnHoverEventMethod = UtilityWrapper.safelyGetSuperclassMethod(cls, "onHoverEvent");
+                    "onPopulateAccessibilityEvent", AccessibilityEvent.class);
+            superOnHoverEventMethod = UtilityWrapper.safelyGetSuperclassMethod(cls, "onHoverEvent", MotionEvent.class);
         }
         
         mAllowTextWithIcon = getResources_getBoolean(context,
