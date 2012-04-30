@@ -74,7 +74,7 @@ public abstract class NineViewGroup extends ViewGroup {
         super.setVisibility(visibility);
     }
 
-    public float supportGetAlpha() {
+    public float getSupportAlpha() {
         if (AnimatorProxy.NEEDS_PROXY) {
             return mProxy.getAlpha();
         } else {
@@ -86,7 +86,7 @@ public abstract class NineViewGroup extends ViewGroup {
         return 0.0f;
     }
     
-    public void supportSetAlpha(float alpha) {
+    public void setSupportAlpha(float alpha) {
         if (AnimatorProxy.NEEDS_PROXY) {
             mProxy.setAlpha(alpha);
         } else {
@@ -94,7 +94,7 @@ public abstract class NineViewGroup extends ViewGroup {
         }
     }
 
-    public float supportGetTranslationX() {
+    public float getSupportTranslationX() {
         if (AnimatorProxy.NEEDS_PROXY) {
             return mProxy.getTranslationX();
         } else {
@@ -105,14 +105,14 @@ public abstract class NineViewGroup extends ViewGroup {
             return 0.0f;
         }
     }
-    public void supportSetTranslationX(float translationX) {
+    public void setSupportTranslationX(float translationX) {
         if (AnimatorProxy.NEEDS_PROXY) {
             mProxy.setTranslationX(translationX);
         } else {
             UtilityWrapper.safelyInvokeMethod(superSetTranslationXMethod, this, translationX);
         }
     }
-    public float supportGetTranslationY() {
+    public float getSupportTranslationY() {
         if (AnimatorProxy.NEEDS_PROXY) {
             return mProxy.getTranslationY();
         } else {
@@ -123,7 +123,7 @@ public abstract class NineViewGroup extends ViewGroup {
             return 0.0f;
         }
     }
-    public void supportSetTranslationY(float translationY) {
+    public void setSupportTranslationY(float translationY) {
         if (AnimatorProxy.NEEDS_PROXY) {
             mProxy.setTranslationY(translationY);
         } else {

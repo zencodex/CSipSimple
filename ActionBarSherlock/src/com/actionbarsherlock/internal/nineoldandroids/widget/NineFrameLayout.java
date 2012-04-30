@@ -69,7 +69,7 @@ public class NineFrameLayout extends FrameLayout {
         super.setVisibility(visibility);
     }
 
-    public float supportGetAlpha() {
+    public float getSupportAlpha() {
         if (AnimatorProxy.NEEDS_PROXY) {
             return mProxy.getAlpha();
         } else {
@@ -81,7 +81,7 @@ public class NineFrameLayout extends FrameLayout {
         return 0.0f;
     }
     
-    public void supportSetAlpha(float alpha) {
+    public void setSupportAlpha(float alpha) {
         if (AnimatorProxy.NEEDS_PROXY) {
             mProxy.setAlpha(alpha);
         } else {
@@ -89,7 +89,7 @@ public class NineFrameLayout extends FrameLayout {
         }
     }
     
-    public float supportGetTranslationY() {
+    public float getSupportTranslationY() {
         if (AnimatorProxy.NEEDS_PROXY) {
             return mProxy.getTranslationY();
         } else {
@@ -101,7 +101,7 @@ public class NineFrameLayout extends FrameLayout {
         }
     }
     
-    public void supportSetTranslationY(float translationY) {
+    public void setSupportTranslationY(float translationY) {
         if (AnimatorProxy.NEEDS_PROXY) {
             mProxy.setTranslationY(translationY);
         } else {
