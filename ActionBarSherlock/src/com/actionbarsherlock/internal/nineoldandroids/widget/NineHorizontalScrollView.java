@@ -48,7 +48,7 @@ public class NineHorizontalScrollView extends HorizontalScrollView {
         super.setVisibility(visibility);
     }
 
-    public float supportGetAlpha() {
+    public float getSupportAlpha() {
         if (AnimatorProxy.NEEDS_PROXY) {
             return mProxy.getAlpha();
         } else {
@@ -60,7 +60,7 @@ public class NineHorizontalScrollView extends HorizontalScrollView {
         return 0.0f;
     }
 
-    public void supportSetAlpha(float alpha) {
+    public void setSupportAlpha(float alpha) {
         if (AnimatorProxy.NEEDS_PROXY) {
             mProxy.setAlpha(alpha);
         } else {
@@ -68,11 +68,10 @@ public class NineHorizontalScrollView extends HorizontalScrollView {
         }
     }
     
-    /*
-    protected void onConfigurationChanged(Configuration newConfig) {
+    protected void supportOnConfigurationChanged(Configuration newConfig) {
         if(superOnConfigurationChangedMethod != null) {
             UtilityWrapper.safelyInvokeMethod(superOnConfigurationChangedMethod, this, newConfig);
         }
     }
-    */
+    
 }

@@ -111,8 +111,8 @@ public class ActionBarImpl extends ActionBar {
         @Override
         public void onAnimationEnd(Animator animation) {
             if (mContentView != null) {
-                mContentView.supportSetTranslationY(0);
-                mContainerView.supportSetTranslationY(0);
+                mContentView.setSupportTranslationY(0);
+                mContainerView.setSupportTranslationY(0);
             }
             if (mSplitView != null && mContextDisplayMode == CONTEXT_DISPLAY_SPLIT) {
                 mSplitView.setVisibility(View.GONE);
@@ -558,17 +558,17 @@ public class ActionBarImpl extends ActionBar {
         mContainerView.setVisibility(View.VISIBLE);
 
         if (mShowHideAnimationEnabled) {
-            mContainerView.supportSetAlpha(0);
+            mContainerView.setSupportAlpha(0);
             AnimatorSet anim = new AnimatorSet();
-            AnimatorSet.Builder b = anim.play(ObjectAnimator.ofFloat(mContainerView, "alpha", 1));
+            AnimatorSet.Builder b = anim.play(ObjectAnimator.ofFloat(mContainerView, "supportAlpha", 1));
             if (mContentView != null) {
                 b.with(ObjectAnimator.ofFloat(mContentView, "translationY",
                         -mContainerView.getHeight(), 0));
-                mContainerView.supportSetTranslationY(-mContainerView.getHeight());
+                mContainerView.setSupportTranslationY(-mContainerView.getHeight());
                 b.with(ObjectAnimator.ofFloat(mContainerView, "translationY", 0));
             }
             if (mSplitView != null && mContextDisplayMode == CONTEXT_DISPLAY_SPLIT) {
-                mSplitView.supportSetAlpha(0);
+                mSplitView.setSupportAlpha(0);
                 mSplitView.setVisibility(View.VISIBLE);
                 b.with(ObjectAnimator.ofFloat(mSplitView, "alpha", 1));
             }
@@ -576,8 +576,8 @@ public class ActionBarImpl extends ActionBar {
             mCurrentShowAnim = anim;
             anim.start();
         } else {
-            mContainerView.supportSetAlpha(1);
-            mContainerView.supportSetTranslationY(0);
+            mContainerView.setSupportAlpha(1);
+            mContainerView.setSupportTranslationY(0);
             mShowListener.onAnimationEnd(null);
         }
     }
@@ -592,10 +592,10 @@ public class ActionBarImpl extends ActionBar {
         }
 
         if (mShowHideAnimationEnabled) {
-            mContainerView.supportSetAlpha(1);
+            mContainerView.setSupportAlpha(1);
             mContainerView.setTransitioning(true);
             AnimatorSet anim = new AnimatorSet();
-            AnimatorSet.Builder b = anim.play(ObjectAnimator.ofFloat(mContainerView, "alpha", 0));
+            AnimatorSet.Builder b = anim.play(ObjectAnimator.ofFloat(mContainerView, "supportAlpha", 0));
             if (mContentView != null) {
                 b.with(ObjectAnimator.ofFloat(mContentView, "translationY",
                         0, -mContainerView.getHeight()));
@@ -603,8 +603,8 @@ public class ActionBarImpl extends ActionBar {
                         -mContainerView.getHeight()));
             }
             if (mSplitView != null && mSplitView.getVisibility() == View.VISIBLE) {
-                mSplitView.supportSetAlpha(1);
-                b.with(ObjectAnimator.ofFloat(mSplitView, "alpha", 0));
+                mSplitView.setSupportAlpha(1);
+                b.with(ObjectAnimator.ofFloat(mSplitView, "supportAlpha", 0));
             }
             anim.addListener(mHideListener);
             mCurrentShowAnim = anim;

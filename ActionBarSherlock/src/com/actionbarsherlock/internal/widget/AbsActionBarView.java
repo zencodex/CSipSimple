@@ -134,17 +134,17 @@ public abstract class AbsActionBarView extends NineViewGroup {
         }
         if (visibility == VISIBLE) {
             if (getVisibility() != VISIBLE) {
-                supportSetAlpha(0);
+                setSupportAlpha(0);
                 if (mSplitView != null && mMenuView != null) {
-                    mMenuView.supportSetAlpha(0);
+                    mMenuView.setSupportAlpha(0);
                 }
             }
-            ObjectAnimator anim = ObjectAnimator.ofFloat(this, "alpha", 1);
+            ObjectAnimator anim = ObjectAnimator.ofFloat(this, "supportAlpha", 1);
             anim.setDuration(FADE_DURATION);
             anim.setInterpolator(sAlphaInterpolator);
             if (mSplitView != null && mMenuView != null) {
                 AnimatorSet set = new AnimatorSet();
-                ObjectAnimator splitAnim = ObjectAnimator.ofFloat(mMenuView, "alpha", 1);
+                ObjectAnimator splitAnim = ObjectAnimator.ofFloat(mMenuView, "supportAlpha", 1);
                 splitAnim.setDuration(FADE_DURATION);
                 set.addListener(mVisAnimListener.withFinalVisibility(visibility));
                 set.play(anim).with(splitAnim);
@@ -154,12 +154,12 @@ public abstract class AbsActionBarView extends NineViewGroup {
                 anim.start();
             }
         } else {
-            ObjectAnimator anim = ObjectAnimator.ofFloat(this, "alpha", 0);
+            ObjectAnimator anim = ObjectAnimator.ofFloat(this, "supportAlpha", 0);
             anim.setDuration(FADE_DURATION);
             anim.setInterpolator(sAlphaInterpolator);
             if (mSplitView != null && mMenuView != null) {
                 AnimatorSet set = new AnimatorSet();
-                ObjectAnimator splitAnim = ObjectAnimator.ofFloat(mMenuView, "alpha", 0);
+                ObjectAnimator splitAnim = ObjectAnimator.ofFloat(mMenuView, "supportAlpha", 0);
                 splitAnim.setDuration(FADE_DURATION);
                 set.addListener(mVisAnimListener.withFinalVisibility(visibility));
                 set.play(anim).with(splitAnim);

@@ -389,9 +389,9 @@ public class ActionBarContextView extends AbsActionBarView implements AnimatorLi
     }
 
     private Animator makeInAnimation() {
-        mClose.supportSetTranslationX(-mClose.getWidth() -
+        mClose.setSupportTranslationX(-mClose.getWidth() -
                 ((MarginLayoutParams) mClose.getLayoutParams()).leftMargin);
-        ObjectAnimator buttonAnimator = ObjectAnimator.ofFloat(mClose, "translationX", 0);
+        ObjectAnimator buttonAnimator = ObjectAnimator.ofFloat(mClose, "supportTranslationX", 0);
         buttonAnimator.setDuration(200);
         buttonAnimator.addListener(this);
         buttonAnimator.setInterpolator(new DecelerateInterpolator());
@@ -417,7 +417,7 @@ public class ActionBarContextView extends AbsActionBarView implements AnimatorLi
     }
 
     private Animator makeOutAnimation() {
-        ObjectAnimator buttonAnimator = ObjectAnimator.ofFloat(mClose, "translationX",
+        ObjectAnimator buttonAnimator = ObjectAnimator.ofFloat(mClose, "supportTranslationX",
                 -mClose.getWidth() - ((MarginLayoutParams) mClose.getLayoutParams()).leftMargin);
         buttonAnimator.setDuration(200);
         buttonAnimator.addListener(this);

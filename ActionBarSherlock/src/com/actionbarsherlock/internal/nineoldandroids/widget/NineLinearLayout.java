@@ -73,7 +73,7 @@ public class NineLinearLayout extends LinearLayout {
         super.setVisibility(visibility);
     }
 
-    public float supportGetAlpha() {
+    public float getSupportAlpha() {
         if (AnimatorProxy.NEEDS_PROXY) {
             return mProxy.getAlpha();
         } else {
@@ -85,7 +85,7 @@ public class NineLinearLayout extends LinearLayout {
         return 0.0f;
     }
 
-    public void supportSetAlpha(float alpha) {
+    public void setSupportAlpha(float alpha) {
         if (AnimatorProxy.NEEDS_PROXY) {
             mProxy.setAlpha(alpha);
         } else {
@@ -93,7 +93,7 @@ public class NineLinearLayout extends LinearLayout {
         }
     }
 
-    public float supportGetTranslationX() {
+    public float getSupportTranslationX() {
         if (AnimatorProxy.NEEDS_PROXY) {
             return mProxy.getTranslationX();
         } else {
@@ -105,7 +105,7 @@ public class NineLinearLayout extends LinearLayout {
         }
     }
     
-    public void supportSetTranslationX(float translationX) {
+    public void setSupportTranslationX(float translationX) {
         if (AnimatorProxy.NEEDS_PROXY) {
             mProxy.setTranslationX(translationX);
         } else {
@@ -113,13 +113,9 @@ public class NineLinearLayout extends LinearLayout {
         }
     }
 
-    
-
-    /*
-    protected void onConfigurationChanged(Configuration newConfig) {
+    protected void supportOnConfigurationChanged(Configuration newConfig) {
         if(superOnConfigurationChangedMethod != null) {
             UtilityWrapper.safelyInvokeMethod(superOnConfigurationChangedMethod, this, newConfig);
         }
     }
-    */
 }

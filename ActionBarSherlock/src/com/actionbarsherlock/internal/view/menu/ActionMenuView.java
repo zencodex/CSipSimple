@@ -71,7 +71,7 @@ public class ActionMenuView extends IcsLinearLayout implements MenuBuilder.ItemI
     
     public void supportOnConfigurationChanged(Configuration newConfig) {
         if (IS_FROYO) {
-            super.onConfigurationChanged(newConfig);
+            super.supportOnConfigurationChanged(newConfig);
         }
         mPresenter.updateMenuView(false);
 
