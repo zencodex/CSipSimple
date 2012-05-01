@@ -202,6 +202,7 @@ public class ScrollingTabContainerView extends NineHorizontalScrollView
         return spinner;
     }
 
+    /* -- TODO -- we should re-enable that
     @Override
     protected void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
@@ -213,6 +214,7 @@ public class ScrollingTabContainerView extends NineHorizontalScrollView
         setContentHeight(a.getLayoutDimension(R.styleable.SherlockActionBar_height, 0));
         a.recycle();
     }
+    */
 
     public void animateToVisibility(int visibility) {
         if (mVisibilityAnim != null) {
