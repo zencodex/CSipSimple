@@ -2,7 +2,6 @@ package com.actionbarsherlock.internal.nineoldandroids.view;
 
 import android.content.Context;
 import android.content.res.Configuration;
-import android.os.Build;
 import android.util.AttributeSet;
 import android.view.ViewGroup;
 
@@ -13,7 +12,6 @@ import java.lang.reflect.Method;
 
 public abstract class NineViewGroup extends ViewGroup {
     private final AnimatorProxy mProxy;
-    private static Method superOnConfigurationChangedMethod;
     private static Method superGetAlphaMethod;
     private static Method superSetAlphaMethod;
     private static Method superGetTranslationXMethod;
@@ -54,11 +52,6 @@ public abstract class NineViewGroup extends ViewGroup {
                     "getTranslationY");
             superSetTranslationYMethod = UtilityWrapper.safelyGetSuperclassMethod(cls,
                     "setTranslationY", float.class);
-        }
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH
-                && superOnConfigurationChangedMethod == null) {
-            superOnConfigurationChangedMethod = UtilityWrapper.safelyGetSuperclassMethod(cls,
-                    "onConfigurationChanged", Configuration.class);
         }
     }
 
@@ -131,9 +124,8 @@ public abstract class NineViewGroup extends ViewGroup {
         }
     }
     
-    protected void supportOnConfigurationChanged(Configuration newConfig) {
-        if(superOnConfigurationChangedMethod != null) {
-            UtilityWrapper.safelyInvokeMethod(superOnConfigurationChangedMethod, this, newConfig);
-        }
+    protected void onConfigurationChanged(Configuration newConfig) {
+        // No need to call super cause the one of view + crash on 1.6
+        // super.onConfigurationChanged(newConfig);
     }
 }

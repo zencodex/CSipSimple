@@ -2,7 +2,6 @@ package com.actionbarsherlock.internal.nineoldandroids.widget;
 
 import android.content.Context;
 import android.content.res.Configuration;
-import android.os.Build;
 import android.util.AttributeSet;
 import android.widget.LinearLayout;
 
@@ -14,7 +13,6 @@ import java.lang.reflect.Method;
 public class NineLinearLayout extends LinearLayout {
     private final AnimatorProxy mProxy;
 
-    private static Method superOnConfigurationChangedMethod;
     private static Method superSetAlphaMethod;
     private static Method superGetAlphaMethod;
     private static Method superGetTranslationXMethod;
@@ -46,11 +44,6 @@ public class NineLinearLayout extends LinearLayout {
                     "getTranslationX");
             superSetTranslationXMethod = UtilityWrapper.safelyGetSuperclassMethod(cls,
                     "setTranslationX", float.class);
-        }
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH
-                && superOnConfigurationChangedMethod == null) {
-            superOnConfigurationChangedMethod = UtilityWrapper.safelyGetSuperclassMethod(cls,
-                    "onConfigurationChanged", Configuration.class);
         }
     }
     
@@ -112,10 +105,11 @@ public class NineLinearLayout extends LinearLayout {
             UtilityWrapper.safelyInvokeMethod(superSetTranslationXMethod, this, translationX);
         }
     }
-
-    protected void supportOnConfigurationChanged(Configuration newConfig) {
-        if(superOnConfigurationChangedMethod != null) {
-            UtilityWrapper.safelyInvokeMethod(superOnConfigurationChangedMethod, this, newConfig);
-        }
+    
+    @Override
+    protected void onConfigurationChanged(Configuration newConfig) {
+        // Don't call view onConfiguration changed -- useless and doesn't work on 1.6
+        //super.onConfigurationChanged(newConfig);
     }
+
 }
