@@ -69,10 +69,8 @@ public class ActionMenuView extends IcsLinearLayout implements MenuBuilder.ItemI
         return mFormatItems;
     }
     
-    public void supportOnConfigurationChanged(Configuration newConfig) {
-        if (IS_FROYO) {
-            super.supportOnConfigurationChanged(newConfig);
-        }
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
         mPresenter.updateMenuView(false);
 
         if (mPresenter != null && mPresenter.isOverflowMenuShowing()) {
@@ -81,10 +79,6 @@ public class ActionMenuView extends IcsLinearLayout implements MenuBuilder.ItemI
         }
     }
 
-    @Override
-    public void onConfigurationChanged(Configuration newConfig) {
-        supportOnConfigurationChanged(newConfig);
-    }
 
     @Override
     protected void onDraw(Canvas canvas) {

@@ -2,8 +2,8 @@ package com.actionbarsherlock.internal.nineoldandroids.widget;
 
 import android.content.Context;
 import android.content.res.Configuration;
-import android.os.Build;
 import android.widget.HorizontalScrollView;
+
 import com.actionbarsherlock.internal.nineoldandroids.view.animation.AnimatorProxy;
 import com.actionbarsherlock.internal.utils.UtilityWrapper;
 
@@ -13,7 +13,6 @@ public class NineHorizontalScrollView extends HorizontalScrollView {
     private final AnimatorProxy mProxy;
     private static Method superSetAlphaMethod;
     private static Method superGetAlphaMethod;
-    private static Method superOnConfigurationChangedMethod;
 
     public NineHorizontalScrollView(Context context) {
         super(context);
@@ -27,11 +26,6 @@ public class NineHorizontalScrollView extends HorizontalScrollView {
         if (!AnimatorProxy.NEEDS_PROXY && superGetAlphaMethod == null) {
             superGetAlphaMethod = UtilityWrapper.safelyGetSuperclassMethod(cls, "getAlpha");
             superSetAlphaMethod = UtilityWrapper.safelyGetSuperclassMethod(cls, "setAlpha", float.class);
-        }
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH
-                && superOnConfigurationChangedMethod == null) {
-            superOnConfigurationChangedMethod = UtilityWrapper.safelyGetSuperclassMethod(cls,
-                    "onConfigurationChanged", Configuration.class);
         }
     }
     
@@ -68,10 +62,9 @@ public class NineHorizontalScrollView extends HorizontalScrollView {
         }
     }
     
-    protected void supportOnConfigurationChanged(Configuration newConfig) {
-        if(superOnConfigurationChangedMethod != null) {
-            UtilityWrapper.safelyInvokeMethod(superOnConfigurationChangedMethod, this, newConfig);
-        }
+    @Override
+    protected void onConfigurationChanged(Configuration newConfig) {
+        // Not calling super -- 1.6 + useless
+        //super.onConfigurationChanged(newConfig);
     }
-    
 }

@@ -248,8 +248,8 @@ public class ActionBarView extends AbsActionBarView {
      * Must be public so we can dispatch pre-2.2 via ActionBarImpl.
      */
     @Override
-    public void supportOnConfigurationChanged(Configuration newConfig) {
-        super.supportOnConfigurationChanged(newConfig);
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
 
         mTitleView = null;
         mSubtitleView = null;
