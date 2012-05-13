@@ -124,7 +124,7 @@ public abstract class NineViewGroup extends ViewGroup {
         }
     }
     
-    protected void onConfigurationChanged(Configuration newConfig) {
+    public void onConfigurationChanged(Configuration newConfig) {
         // No need to call super cause the one of view + crash on 1.6
         // super.onConfigurationChanged(newConfig);
     }
