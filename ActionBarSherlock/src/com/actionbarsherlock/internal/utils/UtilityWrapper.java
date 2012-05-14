@@ -40,25 +40,16 @@ public abstract class UtilityWrapper {
 
     public static UtilityWrapper getInstance() {
         if (instance == null) {
-            // TODO : dynamic package name here
-            String className = "com.actionbarsherlock.internal.utils.Utility";
             if (Build.VERSION.SDK_INT >= 14) {
-                className += "14";
+                instance = new com.actionbarsherlock.internal.utils.Utility14();
             } else if (Build.VERSION.SDK_INT >= 11) {
-                className += "11";
+                instance = new com.actionbarsherlock.internal.utils.Utility11();
             } else if (Build.VERSION.SDK_INT >= 8) {
-                className += "8";
+                instance = new com.actionbarsherlock.internal.utils.Utility8();
             } else if (Build.VERSION.SDK_INT >= 7) {
-                className += "7";
+                instance = new com.actionbarsherlock.internal.utils.Utility7();
             } else {
-                className += "4";
-            }
-            try {
-                Class<? extends UtilityWrapper> wrappedClass = Class.forName(className).asSubclass(
-                        UtilityWrapper.class);
-                instance = wrappedClass.newInstance();
-            } catch (Exception e) {
-                throw new IllegalStateException(e);
+                instance = new com.actionbarsherlock.internal.utils.Utility4();
             }
         }
 
