@@ -1,6 +1,7 @@
 package com.actionbarsherlock.app;
 
 import android.app.Activity;
+import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import com.actionbarsherlock.internal.view.menu.MenuItemWrapper;
 import com.actionbarsherlock.internal.view.menu.MenuWrapper;
@@ -64,5 +65,15 @@ public class SherlockFragment extends Fragment implements OnCreateOptionsMenuLis
     public boolean onOptionsItemSelected(MenuItem item) {
         //Nothing to see here.
         return false;
+    }
+    
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        // Needed due to a bug in compat library 
+        // when fragment hidden, the mUserVisibleHint is set to false
+        // This imply that the compat lib tries to save to state the USER_VISIBLE_HINT_TAG
+        // But they don't safely check if result is not null, so we have to force that
+        outState.putBoolean("FAKE_KEY", true);
+        super.onSaveInstanceState(outState);
     }
 }
