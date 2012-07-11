@@ -28,6 +28,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.SpinnerAdapter;
 
+import com.actionbarsherlock.internal.utils.UtilityWrapper;
+
 /**
  * An abstract base class for spinner widgets. SDK users will probably not
  * need to use this class.
@@ -231,13 +233,8 @@ public abstract class IcsAbsSpinner extends IcsAdapterView<SpinnerAdapter> {
         preferredHeight = Math.max(preferredHeight, getSuggestedMinimumHeight());
         preferredWidth = Math.max(preferredWidth, getSuggestedMinimumWidth());
 
-        if (IS_HONEYCOMB) {
-            heightSize = resolveSizeAndState(preferredHeight, heightMeasureSpec, 0);
-            widthSize = resolveSizeAndState(preferredWidth, widthMeasureSpec, 0);
-        } else {
-            heightSize = resolveSize(preferredHeight, heightMeasureSpec);
-            widthSize = resolveSize(preferredWidth, widthMeasureSpec);
-        }
+        heightSize = UtilityWrapper.getInstance().resolveSizeAndState(preferredHeight, heightMeasureSpec, 0);
+        widthSize = UtilityWrapper.getInstance().resolveSizeAndState(preferredWidth, widthMeasureSpec, 0);
 
         setMeasuredDimension(widthSize, heightSize);
         mHeightMeasureSpec = heightMeasureSpec;

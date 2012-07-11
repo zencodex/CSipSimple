@@ -1,5 +1,6 @@
 package com.actionbarsherlock.app;
 
+import android.annotation.SuppressLint;
 import android.content.res.Configuration;
 import android.os.Bundle;
 import android.support.v4.app._ActionBarSherlockTrojanHorse;
@@ -8,14 +9,14 @@ import android.view.KeyEvent;
 import android.view.View;
 import android.view.ViewGroup.LayoutParams;
 import android.view.Window;
+
 import com.actionbarsherlock.ActionBarSherlock;
+import com.actionbarsherlock.ActionBarSherlock.OnActionModeFinishedListener;
+import com.actionbarsherlock.ActionBarSherlock.OnActionModeStartedListener;
 import com.actionbarsherlock.view.ActionMode;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
-
-import static com.actionbarsherlock.ActionBarSherlock.OnActionModeFinishedListener;
-import static com.actionbarsherlock.ActionBarSherlock.OnActionModeStartedListener;
 
 /** @see {@link _ActionBarSherlockTrojanHorse} */
 public class SherlockFragmentActivity extends _ActionBarSherlockTrojanHorse implements OnActionModeStartedListener, OnActionModeFinishedListener {
@@ -139,9 +140,11 @@ public class SherlockFragmentActivity extends _ActionBarSherlockTrojanHorse impl
         getSherlock().dispatchInvalidateOptionsMenu();
     }
 
+    // Safe because redefined inside and dispatch
+    @SuppressLint("NewApi")
     public void supportInvalidateOptionsMenu() {
         if (DEBUG) Log.d(TAG, "[supportInvalidateOptionsMenu]");
-
+        
         invalidateOptionsMenu();
     }
 
