@@ -179,6 +179,16 @@ public class Utility4 extends UtilityWrapper {
     public int resolveSizeAndState(int size, int measureSpec, int state) {
         return View.resolveSize(size, measureSpec);
     }
+    
+    @Override
+    public int getMeasuredState(View child) {
+        return 0;
+    }
+
+    @Override
+    public int combineMeasuredStates(int curState, int newState) {
+        return newState;
+    }
 
     @Override
     public boolean isLongPressEvent(KeyEvent evt) {
