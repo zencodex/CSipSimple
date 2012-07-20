@@ -87,4 +87,15 @@ public class Utility11 extends Utility9 {
     public int resolveSizeAndState(int size, int measureSpec, int state) {
         return View.resolveSizeAndState(size, measureSpec, state);
     }
+
+    @Override
+    public int getMeasuredState(View child) {
+        return child.getMeasuredState();
+    }
+    
+    @Override
+    public int combineMeasuredStates(int curState, int newState) {
+        return View.combineMeasuredStates(curState, newState);
+    }
+
 }

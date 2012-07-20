@@ -72,6 +72,10 @@ public abstract class UtilityWrapper {
     
     public abstract int resolveSizeAndState(int size, int measureSpec, int state);
     
+    public abstract int getMeasuredState(View child);
+    
+    public abstract int combineMeasuredStates(int curState, int newState);
+    
     public abstract boolean isLongPressEvent(KeyEvent evt);
     
     public static Method safelyGetSuperclassMethod(Class<?> cls, String methodName, Class<?>... parametersType) {
