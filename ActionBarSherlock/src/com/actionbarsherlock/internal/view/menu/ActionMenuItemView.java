@@ -145,6 +145,7 @@ public class ActionMenuItemView extends LinearLayout
 
         setVisibility(itemData.isVisible() ? View.VISIBLE : View.GONE);
         setEnabled(itemData.isEnabled());
+        setChecked(itemData.isChecked());
     }
 
     @Override
@@ -172,8 +173,25 @@ public class ActionMenuItemView extends LinearLayout
         // TODO Support checkable action items
     }
 
+    private static final int[] CHECKED_STATE_SET = {
+        android.R.attr.state_checked
+    };
+    private boolean checkedState = false;
     public void setChecked(boolean checked) {
-        // TODO Support checkable action items
+        if(checkedState != checked) {
+            checkedState = checked;
+            refreshDrawableState();
+        }
+        
+    }
+    
+    @Override
+    protected int[] onCreateDrawableState(int extraSpace) {
+        final int[] drawableState = super.onCreateDrawableState(extraSpace + 1);
+        if (checkedState) {
+            mergeDrawableStates(drawableState, CHECKED_STATE_SET);
+        }
+        return drawableState;
     }
 
     public void setExpandedFormat(boolean expandedFormat) {
