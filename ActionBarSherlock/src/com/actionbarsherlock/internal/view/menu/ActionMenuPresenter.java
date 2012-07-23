@@ -421,7 +421,9 @@ public class ActionMenuPresenter extends BaseMenuPresenter
         if (mStrictWidthLimit) {
             cellsRemaining = widthLimit / mMinCellSize;
             final int cellSizeRemaining = widthLimit % mMinCellSize;
-            cellSize = mMinCellSize + cellSizeRemaining / cellsRemaining;
+            if(cellsRemaining > 0) {
+                cellSize = mMinCellSize + cellSizeRemaining / cellsRemaining;
+            }
         }
 
         // Flag as many more requested items as will fit.
