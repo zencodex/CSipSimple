@@ -40,7 +40,9 @@ public abstract class UtilityWrapper {
 
     public static UtilityWrapper getInstance() {
         if (instance == null) {
-            if (Build.VERSION.SDK_INT >= 14) {
+            if (Build.VERSION.SDK_INT >= 16) {
+                instance = new com.actionbarsherlock.internal.utils.Utility16();
+            } else if (Build.VERSION.SDK_INT >= 14) {
                 instance = new com.actionbarsherlock.internal.utils.Utility14();
             } else if (Build.VERSION.SDK_INT >= 11) {
                 instance = new com.actionbarsherlock.internal.utils.Utility11();
@@ -78,6 +80,8 @@ public abstract class UtilityWrapper {
     
     public abstract boolean isLongPressEvent(KeyEvent evt);
     
+    public abstract void setBackgroundDrawable(View v, Drawable d);
+    
     public static Method safelyGetSuperclassMethod(Class<?> cls, String methodName, Class<?>... parametersType) {
         Class<?> sCls = cls.getSuperclass();
         while(sCls != Object.class) {
@@ -104,4 +108,5 @@ public abstract class UtilityWrapper {
         
         return null;
     }
+    
 }
