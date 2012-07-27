@@ -194,4 +194,9 @@ public class Utility4 extends UtilityWrapper {
     public boolean isLongPressEvent(KeyEvent evt) {
         return false;
     }
+    
+    @SuppressWarnings("deprecation")
+    public void setBackgroundDrawable(View v, Drawable d) {
+        v.setBackgroundDrawable(d);
+    }
 }
