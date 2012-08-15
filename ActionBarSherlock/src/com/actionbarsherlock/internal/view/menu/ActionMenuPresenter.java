@@ -77,6 +77,7 @@ public class ActionMenuPresenter extends BaseMenuPresenter
 
     final PopupPresenterCallback mPopupPresenterCallback = new PopupPresenterCallback();
     int mOpenSubMenuId;
+    private int mOverflowWidth;
 
     public ActionMenuPresenter(Context context) {
         super(context, R.layout.abs__action_menu_layout,
@@ -88,7 +89,7 @@ public class ActionMenuPresenter extends BaseMenuPresenter
         super.initForMenu(context, menu);
 
         final Resources res = context.getResources();
-
+        mOverflowWidth = res.getDrawable(R.drawable.abs__ic_menu_moreoverflow_normal_holo_dark).getIntrinsicWidth();
         if (!mReserveOverflowSet) {
             mReserveOverflow = reserveOverflow(mContext);
         }
@@ -160,9 +161,12 @@ public class ActionMenuPresenter extends BaseMenuPresenter
         mWidthLimitSet = true;
         if(mActionItemWidthLimit != 0) {
             if(mReserveOverflow && mOverflowButton != null) {
-                width -= mOverflowButton.getMeasuredWidth();
+                width -= mOverflowWidth;
             }
             mActionItemWidthLimit = width;
+            if(mMenuView != null) {
+                flagActionItems();
+            }
         }
     }
 
@@ -424,14 +428,14 @@ public class ActionMenuPresenter extends BaseMenuPresenter
 
         final SparseBooleanArray seenGroups = mActionButtonGroups;
         seenGroups.clear();
-
         int cellSize = 0;
         int cellsRemaining = 0;
         if (mStrictWidthLimit) {
             cellsRemaining = widthLimit / mMinCellSize;
             final int cellSizeRemaining = widthLimit % mMinCellSize;
+            cellSize = mMinCellSize;
             if(cellsRemaining > 0) {
-                cellSize = mMinCellSize + cellSizeRemaining / cellsRemaining;
+                cellSize += cellSizeRemaining / cellsRemaining;
             }
         }
 
