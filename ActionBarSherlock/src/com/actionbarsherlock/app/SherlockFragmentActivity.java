@@ -144,7 +144,7 @@ public class SherlockFragmentActivity extends _ActionBarSherlockTrojanHorse impl
     @SuppressLint("NewApi")
     public void supportInvalidateOptionsMenu() {
         if (DEBUG) Log.d(TAG, "[supportInvalidateOptionsMenu]");
-        
+
         invalidateOptionsMenu();
     }
 
