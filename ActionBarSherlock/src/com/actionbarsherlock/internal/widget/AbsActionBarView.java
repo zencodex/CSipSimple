@@ -90,7 +90,6 @@ public abstract class AbsActionBarView extends NineViewGroup {
         }
     }
 
-
     /**
      * Sets whether the bar should be split right now, no questions asked.
      * @param split true if the bar should split

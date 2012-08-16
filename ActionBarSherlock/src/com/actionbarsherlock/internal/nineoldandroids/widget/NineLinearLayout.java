@@ -46,14 +46,7 @@ public class NineLinearLayout extends LinearLayout {
                     "setTranslationX", float.class);
         }
     }
-    
-/*
-    public NineLinearLayout(Context context, AttributeSet attrs, int defStyle) {
-        super(context, attrs, defStyle);
-        mProxy = AnimatorProxy.NEEDS_PROXY ? AnimatorProxy.wrap(this) : null;
-        loadStaticMethods();
-    }
-*/
+
     @Override
     public void setVisibility(int visibility) {
         if (mProxy != null) {

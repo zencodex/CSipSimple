@@ -24,13 +24,11 @@ public class NineFrameLayout extends FrameLayout {
         mProxy = AnimatorProxy.NEEDS_PROXY ? AnimatorProxy.wrap(this) : null;
         loadStaticMethods();
     }
-    
     public NineFrameLayout(Context context, AttributeSet attrs) {
         super(context, attrs);
         mProxy = AnimatorProxy.NEEDS_PROXY ? AnimatorProxy.wrap(this) : null;
         loadStaticMethods();
     }
-    
     public NineFrameLayout(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
         mProxy = AnimatorProxy.NEEDS_PROXY ? AnimatorProxy.wrap(this) : null;
@@ -100,7 +98,6 @@ public class NineFrameLayout extends FrameLayout {
             return 0.0f;
         }
     }
-    
     public void setSupportTranslationY(float translationY) {
         if (AnimatorProxy.NEEDS_PROXY) {
             mProxy.setTranslationY(translationY);

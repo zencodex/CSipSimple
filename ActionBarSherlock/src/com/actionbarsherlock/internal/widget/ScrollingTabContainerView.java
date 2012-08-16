@@ -204,7 +204,7 @@ public class ScrollingTabContainerView extends NineHorizontalScrollView
 
     protected void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
-        
+
         // Action bar can change size on configuration changes.
         // Reread the desired height from the theme-specified style.
         TypedArray a = getContext().obtainStyledAttributes(null, R.styleable.SherlockActionBar,
