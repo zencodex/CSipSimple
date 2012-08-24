@@ -29,6 +29,7 @@ import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.ViewConfiguration;
+import android.widget.LinearLayout;
 import android.widget.PopupWindow;
 
 import java.lang.reflect.InvocationTargetException;
@@ -81,6 +82,10 @@ public abstract class UtilityWrapper {
     public abstract boolean isLongPressEvent(KeyEvent evt);
     
     public abstract void setBackgroundDrawable(View v, Drawable d);
+    
+    public abstract void setLinearLayoutDividerPadding(LinearLayout l, int padding);
+    
+    public abstract void setLinearLayoutDividerDrawable(LinearLayout l, Drawable drawable);
     
     public static Method safelyGetSuperclassMethod(Class<?> cls, String methodName, Class<?>... parametersType) {
         Class<?> sCls = cls.getSuperclass();

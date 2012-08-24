@@ -32,9 +32,11 @@ import android.view.ContextThemeWrapper;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.ViewConfiguration;
+import android.widget.LinearLayout;
 import android.widget.PopupWindow;
 
 import com.actionbarsherlock.internal.ActionBarSherlockCompat;
+import com.actionbarsherlock.internal.widget.IcsLinearLayout;
 
 import org.xmlpull.v1.XmlPullParser;
 
@@ -198,5 +200,19 @@ public class Utility4 extends UtilityWrapper {
     @SuppressWarnings("deprecation")
     public void setBackgroundDrawable(View v, Drawable d) {
         v.setBackgroundDrawable(d);
+    }
+
+    @Override
+    public void setLinearLayoutDividerPadding(LinearLayout l, int padding) {
+        if(l instanceof IcsLinearLayout) {
+            ((IcsLinearLayout)l).setDividerPadding(padding);
+        }
+    }
+
+    @Override
+    public void setLinearLayoutDividerDrawable(LinearLayout l, Drawable drawable) {
+        if(l instanceof IcsLinearLayout) {
+            ((IcsLinearLayout)l).setDividerDrawable(drawable);
+        }
     }
 }

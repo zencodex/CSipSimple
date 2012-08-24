@@ -32,6 +32,7 @@ import android.util.AttributeSet;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewConfiguration;
+import android.widget.LinearLayout;
 import android.widget.PopupWindow;
 
 // 11 is HONEYCOMB
@@ -98,4 +99,9 @@ public class Utility11 extends Utility9 {
         return View.combineMeasuredStates(curState, newState);
     }
 
+    @Override
+    public void setLinearLayoutDividerDrawable(LinearLayout l, Drawable d) {
+        l.setDividerDrawable(d);
+        super.setLinearLayoutDividerDrawable(l, d);
+    }
 }
