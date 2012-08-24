@@ -23,6 +23,7 @@ package com.actionbarsherlock.internal.utils;
 
 import android.annotation.TargetApi;
 import android.view.ViewConfiguration;
+import android.widget.LinearLayout;
 
 @TargetApi(14)
 public class Utility14 extends Utility11 {
@@ -30,5 +31,12 @@ public class Utility14 extends Utility11 {
     @Override
     public boolean hasPermanentMenuKey(ViewConfiguration vcfg) {
         return vcfg.hasPermanentMenuKey();
+    }
+    
+
+    @Override
+    public void setLinearLayoutDividerPadding(LinearLayout l, int padding) {
+        l.setDividerPadding(padding);
+        super.setLinearLayoutDividerPadding(l, padding);
     }
 }
