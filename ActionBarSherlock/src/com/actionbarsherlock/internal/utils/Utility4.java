@@ -205,14 +205,14 @@ public class Utility4 extends UtilityWrapper {
     @Override
     public void setLinearLayoutDividerPadding(LinearLayout l, int padding) {
         if(l instanceof IcsLinearLayout) {
-            ((IcsLinearLayout)l).setDividerPadding(padding);
+            ((IcsLinearLayout)l).supportSetDividerPadding(padding);
         }
     }
 
     @Override
     public void setLinearLayoutDividerDrawable(LinearLayout l, Drawable drawable) {
         if(l instanceof IcsLinearLayout) {
-            ((IcsLinearLayout)l).setDividerDrawable(drawable);
+            ((IcsLinearLayout)l).supportSetDividerDrawable(drawable);
         }
     }
 }

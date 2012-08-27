@@ -110,6 +110,11 @@ public class IcsLinearLayout extends NineLinearLayout {
         supportSetDividerDrawable(divider);
     }
 
+
+    public void supportSetDividerPadding(int padding) {
+        mDividerPadding = padding;
+    }
+    
     /**
      * Set padding displayed on both ends of dividers.
      *
@@ -120,7 +125,7 @@ public class IcsLinearLayout extends NineLinearLayout {
      * @see #getDividerPadding()
      */
     public void setDividerPadding(int padding) {
-        mDividerPadding = padding;
+        supportSetDividerPadding(padding);
     }
 
     /**
