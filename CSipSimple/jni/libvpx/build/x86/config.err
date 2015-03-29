@@ -1,0 +1,149 @@
+# ../../sources/configure --target=x86-android-gcc --disable-examples --sdk-path=/home/android/android-ndk-r8e
+Configuring selected codecs
+  enabling vp8_encoder
+  enabling vp8_decoder
+Configuring for target 'x86-android-gcc'
+  enabling x86
+  enabling runtime_cpu_detect
+  enabling realtime_only
+check_cflags -fomit-frame-pointer
+check_cc -fomit-frame-pointer
+BEGIN /tmp/vpx-conf-10093-20640.c
+    1	int x;
+END /tmp/vpx-conf-10093-20640.c
+/home/android/android-ndk-r8e/toolchains/x86-4.6/prebuilt/linux-x86_64/bin/i686-linux-android-gcc --sysroot=/home/android/android-ndk-r8e/platforms/android-14/arch-x86 -I/home/android/android-ndk-r8e/sources/android/cpufeatures/ -m32 -fomit-frame-pointer -c -o /tmp/vpx-conf-10093-20642.o /tmp/vpx-conf-10093-20640.c
+  using /home/android/android-ndk-r8e/toolchains/x86-4.6/prebuilt/linux-x86_64/bin/i686-linux-android-as
+Warning: Unknown os android while setting up /home/android/android-ndk-r8e/toolchains/x86-4.6/prebuilt/linux-x86_64/bin/i686-linux-android-as flags
+check_cflags -O3
+check_cc -O3
+BEGIN /tmp/vpx-conf-10093-20640.c
+    1	int x;
+END /tmp/vpx-conf-10093-20640.c
+/home/android/android-ndk-r8e/toolchains/x86-4.6/prebuilt/linux-x86_64/bin/i686-linux-android-gcc --sysroot=/home/android/android-ndk-r8e/platforms/android-14/arch-x86 -I/home/android/android-ndk-r8e/sources/android/cpufeatures/ -m32 -fomit-frame-pointer -O3 -c -o /tmp/vpx-conf-10093-20642.o /tmp/vpx-conf-10093-20640.c
+check_cflags -fPIC
+check_cc -fPIC
+BEGIN /tmp/vpx-conf-10093-20640.c
+    1	int x;
+END /tmp/vpx-conf-10093-20640.c
+/home/android/android-ndk-r8e/toolchains/x86-4.6/prebuilt/linux-x86_64/bin/i686-linux-android-gcc --sysroot=/home/android/android-ndk-r8e/platforms/android-14/arch-x86 -I/home/android/android-ndk-r8e/sources/android/cpufeatures/ -m32 -fomit-frame-pointer -O3 -fPIC -c -o /tmp/vpx-conf-10093-20642.o /tmp/vpx-conf-10093-20640.c
+check_cc
+BEGIN /tmp/vpx-conf-10093-20640.c
+    1	    unsigned int e = 'O'<<24 | '2'<<16 | 'B'<<8 | 'E';
+END /tmp/vpx-conf-10093-20640.c
+/home/android/android-ndk-r8e/toolchains/x86-4.6/prebuilt/linux-x86_64/bin/i686-linux-android-gcc --sysroot=/home/android/android-ndk-r8e/platforms/android-14/arch-x86 -I/home/android/android-ndk-r8e/sources/android/cpufeatures/ -m32 -fomit-frame-pointer -O3 -fPIC -c -o /tmp/vpx-conf-10093-20642.o /tmp/vpx-conf-10093-20640.c
+check_header unistd.h
+check_cpp
+BEGIN /tmp/vpx-conf-10093-20640.c
+    1	#include "unistd.h"
+    2	int x;
+END /tmp/vpx-conf-10093-20640.c
+/home/android/android-ndk-r8e/toolchains/x86-4.6/prebuilt/linux-x86_64/bin/i686-linux-android-gcc --sysroot=/home/android/android-ndk-r8e/platforms/android-14/arch-x86 -I/home/android/android-ndk-r8e/sources/android/cpufeatures/ -m32 -fomit-frame-pointer -O3 -fPIC -E -o /tmp/vpx-conf-10093-20642.o /tmp/vpx-conf-10093-20640.c
+check_cflags -Wall
+check_cc -Wall
+BEGIN /tmp/vpx-conf-10093-20640.c
+    1	int x;
+END /tmp/vpx-conf-10093-20640.c
+/home/android/android-ndk-r8e/toolchains/x86-4.6/prebuilt/linux-x86_64/bin/i686-linux-android-gcc --sysroot=/home/android/android-ndk-r8e/platforms/android-14/arch-x86 -I/home/android/android-ndk-r8e/sources/android/cpufeatures/ -m32 -fomit-frame-pointer -O3 -fPIC -Wall -c -o /tmp/vpx-conf-10093-20642.o /tmp/vpx-conf-10093-20640.c
+check_cflags -Wdeclaration-after-statement
+check_cc -Wdeclaration-after-statement
+BEGIN /tmp/vpx-conf-10093-20640.c
+    1	int x;
+END /tmp/vpx-conf-10093-20640.c
+/home/android/android-ndk-r8e/toolchains/x86-4.6/prebuilt/linux-x86_64/bin/i686-linux-android-gcc --sysroot=/home/android/android-ndk-r8e/platforms/android-14/arch-x86 -I/home/android/android-ndk-r8e/sources/android/cpufeatures/ -m32 -fomit-frame-pointer -O3 -fPIC -Wall -Wdeclaration-after-statement -c -o /tmp/vpx-conf-10093-20642.o /tmp/vpx-conf-10093-20640.c
+check_cflags -Wdisabled-optimization
+check_cc -Wdisabled-optimization
+BEGIN /tmp/vpx-conf-10093-20640.c
+    1	int x;
+END /tmp/vpx-conf-10093-20640.c
+/home/android/android-ndk-r8e/toolchains/x86-4.6/prebuilt/linux-x86_64/bin/i686-linux-android-gcc --sysroot=/home/android/android-ndk-r8e/platforms/android-14/arch-x86 -I/home/android/android-ndk-r8e/sources/android/cpufeatures/ -m32 -fomit-frame-pointer -O3 -fPIC -Wall -Wdeclaration-after-statement -Wdisabled-optimization -c -o /tmp/vpx-conf-10093-20642.o /tmp/vpx-conf-10093-20640.c
+check_cflags -Wpointer-arith
+check_cc -Wpointer-arith
+BEGIN /tmp/vpx-conf-10093-20640.c
+    1	int x;
+END /tmp/vpx-conf-10093-20640.c
+/home/android/android-ndk-r8e/toolchains/x86-4.6/prebuilt/linux-x86_64/bin/i686-linux-android-gcc --sysroot=/home/android/android-ndk-r8e/platforms/android-14/arch-x86 -I/home/android/android-ndk-r8e/sources/android/cpufeatures/ -m32 -fomit-frame-pointer -O3 -fPIC -Wall -Wdeclaration-after-statement -Wdisabled-optimization -Wpointer-arith -c -o /tmp/vpx-conf-10093-20642.o /tmp/vpx-conf-10093-20640.c
+check_cflags -Wtype-limits
+check_cc -Wtype-limits
+BEGIN /tmp/vpx-conf-10093-20640.c
+    1	int x;
+END /tmp/vpx-conf-10093-20640.c
+/home/android/android-ndk-r8e/toolchains/x86-4.6/prebuilt/linux-x86_64/bin/i686-linux-android-gcc --sysroot=/home/android/android-ndk-r8e/platforms/android-14/arch-x86 -I/home/android/android-ndk-r8e/sources/android/cpufeatures/ -m32 -fomit-frame-pointer -O3 -fPIC -Wall -Wdeclaration-after-statement -Wdisabled-optimization -Wpointer-arith -Wtype-limits -c -o /tmp/vpx-conf-10093-20642.o /tmp/vpx-conf-10093-20640.c
+check_cflags -Wcast-qual
+check_cc -Wcast-qual
+BEGIN /tmp/vpx-conf-10093-20640.c
+    1	int x;
+END /tmp/vpx-conf-10093-20640.c
+/home/android/android-ndk-r8e/toolchains/x86-4.6/prebuilt/linux-x86_64/bin/i686-linux-android-gcc --sysroot=/home/android/android-ndk-r8e/platforms/android-14/arch-x86 -I/home/android/android-ndk-r8e/sources/android/cpufeatures/ -m32 -fomit-frame-pointer -O3 -fPIC -Wall -Wdeclaration-after-statement -Wdisabled-optimization -Wpointer-arith -Wtype-limits -Wcast-qual -c -o /tmp/vpx-conf-10093-20642.o /tmp/vpx-conf-10093-20640.c
+check_cflags -Wimplicit-function-declaration
+check_cc -Wimplicit-function-declaration
+BEGIN /tmp/vpx-conf-10093-20640.c
+    1	int x;
+END /tmp/vpx-conf-10093-20640.c
+/home/android/android-ndk-r8e/toolchains/x86-4.6/prebuilt/linux-x86_64/bin/i686-linux-android-gcc --sysroot=/home/android/android-ndk-r8e/platforms/android-14/arch-x86 -I/home/android/android-ndk-r8e/sources/android/cpufeatures/ -m32 -fomit-frame-pointer -O3 -fPIC -Wall -Wdeclaration-after-statement -Wdisabled-optimization -Wpointer-arith -Wtype-limits -Wcast-qual -Wimplicit-function-declaration -c -o /tmp/vpx-conf-10093-20642.o /tmp/vpx-conf-10093-20640.c
+check_cflags -Wuninitialized
+check_cc -Wuninitialized
+BEGIN /tmp/vpx-conf-10093-20640.c
+    1	int x;
+END /tmp/vpx-conf-10093-20640.c
+/home/android/android-ndk-r8e/toolchains/x86-4.6/prebuilt/linux-x86_64/bin/i686-linux-android-gcc --sysroot=/home/android/android-ndk-r8e/platforms/android-14/arch-x86 -I/home/android/android-ndk-r8e/sources/android/cpufeatures/ -m32 -fomit-frame-pointer -O3 -fPIC -Wall -Wdeclaration-after-statement -Wdisabled-optimization -Wpointer-arith -Wtype-limits -Wcast-qual -Wimplicit-function-declaration -Wuninitialized -c -o /tmp/vpx-conf-10093-20642.o /tmp/vpx-conf-10093-20640.c
+check_cflags -Wunused-variable
+check_cc -Wunused-variable
+BEGIN /tmp/vpx-conf-10093-20640.c
+    1	int x;
+END /tmp/vpx-conf-10093-20640.c
+/home/android/android-ndk-r8e/toolchains/x86-4.6/prebuilt/linux-x86_64/bin/i686-linux-android-gcc --sysroot=/home/android/android-ndk-r8e/platforms/android-14/arch-x86 -I/home/android/android-ndk-r8e/sources/android/cpufeatures/ -m32 -fomit-frame-pointer -O3 -fPIC -Wall -Wdeclaration-after-statement -Wdisabled-optimization -Wpointer-arith -Wtype-limits -Wcast-qual -Wimplicit-function-declaration -Wuninitialized -Wunused-variable -c -o /tmp/vpx-conf-10093-20642.o /tmp/vpx-conf-10093-20640.c
+check_cflags -Wunused-but-set-variable
+check_cc -Wunused-but-set-variable
+BEGIN /tmp/vpx-conf-10093-20640.c
+    1	int x;
+END /tmp/vpx-conf-10093-20640.c
+/home/android/android-ndk-r8e/toolchains/x86-4.6/prebuilt/linux-x86_64/bin/i686-linux-android-gcc --sysroot=/home/android/android-ndk-r8e/platforms/android-14/arch-x86 -I/home/android/android-ndk-r8e/sources/android/cpufeatures/ -m32 -fomit-frame-pointer -O3 -fPIC -Wall -Wdeclaration-after-statement -Wdisabled-optimization -Wpointer-arith -Wtype-limits -Wcast-qual -Wimplicit-function-declaration -Wuninitialized -Wunused-variable -Wunused-but-set-variable -c -o /tmp/vpx-conf-10093-20642.o /tmp/vpx-conf-10093-20640.c
+check_cflags -Wno-unused-function
+check_cc -Wno-unused-function
+BEGIN /tmp/vpx-conf-10093-20640.c
+    1	int x;
+END /tmp/vpx-conf-10093-20640.c
+/home/android/android-ndk-r8e/toolchains/x86-4.6/prebuilt/linux-x86_64/bin/i686-linux-android-gcc --sysroot=/home/android/android-ndk-r8e/platforms/android-14/arch-x86 -I/home/android/android-ndk-r8e/sources/android/cpufeatures/ -m32 -fomit-frame-pointer -O3 -fPIC -Wall -Wdeclaration-after-statement -Wdisabled-optimization -Wpointer-arith -Wtype-limits -Wcast-qual -Wimplicit-function-declaration -Wuninitialized -Wunused-variable -Wunused-but-set-variable -Wno-unused-function -c -o /tmp/vpx-conf-10093-20642.o /tmp/vpx-conf-10093-20640.c
+  enabling postproc
+check_header stdio.h
+check_cpp
+BEGIN /tmp/vpx-conf-10093-20640.c
+    1	#include "stdio.h"
+    2	int x;
+END /tmp/vpx-conf-10093-20640.c
+/home/android/android-ndk-r8e/toolchains/x86-4.6/prebuilt/linux-x86_64/bin/i686-linux-android-gcc --sysroot=/home/android/android-ndk-r8e/platforms/android-14/arch-x86 -I/home/android/android-ndk-r8e/sources/android/cpufeatures/ -m32 -fomit-frame-pointer -O3 -fPIC -Wall -Wdeclaration-after-statement -Wdisabled-optimization -Wpointer-arith -Wtype-limits -Wcast-qual -Wimplicit-function-declaration -Wuninitialized -Wunused-variable -Wunused-but-set-variable -Wno-unused-function -E -o /tmp/vpx-conf-10093-20642.o /tmp/vpx-conf-10093-20640.c
+check_ld
+check_cc
+BEGIN /tmp/vpx-conf-10093-20640.c
+    1	int main(void) {return 0;}
+END /tmp/vpx-conf-10093-20640.c
+/home/android/android-ndk-r8e/toolchains/x86-4.6/prebuilt/linux-x86_64/bin/i686-linux-android-gcc --sysroot=/home/android/android-ndk-r8e/platforms/android-14/arch-x86 -I/home/android/android-ndk-r8e/sources/android/cpufeatures/ -m32 -fomit-frame-pointer -O3 -fPIC -Wall -Wdeclaration-after-statement -Wdisabled-optimization -Wpointer-arith -Wtype-limits -Wcast-qual -Wimplicit-function-declaration -Wuninitialized -Wunused-variable -Wunused-but-set-variable -Wno-unused-function -c -o /tmp/vpx-conf-10093-20642.o /tmp/vpx-conf-10093-20640.c
+/home/android/android-ndk-r8e/toolchains/x86-4.6/prebuilt/linux-x86_64/bin/i686-linux-android-gcc --sysroot=/home/android/android-ndk-r8e/platforms/android-14/arch-x86 -m32 -o /tmp/vpx-conf-10093-23058.x /tmp/vpx-conf-10093-20642.o
+check_header stdint.h
+check_cpp
+BEGIN /tmp/vpx-conf-10093-20640.c
+    1	#include "stdint.h"
+    2	int x;
+END /tmp/vpx-conf-10093-20640.c
+/home/android/android-ndk-r8e/toolchains/x86-4.6/prebuilt/linux-x86_64/bin/i686-linux-android-gcc --sysroot=/home/android/android-ndk-r8e/platforms/android-14/arch-x86 -I/home/android/android-ndk-r8e/sources/android/cpufeatures/ -m32 -fomit-frame-pointer -O3 -fPIC -Wall -Wdeclaration-after-statement -Wdisabled-optimization -Wpointer-arith -Wtype-limits -Wcast-qual -Wimplicit-function-declaration -Wuninitialized -Wunused-variable -Wunused-but-set-variable -Wno-unused-function -E -o /tmp/vpx-conf-10093-20642.o /tmp/vpx-conf-10093-20640.c
+check_header pthread.h
+check_cpp
+BEGIN /tmp/vpx-conf-10093-20640.c
+    1	#include "pthread.h"
+    2	int x;
+END /tmp/vpx-conf-10093-20640.c
+/home/android/android-ndk-r8e/toolchains/x86-4.6/prebuilt/linux-x86_64/bin/i686-linux-android-gcc --sysroot=/home/android/android-ndk-r8e/platforms/android-14/arch-x86 -I/home/android/android-ndk-r8e/sources/android/cpufeatures/ -m32 -fomit-frame-pointer -O3 -fPIC -Wall -Wdeclaration-after-statement -Wdisabled-optimization -Wpointer-arith -Wtype-limits -Wcast-qual -Wimplicit-function-declaration -Wuninitialized -Wunused-variable -Wunused-but-set-variable -Wno-unused-function -E -o /tmp/vpx-conf-10093-20642.o /tmp/vpx-conf-10093-20640.c
+check_header sys/mman.h
+check_cpp
+BEGIN /tmp/vpx-conf-10093-20640.c
+    1	#include "sys/mman.h"
+    2	int x;
+END /tmp/vpx-conf-10093-20640.c
+/home/android/android-ndk-r8e/toolchains/x86-4.6/prebuilt/linux-x86_64/bin/i686-linux-android-gcc --sysroot=/home/android/android-ndk-r8e/platforms/android-14/arch-x86 -I/home/android/android-ndk-r8e/sources/android/cpufeatures/ -m32 -fomit-frame-pointer -O3 -fPIC -Wall -Wdeclaration-after-statement -Wdisabled-optimization -Wpointer-arith -Wtype-limits -Wcast-qual -Wimplicit-function-declaration -Wuninitialized -Wunused-variable -Wunused-but-set-variable -Wno-unused-function -E -o /tmp/vpx-conf-10093-20642.o /tmp/vpx-conf-10093-20640.c
+check_header vpx/vpx_integer.h -I../../sources
+check_cpp -I../../sources
+BEGIN /tmp/vpx-conf-10093-20640.c
+    1	#include "vpx/vpx_integer.h"
+    2	int x;
+END /tmp/vpx-conf-10093-20640.c
+/home/android/android-ndk-r8e/toolchains/x86-4.6/prebuilt/linux-x86_64/bin/i686-linux-android-gcc --sysroot=/home/android/android-ndk-r8e/platforms/android-14/arch-x86 -I/home/android/android-ndk-r8e/sources/android/cpufeatures/ -m32 -fomit-frame-pointer -O3 -fPIC -Wall -Wdeclaration-after-statement -Wdisabled-optimization -Wpointer-arith -Wtype-limits -Wcast-qual -Wimplicit-function-declaration -Wuninitialized -Wunused-variable -Wunused-but-set-variable -Wno-unused-function -I../../sources -E -o /tmp/vpx-conf-10093-20642.o /tmp/vpx-conf-10093-20640.c
