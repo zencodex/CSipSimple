@@ -1,0 +1,4 @@
+*.so
+libs/
+build/
+CSipSimple/obj/
