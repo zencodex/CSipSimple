@@ -109,7 +109,10 @@ FLAGS="$FLAGS --prefix=$DEST"
 EXTRA_CXXFLAGS="-Wno-multichar -fno-exceptions -fno-rtti"
 
 # X264 libs and includes
-EXTRA_CFLAGS="$EXTRA_CFLAGS -DANDROID -D__thumb__ -mthumb -I$X264_INCLUDES"
+EXTRA_CFLAGS="$EXTRA_CFLAGS -DANDROID -D__thumb__ -I$X264_INCLUDES"
+if [ "$TARGET_ARCH_ABI" == "armeabi-v7a" ] || [ "$TARGET_ARCH_ABI" == "armeabi" ] ; then
+     EXTRA_CFLAGS="$EXTRA_CFLAGS -mthumb"
+ fi
 EXTRA_LDFLAGS="$EXTRA_LDFLAGS -L$X264_LIBS -Wl,-rpath-link,$X264_LIBS"
 
 # Stagefright
