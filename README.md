@@ -5,7 +5,7 @@ CSipSimple 是个款通用的支持SIP协议的互联网电话软件，可以在
 ## 带编译环境虚拟机
 
 配置好编译环境的virtualbox虚拟机：  
-链接：http://pan.baidu.com/s/1ntsqwPz 密码：4fhs
+链接：https://pan.baidu.com/s/1PKGCuWT_XHPO7JR5ya_riQ
 
 虚拟机中代码路径：  
 /home/build/code.Proj
